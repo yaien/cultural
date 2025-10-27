@@ -42,7 +42,7 @@ func Layout(title string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, " - Cultural App</title><style>\n\t\t\t\tbody {\n\t\t\t\t\tfont-family: Arial, sans-serif;\n\t\t\t\t\tmargin: 0;\n\t\t\t\t\tpadding: 20px;\n\t\t\t\t\tbackground-color: #f5f5f5;\n\t\t\t\t}\n\t\t\t\t.container {\n\t\t\t\t\tmax-width: 800px;\n\t\t\t\t\tmargin: 0 auto;\n\t\t\t\t\tbackground-color: white;\n\t\t\t\t\tpadding: 20px;\n\t\t\t\t\tborder-radius: 8px;\n\t\t\t\t\tbox-shadow: 0 2px 4px rgba(0,0,0,0.1);\n\t\t\t\t}\n\t\t\t\th1 {\n\t\t\t\t\tcolor: #333;\n\t\t\t\t\tborder-bottom: 2px solid #007bff;\n\t\t\t\t\tpadding-bottom: 10px;\n\t\t\t\t}\n\t\t\t\t.nav {\n\t\t\t\t\tmargin-bottom: 20px;\n\t\t\t\t}\n\t\t\t\t.nav a {\n\t\t\t\t\tmargin-right: 15px;\n\t\t\t\t\ttext-decoration: none;\n\t\t\t\t\tcolor: #007bff;\n\t\t\t\t}\n\t\t\t\t.nav a:hover {\n\t\t\t\t\ttext-decoration: underline;\n\t\t\t\t}\n\t\t\t</style></head><body><div class=\"container\"><nav class=\"nav\"><a href=\"/\">Home</a> <a href=\"/about\">About</a></nav>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, " - Cultural App</title><link rel=\"stylesheet\" href=\"/static/landing/base.css\"></head><body><div class=\"container\"><nav class=\"nav\"><a href=\"/\">Home</a> <a href=\"/about\">About</a></nav>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
