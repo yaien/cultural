@@ -2,12 +2,14 @@ module github.com/yaien/cultural
 
 go 1.25.2
 
-require github.com/spf13/viper v1.21.0
+require (
+	github.com/a-h/templ v0.3.960
+	github.com/spf13/viper v1.21.0
+)
 
 require (
 	dario.cat/mergo v1.0.2 // indirect
 	github.com/a-h/parse v0.0.0-20250122154542-74294addb73e // indirect
-	github.com/a-h/templ v0.3.960 // indirect
 	github.com/air-verse/air v1.63.0 // indirect
 	github.com/andybalholm/brotli v1.1.0 // indirect
 	github.com/bep/godartsass/v2 v2.5.0 // indirect
