@@ -3,27 +3,30 @@ package infrastructure
 import (
 	"context"
 	"log"
+	"net/http"
 	"time"
 
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-type App struct {
+type Monolith struct {
 	Config      *Config
 	MongoDB     *mongo.Database
 	MongoClient *mongo.Client
+	Router      *http.ServeMux
 }
 
-func NewApp() *App {
+func NewMonolith() *Monolith {
 	config := NewConfig()
 
 	// Create MongoDB client
 	database := setupMongoDB(config.MongoDB)
 
-	return &App{
+	return &Monolith{
 		Config:  config,
 		MongoDB: database,
+		Router:  http.DefaultServeMux,
 	}
 }
 
