@@ -3,6 +3,8 @@ package controllers
 import (
 	"net/http"
 
+	"github.com/yaien/cultural/internal/modules/configs/interface/web/middlewares"
+	"github.com/yaien/cultural/internal/modules/configs/models"
 	"github.com/yaien/cultural/internal/modules/landing/interface/web/views"
 )
 
@@ -12,20 +14,24 @@ func NewIndexController() *IndexController {
 	return &IndexController{}
 }
 
-func (c *IndexController) Index(w http.ResponseWriter, r *http.Request) {
-	// Set content type to HTML
-	w.Header().Set("Content-Type", "text/html")
+func (c *IndexController) Site(w http.ResponseWriter, r *http.Request) {
 
-	// Render the index template
-	component := views.Index()
-	_ = component.Render(r.Context(), w)
+	config := r.Context().Value(middlewares.ConfigContextKey).(*models.Config)
+
+	path := r.PathValue("site")
+
+	site, ok := config.Sites[path]
+	if !ok {
+		http.NotFound(w, r)
+		return
+	}
+
+	w.Header().Set("Content-Type", "text/html")
+	_ = views.Site(site).Render(r.Context(), w)
 }
 
-func (c *IndexController) About(w http.ResponseWriter, r *http.Request) {
-	// Set content type to HTML
+func (c *IndexController) Index(w http.ResponseWriter, r *http.Request) {
+	config := r.Context().Value(middlewares.ConfigContextKey).(*models.Config)
 	w.Header().Set("Content-Type", "text/html")
-
-	// Render the about template
-	component := views.About()
-	_ = component.Render(r.Context(), w)
+	_ = views.Site(config.Index).Render(r.Context(), w)
 }

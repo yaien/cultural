@@ -7,6 +7,7 @@ import (
 
 	"github.com/spf13/viper"
 	"github.com/yaien/cultural/internal/infrastructure/migrations"
+	"github.com/yaien/cultural/internal/modules/configs/models"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -44,13 +45,21 @@ func init() {
 				"organizationId": res.InsertedID,
 				"createdAt":      time.Now(),
 				"updatedAt":      time.Now(),
+				"index":          models.DefaultSite,
+				"fonts":          models.DefaultFonts,
+				"sites":          map[string]*models.Site{},
 			})
 
 			return err
 
 		},
 		Down: func(ctx context.Context, db *mongo.Database) error {
-			return nil
+			err := db.Collection("configs").Drop(ctx)
+			if err != nil {
+				return err
+			}
+
+			return db.Collection("organizations").Drop(ctx)
 		},
 	})
 }

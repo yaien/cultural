@@ -1,0 +1,47 @@
+package views
+
+import (
+	"github.com/yaien/cultural/internal/modules/configs/interface/web/middlewares"
+	"github.com/yaien/cultural/internal/modules/configs/models"
+	"strings"
+)
+
+templ Fonts(fonts *models.Fonts) {
+	switch fonts.Type {
+		case "google":
+			{{ url := "https://fonts.googleapis.com/css2?" }}
+			for _, font := range fonts.Families {
+				{{ font = strings.ReplaceAll(font, " ", "+") }}
+				{{ url += "family=" + font + "&" }}
+			}
+			<link rel="preconnect" href="https://fonts.googleapis.com"/>
+			<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+			<link rel="stylesheet" href={ strings.TrimSuffix(url, "&") }/>
+	}
+}
+
+templ Site(site *models.Site) {
+	{{ config := middlewares.GetConfig(ctx) }}
+	<!DOCTYPE html>
+	<html lang="en">
+		<head>
+			<meta charset="UTF-8"/>
+			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+			<title>{ config.Title }</title>
+			@Fonts(config.Fonts)
+			<link rel="stylesheet" href="/static/landing/base.css"/>
+		</head>
+		@Render(site.Body)
+	</html>
+}
+
+templ Render(nodes ...*models.Node) {
+	for _, node := range nodes {
+		{{ component, ok := Components[node.Type] }}
+		if ok {
+			@component(node) {
+				@Render(node.Children...)
+			}
+		}
+	}
+}

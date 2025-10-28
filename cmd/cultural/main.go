@@ -13,6 +13,7 @@ func main() {
 	root := cmd()
 	root.AddCommand(serve())
 	root.AddCommand(migrate())
+	root.AddCommand(revert())
 
 	if err := root.Execute(); err != nil {
 		log.Fatal(err)
@@ -59,6 +60,23 @@ func migrate() *cobra.Command {
 				log.Fatal("Failed to run migrations:", err)
 			}
 			log.Println("Migrations applied successfully")
+		},
+	}
+
+	return cmd
+}
+
+func revert() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:  "revert [migration name]",
+		Args: cobra.ExactArgs(1),
+		Run: func(cmd *cobra.Command, args []string) {
+			mono := infrastructure.NewMonolith()
+			err := migrations.Revert(cmd.Context(), args[0], mono.MongoDB)
+			if err != nil {
+				log.Fatal("Failed to revert migrations:", err)
+			}
+			log.Println("Migrations reverted successfully")
 		},
 	}
 

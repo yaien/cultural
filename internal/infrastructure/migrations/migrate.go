@@ -72,3 +72,39 @@ func Migrate(ctx context.Context, db *mongo.Database) error {
 	return nil
 
 }
+
+func Revert(ctx context.Context, name string, db *mongo.Database) error {
+	collection := db.Collection("migrations")
+	var entry MigrationEntry
+
+	err := collection.FindOne(ctx, bson.M{"name": name}).Decode(&entry)
+	if err != nil {
+		return fmt.Errorf("failed finding migration %s: %w", name, err)
+	}
+
+	var migration *Migration
+	for _, m := range migrations {
+		if m.Name == name {
+			migration = &m
+			break
+		}
+	}
+
+	if migration == nil {
+		return fmt.Errorf("migration %s not found", name)
+	}
+
+	err = migration.Down(ctx, db)
+	if err != nil {
+		return fmt.Errorf("failed downgrading migration %s: %w", name, err)
+	}
+
+	slog.Info("downgraded migration", "name", name)
+
+	_, err = collection.DeleteOne(ctx, bson.M{"name": name})
+	if err != nil {
+		return fmt.Errorf("failed removing migration record %s: %w", name, err)
+	}
+
+	return nil
+}

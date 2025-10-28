@@ -12,7 +12,6 @@ func Register(mono *infrastructure.Monolith) {
 	ctrl := controllers.NewIndexController()
 
 	mono.WebRouter.Handle("GET /static/landing/", http.StripPrefix("/static/landing/", http.FileServer(http.FS(assets.FS))))
-	mono.WebRouter.HandleFunc("GET /", http.HandlerFunc(ctrl.Index))
-	mono.WebRouter.HandleFunc("GET /about", ctrl.About)
-
+	mono.WebRouter.HandleFunc("GET /{site}", ctrl.Site)
+	mono.WebRouter.HandleFunc("GET /", ctrl.Index)
 }
