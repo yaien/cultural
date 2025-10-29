@@ -1,5 +1,41 @@
-body,
-html {
+body {
     margin: 0;
     padding: 0;
+    background-color: var(--color-background);
+    color: var(--color-text);
+    font-family: var(--font-primary);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-family: var(--font-headings);
+}
+
+nav {
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    position: absolute;
+    width: 100%;
+}
+
+nav a {
+    font-size: 1.5rem;
+    text-decoration: none;
+    font-family: var(--font-text);
+    color: var(--color-text);
+    font-weight: 600;
+}
+
+main {
+    padding: 100px 10rem 0rem 10rem;
+}
+
+p {
+    text-align: justify;
 }

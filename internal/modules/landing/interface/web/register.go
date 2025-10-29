@@ -9,9 +9,10 @@ import (
 )
 
 func Register(mono *infrastructure.Monolith) {
-	ctrl := controllers.NewIndexController()
+	ctrl := controllers.NewPageController()
 
-	mono.WebRouter.Handle("GET /static/landing/", http.StripPrefix("/static/landing/", http.FileServer(http.FS(assets.FS))))
-	mono.WebRouter.HandleFunc("GET /{site}", ctrl.Site)
-	mono.WebRouter.HandleFunc("GET /", ctrl.Index)
+	mono.WebRouter.Handle("GET /assets/static/landing/", http.StripPrefix("/assets/static/landing/", http.FileServer(http.FS(assets.FS))))
+	mono.WebRouter.HandleFunc("GET /assets/landing/styles.css", ctrl.Styles)
+	mono.WebRouter.HandleFunc("GET /{page}", ctrl.Page)
+	mono.WebRouter.HandleFunc("GET /", ctrl.Page)
 }

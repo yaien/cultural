@@ -17,10 +17,10 @@ func init() {
 		Name: "202510262019_initial_config",
 		Up: func(ctx context.Context, db *mongo.Database) error {
 			organizations := db.Collection("organizations")
-			res, err := organizations.InsertOne(ctx, bson.M{
-				"name":      "Cultural App",
-				"createdAt": time.Now(),
-				"updatedAt": time.Now(),
+			res, err := organizations.InsertOne(ctx, models.Organization{
+				Name:      "Cultural",
+				CreatedAt: time.Now(),
+				UpdatedAt: time.Now(),
 			})
 
 			if err != nil {
@@ -37,18 +37,18 @@ func init() {
 				return fmt.Errorf("failed creating indexes: %w", err)
 			}
 
-			_, err = configs.InsertOne(ctx, bson.M{
-				"host":           viper.GetString("INIT_CONFIG_HOST"),
-				"title":          viper.GetString("INIT_CONFIG_TITLE"),
-				"url":            viper.GetString("INIT_CONFIG_URL"),
-				"theme":          viper.GetString("INIT_CONFIG_THEME"),
-				"organizationId": res.InsertedID,
-				"createdAt":      time.Now(),
-				"updatedAt":      time.Now(),
-				"index":          models.DefaultSite,
-				"fonts":          models.DefaultFonts,
-				"sites":          map[string]*models.Site{},
-			})
+			_, err = configs.InsertOne(ctx,
+				models.Config{
+					Host:           viper.GetString("INIT_CONFIG_HOST"),
+					Title:          viper.GetString("INIT_CONFIG_TITLE"),
+					Url:            viper.GetString("INIT_CONFIG_URL"),
+					OrganizationID: res.InsertedID,
+					CreatedAt:      time.Now(),
+					UpdatedAt:      time.Now(),
+					Fonts:          models.DefaultFonts,
+					Colors:         models.DefaultColors,
+					Pages:          map[string]*models.Page{"index": models.DefaultSite},
+				})
 
 			return err
 

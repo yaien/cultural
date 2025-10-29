@@ -1,0 +1,63 @@
+package controllers
+
+import (
+	"net/http"
+	"text/template"
+
+	"github.com/yaien/cultural/internal/modules/configs/interface/web/middlewares"
+	"github.com/yaien/cultural/internal/modules/configs/models"
+	"github.com/yaien/cultural/internal/modules/landing/interface/web/views"
+)
+
+type PageController struct{}
+
+func NewPageController() *PageController {
+	return &PageController{}
+}
+
+func (c *PageController) Page(w http.ResponseWriter, r *http.Request) {
+
+	config := r.Context().Value(middlewares.ConfigContextKey).(*models.Config)
+
+	path := r.PathValue("page")
+
+	if path == "index" {
+		http.NotFound(w, r)
+		return
+	}
+
+	if path == "" {
+		path = "index"
+	}
+
+	page, ok := config.Pages[path]
+	if !ok {
+		http.NotFound(w, r)
+		return
+	}
+
+	w.Header().Set("Content-Type", "text/html")
+	_ = views.Page(page).Render(r.Context(), w)
+}
+
+var styles = template.Must(template.New("styles").Parse(`
+	:root {
+	{{range $key, $value := .Fonts.Families}}
+		--font-{{ $key }}: '{{ $value }}', sans-serif;
+	{{ end }}		
+	{{range $key, $value := .Colors}}
+		--color-{{ $key }}: {{ $value }};
+	{{ end }}
+	}
+`))
+
+func (c *PageController) Styles(w http.ResponseWriter, r *http.Request) {
+	config := r.Context().Value(middlewares.ConfigContextKey).(*models.Config)
+
+	w.Header().Set("Content-Type", "text/css")
+	err := styles.Execute(w, config)
+	if err != nil {
+		http.Error(w, "Failed to generate styles", http.StatusInternalServerError)
+		return
+	}
+}

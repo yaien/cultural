@@ -20,7 +20,7 @@ templ Fonts(fonts *models.Fonts) {
 	}
 }
 
-templ Site(site *models.Site) {
+templ Page(page *models.Page) {
 	{{ config := middlewares.GetConfig(ctx) }}
 	<!DOCTYPE html>
 	<html lang="en">
@@ -29,9 +29,12 @@ templ Site(site *models.Site) {
 			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 			<title>{ config.Title }</title>
 			@Fonts(config.Fonts)
-			<link rel="stylesheet" href="/static/landing/base.css"/>
+			<link rel="stylesheet" href="/assets/static/landing/base.css"/>
+			<link rel="stylesheet" href="/assets/landing/styles.css"/>
 		</head>
-		@Render(site.Body)
+		<body>
+			@Render(page.Body...)
+		</body>
 	</html>
 }
 

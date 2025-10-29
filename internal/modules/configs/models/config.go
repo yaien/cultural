@@ -6,17 +6,16 @@ import (
 )
 
 type Config struct {
-	ID             string           `bson:"_id,omitempty" json:"id"`
-	Host           string           `bson:"host" json:"host"`
-	Title          string           `bson:"title" json:"title"`
-	Url            string           `bson:"url" json:"url"`
-	Theme          string           `bson:"theme" json:"theme"`
-	CreatedAt      time.Time        `bson:"createdAt" json:"createdAt"`
-	UpdatedAt      time.Time        `bson:"updatedAt" json:"updatedAt"`
-	OrganizationID string           `bson:"organizationId" json:"organizationId"`
-	Sites          map[string]*Site `bson:"sites" json:"sites"`
-	Index          *Site            `bson:"index" json:"index"`
-	Fonts          *Fonts           `bson:"fonts" json:"fonts"`
+	ID             any               `bson:"_id,omitempty" json:"id"`
+	Host           string            `bson:"host" json:"host"`
+	Title          string            `bson:"title" json:"title"`
+	Url            string            `bson:"url" json:"url"`
+	CreatedAt      time.Time         `bson:"createdAt" json:"createdAt"`
+	UpdatedAt      time.Time         `bson:"updatedAt" json:"updatedAt"`
+	OrganizationID any               `bson:"organizationId" json:"organizationId"`
+	Pages          map[string]*Page  `bson:"pages" json:"pages"`
+	Fonts          *Fonts            `bson:"fonts" json:"fonts"`
+	Colors         map[string]string `bson:"colors" json:"colors"`
 }
 
 type ConfigRepostory interface {

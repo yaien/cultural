@@ -1,12 +1,8 @@
 package views
 
-import (
-	"github.com/yaien/cultural/internal/modules/configs/interface/web/middlewares"
-	"github.com/yaien/cultural/internal/modules/configs/models"
-)
+import "github.com/yaien/cultural/internal/modules/configs/models"
 
 var Components = map[string]func(node *models.Node) templ.Component{
-	"body":         Body,
 	"header":       Header,
 	"nav":          Nav,
 	"footer":       Footer,
@@ -35,14 +31,6 @@ var Components = map[string]func(node *models.Node) templ.Component{
 	"carousel":     Carousel,
 	"br":           Br,
 	"raw":          Raw,
-}
-
-templ Body(node *models.Node) {
-	{{ config := middlewares.GetConfig(ctx) }}
-	<body { node.Attrs... } style={ node.Style } class={ config.Theme }>
-		{ node.Content }
-		{ children... }
-	</body>
 }
 
 templ Header(node *models.Node) {
