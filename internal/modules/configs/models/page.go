@@ -91,7 +91,8 @@ var DefaultSite = &Page{
 								`,
 						},
 						{
-							Type: "carousel",
+							Type:  "carousel",
+							Style: map[string]string{"margin": "1rem auto"},
 							Children: []*Node{
 								{Type: "div", Content: "random pic 1"},
 								{Type: "div", Content: "random pic 2"},

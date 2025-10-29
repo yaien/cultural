@@ -1,6 +1,9 @@
 package views
 
-import "github.com/yaien/cultural/internal/modules/configs/models"
+import (
+	"fmt"
+	"github.com/yaien/cultural/internal/modules/configs/models"
+)
 
 var Components = map[string]func(node *models.Node) templ.Component{
 	"header":       Header,
@@ -199,9 +202,27 @@ templ H6(node *models.Node) {
 }
 
 templ Carousel(node *models.Node) {
-	<div class="carousel" { node.Attrs... } style={ node.Style }>
-		{ node.Content }
-		{ children... }
+	<div { node.Attrs... } class="carousel" role="carousel" style={ node.Style } x-data={ fmt.Sprintf("{ active: 0, count: %d }", len(node.Children)) }>
+		<button @click="active = active == 0 ? count - 1 : active - 1">
+			&#10216;
+		</button>
+		<ul>
+			for index, child := range node.Children {
+				<li x-show={ fmt.Sprintf("active == %d", index) } x-transition>
+					switch child.Type {
+						case "img":
+							@Image(child)
+						default:
+							<div>
+								{ child.Content }
+							</div>
+					}
+				</li>
+			}
+		</ul>
+		<button @click="active = active == count - 1 ? 0 : active + 1">
+			&#10217;
+		</button>
 	</div>
 }
 
