@@ -10,9 +10,10 @@ import (
 )
 
 type Config struct {
-	Debug   bool
-	MongoDB MongoDBConfig
-	Server  ServerConfig
+	Debug         bool
+	MongoDB       MongoDBConfig
+	Server        ServerConfig
+	SessionConfig SessionConfig
 }
 
 type MongoDBConfig struct {
@@ -25,12 +26,21 @@ type ServerConfig struct {
 	URL  string
 }
 
+type SessionConfig struct {
+	Key    string
+	Secure bool
+}
+
 func NewConfig() *Config {
 	return &Config{
 		Debug: viper.GetBool("DEBUG"),
 		Server: ServerConfig{
 			Addr: viper.GetString("SERVER_ADDR"),
 			URL:  viper.GetString("SERVER_URL"),
+		},
+		SessionConfig: SessionConfig{
+			Key:    viper.GetString("SESSION_KEY"),
+			Secure: viper.GetBool("SESSION_SECURE"),
 		},
 		MongoDB: MongoDBConfig{
 			URI:      viper.GetString("MONGODB_URI"),

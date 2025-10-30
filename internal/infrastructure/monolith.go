@@ -7,30 +7,39 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/gorilla/sessions"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type Monolith struct {
-	Config      *Config
-	MongoDB     *mongo.Database
-	MongoClient *mongo.Client
-	Router      *http.ServeMux
-	WebRouter   *http.ServeMux
+	Config       *Config
+	MongoDB      *mongo.Database
+	MongoClient  *mongo.Client
+	Router       *http.ServeMux
+	WebRouter    *http.ServeMux
+	SessionStore sessions.Store
 }
 
 func NewMonolith() *Monolith {
 	config := NewConfig()
 
-	// Create MongoDB client
-	database := setupMongoDB(config)
-
 	return &Monolith{
-		Config:    config,
-		MongoDB:   database,
-		Router:    http.DefaultServeMux,
-		WebRouter: http.NewServeMux(),
+		Config:       config,
+		MongoDB:      setupMongoDB(config),
+		SessionStore: setupSessionStore(config),
+		Router:       http.NewServeMux(),
+		WebRouter:    http.NewServeMux(),
 	}
+}
+
+func setupSessionStore(config *Config) sessions.Store {
+	store := sessions.NewCookieStore([]byte(config.SessionConfig.Key))
+	store.Options.Secure = config.SessionConfig.Secure
+	store.Options.HttpOnly = true
+	store.Options.SameSite = http.SameSiteStrictMode
+	store.Options.MaxAge = int((7 * 24 * time.Hour).Seconds()) // 7 days
+	return store
 }
 
 func setupMongoDB(config *Config) *mongo.Database {
