@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/spf13/viper"
+	"github.com/yaien/cultural/internal/infrastructure"
 	"github.com/yaien/cultural/internal/infrastructure/migrations"
 	"github.com/yaien/cultural/internal/modules/configs/models"
 	"go.mongodb.org/mongo-driver/bson"
@@ -37,11 +37,13 @@ func init() {
 				return fmt.Errorf("failed creating indexes: %w", err)
 			}
 
+			cfg := infrastructure.LoadConfig()
+
 			_, err = configs.InsertOne(ctx,
 				models.Config{
-					Host:           viper.GetString("INIT_CONFIG_HOST"),
-					Title:          viper.GetString("INIT_CONFIG_TITLE"),
-					Url:            viper.GetString("INIT_CONFIG_URL"),
+					Host:           cfg.Init.Host,
+					Title:          cfg.Init.Title,
+					Url:            cfg.Init.Url,
 					OrganizationID: res.InsertedID,
 					CreatedAt:      time.Now(),
 					UpdatedAt:      time.Now(),

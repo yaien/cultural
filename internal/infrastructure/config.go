@@ -13,7 +13,9 @@ type Config struct {
 	Debug         bool
 	MongoDB       MongoDBConfig
 	Server        ServerConfig
+	Init          InitConfig
 	SessionConfig SessionConfig
+	SMTPConfig    SMTPConfig
 }
 
 type MongoDBConfig struct {
@@ -31,12 +33,30 @@ type SessionConfig struct {
 	Secure bool
 }
 
-func NewConfig() *Config {
+type SMTPConfig struct {
+	Host string
+	Port int
+	User string
+	Pass string
+}
+
+type InitConfig struct {
+	Host  string
+	Url   string
+	Title string
+}
+
+func LoadConfig() *Config {
 	return &Config{
 		Debug: viper.GetBool("DEBUG"),
 		Server: ServerConfig{
 			Addr: viper.GetString("SERVER_ADDR"),
 			URL:  viper.GetString("SERVER_URL"),
+		},
+		Init: InitConfig{
+			Host:  viper.GetString("INIT_HOST"),
+			Url:   viper.GetString("INIT_URL"),
+			Title: viper.GetString("INIT_TITLE"),
 		},
 		SessionConfig: SessionConfig{
 			Key:    viper.GetString("SESSION_KEY"),
@@ -45,6 +65,12 @@ func NewConfig() *Config {
 		MongoDB: MongoDBConfig{
 			URI:      viper.GetString("MONGODB_URI"),
 			Database: viper.GetString("MONGODB_DATABASE"),
+		},
+		SMTPConfig: SMTPConfig{
+			Host: viper.GetString("SMTP_HOST"),
+			Port: viper.GetInt("SMTP_PORT"),
+			User: viper.GetString("SMTP_USER"),
+			Pass: viper.GetString("SMTP_PASS"),
 		},
 	}
 }

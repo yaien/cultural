@@ -10,6 +10,7 @@ import (
 	"github.com/gorilla/sessions"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"gopkg.in/gomail.v2"
 )
 
 type Monolith struct {
@@ -19,18 +20,30 @@ type Monolith struct {
 	Router       *http.ServeMux
 	WebRouter    *http.ServeMux
 	SessionStore sessions.Store
+	Mail         *gomail.Dialer
 }
 
 func NewMonolith() *Monolith {
-	config := NewConfig()
+	config := LoadConfig()
 
 	return &Monolith{
 		Config:       config,
 		MongoDB:      setupMongoDB(config),
 		SessionStore: setupSessionStore(config),
+		Mail:         setupMailDialer(config),
 		Router:       http.NewServeMux(),
 		WebRouter:    http.NewServeMux(),
 	}
+}
+
+func setupMailDialer(config *Config) *gomail.Dialer {
+	dialer := gomail.NewDialer(
+		config.SMTPConfig.Host,
+		config.SMTPConfig.Port,
+		config.SMTPConfig.User,
+		config.SMTPConfig.Pass,
+	)
+	return dialer
 }
 
 func setupSessionStore(config *Config) sessions.Store {

@@ -17,8 +17,7 @@ func Register(mono *Monolith, mod Module) error {
 	return mod.Init(mono)
 }
 
-func Resolve[T Module](mono *Monolith) (T, error) {
-	var t T
+func Resolve[T Module](mono *Monolith, t T) (T, error) {
 	name := reflect.TypeOf(t).Elem().PkgPath()
 	mod, ok := modules[name]
 	if !ok {

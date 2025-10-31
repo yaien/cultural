@@ -5,7 +5,6 @@ import (
 	"reflect"
 
 	"github.com/yaien/cultural/internal/infrastructure"
-	"github.com/yaien/cultural/internal/modules/auth"
 	"github.com/yaien/cultural/internal/modules/configs"
 	"github.com/yaien/cultural/internal/modules/landing"
 )
@@ -13,7 +12,6 @@ import (
 var modules = []infrastructure.Module{
 	&configs.Module{},
 	&landing.Module{},
-	&auth.Module{},
 }
 
 func register(mono *infrastructure.Monolith) error {
