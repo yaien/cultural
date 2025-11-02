@@ -8,6 +8,9 @@ import (
 	"time"
 
 	"github.com/gorilla/sessions"
+	"github.com/markbates/goth"
+	"github.com/markbates/goth/gothic"
+	"github.com/markbates/goth/providers/google"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"gopkg.in/gomail.v2"
@@ -26,6 +29,8 @@ type Monolith struct {
 func NewMonolith() *Monolith {
 	config := LoadConfig()
 
+	setupOauthProviders(config)
+
 	return &Monolith{
 		Config:       config,
 		MongoDB:      setupMongoDB(config),
@@ -34,6 +39,13 @@ func NewMonolith() *Monolith {
 		Router:       http.NewServeMux(),
 		WebRouter:    http.NewServeMux(),
 	}
+}
+
+func setupOauthProviders(config *Config) {
+	gothic.Store = sessions.NewCookieStore([]byte(config.SessionConfig.Secret))
+	goth.UseProviders(
+		google.New(config.GoogleOAuth.ClientID, config.GoogleOAuth.ClientSecret, config.Server.URL+"/auth/google/callback", "email", "profile"),
+	)
 }
 
 func setupMailDialer(config *Config) *gomail.Dialer {
@@ -47,10 +59,10 @@ func setupMailDialer(config *Config) *gomail.Dialer {
 }
 
 func setupSessionStore(config *Config) sessions.Store {
-	store := sessions.NewCookieStore([]byte(config.SessionConfig.Key))
+	store := sessions.NewCookieStore([]byte(config.SessionConfig.Secret))
 	store.Options.Secure = config.SessionConfig.Secure
 	store.Options.HttpOnly = true
-	store.Options.SameSite = http.SameSiteStrictMode
+	store.Options.SameSite = http.SameSiteLaxMode
 	store.Options.MaxAge = int((7 * 24 * time.Hour).Seconds()) // 7 days
 	return store
 }

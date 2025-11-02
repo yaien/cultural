@@ -16,6 +16,7 @@ type Config struct {
 	Init          InitConfig
 	SessionConfig SessionConfig
 	SMTPConfig    SMTPConfig
+	GoogleOAuth   GoogleOAuthConfig
 }
 
 type MongoDBConfig struct {
@@ -29,7 +30,7 @@ type ServerConfig struct {
 }
 
 type SessionConfig struct {
-	Key    string
+	Secret string
 	Secure bool
 }
 
@@ -38,6 +39,11 @@ type SMTPConfig struct {
 	Port int
 	User string
 	Pass string
+}
+
+type GoogleOAuthConfig struct {
+	ClientID     string
+	ClientSecret string
 }
 
 type InitConfig struct {
@@ -61,7 +67,7 @@ func LoadConfig() *Config {
 			Email: viper.GetString("INIT_EMAIL"),
 		},
 		SessionConfig: SessionConfig{
-			Key:    viper.GetString("SESSION_KEY"),
+			Secret: viper.GetString("SESSION_SECRET"),
 			Secure: viper.GetBool("SESSION_SECURE"),
 		},
 		MongoDB: MongoDBConfig{
@@ -73,6 +79,10 @@ func LoadConfig() *Config {
 			Port: viper.GetInt("SMTP_PORT"),
 			User: viper.GetString("SMTP_USER"),
 			Pass: viper.GetString("SMTP_PASS"),
+		},
+		GoogleOAuth: GoogleOAuthConfig{
+			ClientID:     viper.GetString("GOOGLE_CLIENT_ID"),
+			ClientSecret: viper.GetString("GOOGLE_CLIENT_SECRET"),
 		},
 	}
 }

@@ -10,8 +10,11 @@ import (
 
 type Application struct {
 	*queries.GetConfigByHostQuery
+	*queries.GetUserByIDQuery
+	*queries.GetRoleQuery
 
 	*commands.CreateInvitationCommand
+	*commands.SyncUserCommand
 }
 
 type Deps struct {
@@ -20,13 +23,18 @@ type Deps struct {
 	Organizations models.OrganizationRepository
 	Roles         models.RoleRepository
 	Groups        models.GroupRepository
+	Users         models.UserRepository
 	Cache         *cache.Cache[*models.Config]
 	Mail          *gomail.Dialer
 }
 
 func New(deps Deps) *Application {
 	return &Application{
-		GetConfigByHostQuery:    queries.NewGetConfigByHostQuery(deps.Configs, deps.Cache),
-		CreateInvitationCommand: commands.NewCreateInvitationCommand(deps.Invitations, deps.Organizations, deps.Configs, deps.Roles, deps.Groups, deps.Mail),
+		queries.NewGetConfigByHostQuery(deps.Configs, deps.Cache),
+		queries.NewGetUserByIDQuery(deps.Users),
+		queries.NewGetRoleQuery(deps.Roles),
+
+		commands.NewCreateInvitationCommand(deps.Invitations, deps.Organizations, deps.Configs, deps.Roles, deps.Groups, deps.Mail),
+		commands.NewSyncUserCommand(deps.Users),
 	}
 }
