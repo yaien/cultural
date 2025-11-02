@@ -5,203 +5,211 @@ import (
 	"github.com/yaien/cultural/internal/modules/configs/models"
 )
 
-var Components = map[string]func(node *models.Node) templ.Component{
-	"header":       Header,
-	"nav":          Nav,
-	"footer":       Footer,
-	"main":         Main,
-	"section":      Section,
-	"div":          Div,
-	"span":         Span,
-	"p":            Paragraph,
-	"img":          Image,
-	"a":            Link,
-	"button":       Button,
-	"ul":           List,
-	"li":           ListItem,
-	"form":         Form,
-	"input":        Input,
-	"textarea":     TextArea,
-	"button-group": ButtonGroup,
-	"card":         Card,
-	"modal":        Modal,
-	"h1":           H1,
-	"h2":           H2,
-	"h3":           H3,
-	"h4":           H4,
-	"h5":           H5,
-	"h6":           H6,
-	"carousel":     Carousel,
-	"br":           Br,
-	"raw":          Raw,
+var Components = map[string]func(node models.Node) templ.Component{
+	"body":          Body,
+	"header":        Header,
+	"nav":           Nav,
+	"footer":        Footer,
+	"main":          Main,
+	"section":       Section,
+	"div":           Div,
+	"span":          Span,
+	"p":             Paragraph,
+	"img":           Image,
+	"a":             Link,
+	"button":        Button,
+	"ul":            List,
+	"li":            ListItem,
+	"form":          Form,
+	"input":         Input,
+	"textarea":      TextArea,
+	"button-group":  ButtonGroup,
+	"card":          Card,
+	"modal":         Modal,
+	"h1":            H1,
+	"h2":            H2,
+	"h3":            H3,
+	"h4":            H4,
+	"h5":            H5,
+	"h6":            H6,
+	"carousel":      Carousel,
+	"br":            Br,
+	"raw":           Raw,
+	"email:body":    EmailBody,
+	"email:section": EmailSection,
+	"email:button":  EmailButton,
 }
 
-templ Header(node *models.Node) {
+templ Body(node models.Node) {
+	{ children... }
+}
+
+templ Header(node models.Node) {
 	<header { node.Attrs... } style={ node.Style }>
 		{ node.Content }
 		{ children... }
 	</header>
 }
 
-templ Nav(node *models.Node) {
+templ Nav(node models.Node) {
 	<nav { node.Attrs... } style={ node.Style }>
 		{ node.Content }
 		{ children... }
 	</nav>
 }
 
-templ Main(node *models.Node) {
+templ Main(node models.Node) {
 	<main { node.Attrs... } style={ node.Style }>
 		{ node.Content }
 		{ children... }
 	</main>
 }
 
-templ Footer(node *models.Node) {
+templ Footer(node models.Node) {
 	<footer { node.Attrs... } style={ node.Style }>
 		{ node.Content }
 		{ children... }
 	</footer>
 }
 
-templ Section(node *models.Node) {
+templ Section(node models.Node) {
 	<section { node.Attrs... } style={ node.Style }>
 		{ node.Content }
 		{ children... }
 	</section>
 }
 
-templ Div(node *models.Node) {
+templ Div(node models.Node) {
 	<div { node.Attrs... } style={ node.Style }>
 		{ node.Content }
 		{ children... }
 	</div>
 }
 
-templ Span(node *models.Node) {
+templ Span(node models.Node) {
 	<span { node.Attrs... } style={ node.Style }>
 		{ node.Content }
 		{ children... }
 	</span>
 }
 
-templ Paragraph(node *models.Node) {
+templ Paragraph(node models.Node) {
 	<p { node.Attrs... } style={ node.Style }>
 		{ node.Content }
 		{ children... }
 	</p>
 }
 
-templ Image(node *models.Node) {
+templ Image(node models.Node) {
 	{ node.Content }
 	<img { node.Attrs... } style={ node.Style }/>
 }
 
-templ Link(node *models.Node) {
+templ Link(node models.Node) {
 	<a { node.Attrs... } style={ node.Style }>
 		{ node.Content }
 		{ children... }
 	</a>
 }
 
-templ Button(node *models.Node) {
+templ Button(node models.Node) {
 	<button { node.Attrs... } style={ node.Style }>
 		{ node.Content }
 		{ children... }
 	</button>
 }
 
-templ List(node *models.Node) {
+templ List(node models.Node) {
 	<ul { node.Attrs... } style={ node.Style }>
 		{ node.Content }
 		{ children... }
 	</ul>
 }
 
-templ ListItem(node *models.Node) {
+templ ListItem(node models.Node) {
 	<li { node.Attrs... } style={ node.Style }>
 		{ children... }
 	</li>
 }
 
-templ Form(node *models.Node) {
+templ Form(node models.Node) {
 	<form { node.Attrs... } style={ node.Style }>
 		{ children... }
 	</form>
 }
 
-templ Input(node *models.Node) {
+templ Input(node models.Node) {
 	<input { node.Attrs... } style={ node.Style }/>
 }
 
-templ TextArea(node *models.Node) {
+templ TextArea(node models.Node) {
 	<textarea { node.Attrs... } style={ node.Style }>
 		{ node.Content }
 		{ children... }
 	</textarea>
 }
 
-templ ButtonGroup(node *models.Node) {
+templ ButtonGroup(node models.Node) {
 	<div class="button-group" { node.Attrs... } style={ node.Style }>
 		{ node.Content }
 		{ children... }
 	</div>
 }
 
-templ Card(node *models.Node) {
+templ Card(node models.Node) {
 	<div class="card" { node.Attrs... } style={ node.Style }>
 		{ node.Content }
 		{ children... }
 	</div>
 }
 
-templ Modal(node *models.Node) {
+templ Modal(node models.Node) {
 	<div class="modal" { node.Attrs... } style={ node.Style }>
 		{ children... }
 	</div>
 }
 
-templ H1(node *models.Node) {
+templ H1(node models.Node) {
 	<h1 { node.Attrs... } style={ node.Style }>
 		{ node.Content }
 		{ children... }
 	</h1>
 }
 
-templ H2(node *models.Node) {
+templ H2(node models.Node) {
 	<h2 { node.Attrs... } style={ node.Style }>
 		{ children... }
 	</h2>
 }
 
-templ H3(node *models.Node) {
+templ H3(node models.Node) {
 	<h3 { node.Attrs... } style={ node.Style }>
 		{ children... }
 	</h3>
 }
 
-templ H4(node *models.Node) {
+templ H4(node models.Node) {
 	<h4 { node.Attrs... } style={ node.Style }>
 		{ node.Content }
 		{ children... }
 	</h4>
 }
 
-templ H5(node *models.Node) {
+templ H5(node models.Node) {
 	<h5 { node.Attrs... } style={ node.Style }>
 		{ node.Content }
 		{ children... }
 	</h5>
 }
 
-templ H6(node *models.Node) {
+templ H6(node models.Node) {
 	<h6 { node.Attrs... } style={ node.Style }>
 		{ node.Content }
 		{ children... }
 	</h6>
 }
 
-templ Carousel(node *models.Node) {
+templ Carousel(node models.Node) {
 	<div { node.Attrs... } class="carousel" role="carousel" style={ node.Style } x-data={ fmt.Sprintf("{ active: 0, count: %d }", len(node.Children)) }>
 		<button @click="active = active == 0 ? count - 1 : active - 1">
 			&#10216;
@@ -226,12 +234,48 @@ templ Carousel(node *models.Node) {
 	</div>
 }
 
-templ Br(node *models.Node) {
+templ Br(node models.Node) {
 	<br { node.Attrs... } style={ node.Style }/>
 }
 
-templ Raw(node *models.Node) {
+templ Raw(node models.Node) {
 	<div { node.Attrs... } style={ node.Style }>
 		@templ.Raw(node.Content)
 	</div>
+}
+
+templ EmailBody(node models.Node) {
+	<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f5f5f5; padding:20px 0;">
+		<tr>
+			<td align="center">
+				<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#ffffff; border-radius:5px; overflow:hidden; max-width:600px; padding: 30px;">
+					<tr>
+						<td align="center">
+							{ node.Content }
+							{ children... }
+						</td>
+					</tr>
+				</table>
+			</td>
+		</tr>
+	</table>
+}
+
+templ EmailSection(node models.Node) {
+	<tr>
+		<td { node.Attrs... } style={ node.Style }>
+			{ node.Content }
+			{ children... }
+		</td>
+	</tr>
+}
+
+templ EmailButton(node models.Node) {
+	<table align="center" cellpadding="0" cellspacing="0" border="0" style="margin:20px auto;">
+		<tr>
+			<td bgcolor="#007BFF" style="border-radius:4px;">
+				<a { node.Attrs... } style="display:inline-block; padding:12px 30px; color:#ffffff; text-decoration:none; font-weight:bold; font-size:15px;">{ node.Content }</a>
+			</td>
+		</tr>
+	</table>
 }

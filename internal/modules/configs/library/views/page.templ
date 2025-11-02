@@ -1,12 +1,12 @@
 package views
 
 import (
-	"github.com/yaien/cultural/internal/modules/configs/interface/web/middlewares"
 	"github.com/yaien/cultural/internal/modules/configs/models"
 	"strings"
+	string
 )
 
-templ Fonts(fonts *models.Fonts) {
+templ Fonts(fonts models.Fonts) {
 	switch fonts.Type {
 		case "google":
 			{{ url := "https://fonts.googleapis.com/css2?" }}
@@ -20,20 +20,20 @@ templ Fonts(fonts *models.Fonts) {
 	}
 }
 
-templ Page(page *models.Page) {
-	{{ config := middlewares.GetConfig(ctx) }}
+templ Page(page models.Page, data map[string]any) {
+	{{ config := ctx.Value(models.ConfigContextKey).(*models.Config) }}
 	<!DOCTYPE html>
 	<html lang="en">
 		<head>
 			<meta charset="UTF-8"/>
 			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-			<title>{ config.Title }</title>
+			<title>{ page.Title } - { config.Title }</title>
 			@Fonts(config.Fonts)
 			<link rel="stylesheet" href="/assets/static/landing/base.css"/>
 			<link rel="stylesheet" href="/assets/landing/styles.css"/>
 		</head>
 		<body>
-			@Render(page.Body...)
+			@Render(page.Body, data)
 			<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 		</body>
 	</html>

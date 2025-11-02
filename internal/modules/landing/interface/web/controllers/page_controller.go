@@ -4,7 +4,6 @@ import (
 	"net/http"
 	"text/template"
 
-	"github.com/yaien/cultural/internal/modules/configs/interface/web/middlewares"
 	"github.com/yaien/cultural/internal/modules/configs/library/views"
 	"github.com/yaien/cultural/internal/modules/configs/models"
 )
@@ -17,7 +16,7 @@ func NewPageController() *PageController {
 
 func (c *PageController) Page(w http.ResponseWriter, r *http.Request) {
 
-	config := r.Context().Value(middlewares.ConfigContextKey).(*models.Config)
+	config := r.Context().Value(models.ConfigContextKey).(*models.Config)
 
 	path := r.PathValue("page")
 
@@ -37,7 +36,7 @@ func (c *PageController) Page(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "text/html")
-	_ = views.Page(page).Render(r.Context(), w)
+	_ = views.Page(page, nil).Render(r.Context(), w)
 
 }
 
@@ -53,7 +52,7 @@ var styles = template.Must(template.New("styles").Parse(`
 `))
 
 func (c *PageController) Styles(w http.ResponseWriter, r *http.Request) {
-	config := r.Context().Value(middlewares.ConfigContextKey).(*models.Config)
+	config := r.Context().Value(models.ConfigContextKey).(*models.Config)
 
 	w.Header().Set("Content-Type", "text/css")
 	err := styles.Execute(w, config)

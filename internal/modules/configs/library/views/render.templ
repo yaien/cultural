@@ -6,44 +6,48 @@ import (
 	"strings"
 )
 
-func Bind(data map[string]any, nodes ...*models.Node) {
-	for _, node := range nodes {
-		for attr, value := range node.Attrs {
-			v, ok := value.(string)
-			if !ok {
-				continue
-			}
-
-			for key, val := range data {
-				placeholder := "{{" + key + "}}"
-				if strings.Contains(v, placeholder) {
-					v = strings.ReplaceAll(v, placeholder, fmt.Sprintf("%v", val))
-					node.Attrs[attr] = v
-				}
-			}
+func BindStr(str string, data map[string]any) string {
+	for key, val := range data {
+		placeholder := "{{" + key + "}}"
+		if strings.Contains(str, placeholder) {
+			str = strings.ReplaceAll(str, placeholder, fmt.Sprintf("%v", val))
 		}
-
-		if node.Content == "" {
-			return
-		}
-
-		for key, val := range data {
-			placeholder := "{{" + key + "}}"
-			if strings.Contains(node.Content, placeholder) {
-				node.Content = strings.ReplaceAll(node.Content, placeholder, fmt.Sprintf("%v", val))
-			}
-		}
-
-		Bind(data, node.Children...)
 	}
+	return str
 }
 
-templ Render(nodes ...*models.Node) {
-	for _, node := range nodes {
-		{{ component, ok := Components[node.Type] }}
-		if ok {
-			@component(node) {
-				@Render(node.Children...)
+func BindNode(data map[string]any, node models.Node) models.Node {
+	for attr, value := range node.Attrs {
+		v, ok := value.(string)
+		if !ok {
+			continue
+		}
+
+		node.Attrs[attr] = BindStr(v, data)
+	}
+
+	if node.Content != "" {
+		node.Content = BindStr(node.Content, data)
+	}
+
+	for index, child := range node.Children {
+		node.Children[index] = BindNode(data, child)
+	}
+	return node
+}
+
+templ Render(node models.Node, data map[string]any) {
+	{{ component, ok := Components[node.Type] }}
+	if ok {
+		if data != nil {
+			{{ node = BindNode(data, node) }}
+		}
+		@component(node) {
+			for _, child := range node.Children {
+				if data != nil {
+					{{ child = BindNode(data, child) }}
+				}
+				@Render(child, data)
 			}
 		}
 	}

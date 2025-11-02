@@ -8,11 +8,11 @@ import (
 )
 
 type GetConfigByHostQuery struct {
-	repo  models.ConfigRepostory
+	repo  models.ConfigRepository
 	cache *cache.Cache[*models.Config]
 }
 
-func NewGetConfigByHostQuery(repo models.ConfigRepostory, ch *cache.Cache[*models.Config]) *GetConfigByHostQuery {
+func NewGetConfigByHostQuery(repo models.ConfigRepository, ch *cache.Cache[*models.Config]) *GetConfigByHostQuery {
 	return &GetConfigByHostQuery{
 		repo:  repo,
 		cache: ch,

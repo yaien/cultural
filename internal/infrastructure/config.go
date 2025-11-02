@@ -44,6 +44,7 @@ type InitConfig struct {
 	Host  string
 	Url   string
 	Title string
+	Email string
 }
 
 func LoadConfig() *Config {
@@ -57,6 +58,7 @@ func LoadConfig() *Config {
 			Host:  viper.GetString("INIT_HOST"),
 			Url:   viper.GetString("INIT_URL"),
 			Title: viper.GetString("INIT_TITLE"),
+			Email: viper.GetString("INIT_EMAIL"),
 		},
 		SessionConfig: SessionConfig{
 			Key:    viper.GetString("SESSION_KEY"),

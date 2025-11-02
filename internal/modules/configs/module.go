@@ -28,10 +28,13 @@ type Module struct {
 
 func (m *Module) Init(mono *infrastructure.Monolith) error {
 	m.App = application.New(application.Deps{
-		Configs:     repositories.NewConfigRepository(mono.MongoDB),
-		Invitations: repositories.NewInvitationRepository(mono.MongoDB),
-		Cache:       cache.New[*models.Config](time.Hour),
-		Mail:        mono.Mail,
+		Configs:       repositories.NewConfigRepository(mono.MongoDB),
+		Invitations:   repositories.NewInvitationRepository(mono.MongoDB),
+		Organizations: repositories.NewOrganizationRepository(mono.MongoDB),
+		Roles:         repositories.NewRoleRepository(mono.MongoDB),
+		Groups:        repositories.NewGroupRepository(mono.MongoDB),
+		Cache:         cache.New[*models.Config](time.Hour),
+		Mail:          mono.Mail,
 	})
 
 	m.Web = &Web{

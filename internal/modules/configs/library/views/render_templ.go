@@ -14,39 +14,37 @@ import (
 	"strings"
 )
 
-func Bind(data map[string]any, nodes ...*models.Node) {
-	for _, node := range nodes {
-		for attr, value := range node.Attrs {
-			v, ok := value.(string)
-			if !ok {
-				continue
-			}
-
-			for key, val := range data {
-				placeholder := "{{" + key + "}}"
-				if strings.Contains(v, placeholder) {
-					v = strings.ReplaceAll(v, placeholder, fmt.Sprintf("%v", val))
-					node.Attrs[attr] = v
-				}
-			}
+func BindStr(str string, data map[string]any) string {
+	for key, val := range data {
+		placeholder := "{{" + key + "}}"
+		if strings.Contains(str, placeholder) {
+			str = strings.ReplaceAll(str, placeholder, fmt.Sprintf("%v", val))
 		}
-
-		if node.Content == "" {
-			return
-		}
-
-		for key, val := range data {
-			placeholder := "{{" + key + "}}"
-			if strings.Contains(node.Content, placeholder) {
-				node.Content = strings.ReplaceAll(node.Content, placeholder, fmt.Sprintf("%v", val))
-			}
-		}
-
-		Bind(data, node.Children...)
 	}
+	return str
 }
 
-func Render(nodes ...*models.Node) templ.Component {
+func BindNode(data map[string]any, node models.Node) models.Node {
+	for attr, value := range node.Attrs {
+		v, ok := value.(string)
+		if !ok {
+			continue
+		}
+
+		node.Attrs[attr] = BindStr(v, data)
+	}
+
+	if node.Content != "" {
+		node.Content = BindStr(node.Content, data)
+	}
+
+	for index, child := range node.Children {
+		node.Children[index] = BindNode(data, child)
+	}
+	return node
+}
+
+func Render(node models.Node, data map[string]any) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -67,31 +65,45 @@ func Render(nodes ...*models.Node) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		for _, node := range nodes {
-			component, ok := Components[node.Type]
-			if ok {
-				templ_7745c5c3_Var2 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
-					templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
-					templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
-					if !templ_7745c5c3_IsBuffer {
-						defer func() {
-							templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
-							if templ_7745c5c3_Err == nil {
-								templ_7745c5c3_Err = templ_7745c5c3_BufErr
-							}
-						}()
+		component, ok := Components[node.Type]
+		if ok {
+			if data != nil {
+				node = BindNode(data, node)
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, " ")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Var2 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+				templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+				templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+				if !templ_7745c5c3_IsBuffer {
+					defer func() {
+						templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+						if templ_7745c5c3_Err == nil {
+							templ_7745c5c3_Err = templ_7745c5c3_BufErr
+						}
+					}()
+				}
+				ctx = templ.InitializeContext(ctx)
+				for _, child := range node.Children {
+					if data != nil {
+						child = BindNode(data, child)
 					}
-					ctx = templ.InitializeContext(ctx)
-					templ_7745c5c3_Err = Render(node.Children...).Render(ctx, templ_7745c5c3_Buffer)
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, " ")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					return nil
-				})
-				templ_7745c5c3_Err = component(node).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
+					templ_7745c5c3_Err = Render(child, data).Render(ctx, templ_7745c5c3_Buffer)
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
 				}
+				return nil
+			})
+			templ_7745c5c3_Err = component(node).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
 			}
 		}
 		return nil

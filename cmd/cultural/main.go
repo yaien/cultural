@@ -111,13 +111,12 @@ func invite() *cobra.Command {
 			}
 
 			_, err = cfg.App.CreateInvitation(ctx, &commands.CreateInvitationRequest{
-				OrganizationID: config.OrganizationID,
-				BaseURL:        config.Url,
-				Email:          args[0],
-				DisplayName:    args[1],
-				Permissions:    []string{"*"},
-				ExpiresAt:      time.Now().Add(3 * time.Hour),
-				Name:           "Admin",
+				OrganizationID:  config.OrganizationID,
+				UserEmail:       args[0],
+				UserDisplayName: args[1],
+				RolePermissions: []string{"*"},
+				RoleName:        "Admin",
+				ExpiresAt:       time.Now().Add(3 * time.Hour),
 			})
 
 			if err != nil {

@@ -45,12 +45,14 @@ func init() {
 					Host:           cfg.Init.Host,
 					Title:          cfg.Init.Title,
 					Url:            cfg.Init.Url,
+					Email:          cfg.Init.Email,
 					OrganizationID: res.InsertedID.(primitive.ObjectID),
 					CreatedAt:      time.Now(),
 					UpdatedAt:      time.Now(),
 					Fonts:          models.DefaultFonts,
 					Colors:         models.DefaultColors,
-					Pages:          map[string]*models.Page{"index": models.DefaultSite},
+					Pages:          map[string]models.Page{"index": models.DefaultIndexPage},
+					Emails:         map[string]models.Email{"invitation": models.DefaultInvitationEmail},
 				})
 
 			return err

@@ -15,15 +15,18 @@ type Application struct {
 }
 
 type Deps struct {
-	Configs     models.ConfigRepostory
-	Invitations models.InvitationRepository
-	Cache       *cache.Cache[*models.Config]
-	Mail        *gomail.Dialer
+	Configs       models.ConfigRepository
+	Invitations   models.InvitationRepository
+	Organizations models.OrganizationRepository
+	Roles         models.RoleRepository
+	Groups        models.GroupRepository
+	Cache         *cache.Cache[*models.Config]
+	Mail          *gomail.Dialer
 }
 
 func New(deps Deps) *Application {
 	return &Application{
 		GetConfigByHostQuery:    queries.NewGetConfigByHostQuery(deps.Configs, deps.Cache),
-		CreateInvitationCommand: commands.NewCreateInvitationCommand(deps.Invitations, deps.Mail),
+		CreateInvitationCommand: commands.NewCreateInvitationCommand(deps.Invitations, deps.Organizations, deps.Configs, deps.Roles, deps.Groups, deps.Mail),
 	}
 }
