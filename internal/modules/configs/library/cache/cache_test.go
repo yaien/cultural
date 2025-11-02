@@ -1,4 +1,4 @@
-package shared
+package cache
 
 import (
 	"testing"
@@ -6,7 +6,7 @@ import (
 )
 
 func TestCache_TTLExpiration(t *testing.T) {
-	c := NewCache[any](100 * time.Millisecond)
+	c := New[any](100 * time.Millisecond)
 	defer c.Close()
 
 	c.Set("key", "value")
@@ -27,7 +27,7 @@ func TestCache_TTLExpiration(t *testing.T) {
 }
 
 func TestCache_SetWithTTL(t *testing.T) {
-	c := NewCache[any](0) // default no-expiry
+	c := New[any](0) // default no-expiry
 	defer c.Close()
 
 	c.SetWithTTL("a", 123, 50*time.Millisecond)

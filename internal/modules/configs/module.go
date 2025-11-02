@@ -9,8 +9,8 @@ import (
 	_ "github.com/yaien/cultural/internal/modules/configs/interface/migrations"
 	"github.com/yaien/cultural/internal/modules/configs/interface/repositories"
 	"github.com/yaien/cultural/internal/modules/configs/interface/web/middlewares"
+	"github.com/yaien/cultural/internal/modules/configs/library/cache"
 	"github.com/yaien/cultural/internal/modules/configs/models"
-	"github.com/yaien/cultural/internal/shared"
 )
 
 type Middlewares struct {
@@ -30,7 +30,7 @@ func (m *Module) Init(mono *infrastructure.Monolith) error {
 	m.App = application.New(application.Deps{
 		Configs:     repositories.NewConfigRepository(mono.MongoDB),
 		Invitations: repositories.NewInvitationRepository(mono.MongoDB),
-		Cache:       shared.NewCache[*models.Config](time.Hour),
+		Cache:       cache.New[*models.Config](time.Hour),
 		Mail:        mono.Mail,
 	})
 

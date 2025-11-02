@@ -1,4 +1,4 @@
-package shared
+package cache
 
 import (
 	"sync"
@@ -22,10 +22,10 @@ type item[T any] struct {
 	expiry time.Time
 }
 
-// NewCache creates a Cache with the given default ttl for entries.
+// New creates a Cache with the given default ttl for entries.
 // If ttl is zero, entries do not expire by default (but you can still
 // set per-item TTL using SetWithTTL).
-func NewCache[T any](ttl time.Duration) *Cache[T] {
+func New[T any](ttl time.Duration) *Cache[T] {
 	c := &Cache[T]{
 		items: make(map[string]item[T]),
 		ttl:   ttl,

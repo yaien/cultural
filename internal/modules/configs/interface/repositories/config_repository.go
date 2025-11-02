@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/yaien/cultural/internal/modules/configs/models"
-	"github.com/yaien/cultural/internal/shared"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -28,7 +27,7 @@ func (r *ConfigRepository) GetByHost(ctx context.Context, host string) (*models.
 	case nil:
 		return &config, nil
 	case mongo.ErrNoDocuments:
-		return nil, shared.NotFoundError(err)
+		return nil, models.NotFoundError(err)
 	default:
 		return nil, err
 	}

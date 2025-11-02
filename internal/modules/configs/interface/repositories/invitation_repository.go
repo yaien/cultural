@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/yaien/cultural/internal/modules/configs/models"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -26,7 +27,7 @@ func (r *InvitationRepository) Create(ctx context.Context, invitation *models.In
 		return err
 	}
 
-	invitation.ID = res.InsertedID
+	invitation.ID = res.InsertedID.(primitive.ObjectID)
 
 	return nil
 }

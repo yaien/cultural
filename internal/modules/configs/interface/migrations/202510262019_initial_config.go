@@ -9,6 +9,7 @@ import (
 	"github.com/yaien/cultural/internal/infrastructure/migrations"
 	"github.com/yaien/cultural/internal/modules/configs/models"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -44,7 +45,7 @@ func init() {
 					Host:           cfg.Init.Host,
 					Title:          cfg.Init.Title,
 					Url:            cfg.Init.Url,
-					OrganizationID: res.InsertedID,
+					OrganizationID: res.InsertedID.(primitive.ObjectID),
 					CreatedAt:      time.Now(),
 					UpdatedAt:      time.Now(),
 					Fonts:          models.DefaultFonts,

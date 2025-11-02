@@ -3,19 +3,19 @@ package queries
 import (
 	"context"
 
+	"github.com/yaien/cultural/internal/modules/configs/library/cache"
 	"github.com/yaien/cultural/internal/modules/configs/models"
-	"github.com/yaien/cultural/internal/shared"
 )
 
 type GetConfigByHostQuery struct {
 	repo  models.ConfigRepostory
-	cache *shared.Cache[*models.Config]
+	cache *cache.Cache[*models.Config]
 }
 
-func NewGetConfigByHostQuery(repo models.ConfigRepostory, cache *shared.Cache[*models.Config]) *GetConfigByHostQuery {
+func NewGetConfigByHostQuery(repo models.ConfigRepostory, ch *cache.Cache[*models.Config]) *GetConfigByHostQuery {
 	return &GetConfigByHostQuery{
 		repo:  repo,
-		cache: cache,
+		cache: ch,
 	}
 }
 

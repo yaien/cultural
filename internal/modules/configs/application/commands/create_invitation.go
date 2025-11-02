@@ -2,11 +2,9 @@ package commands
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/yaien/cultural/internal/modules/configs/models"
-	"github.com/yaien/cultural/internal/shared"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"gopkg.in/gomail.v2"
 )
@@ -24,13 +22,14 @@ func NewCreateInvitationCommand(invitations models.InvitationRepository, mail *g
 }
 
 type CreateInvitationRequest struct {
-	OrganizationID any
-	GroupID        any
-	CreatorID      any
+	OrganizationID primitive.ObjectID
+	GroupID        primitive.ObjectID
+	CreatorID      primitive.ObjectID
 	Email          string
 	BaseURL        string
 	Permissions    []string
 	Name           string
+	DisplayName    string
 	ExpiresAt      time.Time
 }
 
@@ -43,6 +42,7 @@ func (c *CreateInvitationCommand) CreateInvitation(ctx context.Context, req *Cre
 		Email:          req.Email,
 		Permissions:    req.Permissions,
 		Name:           req.Name,
+		DisplayName:    req.DisplayName,
 		ExpiresAt:      req.ExpiresAt,
 	}
 
@@ -55,7 +55,6 @@ func (c *CreateInvitationCommand) CreateInvitation(ctx context.Context, req *Cre
 	message.SetHeader("From", "example@example.com")
 	message.SetHeader("To", invitation.Email)
 	message.SetHeader("Subject", "You're invited!")
-	message.SetBody("text/plain", fmt.Sprintf("You have been invited. Please use the following link %s/invited/%s to accept the invitation.", req.BaseURL, shared.IDToStr(invitation.ID)))
 
 	err = c.mail.DialAndSend(message)
 	if err != nil {

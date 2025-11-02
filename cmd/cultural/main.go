@@ -89,8 +89,8 @@ func revert() *cobra.Command {
 
 func invite() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:  "invite [email]",
-		Args: cobra.ExactArgs(1),
+		Use:  "invite [email] [display-name]",
+		Args: cobra.ExactArgs(2),
 		Run: func(cmd *cobra.Command, args []string) {
 			mono := infrastructure.NewMonolith()
 			err := register(mono)
@@ -104,7 +104,6 @@ func invite() *cobra.Command {
 			}
 
 			ctx := cmd.Context()
-			email := args[0]
 
 			config, err := cfg.App.GetConfigByHost(ctx, mono.Config.Init.Host)
 			if err != nil {
@@ -114,7 +113,8 @@ func invite() *cobra.Command {
 			_, err = cfg.App.CreateInvitation(ctx, &commands.CreateInvitationRequest{
 				OrganizationID: config.OrganizationID,
 				BaseURL:        config.Url,
-				Email:          email,
+				Email:          args[0],
+				DisplayName:    args[1],
 				Permissions:    []string{"*"},
 				ExpiresAt:      time.Now().Add(3 * time.Hour),
 				Name:           "Admin",
@@ -124,7 +124,7 @@ func invite() *cobra.Command {
 				log.Fatal("Failed to create invitation:", err)
 			}
 
-			log.Printf("Invitation sent to %s successfully", email)
+			log.Printf("Invitation sent successfully")
 		},
 	}
 

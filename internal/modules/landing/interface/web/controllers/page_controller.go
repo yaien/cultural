@@ -5,8 +5,8 @@ import (
 	"text/template"
 
 	"github.com/yaien/cultural/internal/modules/configs/interface/web/middlewares"
+	"github.com/yaien/cultural/internal/modules/configs/library/views"
 	"github.com/yaien/cultural/internal/modules/configs/models"
-	"github.com/yaien/cultural/internal/modules/landing/interface/web/views"
 )
 
 type PageController struct{}
@@ -38,6 +38,7 @@ func (c *PageController) Page(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "text/html")
 	_ = views.Page(page).Render(r.Context(), w)
+
 }
 
 var styles = template.Must(template.New("styles").Parse(`

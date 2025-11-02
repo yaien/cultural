@@ -38,14 +38,3 @@ templ Page(page *models.Page) {
 		</body>
 	</html>
 }
-
-templ Render(nodes ...*models.Node) {
-	for _, node := range nodes {
-		{{ component, ok := Components[node.Type] }}
-		if ok {
-			@component(node) {
-				@Render(node.Children...)
-			}
-		}
-	}
-}

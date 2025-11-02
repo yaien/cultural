@@ -3,8 +3,8 @@ package application
 import (
 	"github.com/yaien/cultural/internal/modules/configs/application/commands"
 	"github.com/yaien/cultural/internal/modules/configs/application/queries"
+	"github.com/yaien/cultural/internal/modules/configs/library/cache"
 	"github.com/yaien/cultural/internal/modules/configs/models"
-	"github.com/yaien/cultural/internal/shared"
 	"gopkg.in/gomail.v2"
 )
 
@@ -17,7 +17,7 @@ type Application struct {
 type Deps struct {
 	Configs     models.ConfigRepostory
 	Invitations models.InvitationRepository
-	Cache       *shared.Cache[*models.Config]
+	Cache       *cache.Cache[*models.Config]
 	Mail        *gomail.Dialer
 }
 

@@ -1,4 +1,4 @@
-package shared
+package models
 
 type Error struct {
 	Err  error  `json:"-"`

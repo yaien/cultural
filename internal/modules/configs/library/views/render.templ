@@ -1,0 +1,50 @@
+package views
+
+import (
+	"fmt"
+	"github.com/yaien/cultural/internal/modules/configs/models"
+	"strings"
+)
+
+func Bind(data map[string]any, nodes ...*models.Node) {
+	for _, node := range nodes {
+		for attr, value := range node.Attrs {
+			v, ok := value.(string)
+			if !ok {
+				continue
+			}
+
+			for key, val := range data {
+				placeholder := "{{" + key + "}}"
+				if strings.Contains(v, placeholder) {
+					v = strings.ReplaceAll(v, placeholder, fmt.Sprintf("%v", val))
+					node.Attrs[attr] = v
+				}
+			}
+		}
+
+		if node.Content == "" {
+			return
+		}
+
+		for key, val := range data {
+			placeholder := "{{" + key + "}}"
+			if strings.Contains(node.Content, placeholder) {
+				node.Content = strings.ReplaceAll(node.Content, placeholder, fmt.Sprintf("%v", val))
+			}
+		}
+
+		Bind(data, node.Children...)
+	}
+}
+
+templ Render(nodes ...*models.Node) {
+	for _, node := range nodes {
+		{{ component, ok := Components[node.Type] }}
+		if ok {
+			@component(node) {
+				@Render(node.Children...)
+			}
+		}
+	}
+}
