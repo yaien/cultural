@@ -14,6 +14,19 @@ func NewPageController() *PageController {
 	return &PageController{}
 }
 
+func (c *PageController) Index(w http.ResponseWriter, r *http.Request) {
+	config := r.Context().Value(models.ConfigContextKey).(*models.Config)
+
+	page, ok := config.Pages["index"]
+	if !ok {
+		http.Error(w, "No index page configured", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "text/html")
+	_ = views.Page(page, nil).Render(r.Context(), w)
+}
+
 func (c *PageController) Page(w http.ResponseWriter, r *http.Request) {
 
 	config := r.Context().Value(models.ConfigContextKey).(*models.Config)
@@ -25,10 +38,6 @@ func (c *PageController) Page(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if path == "" {
-		path = "index"
-	}
-
 	page, ok := config.Pages[path]
 	if !ok {
 		http.NotFound(w, r)
@@ -37,7 +46,6 @@ func (c *PageController) Page(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "text/html")
 	_ = views.Page(page, nil).Render(r.Context(), w)
-
 }
 
 var styles = template.Must(template.New("styles").Parse(`

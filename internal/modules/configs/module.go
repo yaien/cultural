@@ -9,6 +9,7 @@ import (
 	_ "github.com/yaien/cultural/internal/modules/configs/interface/migrations"
 	"github.com/yaien/cultural/internal/modules/configs/interface/repositories"
 	"github.com/yaien/cultural/internal/modules/configs/interface/web/middlewares"
+	"github.com/yaien/cultural/internal/modules/configs/interface/web/routes"
 	"github.com/yaien/cultural/internal/modules/configs/library/cache"
 	"github.com/yaien/cultural/internal/modules/configs/models"
 )
@@ -44,6 +45,8 @@ func (m *Module) Init(mono *infrastructure.Monolith) error {
 	}
 
 	mono.Router.Handle("/", m.Web.WithConfig(mono.WebRouter))
+
+	routes.Register(mono, m.App)
 
 	return nil
 
