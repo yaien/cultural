@@ -11,7 +11,7 @@ import (
 type Invitation struct {
 	ID              primitive.ObjectID `bson:"_id,omitempty" json:"id"`
 	OrganizationID  primitive.ObjectID `bson:"organizationId" json:"organizationId"`
-	CreatorID       primitive.ObjectID `bson:"creatorId" json:"creatorId"`
+	CreatorID       primitive.ObjectID `bson:"creatorId,omitempty" json:"creatorId,omitempty"`
 	CreatedAt       time.Time          `bson:"createdAt" json:"createdAt"`
 	AcceptedAt      *time.Time         `bson:"acceptedAt,omitempty" json:"acceptedAt,omitempty"`
 	ExpiresAt       time.Time          `bson:"expiresAt" json:"expiresAt"`
