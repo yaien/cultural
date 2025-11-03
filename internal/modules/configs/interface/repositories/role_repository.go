@@ -21,16 +21,22 @@ func NewRoleRepository(db *mongo.Database) *RoleRepository {
 
 func (r *RoleRepository) GetByUserIDAndOrganizationID(ctx context.Context, userId, organizationId primitive.ObjectID) (*models.Role, error) {
 	var role models.Role
-
 	err := r.db.Collection("roles").FindOne(ctx, bson.M{"userId": userId, "organizationId": organizationId}).Decode(&role)
+	return &role, translate(err)
+}
 
-	switch err {
-	case nil:
-		return &role, nil
-	case mongo.ErrNoDocuments:
-		return nil, models.NotFoundError(err)
-	default:
-		return nil, err
+func (r *RoleRepository) Create(ctx context.Context, role *models.Role) error {
+	res, err := r.db.Collection("roles").InsertOne(ctx, role)
+	if err != nil {
+		return err
 	}
 
+	role.ID = res.InsertedID.(primitive.ObjectID)
+
+	return nil
+}
+
+func (r *RoleRepository) Update(ctx context.Context, role *models.Role) error {
+	_, err := r.db.Collection("roles").UpdateOne(ctx, bson.M{"_id": role.ID}, bson.M{"$set": role})
+	return err
 }

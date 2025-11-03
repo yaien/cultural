@@ -21,16 +21,6 @@ func NewGroupRepository(db *mongo.Database) *GroupRepository {
 
 func (r *GroupRepository) GetByIDAndOrganizationID(ctx context.Context, id, organizationId primitive.ObjectID) (*models.Group, error) {
 	var group models.Group
-
 	err := r.db.Collection("groups").FindOne(ctx, bson.M{"id": id, "organizationId": organizationId}).Decode(&group)
-
-	switch err {
-	case nil:
-		return &group, nil
-	case mongo.ErrNoDocuments:
-		return nil, models.NotFoundError(err)
-	default:
-		return nil, err
-	}
-
+	return &group, translate(err)
 }

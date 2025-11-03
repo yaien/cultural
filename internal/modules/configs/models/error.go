@@ -1,5 +1,7 @@
 package models
 
+import "errors"
+
 type Error struct {
 	Err  error  `json:"-"`
 	Code string `json:"code"`
@@ -18,4 +20,12 @@ func WrapError(err error, code string) *Error {
 
 func NotFoundError(err error) *Error {
 	return WrapError(err, "not_found")
+}
+
+func IsNotFoundError(err error) bool {
+	var e *Error
+	if ok := errors.As(err, &e); ok {
+		return e.Code == "not_found"
+	}
+	return false
 }

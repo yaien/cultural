@@ -9,4 +9,5 @@ import (
 func Register(mono *infrastructure.Monolith, app *application.Application, md *middlewares.Middlewares) {
 	auth(mono, app)
 	invitations(mono, app, md)
+	dashboard(mono, app, md)
 }

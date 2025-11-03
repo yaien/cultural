@@ -25,5 +25,7 @@ type Invitation struct {
 type InvitationEmailBuilder func(org *Organization, inv *Invitation, creator *User, link string) templ.Component
 
 type InvitationRepository interface {
+	GetByIDAndOrganizationID(ctx context.Context, id, organizationId primitive.ObjectID) (*Invitation, error)
 	Create(ctx context.Context, invitation *Invitation) error
+	Update(ctx context.Context, invitation *Invitation) error
 }

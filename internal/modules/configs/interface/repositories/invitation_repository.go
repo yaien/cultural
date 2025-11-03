@@ -20,8 +20,13 @@ func NewInvitationRepository(db *mongo.Database) *InvitationRepository {
 	}
 }
 
-func (r *InvitationRepository) Create(ctx context.Context, invitation *models.Invitation) error {
+func (r *InvitationRepository) GetByIDAndOrganizationID(ctx context.Context, id, organizationId primitive.ObjectID) (*models.Invitation, error) {
+	var invitation models.Invitation
+	err := r.db.Collection("invitations").FindOne(ctx, primitive.M{"_id": id, "organizationId": organizationId}).Decode(&invitation)
+	return &invitation, translate(err)
+}
 
+func (r *InvitationRepository) Create(ctx context.Context, invitation *models.Invitation) error {
 	res, err := r.db.Collection("invitations").InsertOne(ctx, invitation)
 	if err != nil {
 		return err
@@ -30,4 +35,9 @@ func (r *InvitationRepository) Create(ctx context.Context, invitation *models.In
 	invitation.ID = res.InsertedID.(primitive.ObjectID)
 
 	return nil
+}
+
+func (r *InvitationRepository) Update(ctx context.Context, invitation *models.Invitation) error {
+	_, err := r.db.Collection("invitations").UpdateOne(ctx, primitive.M{"_id": invitation.ID}, primitive.M{"$set": invitation})
+	return err
 }

@@ -1,0 +1,99 @@
+:root {
+    --font-family-primary: "Inter", sans-serif;
+    --aside-open-width: 180px;
+    --aside-open-padding: 10px;
+    --aside-open-space: 20px;
+    --aside-bg-color: #f3f4f5;
+    --aside-border-color: color-mix(var(--aside-bg-color) 90%, black);
+    --header-height: 60px;
+    --header-bg-color: #f3f4f5;
+    --header-text-color: #a1a1aa;
+    --header-border-color: color-mix(var(--header-bg-color) 90%, black);
+    --main-bg-color: white;
+    --main-text-color: #71717a;
+    --shadow-color: rgba(0, 0, 0, 0.1);
+}
+
+body {
+    font-family: var(--font-family-primary);
+    font-optical-sizing: auto;
+    margin: 0;
+
+    --aside-width: 0px;
+    --aside-padding: 0px;
+    --aside-space: 20px;
+}
+
+body.open {
+    --aside-width: var(--aside-open-width);
+    --aside-padding: var(--aside-open-padding);
+    --aside-space: var(--aside-open-space);
+}
+
+aside {
+    width: var(--aside-width);
+    background-color: var(--aside-bg-color);
+    color: white;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    padding: var(--aside-padding);
+    margin: 0;
+    border-right: 1px solid var(--aside-border-color);
+    box-shadow: 1px 0 3px var(--shadow-color);
+    transition: all 0.5s ease;
+    z-index: 1;
+}
+
+
+
+main {
+    padding-left: calc(var(--aside-width) + var(--aside-padding) * 2 + var(--aside-space));
+    padding-right: var(--aside-space);
+    padding-top: var(--header-height);
+    background-color: var(--main-bg-color);
+    color: var(--main-text-color);
+    transition: all 0.5s ease;
+    margin: 0;
+    height: 100vh;
+    position: absolute;
+    width: 100vw;
+    top: 0;
+    left: 0;
+    box-sizing: border-box;
+}
+
+header {
+    background-color: var(--header-bg-color);
+    color: var(--header-text-color);
+    padding-left: calc(var(--aside-width) + var(--aside-padding) * 2 + var(--aside-space));
+    height: var(--header-height);
+    border-bottom: 1px solid var(--header-border-color);
+    box-shadow: 0 1px 3px var(--shadow-color);
+    display: flex;
+    align-items: center;
+    transition: all 0.5s ease;
+    z-index: 1;
+    position: absolute;
+    width: 100vw;
+    box-sizing: border-box;
+}
+
+header button.toggle {
+    color: var(--header-text-color);
+    background: none;
+    border: none;
+    font-size: 25px;
+    cursor: pointer;
+    margin-right: 20px;
+    display: flex;
+    align-items: center;
+}
+
+
+
+header h3 {
+    margin: 0;
+    font-size: 20px;
+}

@@ -21,16 +21,6 @@ func NewOrganizationRepository(db *mongo.Database) *OrganizationRepository {
 
 func (r *OrganizationRepository) GetByID(ctx context.Context, id primitive.ObjectID) (*models.Organization, error) {
 	var organization models.Organization
-
 	err := r.db.Collection("organizations").FindOne(ctx, bson.M{"_id": id}).Decode(&organization)
-
-	switch err {
-	case nil:
-		return &organization, nil
-	case mongo.ErrNoDocuments:
-		return nil, models.NotFoundError(err)
-	default:
-		return nil, err
-	}
-
+	return &organization, translate(err)
 }

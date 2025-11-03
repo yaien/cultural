@@ -25,6 +25,8 @@ type Role struct {
 
 type RoleRepository interface {
 	GetByUserIDAndOrganizationID(ctx context.Context, userId, organizationId primitive.ObjectID) (*Role, error)
+	Create(ctx context.Context, role *Role) error
+	Update(ctx context.Context, role *Role) error
 }
 
 type Group struct {

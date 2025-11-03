@@ -24,25 +24,11 @@ func NewConfigRepository(db *mongo.Database) *ConfigRepository {
 func (r *ConfigRepository) GetByHost(ctx context.Context, host string) (*models.Config, error) {
 	var config models.Config
 	err := r.db.Collection("configs").FindOne(ctx, bson.M{"host": host}).Decode(&config)
-	switch err {
-	case nil:
-		return &config, nil
-	case mongo.ErrNoDocuments:
-		return nil, models.NotFoundError(err)
-	default:
-		return nil, err
-	}
+	return &config, translate(err)
 }
 
 func (r *ConfigRepository) GetByOrganizationID(ctx context.Context, organizationId primitive.ObjectID) (*models.Config, error) {
 	var config models.Config
 	err := r.db.Collection("configs").FindOne(ctx, bson.M{"organizationId": organizationId}).Decode(&config)
-	switch err {
-	case nil:
-		return &config, nil
-	case mongo.ErrNoDocuments:
-		return nil, models.NotFoundError(err)
-	default:
-		return nil, err
-	}
+	return &config, translate(err)
 }
