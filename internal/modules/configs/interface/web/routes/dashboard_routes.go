@@ -22,6 +22,7 @@ func dashboard(mono *infrastructure.Monolith, app *application.Application, md *
 		router.HandleFunc("GET /dashboard/pages", ctrl.Index)
 		router.HandleFunc("GET /dashboard/api/pages/{page}/render", ctrl.Render)
 		router.HandleFunc("GET /dashboard/api/pages", ctrl.List)
+		router.HandleFunc("PUT /dashboard/api/pages/{page}", ctrl.Update)
 	}
 
 	router.Handle("GET /dashboard/events", templ.Handler(views.Events()))
@@ -30,6 +31,6 @@ func dashboard(mono *infrastructure.Monolith, app *application.Application, md *
 
 	mono.WebRouter.Handle("GET /assets/static/dashboard/", http.StripPrefix("/assets/static/dashboard/", http.FileServer(http.FS(assets.FS))))
 	mono.WebRouter.HandleFunc("GET /dashboard", md.WithUser(md.WithRole(http.HandlerFunc(ctrl.Home))))
-	mono.WebRouter.HandleFunc("GET /dashboard/", md.WithUser(md.WithRole(router)))
+	mono.WebRouter.HandleFunc("/dashboard/", md.WithUser(md.WithRole(router)))
 
 }

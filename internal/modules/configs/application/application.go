@@ -16,6 +16,7 @@ type Application struct {
 	*commands.CreateInvitationCommand
 	*commands.SyncUserCommand
 	*commands.AcceptInvitationCommand
+	*commands.UpdatePageCommand
 }
 
 type Deps struct {
@@ -38,5 +39,6 @@ func New(deps Deps) *Application {
 		commands.NewCreateInvitationCommand(deps.Invitations, deps.Organizations, deps.Configs, deps.Roles, deps.Groups, deps.Mail),
 		commands.NewSyncUserCommand(deps.Users),
 		commands.NewAcceptInvitationCommand(deps.Invitations, deps.Roles),
+		commands.NewUpdatePageCommand(deps.Configs, deps.Cache),
 	}
 }

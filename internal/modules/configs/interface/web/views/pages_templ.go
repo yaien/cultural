@@ -53,20 +53,20 @@ func Pages() templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"container\" x-data=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div x-data=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("pages({ url: %q })", config.Url))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/configs/interface/web/views/pages.templ`, Line: 22, Col: 79}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/configs/interface/web/views/pages.templ`, Line: 22, Col: 61}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\"><div class=\"edit\"><div role=\"group\"><button type=\"button\" @click=\"create()\">Crear</button> <button type=\"button\" @click=\"fonts()\">Fuentes</button> <button type=\"button\" @click=\"delete()\" x-bind:disabled=\"!data.id\">Eliminar</button> <button type=\"button\" @click=\"editor()\" x-bind:disabled=\"!data.id\">Editor</button></div><form><fieldset><legend>Seleccionar Sitio</legend> <select name=\"page\" @change=\"select($event.target.value)\"><template x-for=\"(value, key) in pages\" :key=\"key\"><option :value=\"key\" x-text=\"value.name\"></option></template></select></fieldset><fieldset><legend>Nombre</legend> <input name=\"name\" x-model=\"data.name\" required></fieldset><fieldset><legend>Titulo</legend> <input name=\"title\" x-model=\"data.title\" required></fieldset><fieldset role=\"grop\"><legend>Url</legend> <input name=\"url\" :value=\"pageUrl\" required :disabled=\"pageUrlIsDisabled\"></fieldset><div class=\"actions\"><button type=\"button\" @click=\"save()\" x-bind:disabled=\"!data.id\">Guardar</button></div></form></div><div class=\"page\" x-show=\"page\" x-transition><div class=\"options\"></div><iframe :src=\"`/dashboard/api/pages/${page}/render`\"></iframe></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\"><template x-if=\"ready\"><div class=\"container\"><div class=\"edit\"><div role=\"group\"><button type=\"button\">Crear</button> <button type=\"button\">Fuentes</button> <button type=\"button\">Eliminar</button> <button type=\"button\">Editor</button></div><form @submit.prevent=\"savePage()\"><fieldset><legend>Seleccionar Sitio</legend> <select name=\"page\" @change=\"select($event.target.value)\"><template x-for=\"(value, key) in pages\" :key=\"key\"><option :value=\"key\" x-text=\"value.name\"></option></template></select></fieldset><fieldset><legend>Nombre</legend> <input name=\"name\" x-model=\"data.name\" required></fieldset><fieldset><legend>Titulo</legend> <input name=\"title\" x-model=\"data.title\" required></fieldset><fieldset role=\"grop\"><legend>Url</legend> <input name=\"url\" :value=\"pageUrl\" required :disabled=\"pageUrlIsDisabled\"></fieldset><div class=\"actions\"><button type=\"submit\" :disabled=\"loading\">Guardar</button></div></form></div><div class=\"page\" x-show=\"page\" x-transition><div class=\"options\"></div><iframe :src=\"`/dashboard/api/pages/${page}/render`\"></iframe></div></div></template></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

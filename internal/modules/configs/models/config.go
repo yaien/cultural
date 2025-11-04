@@ -29,4 +29,5 @@ type Config struct {
 type ConfigRepository interface {
 	GetByHost(ctx context.Context, host string) (*Config, error)
 	GetByOrganizationID(ctx context.Context, organizationID primitive.ObjectID) (*Config, error)
+	Update(ctx context.Context, config *Config) error
 }
