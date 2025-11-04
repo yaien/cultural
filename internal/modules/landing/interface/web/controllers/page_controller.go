@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"text/template"
 
-	"github.com/yaien/cultural/internal/modules/configs/library/views"
+	"github.com/yaien/cultural/internal/modules/configs/library/render"
 	"github.com/yaien/cultural/internal/modules/configs/models"
 )
 
@@ -24,7 +24,7 @@ func (c *PageController) Index(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "text/html")
-	_ = views.Page(page, nil).Render(r.Context(), w)
+	_ = render.Page(page, nil).Render(r.Context(), w)
 }
 
 func (c *PageController) Page(w http.ResponseWriter, r *http.Request) {
@@ -45,7 +45,7 @@ func (c *PageController) Page(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "text/html")
-	_ = views.Page(page, nil).Render(r.Context(), w)
+	_ = render.Page(page, nil).Render(r.Context(), w)
 }
 
 var styles = template.Must(template.New("styles").Parse(`

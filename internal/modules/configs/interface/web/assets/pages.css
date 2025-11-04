@@ -1,0 +1,33 @@
+.container {
+    display: flex;
+    height: 100%;
+    width: 100%;
+    gap: 1rem;
+    padding: 1rem;
+    box-sizing: border-box;
+}
+
+.page {
+    flex-grow: 1;
+}
+
+.page iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    box-shadow: 1px 1px 5px var(--shadow-color);
+    border-radius: 0.5rem;
+}
+
+
+.edit {
+    width: 30%;
+    box-shadow: 1px 1px 5px var(--shadow-color);
+    border-radius: 0.5rem;
+    padding: 1rem;
+    box-sizing: border-box;
+}
+
+.actions {
+    text-align: center;
+}

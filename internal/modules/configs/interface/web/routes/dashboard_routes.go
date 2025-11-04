@@ -16,7 +16,14 @@ func dashboard(mono *infrastructure.Monolith, app *application.Application, md *
 	ctrl := controllers.NewDashboardController(app)
 
 	router := http.NewServeMux()
-	router.Handle("GET /dashboard/sites", templ.Handler(views.Sites()))
+
+	{
+		ctrl := controllers.NewPagesController(app)
+		router.HandleFunc("GET /dashboard/pages", ctrl.Index)
+		router.HandleFunc("GET /dashboard/api/pages/{page}/render", ctrl.Render)
+		router.HandleFunc("GET /dashboard/api/pages", ctrl.List)
+	}
+
 	router.Handle("GET /dashboard/events", templ.Handler(views.Events()))
 	router.Handle("GET /dashboard/products", templ.Handler(views.Products()))
 	router.Handle("GET /dashboard/members", templ.Handler(views.Members()))

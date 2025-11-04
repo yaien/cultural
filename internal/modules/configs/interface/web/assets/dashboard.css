@@ -13,6 +13,34 @@
     --main-bg-color: white;
     --main-text-color: #71717a;
     --shadow-color: rgba(0, 0, 0, 0.1);
+    --border-color: #e5e7eb;
+    --border-radius: 0.5rem;
+    --primary-color: #3b82f6;
+    --primary-color-hover: #2563eb;
+    --primary-color-light: #dbeafe;
+    --primary-color-dark: #1e40af;
+    --secondary-color: #a1a1aa;
+    --secondary-color-hover: #71717a;
+    --secondary-color-light: #f3f4f5;
+    --secondary-color-dark: #52525b;
+    --danger-color: #ef4444;
+    --danger-color-hover: #b91c1c;
+    --danger-color-light: #fee2e2;
+    --danger-color-dark: #7f1d1d;
+    --warning-color: #f59e0b;
+    --warning-color-hover: #b45309;
+    --warning-color-light: #ffedd5;
+    --warning-color-dark: #78350f;
+    --success-color: #10b981;
+    --success-color-hover: #047857;
+    --success-color-light: #d1fae5;
+    --success-color-dark: #064e3b;
+    --light-color: #f9fafb;
+    --light-color-hover: #f3f4f5;
+    --light-color-dark: #d1d5db;
+    --dark-color: #111827;
+    --dark-color-hover: #1f2937;
+    --dark-color-light: #374151;
 }
 
 body {
@@ -81,7 +109,7 @@ aside li {
 aside li.active a {
     background-color: var(--aside-text-color);
     color: var(--header-bg-color);
-    border-radius: 0.8rem;
+    border-radius: var(--border-radius);
 }
 
 aside svg {
@@ -159,9 +187,63 @@ header button.toggle {
     align-items: center;
 }
 
-
-
 header h3 {
     margin: 0;
     font-size: 20px;
+}
+
+legend {
+    font-weight: medium;
+}
+
+fieldset {
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    margin-bottom: 1rem;
+}
+
+fieldset:focus-within {
+    border-color: var(--primary-color);
+}
+
+select, input {
+    width: 100%;
+    margin: 0;
+    border: none;
+    font-size: medium;
+}
+
+select:focus, input:focus {
+    outline: none;
+}
+
+select:disabled, input:disabled {
+    background: none;
+}
+
+button {
+    padding: 0.5rem;
+    font-size: medium;
+    cursor: pointer;
+}
+
+div[role=group] {
+    display: flex;
+    justify-content: center;
+    margin: 1rem 0;
+}
+
+div[role=group] button {
+    border: none;
+    margin: 0;
+    border-right: 1px solid var(--border-color);
+}
+
+div[role=group] button:first-child {
+    border-radius: var(--border-radius) 0 0 var(--border-radius);
+}
+
+div[role=group] button:last-child {
+    border-radius: 0 var(--border-radius) var(--border-radius) 0;
+    border-right: none;
 }

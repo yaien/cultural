@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/yaien/cultural/internal/modules/configs/library/views"
+	"github.com/yaien/cultural/internal/modules/configs/library/render"
 	"github.com/yaien/cultural/internal/modules/configs/models"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"gopkg.in/gomail.v2"
@@ -108,10 +108,10 @@ func (c *CreateInvitationCommand) CreateInvitation(ctx context.Context, req *Cre
 		"invitation.url":    fmt.Sprintf("%s/invitation/%s", config.Url, invitation.ID.Hex()),
 	}
 
-	email.Subject = views.BindStr(email.Subject, data)
+	email.Subject = render.BindStr(email.Subject, data)
 
 	var body bytes.Buffer
-	err = views.Email(email, data).Render(ctx, &body)
+	err = render.Email(email, data).Render(ctx, &body)
 	if err != nil {
 		return nil, fmt.Errorf("failed creating email body: %w", err)
 	}
