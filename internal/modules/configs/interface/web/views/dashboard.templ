@@ -5,8 +5,21 @@ import (
 	"github.com/yaien/cultural/internal/modules/configs/models"
 )
 
-templ Dashboard(title string) {
+var links = []struct {
+	path string
+	name string
+	icon templ.Component
+}{
+	{path: "/dashboard", name: "Dashboard", icon: icons.Home()},
+	{path: "/dashboard/sites", name: "Sites", icon: icons.Website()},
+	{path: "/dashboard/events", name: "Events", icon: icons.Calendar()},
+	{path: "/dashboard/products", name: "Products", icon: icons.Box()},
+	{path: "/dashboard/members", name: "Members", icon: icons.UserList()},
+}
+
+templ Dashboard(title string, path string) {
 	{{ config := ctx.Value(models.ConfigContextKey).(*models.Config) }}
+	{{ user := ctx.Value(models.UserContextKey).(*models.User) }}
 	<html lang="es">
 		<head>
 			<meta charset="UTF-8"/>
@@ -22,13 +35,47 @@ templ Dashboard(title string) {
 				<button class="toggle" @click="open = !open" aria-label="Toggle Menu">
 					@icons.Menu()
 				</button>
-				<h3>{ title }</h3>
+				<div class="title">
+					<h3>{ title }</h3>
+				</div>
+				<div class="account">
+					<span>{ user.Name } ({ user.Email }) </span>
+				</div>
 			</header>
-			<aside></aside>
+			<aside>
+				<div class="title">
+					<h2>{ config.Title }</h2>
+				</div>
+				<nav>
+					<ul>
+						for _, link := range links {
+							<li class={ templ.KV("active", path == link.path) }>
+								<a href={ link.path } hx-boost="true">
+									@link.icon
+									{ link.name }
+								</a>
+							</li>
+						}
+					</ul>
+				</nav>
+				<div class="footer">
+					<nav>
+						<ul>
+							<li>
+								<a href="/auth/logout">
+									@icons.Logout()
+									Logout
+								</a>
+							</li>
+						</ul>
+					</nav>
+				</div>
+			</aside>
 			<main>
 				{ children... }
 			</main>
 			<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+			<script defer src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.8/dist/htmx.min.js"></script>
 		</body>
 	</html>
 }
