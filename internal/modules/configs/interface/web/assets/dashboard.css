@@ -200,24 +200,26 @@ fieldset {
     border: 1px solid var(--border-color);
     border-radius: var(--border-radius);
     margin-bottom: 1rem;
+    min-inline-size: inherit;
 }
 
 fieldset:focus-within {
     border-color: var(--primary-color);
 }
 
-select, input {
+select, input, textarea {
     width: 100%;
     margin: 0;
     border: none;
     font-size: medium;
+    background: none;
 }
 
-select:focus, input:focus {
+select:focus, input:focus, textarea:focus {
     outline: none;
 }
 
-select:disabled, input:disabled {
+select:disabled, input:disabled, textarea:disabled {
     background: none;
 }
 

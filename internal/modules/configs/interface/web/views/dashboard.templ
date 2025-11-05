@@ -60,7 +60,7 @@ templ Dashboard(options Options) {
 					<ul>
 						for _, link := range links {
 							<li class={ templ.KV("active", options.Path == link.path) }>
-								<a href={ link.path } hx-boost="true">
+								<a href={ link.path }>
 									@link.icon
 									{ link.name }
 								</a>
@@ -88,7 +88,6 @@ templ Dashboard(options Options) {
 				<script defer src={ script }></script>
 			}
 			<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-			<script defer src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.8/dist/htmx.min.js"></script>
 		</body>
 	</html>
 }
