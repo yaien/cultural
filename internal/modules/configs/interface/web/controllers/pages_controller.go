@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"bytes"
 	"encoding/json"
 	"net/http"
 
@@ -56,13 +57,29 @@ func (c *PagesController) Update(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c *PagesController) Render(w http.ResponseWriter, r *http.Request) {
-	config := r.Context().Value(models.ConfigContextKey).(*models.Config)
-	page, ok := config.Pages[r.PathValue("page")]
-	if !ok {
-		http.NotFound(w, r)
+
+	var input struct {
+		Type  string       `json:"type"`
+		Body  models.Page  `json:"body"`
+		Email models.Email `json:"email"`
+	}
+
+	err := json.NewDecoder(r.Body).Decode(&input)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	w.Header().Set("Content-Type", "text/html")
-	_ = render.Page(page, nil).Render(r.Context(), w)
+	var buffer bytes.Buffer
+
+	switch input.Type {
+	case "page":
+		_ = render.Page(input.Body, nil).Render(r.Context(), &buffer)
+	case "email":
+		_ = render.Email(input.Email, nil).Render(r.Context(), &buffer)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	_ = json.NewEncoder(w).Encode(map[string]any{"html": buffer.String()})
+
 }

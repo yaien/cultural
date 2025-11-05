@@ -20,7 +20,7 @@ func dashboard(mono *infrastructure.Monolith, app *application.Application, md *
 	{
 		ctrl := controllers.NewPagesController(app)
 		router.HandleFunc("GET /dashboard/pages", ctrl.Index)
-		router.HandleFunc("GET /dashboard/api/pages/{page}/render", ctrl.Render)
+		router.HandleFunc("POST /dashboard/api/render", ctrl.Render)
 		router.HandleFunc("GET /dashboard/api/pages", ctrl.List)
 		router.HandleFunc("PUT /dashboard/api/pages/{page}", ctrl.Update)
 	}

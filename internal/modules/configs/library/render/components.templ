@@ -178,12 +178,14 @@ templ H1(node models.Node) {
 
 templ H2(node models.Node) {
 	<h2 { node.Attrs... } style={ node.Style }>
+		{ node.Content }
 		{ children... }
 	</h2>
 }
 
 templ H3(node models.Node) {
 	<h3 { node.Attrs... } style={ node.Style }>
+		{ node.Content }
 		{ children... }
 	</h3>
 }

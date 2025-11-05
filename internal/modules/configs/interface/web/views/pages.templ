@@ -15,18 +15,12 @@ func marshal(data any) string {
 templ Pages() {
 	{{ config := ctx.Value(models.ConfigContextKey).(*models.Config) }}
 	@Dashboard(Options{
-		Title: "Sites",
-		Path:  "/dashboard/pages",
-		Scripts: []string{
-			"/assets/static/dashboard/pages.js",
-			"https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/codemirror.min.js",
-			"https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js",
-		},
-		Styles: []string{
-			"/assets/static/dashboard/pages.css",
-			"https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/codemirror.min.css",
-		},
+		Title:   "Sites",
+		Path:    "/dashboard/pages",
+		Scripts: []string{"/assets/static/dashboard/dist/pages.min.js"},
+		Styles:  []string{"/assets/static/dashboard/pages.css"},
 	}) {
+		<div id="app"></div>
 		<div x-data={ fmt.Sprintf("pages({ url: %q })", config.Url) }>
 			<template x-if="ready">
 				<div class="container">
@@ -44,7 +38,7 @@ templ Pages() {
 							<button @click="set(states.font)">
 								@icons.BrandFamily()
 							</button>
-							<button @click="set(states.editor)">
+							<button @click="open = false; set(states.editor)">
 								@icons.CodeBlocks()
 							</button>
 						</div>
@@ -100,18 +94,15 @@ templ Pages() {
 						<div x-show="on(states.font)" x-transition:enter.delay.75ms>
 							Looad google fonts here
 						</div>
-						<div x-show="on(states.editor)" x-transition:enter.delay.75ms>
-							<fieldset x-data="mirror(data.body)" @update="edit($event.detail)" x-ref="parent" id="parent">
-								<legend>Editor de Código</legend>
-								<textarea x-ref="textarea" x-text="pageBody" name="body" rows="30"></textarea>
-							</fieldset>
+						<div style="height: 80%;" x-show="on(states.editor)" x-transition:enter.delay.75ms>
+							<div x-data="mirror(data.body)" @update="edit($event.detail)"></div>
 							<div class="actions">
-								<button @click="updateContent()" :disabled="loading">Guardar</button>
+								<button @click="update()" :disabled="loading">Guardar</button>
 							</div>
 						</div>
 					</div>
-					<div class="page">
-						<iframe x-ref="iframe" :src="`/dashboard/api/pages/${page}/render`"></iframe>
+					<div class="page" x-show="srcdoc" x-transition>
+						<iframe x-ref="iframe" :srcdoc="srcdoc"></iframe>
 					</div>
 				</div>
 			</template>

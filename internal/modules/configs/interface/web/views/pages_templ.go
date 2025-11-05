@@ -54,14 +54,14 @@ func Pages() templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div x-data=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div id=\"app\"></div><div x-data=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("pages({ url: %q })", config.Url))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/configs/interface/web/views/pages.templ`, Line: 30, Col: 61}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/configs/interface/web/views/pages.templ`, Line: 24, Col: 61}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
@@ -99,7 +99,7 @@ func Pages() templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</button> <button @click=\"set(states.editor)\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</button> <button @click=\"open = false; set(states.editor)\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -107,24 +107,17 @@ func Pages() templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</button></div><form @submit.prevent=\"update()\" x-show=\"on(states.initial)\" x-transition:enter.delay.75ms><fieldset><legend>Seleccionar Sitio</legend> <select name=\"page\" @change=\"select($event.target.value)\"><template x-for=\"(value, key) in pages\" :key=\"key\"><option :value=\"key\" x-text=\"value.name\"></option></template></select></fieldset><fieldset><legend>Nombre</legend> <input name=\"name\" x-model=\"data.name\" required></fieldset><fieldset><legend>Titulo</legend> <input name=\"title\" x-model=\"data.title\" required></fieldset><fieldset role=\"grop\"><legend>Url</legend> <input name=\"url\" :value=\"pageUrl\" required :disabled=\"pageIsIndex\"></fieldset><div class=\"actions\"><button type=\"submit\" :disabled=\"loading\">Guardar</button></div></form><form @submit.prevent=\"create()\" x-show=\"on(states.create)\" x-transition:enter.delay.75ms><fieldset><legend>Nombre</legend> <input name=\"name\" x-model=\"data.name\" required></fieldset><fieldset><legend>Titulo</legend> <input name=\"title\" x-model=\"data.title\" required></fieldset><fieldset role=\"grop\"><legend>Url</legend> <input name=\"url\" :value=\"pageUrl\" required></fieldset><div class=\"actions\"><button type=\"submit\" :disabled=\"loading\">Crear</button></div></form><div x-show=\"on(states.delete)\" x-transition:enter.delay.75ms><p>¿Estás seguro de que deseas eliminar este sitio ?</p><div class=\"actions\"><button @click=\"set(states.initial)\" :disabled=\"loading\">Cancelar</button> <button @click=\"remove()\" :disabled=\"loading\">Eliminar</button></div></div><div x-show=\"on(states.font)\" x-transition:enter.delay.75ms>Looad google fonts here</div><div x-show=\"on(states.editor)\" x-transition:enter.delay.75ms><fieldset x-data=\"mirror(data.body)\" @update=\"edit($event.detail)\" x-ref=\"parent\" id=\"parent\"><legend>Editor de Código</legend> <textarea x-ref=\"textarea\" x-text=\"pageBody\" name=\"body\" rows=\"30\"></textarea></fieldset><div class=\"actions\"><button @click=\"updateContent()\" :disabled=\"loading\">Guardar</button></div></div></div><div class=\"page\"><iframe x-ref=\"iframe\" :src=\"`/dashboard/api/pages/${page}/render`\"></iframe></div></div></template></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</button></div><form @submit.prevent=\"update()\" x-show=\"on(states.initial)\" x-transition:enter.delay.75ms><fieldset><legend>Seleccionar Sitio</legend> <select name=\"page\" @change=\"select($event.target.value)\"><template x-for=\"(value, key) in pages\" :key=\"key\"><option :value=\"key\" x-text=\"value.name\"></option></template></select></fieldset><fieldset><legend>Nombre</legend> <input name=\"name\" x-model=\"data.name\" required></fieldset><fieldset><legend>Titulo</legend> <input name=\"title\" x-model=\"data.title\" required></fieldset><fieldset role=\"grop\"><legend>Url</legend> <input name=\"url\" :value=\"pageUrl\" required :disabled=\"pageIsIndex\"></fieldset><div class=\"actions\"><button type=\"submit\" :disabled=\"loading\">Guardar</button></div></form><form @submit.prevent=\"create()\" x-show=\"on(states.create)\" x-transition:enter.delay.75ms><fieldset><legend>Nombre</legend> <input name=\"name\" x-model=\"data.name\" required></fieldset><fieldset><legend>Titulo</legend> <input name=\"title\" x-model=\"data.title\" required></fieldset><fieldset role=\"grop\"><legend>Url</legend> <input name=\"url\" :value=\"pageUrl\" required></fieldset><div class=\"actions\"><button type=\"submit\" :disabled=\"loading\">Crear</button></div></form><div x-show=\"on(states.delete)\" x-transition:enter.delay.75ms><p>¿Estás seguro de que deseas eliminar este sitio ?</p><div class=\"actions\"><button @click=\"set(states.initial)\" :disabled=\"loading\">Cancelar</button> <button @click=\"remove()\" :disabled=\"loading\">Eliminar</button></div></div><div x-show=\"on(states.font)\" x-transition:enter.delay.75ms>Looad google fonts here</div><div style=\"height: 80%;\" x-show=\"on(states.editor)\" x-transition:enter.delay.75ms><div x-data=\"mirror(data.body)\" @update=\"edit($event.detail)\"></div><div class=\"actions\"><button @click=\"update()\" :disabled=\"loading\">Guardar</button></div></div></div><div class=\"page\" x-show=\"srcdoc\" x-transition><iframe x-ref=\"iframe\" :srcdoc=\"srcdoc\"></iframe></div></div></template></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			return nil
 		})
 		templ_7745c5c3_Err = Dashboard(Options{
-			Title: "Sites",
-			Path:  "/dashboard/pages",
-			Scripts: []string{
-				"/assets/static/dashboard/pages.js",
-				"https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/codemirror.min.js",
-				"https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js",
-			},
-			Styles: []string{
-				"/assets/static/dashboard/pages.css",
-				"https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/codemirror.min.css",
-			},
+			Title:   "Sites",
+			Path:    "/dashboard/pages",
+			Scripts: []string{"/assets/static/dashboard/dist/pages.min.js"},
+			Styles:  []string{"/assets/static/dashboard/pages.css"},
 		}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
