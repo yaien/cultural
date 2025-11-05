@@ -31,7 +31,7 @@ document.addEventListener("alpine:init", () => {
             const res = await fetch("/dashboard/api/pages");
             this.pages = await res.json();
         },
-        async render() {
+        async render(options = { reset: true }) {
             const res = await fetch("/dashboard/api/render", {
                 method: "POST",
                 headers: { "content-type": "application/json" },
@@ -40,7 +40,14 @@ document.addEventListener("alpine:init", () => {
 
             const data = await res.json();
 
-            this.srcdoc = data.html;
+            if (options.reset) {
+                this.srcdoc = data.html;
+                return;
+            }
+
+            this.$refs.iframe.contentDocument.documentElement.innerHTML = data.html;
+
+
         },
         async update() {
             this.loading = true;
@@ -66,7 +73,7 @@ document.addEventListener("alpine:init", () => {
         async edit(body) {
             if (this.data) {
                 this.data.body = body;
-                await this.render();
+                await this.render({ reset: false });
             }
         },
 
