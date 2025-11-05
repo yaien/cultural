@@ -19,8 +19,27 @@ templ Fonts(fonts models.Fonts) {
 	}
 }
 
-templ Page(page models.Page, data map[string]any) {
-	{{ config := ctx.Value(models.ConfigContextKey).(*models.Config) }}
+type options struct {
+	sse string
+}
+
+type Option func(*options)
+
+func WithSSE(sse string) Option {
+	return func(o *options) {
+		o.sse = sse
+	}
+}
+
+templ Page(page models.Page, data map[string]any, opts ...Option) {
+	{{
+		var o options
+		for _, option := range opts {
+			option(&o)
+		}
+
+		config := ctx.Value(models.ConfigContextKey).(*models.Config)
+	}}
 	<!DOCTYPE html>
 	<html lang="es">
 		<head>
@@ -30,10 +49,20 @@ templ Page(page models.Page, data map[string]any) {
 			@Fonts(config.Fonts)
 			<link rel="stylesheet" href="/assets/static/landing/base.css"/>
 			<link rel="stylesheet" href="/assets/landing/styles.css"/>
-		</head>
-		<body>
-			@Render(page.Body, data)
 			<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-		</body>
+			if o.sse != "" {
+				<script defer src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.8/dist/htmx.min.js" integrity="sha384-/TgkGk7p307TH7EXJDuUlgG3Ce1UVolAOFopFekQkkXihi5u/6OCvVKyz1W+idaz" crossorigin="anonymous"></script>
+				<script defer src="https://cdn.jsdelivr.net/npm/htmx-ext-sse@2.2.4" integrity="sha384-A986SAtodyH8eg8x8irJnYUk7i9inVQqYigD6qZ9evobksGNIXfeFvDwLSHcp31N" crossorigin="anonymous"></script>
+			}
+		</head>
+		if o.sse != "" {
+			<body hx-ext="sse" sse-connect={ o.sse } sse-swap="changes">
+				@Render(page.Body, data)
+			</body>
+		} else {
+			<body>
+				@Render(page.Body, data)
+			</body>
+		}
 	</html>
 }

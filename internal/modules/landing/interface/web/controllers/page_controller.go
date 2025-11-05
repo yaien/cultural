@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"net/http"
-	"text/template"
 
 	"github.com/yaien/cultural/internal/modules/configs/library/render"
 	"github.com/yaien/cultural/internal/modules/configs/models"
@@ -48,22 +47,11 @@ func (c *PageController) Page(w http.ResponseWriter, r *http.Request) {
 	_ = render.Page(page, nil).Render(r.Context(), w)
 }
 
-var styles = template.Must(template.New("styles").Parse(`
-	:root {
-	{{range $key, $value := .Fonts.Families}}
-		--font-{{ $key }}: '{{ $value }}', sans-serif;
-	{{ end }}		
-	{{range $key, $value := .Colors}}
-		--color-{{ $key }}: {{ $value }};
-	{{ end }}
-	}
-`))
-
 func (c *PageController) Styles(w http.ResponseWriter, r *http.Request) {
 	config := r.Context().Value(models.ConfigContextKey).(*models.Config)
 
 	w.Header().Set("Content-Type", "text/css")
-	err := styles.Execute(w, config)
+	err := models.Styles.Execute(w, config)
 	if err != nil {
 		http.Error(w, "Failed to generate styles", http.StatusInternalServerError)
 		return

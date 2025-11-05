@@ -33,6 +33,7 @@ require (
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/natefinch/atomic v1.0.1 // indirect
 	github.com/pelletier/go-toml v1.9.5 // indirect
+	github.com/pkg/browser v0.0.0-20240102092130-5ac0b6a4141c // indirect
 	github.com/tdewolff/parse/v2 v2.8.3 // indirect
 	golang.org/x/mod v0.27.0 // indirect
 	golang.org/x/net v0.43.0 // indirect

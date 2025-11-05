@@ -1,6 +1,8 @@
 package models
 
 import (
+	"html/template"
+
 	"github.com/a-h/templ"
 )
 
@@ -23,6 +25,17 @@ type Page struct {
 	Styles string `bson:"styles,omitempty" json:"styles,omitempty"`
 	Body   Node   `bson:"body" json:"body"`
 }
+
+var Styles = template.Must(template.New("styles").Parse(`
+	:root {
+	{{range $key, $value := .Fonts.Families}}
+		--font-{{ $key }}: '{{ $value }}', sans-serif;
+	{{ end }}		
+	{{range $key, $value := .Colors}}
+		--color-{{ $key }}: {{ $value }};
+	{{ end }}
+	}
+`))
 
 var DefaultFonts = Fonts{
 	Type: "google",
