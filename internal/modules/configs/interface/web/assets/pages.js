@@ -1,5 +1,6 @@
 import { EditorView, basicSetup } from 'codemirror'
 import { javascript } from '@codemirror/lang-javascript'
+import { css } from '@codemirror/lang-css'
 
 
 document.addEventListener("alpine:init", () => {
@@ -19,6 +20,7 @@ document.addEventListener("alpine:init", () => {
             fonts: 2,
             delete: 3,
             editor: 4,
+            styles: 5,
         },
 
         async init() {
@@ -35,7 +37,7 @@ document.addEventListener("alpine:init", () => {
             const res = await fetch("/dashboard/api/render", {
                 method: "POST",
                 headers: { "content-type": "application/json" },
-                body: JSON.stringify({ type: "page", body: this.data }),
+                body: JSON.stringify({ type: "page", page: this.data }),
             });
 
             const data = await res.json();
@@ -70,9 +72,9 @@ document.addEventListener("alpine:init", () => {
             this.loading = false;
         },
 
-        async edit(body) {
+        async edit(content, scope = "body") {
             if (this.data) {
-                this.data.body = body;
+                this.data[scope] = content;
                 await this.render({ reset: false });
             }
         },
@@ -99,7 +101,7 @@ document.addEventListener("alpine:init", () => {
         },
     }));
 
-    Alpine.data("mirror", (data) => ({
+    Alpine.data("mirror", (data, mode = "json") => ({
 
         init() {
             const theme = EditorView.theme({
@@ -114,25 +116,56 @@ document.addEventListener("alpine:init", () => {
 
             const listener = EditorView.updateListener.of(({ docChanged, state }) => {
                 if (!docChanged) return
-                try {
-                    const content = state.doc.toString();
-                    const parsedData = JSON.parse(content);
-                    this.$dispatch("update", parsedData);
-                } catch (e) {
-                    console.error("Invalid JSON", e);
-                }
+                const content = state.doc.toString();
+                this.dispatch(content);
             });
 
             new EditorView({
-                doc: JSON.stringify(data, null, 2),
+                doc: this.format(data),
                 extensions: [
                     basicSetup,
                     theme,
-                    javascript(),
+                    this.extension(),
                     listener
                 ],
                 parent: this.$el,
             });
+        },
+
+        format(data) {
+            switch (mode) {
+                case "css":
+                    return typeof data === 'string' ? data : '';
+                case "json":
+                default:
+                    return JSON.stringify(data, null, 2);
+            }
+        },
+
+        extension() {
+            switch (mode) {
+                case "css":
+                    return css();
+                case "json":
+                    return javascript();
+                default:
+                    return javascript();
+            }
+        },
+
+        dispatch(content) {
+            try {
+                switch (mode) {
+                    case "json":
+                        const parsedData = JSON.parse(content);
+                        this.$dispatch("update", parsedData);
+                        break
+                    default:
+                        this.$dispatch("update", content);
+                }
+            } catch (e) {
+                console.error("Invalid JSON", e);
+            }
         },
     }));
 });

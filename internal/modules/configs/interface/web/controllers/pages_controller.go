@@ -60,7 +60,7 @@ func (c *PagesController) Render(w http.ResponseWriter, r *http.Request) {
 
 	var input struct {
 		Type  string       `json:"type"`
-		Body  models.Page  `json:"body"`
+		Page  models.Page  `json:"page"`
 		Email models.Email `json:"email"`
 	}
 
@@ -74,7 +74,7 @@ func (c *PagesController) Render(w http.ResponseWriter, r *http.Request) {
 
 	switch input.Type {
 	case "page":
-		_ = render.Page(input.Body, nil).Render(r.Context(), &buffer)
+		_ = render.Page(input.Page, nil, render.WithInlineStyles()).Render(r.Context(), &buffer)
 	case "email":
 		_ = render.Email(input.Email, nil).Render(r.Context(), &buffer)
 	}

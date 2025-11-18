@@ -21,14 +21,14 @@ templ Fonts(fonts models.Fonts) {
 }
 
 type options struct {
-	sse string
+	inlineStyles bool
 }
 
 type Option func(*options)
 
-func WithSSE(sse string) Option {
+func WithInlineStyles() Option {
 	return func(o *options) {
-		o.sse = sse
+		o.inlineStyles = true
 	}
 }
 
@@ -51,21 +51,15 @@ templ Page(page models.Page, data map[string]any, opts ...Option) {
 			<base href={ config.Url }/>
 			<link rel="stylesheet" href="/assets/static/landing/base.css"/>
 			<link rel="stylesheet" href="/assets/landing/styles.css"/>
-			<link rel="stylesheet" href={ fmt.Sprintf("/assets/landing/styles/%s.css", page.Name) }/>
-			<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-			if o.sse != "" {
-				<script defer src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.8/dist/htmx.min.js" integrity="sha384-/TgkGk7p307TH7EXJDuUlgG3Ce1UVolAOFopFekQkkXihi5u/6OCvVKyz1W+idaz" crossorigin="anonymous"></script>
-				<script defer src="https://cdn.jsdelivr.net/npm/htmx-ext-sse@2.2.4" integrity="sha384-A986SAtodyH8eg8x8irJnYUk7i9inVQqYigD6qZ9evobksGNIXfeFvDwLSHcp31N" crossorigin="anonymous"></script>
+			if o.inlineStyles {
+				@templ.Raw(fmt.Sprintf("<style type=%q>%s</style>", "text/css", page.Styles))
+			} else {
+				<link rel="stylesheet" href={ fmt.Sprintf("/assets/landing/styles/%s.css", page.Name) }/>
 			}
+			<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 		</head>
-		if o.sse != "" {
-			<body hx-ext="sse" sse-connect={ o.sse } sse-swap="changes">
-				@Render(page.Body, data)
-			</body>
-		} else {
-			<body>
-				@Render(page.Body, data)
-			</body>
-		}
+		<body>
+			@Render(page.Body, data)
+		</body>
 	</html>
 }

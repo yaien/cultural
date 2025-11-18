@@ -41,6 +41,9 @@ templ Pages() {
 							<button @click="open = false; set(states.editor)">
 								@icons.CodeBlocks()
 							</button>
+							<button @click="open = false; set(states.styles)">
+								@icons.CodeBlocks()
+							</button>
 						</div>
 						<form @submit.prevent="update()" x-show="on(states.initial)" x-transition:enter.delay.75ms>
 							<fieldset>
@@ -96,6 +99,12 @@ templ Pages() {
 						</div>
 						<div style="height: 80%;" x-show="on(states.editor)" x-transition:enter.delay.75ms>
 							<div x-data="mirror(data.body)" @update="edit($event.detail)"></div>
+							<div class="actions">
+								<button @click="update()" :disabled="loading">Guardar</button>
+							</div>
+						</div>
+						<div style="height: 80%;" x-show="on(states.styles)" x-transition:enter.delay.75ms>
+							<div x-data="mirror(data.styles, 'css')" @update="edit($event.detail, 'styles')"></div>
 							<div class="actions">
 								<button @click="update()" :disabled="loading">Guardar</button>
 							</div>
