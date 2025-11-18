@@ -1,44 +1,44 @@
 .container {
-    display: flex;
-    height: 100%;
-    width: 100%;
-    gap: 1rem;
-    padding: 1rem;
-    box-sizing: border-box;
+  display: flex;
+  height: 100%;
+  width: 100%;
+  gap: 1rem;
+  padding: 1rem;
+  box-sizing: border-box;
 }
 
 .page {
-    flex-grow: 1;
+  flex-grow: 1;
 }
 
 .page iframe {
-    width: 100%;
-    height: 100%;
-    border: none;
-    box-shadow: 1px 1px 5px var(--shadow-color);
-    border-radius: 0.5rem;
+  width: 100%;
+  height: 100%;
+  border: none;
+  box-shadow: 1px 1px 5px var(--shadow-color);
+  border-radius: 0.5rem;
 }
 
-
 .edit {
-    width: 40%;
-    box-shadow: 1px 1px 5px var(--shadow-color);
-    border-radius: 0.5rem;
-    padding: 1rem;
-    box-sizing: border-box;
+  width: 40%;
+  box-shadow: 1px 1px 5px var(--shadow-color);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  box-sizing: border-box;
+  overflow: auto;
 }
 
 .actions {
-    text-align: center;
+  text-align: center;
+  padding-bottom: 1rem;
 }
 
-
 .cm-editor {
-    height: 100%;
-    border: 1px solid var(--border-color);
-    border-radius: 0.5rem;
+  height: 100%;
+  border: 1px solid var(--border-color);
+  border-radius: 0.5rem;
 }
 
 .cm-editor:focus {
-    outline: none;
+  outline: none;
 }
