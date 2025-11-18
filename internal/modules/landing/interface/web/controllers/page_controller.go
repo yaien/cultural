@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/yaien/cultural/internal/modules/configs/library/render"
 	"github.com/yaien/cultural/internal/modules/configs/models"
@@ -45,6 +46,28 @@ func (c *PageController) Page(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "text/html")
 	_ = render.Page(page, nil).Render(r.Context(), w)
+}
+
+func (c *PageController) PageStyles(w http.ResponseWriter, r *http.Request) {
+	config := r.Context().Value(models.ConfigContextKey).(*models.Config)
+
+	path := r.PathValue("page")
+
+	if path == "index" || !strings.HasSuffix(path, ".css") {
+		http.NotFound(w, r)
+		return
+	}
+
+	path = strings.TrimSuffix(path, ".css")
+
+	page, ok := config.Pages[path]
+	if !ok {
+		http.NotFound(w, r)
+		return
+	}
+
+	w.Header().Set("Content-Type", "text/css")
+	_, _ = w.Write([]byte(page.Styles))
 }
 
 func (c *PageController) Styles(w http.ResponseWriter, r *http.Request) {

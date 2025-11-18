@@ -1,6 +1,7 @@
 package render 
 
 import (
+	"fmt"
 	"github.com/yaien/cultural/internal/modules/configs/models"
 	"strings"
 )
@@ -47,8 +48,10 @@ templ Page(page models.Page, data map[string]any, opts ...Option) {
 			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 			<title>{ page.Title } - { config.Title }</title>
 			@Fonts(config.Fonts)
+			<base href={ config.Url }/>
 			<link rel="stylesheet" href="/assets/static/landing/base.css"/>
 			<link rel="stylesheet" href="/assets/landing/styles.css"/>
+			<link rel="stylesheet" href={ fmt.Sprintf("/assets/landing/styles/%s.css", page.Name) }/>
 			<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 			if o.sse != "" {
 				<script defer src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.8/dist/htmx.min.js" integrity="sha384-/TgkGk7p307TH7EXJDuUlgG3Ce1UVolAOFopFekQkkXihi5u/6OCvVKyz1W+idaz" crossorigin="anonymous"></script>

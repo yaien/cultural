@@ -13,6 +13,7 @@ func Register(mono *infrastructure.Monolith) {
 
 	mono.WebRouter.Handle("GET /assets/static/landing/", http.StripPrefix("/assets/static/landing/", http.FileServer(http.FS(assets.FS))))
 	mono.WebRouter.HandleFunc("GET /assets/landing/styles.css", ctrl.Styles)
+	mono.WebRouter.HandleFunc("GET /assets/landing/styles/{page}", ctrl.PageStyles)
 	mono.WebRouter.HandleFunc("/{page}", ctrl.Page)
 	mono.WebRouter.HandleFunc("/", ctrl.Index)
 }

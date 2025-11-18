@@ -45,56 +45,56 @@ templ Body(node models.Node) {
 }
 
 templ Header(node models.Node) {
-	<header { node.Attrs... } style={ node.Style }>
+	<header { node.Attrs... }>
 		{ node.Content }
 		{ children... }
 	</header>
 }
 
 templ Nav(node models.Node) {
-	<nav { node.Attrs... } style={ node.Style }>
+	<nav { node.Attrs... }>
 		{ node.Content }
 		{ children... }
 	</nav>
 }
 
 templ Main(node models.Node) {
-	<main { node.Attrs... } style={ node.Style }>
+	<main { node.Attrs... }>
 		{ node.Content }
 		{ children... }
 	</main>
 }
 
 templ Footer(node models.Node) {
-	<footer { node.Attrs... } style={ node.Style }>
+	<footer { node.Attrs... }>
 		{ node.Content }
 		{ children... }
 	</footer>
 }
 
 templ Section(node models.Node) {
-	<section { node.Attrs... } style={ node.Style }>
+	<section { node.Attrs... }>
 		{ node.Content }
 		{ children... }
 	</section>
 }
 
 templ Div(node models.Node) {
-	<div { node.Attrs... } style={ node.Style }>
+	<div { node.Attrs... }>
 		{ node.Content }
 		{ children... }
 	</div>
 }
 
 templ Span(node models.Node) {
-	<span { node.Attrs... } style={ node.Style }>
+	<span { node.Attrs... }>
 		{ node.Content }
 		{ children... }
 	</span>
 }
 
 templ Paragraph(node models.Node) {
-	<p { node.Attrs... } style={ node.Style }>
+	<p { node.Attrs... }>
 		{ node.Content }
 		{ children... }
 	</p>
@@ -102,117 +102,117 @@ templ Paragraph(node models.Node) {
 
 templ Image(node models.Node) {
 	{ node.Content }
-	<img { node.Attrs... } style={ node.Style }/>
+	<img { node.Attrs... }/>
 }
 
 templ Link(node models.Node) {
-	<a { node.Attrs... } style={ node.Style }>
+	<a { node.Attrs... }>
 		{ node.Content }
 		{ children... }
 	</a>
 }
 
 templ Button(node models.Node) {
-	<button { node.Attrs... } style={ node.Style }>
+	<button { node.Attrs... }>
 		{ node.Content }
 		{ children... }
 	</button>
 }
 
 templ List(node models.Node) {
-	<ul { node.Attrs... } style={ node.Style }>
+	<ul { node.Attrs... }>
 		{ node.Content }
 		{ children... }
 	</ul>
 }
 
 templ ListItem(node models.Node) {
-	<li { node.Attrs... } style={ node.Style }>
+	<li { node.Attrs... }>
 		{ children... }
 	</li>
 }
 
 templ Form(node models.Node) {
-	<form { node.Attrs... } style={ node.Style }>
+	<form { node.Attrs... }>
 		{ children... }
 	</form>
 }
 
 templ Input(node models.Node) {
-	<input { node.Attrs... } style={ node.Style }/>
+	<input { node.Attrs... }/>
 }
 
 templ TextArea(node models.Node) {
-	<textarea { node.Attrs... } style={ node.Style }>
+	<textarea { node.Attrs... }>
 		{ node.Content }
 		{ children... }
 	</textarea>
 }
 
 templ ButtonGroup(node models.Node) {
-	<div class="button-group" { node.Attrs... } style={ node.Style }>
+	<div class="button-group" { node.Attrs... }>
 		{ node.Content }
 		{ children... }
 	</div>
 }
 
 templ Card(node models.Node) {
-	<div class="card" { node.Attrs... } style={ node.Style }>
+	<div class="card" { node.Attrs... }>
 		{ node.Content }
 		{ children... }
 	</div>
 }
 
 templ Modal(node models.Node) {
-	<div class="modal" { node.Attrs... } style={ node.Style }>
+	<div class="modal" { node.Attrs... }>
 		{ children... }
 	</div>
 }
 
 templ H1(node models.Node) {
-	<h1 { node.Attrs... } style={ node.Style }>
+	<h1 { node.Attrs... }>
 		{ node.Content }
 		{ children... }
 	</h1>
 }
 
 templ H2(node models.Node) {
-	<h2 { node.Attrs... } style={ node.Style }>
+	<h2 { node.Attrs... }>
 		{ node.Content }
 		{ children... }
 	</h2>
 }
 
 templ H3(node models.Node) {
-	<h3 { node.Attrs... } style={ node.Style }>
+	<h3 { node.Attrs... }>
 		{ node.Content }
 		{ children... }
 	</h3>
 }
 
 templ H4(node models.Node) {
-	<h4 { node.Attrs... } style={ node.Style }>
+	<h4 { node.Attrs... }>
 		{ node.Content }
 		{ children... }
 	</h4>
 }
 
 templ H5(node models.Node) {
-	<h5 { node.Attrs... } style={ node.Style }>
+	<h5 { node.Attrs... }>
 		{ node.Content }
 		{ children... }
 	</h5>
 }
 
 templ H6(node models.Node) {
-	<h6 { node.Attrs... } style={ node.Style }>
+	<h6 { node.Attrs... }>
 		{ node.Content }
 		{ children... }
 	</h6>
 }
 
 templ Carousel(node models.Node) {
-	<div { node.Attrs... } class="carousel" role="carousel" style={ node.Style } x-data={ fmt.Sprintf("{ active: 0, count: %d }", len(node.Children)) }>
+	<div { node.Attrs... } class="carousel" role="carousel" x-data={ fmt.Sprintf("{ active: 0, count: %d }", len(node.Children)) }>
 		<button @click="active = active == 0 ? count - 1 : active - 1">
 			&#10216;
 		</button>
@@ -237,11 +237,11 @@ templ Carousel(node models.Node) {
 }
 
 templ Br(node models.Node) {
-	<br { node.Attrs... } style={ node.Style }/>
+	<br { node.Attrs... }/>
 }
 
 templ Raw(node models.Node) {
-	<div { node.Attrs... } style={ node.Style }>
+	<div { node.Attrs... }>
 		@templ.Raw(node.Content)
 	</div>
 }
@@ -265,7 +265,7 @@ templ EmailBody(node models.Node) {
 
 templ EmailSection(node models.Node) {
 	<tr>
-		<td { node.Attrs... } style={ node.Style }>
+		<td { node.Attrs... }>
 			{ node.Content }
 			{ children... }
 		</td>
