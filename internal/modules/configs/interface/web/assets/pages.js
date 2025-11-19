@@ -172,22 +172,23 @@ document.addEventListener("alpine:init", () => {
     Alpine.data("fonts", () => ({
         current: null,
         fonts: [],
-        limit: 8,
+        limit: 20,
         offset: 0,
         family: "",
         ready: false,
         loading: false,
 
         async init() {
-            await Promise.all([this.fechtFonts(), this.fetchCurrent()])
+            await Promise.all([this.fetchFonts(), this.fetchCurrent()])
             this.ready = true;
         },
 
-        async fechtFonts() {
+        async fetchFonts() {
             this.loading = true;
             const res = await fetch(`/dashboard/api/fonts?family=${this.family}&limit=${this.limit}&offset=${this.offset}`)
-            this.fonts = await res.json();
-            await Promise.all(this.fonts.map(font => this.load(font)));
+            const fonts = await res.json();
+            fonts.forEach(font => this.load(font))
+            this.fonts = this.fonts.concat(fonts);
             this.loading = false;
         },
 
@@ -197,15 +198,26 @@ document.addEventListener("alpine:init", () => {
         },
 
         async load(font) {
-
             const face = new FontFace(font.family, `url("${font.files.regular}")`, {
                 weight: "normal",
                 display: 'swap'
             });
-
             const loaded = await face.load()
             document.fonts.add(loaded);
+        },
 
+        async search(family) {
+            this.family = family;
+            this.offset = 0;
+            this.fonts = [];
+            await this.fetchFonts();
+        },
+
+        async scroll(event) {
+            if (event.target.scrollTop + event.target.clientHeight >= event.target.scrollHeight - 100) {
+                this.offset += this.limit;
+                await this.fetchFonts();
+            }
         },
 
         style(family) {

@@ -98,17 +98,23 @@ templ Pages() {
 							<div x-data="fonts">
 								<template x-if="ready">
 									<div class="fonts">
+										<fieldset role="group">
+											<legend>Fuentes</legend>
+											<input type="text" placeholder="Buscar fuente" @input.debounce.500ms="search($event.target.value)"/>
+										</fieldset>
 										<template x-for="(font, key) in current.families" :key="font">
 											<div class="font">
 												<div class="preview" x-text="font" :style="style(font)"></div>
 												<span x-text="key"></span>
 											</div>
 										</template>
-										<template x-for="font in fonts" :key="font.family">
-											<div class="font" x-show="isNotInCurrent(font.family)">
-												<div class="preview" x-text="font.family" :style="style(font.family)"></div>
-											</div>
-										</template>
+										<div class="list" @scroll.debounce.200ms="scroll($event)">
+											<template x-for="font in fonts" :key="font.family">
+												<div class="font" x-show="isNotInCurrent(font.family)">
+													<div class="preview" x-text="font.family" :style="style(font.family)"></div>
+												</div>
+											</template>
+										</div>
 									</div>
 								</template>
 							</div>

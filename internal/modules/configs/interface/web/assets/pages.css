@@ -66,3 +66,9 @@
   white-space: nowrap;
   overflow: hidden;
 }
+
+.fonts .list {
+  max-height: 60%;
+  overflow: auto;
+  scroll-behavior: smooth;
+}
