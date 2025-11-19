@@ -62,7 +62,7 @@ templ Pages() {
 								<legend>Titulo</legend>
 								<input name="title" x-model="data.title" required/>
 							</fieldset>
-							<fieldset role="grop">
+							<fieldset role="group">
 								<legend>Url</legend>
 								<input name="url" :value="pageUrl" required :disabled="pageIsIndex"/>
 							</fieldset>
@@ -95,7 +95,23 @@ templ Pages() {
 							</div>
 						</div>
 						<div x-show="on(states.font)" x-transition:enter.delay.75ms>
-							Looad google fonts here
+							<div x-data="fonts">
+								<template x-if="ready">
+									<div class="fonts">
+										<template x-for="(font, key) in current.families" :key="font">
+											<div class="font">
+												<div class="preview" x-text="font" :style="style(font)"></div>
+												<span x-text="key"></span>
+											</div>
+										</template>
+										<template x-for="font in fonts" :key="font.family">
+											<div class="font" x-show="isNotInCurrent(font.family)">
+												<div class="preview" x-text="font.family" :style="style(font.family)"></div>
+											</div>
+										</template>
+									</div>
+								</template>
+							</div>
 						</div>
 						<div style="height: 80%;" x-show="on(states.editor)" x-transition:enter.delay.75ms>
 							<div x-data="mirror(data.body)" @update="edit($event.detail)"></div>

@@ -42,3 +42,27 @@
 .cm-editor:focus {
   outline: none;
 }
+
+.font {
+  padding: 0.5rem;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.font:last-child {
+  border-bottom: none;
+}
+
+.font:hover {
+  background-color: var(--header-bg-color);
+  cursor: pointer;
+}
+
+.font .preview {
+  font-size: 1rem;
+  padding: 0.5rem 0;
+  white-space: nowrap;
+  overflow: hidden;
+}

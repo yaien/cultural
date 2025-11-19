@@ -13,14 +13,29 @@ import (
 )
 
 func dashboard(mono *infrastructure.Monolith, app *application.Application, md *middlewares.Middlewares) {
-	ctrl := controllers.NewDashboardController(app)
 
 	router := http.NewServeMux()
 
 	{
+		ctrl := controllers.NewDashboardController(app)
+		mono.WebRouter.Handle("GET /dashboard", md.WithUser(md.WithUser(http.HandlerFunc(ctrl.Home))))
+	}
+
+	{
+		ctrl := controllers.NewFontsController(app)
+		router.HandleFunc("GET /dashboard/api/fonts", ctrl.List)
+		router.HandleFunc("GET /dashboard/api/fonts/config", ctrl.Get)
+		router.HandleFunc("PUT /dashboard/api/fonts/config", ctrl.Update)
+	}
+
+	{
+		ctrl := controllers.NewRenderController()
+		router.HandleFunc("POST /dashboard/api/render", ctrl.Render)
+	}
+
+	{
 		ctrl := controllers.NewPagesController(app)
 		router.HandleFunc("GET /dashboard/pages", ctrl.Index)
-		router.HandleFunc("POST /dashboard/api/render", ctrl.Render)
 		router.HandleFunc("GET /dashboard/api/pages", ctrl.List)
 		router.HandleFunc("PUT /dashboard/api/pages/{page}", ctrl.Update)
 	}
@@ -29,8 +44,8 @@ func dashboard(mono *infrastructure.Monolith, app *application.Application, md *
 	router.Handle("GET /dashboard/products", templ.Handler(views.Products()))
 	router.Handle("GET /dashboard/members", templ.Handler(views.Members()))
 
-	mono.WebRouter.Handle("GET /assets/static/dashboard/", http.StripPrefix("/assets/static/dashboard/", http.FileServer(http.FS(assets.FS))))
-	mono.WebRouter.HandleFunc("GET /dashboard", md.WithUser(md.WithRole(http.HandlerFunc(ctrl.Home))))
 	mono.WebRouter.HandleFunc("/dashboard/", md.WithUser(md.WithRole(router)))
+
+	mono.WebRouter.Handle("GET /assets/static/dashboard/", http.StripPrefix("/assets/static/dashboard/", http.FileServer(http.FS(assets.FS))))
 
 }

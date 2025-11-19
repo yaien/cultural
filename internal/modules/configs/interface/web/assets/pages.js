@@ -168,6 +168,55 @@ document.addEventListener("alpine:init", () => {
             }
         },
     }));
+
+    Alpine.data("fonts", () => ({
+        current: null,
+        fonts: [],
+        limit: 8,
+        offset: 0,
+        family: "",
+        ready: false,
+        loading: false,
+
+        async init() {
+            await Promise.all([this.fechtFonts(), this.fetchCurrent()])
+            this.ready = true;
+        },
+
+        async fechtFonts() {
+            this.loading = true;
+            const res = await fetch(`/dashboard/api/fonts?family=${this.family}&limit=${this.limit}&offset=${this.offset}`)
+            this.fonts = await res.json();
+            await Promise.all(this.fonts.map(font => this.load(font)));
+            this.loading = false;
+        },
+
+        async fetchCurrent() {
+            const res = await fetch("/dashboard/api/fonts/config");
+            this.current = await res.json();
+        },
+
+        async load(font) {
+
+            const face = new FontFace(font.family, `url("${font.files.regular}")`, {
+                weight: "normal",
+                display: 'swap'
+            });
+
+            const loaded = await face.load()
+            document.fonts.add(loaded);
+
+        },
+
+        style(family) {
+            return { "font-family": `"${family}", sans-serif` }
+        },
+
+        isNotInCurrent(family) {
+            return !Object.values(this.current.families).some(f => f == family)
+        }
+    }))
+
 });
 
 

@@ -44,7 +44,7 @@ func NewMonolith() *Monolith {
 func setupOauthProviders(config *Config) {
 	gothic.Store = sessions.NewCookieStore([]byte(config.SessionConfig.Secret))
 	goth.UseProviders(
-		google.New(config.GoogleOAuth.ClientID, config.GoogleOAuth.ClientSecret, config.Server.URL+"/auth/google/callback", "email", "profile"),
+		google.New(config.Google.ClientID, config.Google.ClientSecret, config.Server.URL+"/auth/google/callback", "email", "profile"),
 	)
 }
 

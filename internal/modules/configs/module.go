@@ -25,6 +25,7 @@ func (m *Module) Init(mono *infrastructure.Monolith) error {
 		Roles:         repositories.NewRoleRepository(mono.MongoDB),
 		Groups:        repositories.NewGroupRepository(mono.MongoDB),
 		Users:         repositories.NewUserRepository(mono.MongoDB),
+		Fonts:         repositories.NewFontRepository(mono.MongoDB),
 		Cache:         cache.New[*models.Config](time.Hour),
 		Mail:          mono.Mail,
 	})
