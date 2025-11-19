@@ -20,7 +20,7 @@ type Config struct {
 	Title          string             `bson:"title" json:"title"`
 	Url            string             `bson:"url" json:"url"`
 	Email          string             `bson:"email" json:"email"`
-	Fonts          Fonts              `bson:"fonts" json:"fonts"`
+	Fonts          map[string]Font    `bson:"fonts" json:"fonts"`
 	Pages          map[string]Page    `bson:"pages" json:"pages"`
 	Colors         map[string]string  `bson:"colors" json:"colors"`
 	Emails         map[string]Email   `bson:"emails" json:"emails"`

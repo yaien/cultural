@@ -3,22 +3,7 @@ package render
 import (
 	"fmt"
 	"github.com/yaien/cultural/internal/modules/configs/models"
-	"strings"
 )
-
-templ Fonts(fonts models.Fonts) {
-	switch fonts.Type {
-		case "google":
-			{{ url := "https://fonts.googleapis.com/css2?" }}
-			for _, font := range fonts.Families {
-				{{ font = strings.ReplaceAll(font, " ", "+") }}
-				{{ url += "family=" + font + "&" }}
-			}
-			<link rel="preconnect" href="https://fonts.googleapis.com"/>
-			<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-			<link rel="stylesheet" href={ strings.TrimSuffix(url, "&") }/>
-	}
-}
 
 type options struct {
 	inlineStyles bool

@@ -177,6 +177,13 @@ document.addEventListener("alpine:init", () => {
         family: "",
         ready: false,
         loading: false,
+        state: 0,
+        selected: { font: null, tag: "" },
+        states: {
+            initial: 0,
+            browsing: 1,
+            configuring: 2,
+        },
 
         async init() {
             await Promise.all([this.fetchFonts(), this.fetchCurrent()])
@@ -194,7 +201,7 @@ document.addEventListener("alpine:init", () => {
 
         async fetchCurrent() {
             const res = await fetch("/dashboard/api/fonts/config");
-            this.current = await res.json();
+            this.current = (await res.json()) ?? {};
         },
 
         async load(font) {
@@ -220,12 +227,45 @@ document.addEventListener("alpine:init", () => {
             }
         },
 
+        async add() {
+            this.loading = true;
+            const res = await fetch("/dashboard/api/fonts/config", {
+                method: "PUT",
+                headers: { "content-type": "application/json" },
+                body: JSON.stringify({
+                    ...this.current,
+                    [this.selected.tag]: this.selected.font
+                }),
+            });
+
+            if (res.ok) {
+                await this.fetchCurrent();
+                this.$dispatch("updated")
+                this.state = this.states.initial;
+            }
+
+            this.loading = false;
+        },
+
         style(family) {
             return { "font-family": `"${family}", sans-serif` }
         },
 
-        isNotInCurrent(family) {
-            return !Object.values(this.current.families).some(f => f == family)
+        on(state) {
+            return this.state == state
+        },
+
+        set(state) {
+            this.state = state
+        },
+
+        select(font, tag = "", state = this.states.configuring) {
+            this.selected = { font: font, tag: tag };
+            this.state = state;
+        },
+
+        empty() {
+            return Object.keys(this.current).length == 0;
         }
     }))
 

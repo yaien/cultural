@@ -49,7 +49,6 @@ func init() {
 					OrganizationID: res.InsertedID.(primitive.ObjectID),
 					CreatedAt:      time.Now(),
 					UpdatedAt:      time.Now(),
-					Fonts:          models.DefaultFonts,
 					Colors:         models.DefaultColors,
 					Pages:          map[string]models.Page{"index": models.DefaultIndexPage},
 					Emails:         map[string]models.Email{"invitation": models.DefaultInvitationEmail},

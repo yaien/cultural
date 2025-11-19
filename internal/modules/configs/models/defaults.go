@@ -1,13 +1,5 @@
 package models
 
-var DefaultFonts = Fonts{
-	Type: "google",
-	Families: map[string]string{
-		"headings": "Instrument Serif",
-		"primary":  "Outfit",
-	},
-}
-
 var DefaultColors = map[string]string{
 	"primary":    "#330136",
 	"secondary":  "#FFFFFF",

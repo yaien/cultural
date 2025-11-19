@@ -13,11 +13,6 @@ type Node struct {
 	Children []Node           `bson:"children,omitempty" json:"children,omitempty"`
 }
 
-type Fonts struct {
-	Type     string            `bson:"type,omitempty" json:"type,omitempty"`
-	Families map[string]string `bson:"families,omitempty" json:"families,omitempty"`
-}
-
 type Page struct {
 	Title  string `bson:"title,omitempty" json:"title,omitempty"`
 	Name   string `bson:"name,omitempty" json:"name,omitempty"`
@@ -27,8 +22,8 @@ type Page struct {
 
 var Styles = template.Must(template.New("styles").Parse(`
 	:root {
-	{{range $key, $value := .Fonts.Families}}
-		--font-{{ $key }}: '{{ $value }}', sans-serif;
+	{{range $key, $font := .Fonts}}
+		--font-{{ $key }}: '{{ $font.Family }}', sans-serif;
 	{{ end }}		
 	{{range $key, $value := .Colors}}
 		--color-{{ $key }}: {{ $value }};
