@@ -15,6 +15,6 @@ func NewGetRoleQuery(roles models.RoleRepository) *GetRoleQuery {
 	return &GetRoleQuery{roles: roles}
 }
 
-func (q *GetRoleQuery) GetRole(ctx context.Context, userId, organizationId primitive.ObjectID) (*models.Role, error) {
-	return q.roles.GetByUserIDAndOrganizationID(ctx, userId, organizationId)
+func (q *GetRoleQuery) GetRole(ctx context.Context, userId, organizationID primitive.ObjectID) (*models.Role, error) {
+	return q.roles.GetByUserIDAndOrganizationID(ctx, userId, organizationID)
 }

@@ -5,11 +5,11 @@ package render
 
 //lint:file-ignore SA4006 This context is only used if a nested component is present.
 
-import "github.com/a-h/templ"
-import templruntime "github.com/a-h/templ/runtime"
-
 import (
 	"fmt"
+
+	"github.com/a-h/templ"
+	templruntime "github.com/a-h/templ/runtime"
 	"github.com/yaien/cultural/internal/modules/configs/models"
 )
 
@@ -113,7 +113,7 @@ func Header(node models.Node) templ.Component {
 		var templ_7745c5c3_Var3 string
 		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(node.Content)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/configs/library/render/components.templ`, Line: 49, Col: 16}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/library/render/components.templ`, Line: 49, Col: 16}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 		if templ_7745c5c3_Err != nil {
@@ -167,7 +167,7 @@ func Nav(node models.Node) templ.Component {
 		var templ_7745c5c3_Var5 string
 		templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(node.Content)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/configs/library/render/components.templ`, Line: 56, Col: 16}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/library/render/components.templ`, Line: 56, Col: 16}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 		if templ_7745c5c3_Err != nil {
@@ -221,7 +221,7 @@ func Main(node models.Node) templ.Component {
 		var templ_7745c5c3_Var7 string
 		templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(node.Content)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/configs/library/render/components.templ`, Line: 63, Col: 16}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/library/render/components.templ`, Line: 63, Col: 16}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 		if templ_7745c5c3_Err != nil {
@@ -275,7 +275,7 @@ func Footer(node models.Node) templ.Component {
 		var templ_7745c5c3_Var9 string
 		templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(node.Content)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/configs/library/render/components.templ`, Line: 70, Col: 16}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/library/render/components.templ`, Line: 70, Col: 16}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 		if templ_7745c5c3_Err != nil {
@@ -329,7 +329,7 @@ func Section(node models.Node) templ.Component {
 		var templ_7745c5c3_Var11 string
 		templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(node.Content)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/configs/library/render/components.templ`, Line: 77, Col: 16}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/library/render/components.templ`, Line: 77, Col: 16}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 		if templ_7745c5c3_Err != nil {
@@ -383,7 +383,7 @@ func Div(node models.Node) templ.Component {
 		var templ_7745c5c3_Var13 string
 		templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(node.Content)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/configs/library/render/components.templ`, Line: 84, Col: 16}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/library/render/components.templ`, Line: 84, Col: 16}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 		if templ_7745c5c3_Err != nil {
@@ -437,7 +437,7 @@ func Span(node models.Node) templ.Component {
 		var templ_7745c5c3_Var15 string
 		templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(node.Content)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/configs/library/render/components.templ`, Line: 91, Col: 16}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/library/render/components.templ`, Line: 91, Col: 16}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 		if templ_7745c5c3_Err != nil {
@@ -491,7 +491,7 @@ func Paragraph(node models.Node) templ.Component {
 		var templ_7745c5c3_Var17 string
 		templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(node.Content)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/configs/library/render/components.templ`, Line: 98, Col: 16}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/library/render/components.templ`, Line: 98, Col: 16}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 		if templ_7745c5c3_Err != nil {
@@ -533,7 +533,7 @@ func Image(node models.Node) templ.Component {
 		var templ_7745c5c3_Var19 string
 		templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(node.Content)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/configs/library/render/components.templ`, Line: 104, Col: 15}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/library/render/components.templ`, Line: 104, Col: 15}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 		if templ_7745c5c3_Err != nil {
@@ -591,7 +591,7 @@ func Link(node models.Node) templ.Component {
 		var templ_7745c5c3_Var21 string
 		templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(node.Content)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/configs/library/render/components.templ`, Line: 110, Col: 16}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/library/render/components.templ`, Line: 110, Col: 16}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
 		if templ_7745c5c3_Err != nil {
@@ -645,7 +645,7 @@ func Button(node models.Node) templ.Component {
 		var templ_7745c5c3_Var23 string
 		templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(node.Content)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/configs/library/render/components.templ`, Line: 117, Col: 16}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/library/render/components.templ`, Line: 117, Col: 16}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
 		if templ_7745c5c3_Err != nil {
@@ -699,7 +699,7 @@ func List(node models.Node) templ.Component {
 		var templ_7745c5c3_Var25 string
 		templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinStringErrs(node.Content)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/configs/library/render/components.templ`, Line: 124, Col: 16}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/library/render/components.templ`, Line: 124, Col: 16}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
 		if templ_7745c5c3_Err != nil {
@@ -880,7 +880,7 @@ func TextArea(node models.Node) templ.Component {
 		var templ_7745c5c3_Var30 string
 		templ_7745c5c3_Var30, templ_7745c5c3_Err = templ.JoinStringErrs(node.Content)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/configs/library/render/components.templ`, Line: 147, Col: 16}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/library/render/components.templ`, Line: 147, Col: 16}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var30))
 		if templ_7745c5c3_Err != nil {
@@ -934,7 +934,7 @@ func ButtonGroup(node models.Node) templ.Component {
 		var templ_7745c5c3_Var32 string
 		templ_7745c5c3_Var32, templ_7745c5c3_Err = templ.JoinStringErrs(node.Content)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/configs/library/render/components.templ`, Line: 154, Col: 16}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/library/render/components.templ`, Line: 154, Col: 16}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var32))
 		if templ_7745c5c3_Err != nil {
@@ -988,7 +988,7 @@ func Card(node models.Node) templ.Component {
 		var templ_7745c5c3_Var34 string
 		templ_7745c5c3_Var34, templ_7745c5c3_Err = templ.JoinStringErrs(node.Content)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/configs/library/render/components.templ`, Line: 161, Col: 16}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/library/render/components.templ`, Line: 161, Col: 16}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var34))
 		if templ_7745c5c3_Err != nil {
@@ -1087,7 +1087,7 @@ func H1(node models.Node) templ.Component {
 		var templ_7745c5c3_Var37 string
 		templ_7745c5c3_Var37, templ_7745c5c3_Err = templ.JoinStringErrs(node.Content)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/configs/library/render/components.templ`, Line: 174, Col: 16}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/library/render/components.templ`, Line: 174, Col: 16}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var37))
 		if templ_7745c5c3_Err != nil {
@@ -1141,7 +1141,7 @@ func H2(node models.Node) templ.Component {
 		var templ_7745c5c3_Var39 string
 		templ_7745c5c3_Var39, templ_7745c5c3_Err = templ.JoinStringErrs(node.Content)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/configs/library/render/components.templ`, Line: 181, Col: 16}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/library/render/components.templ`, Line: 181, Col: 16}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var39))
 		if templ_7745c5c3_Err != nil {
@@ -1195,7 +1195,7 @@ func H3(node models.Node) templ.Component {
 		var templ_7745c5c3_Var41 string
 		templ_7745c5c3_Var41, templ_7745c5c3_Err = templ.JoinStringErrs(node.Content)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/configs/library/render/components.templ`, Line: 188, Col: 16}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/library/render/components.templ`, Line: 188, Col: 16}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var41))
 		if templ_7745c5c3_Err != nil {
@@ -1249,7 +1249,7 @@ func H4(node models.Node) templ.Component {
 		var templ_7745c5c3_Var43 string
 		templ_7745c5c3_Var43, templ_7745c5c3_Err = templ.JoinStringErrs(node.Content)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/configs/library/render/components.templ`, Line: 195, Col: 16}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/library/render/components.templ`, Line: 195, Col: 16}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var43))
 		if templ_7745c5c3_Err != nil {
@@ -1303,7 +1303,7 @@ func H5(node models.Node) templ.Component {
 		var templ_7745c5c3_Var45 string
 		templ_7745c5c3_Var45, templ_7745c5c3_Err = templ.JoinStringErrs(node.Content)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/configs/library/render/components.templ`, Line: 202, Col: 16}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/library/render/components.templ`, Line: 202, Col: 16}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var45))
 		if templ_7745c5c3_Err != nil {
@@ -1357,7 +1357,7 @@ func H6(node models.Node) templ.Component {
 		var templ_7745c5c3_Var47 string
 		templ_7745c5c3_Var47, templ_7745c5c3_Err = templ.JoinStringErrs(node.Content)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/configs/library/render/components.templ`, Line: 209, Col: 16}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/library/render/components.templ`, Line: 209, Col: 16}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var47))
 		if templ_7745c5c3_Err != nil {
@@ -1411,7 +1411,7 @@ func Carousel(node models.Node) templ.Component {
 		var templ_7745c5c3_Var49 string
 		templ_7745c5c3_Var49, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("{ active: 0, count: %d }", len(node.Children)))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/configs/library/render/components.templ`, Line: 215, Col: 125}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/library/render/components.templ`, Line: 215, Col: 125}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var49))
 		if templ_7745c5c3_Err != nil {
@@ -1429,7 +1429,7 @@ func Carousel(node models.Node) templ.Component {
 			var templ_7745c5c3_Var50 string
 			templ_7745c5c3_Var50, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("active == %d", index))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/configs/library/render/components.templ`, Line: 221, Col: 51}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/library/render/components.templ`, Line: 221, Col: 51}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var50))
 			if templ_7745c5c3_Err != nil {
@@ -1453,7 +1453,7 @@ func Carousel(node models.Node) templ.Component {
 				var templ_7745c5c3_Var51 string
 				templ_7745c5c3_Var51, templ_7745c5c3_Err = templ.JoinStringErrs(child.Content)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/configs/library/render/components.templ`, Line: 227, Col: 23}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/library/render/components.templ`, Line: 227, Col: 23}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var51))
 				if templ_7745c5c3_Err != nil {
@@ -1587,7 +1587,7 @@ func EmailBody(node models.Node) templ.Component {
 		var templ_7745c5c3_Var55 string
 		templ_7745c5c3_Var55, templ_7745c5c3_Err = templ.JoinStringErrs(node.Content)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/configs/library/render/components.templ`, Line: 256, Col: 21}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/library/render/components.templ`, Line: 256, Col: 21}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var55))
 		if templ_7745c5c3_Err != nil {
@@ -1641,7 +1641,7 @@ func EmailSection(node models.Node) templ.Component {
 		var templ_7745c5c3_Var57 string
 		templ_7745c5c3_Var57, templ_7745c5c3_Err = templ.JoinStringErrs(node.Content)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/configs/library/render/components.templ`, Line: 269, Col: 17}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/library/render/components.templ`, Line: 269, Col: 17}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var57))
 		if templ_7745c5c3_Err != nil {
@@ -1695,7 +1695,7 @@ func EmailButton(node models.Node) templ.Component {
 		var templ_7745c5c3_Var59 string
 		templ_7745c5c3_Var59, templ_7745c5c3_Err = templ.JoinStringErrs(node.Content)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/configs/library/render/components.templ`, Line: 279, Col: 159}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/library/render/components.templ`, Line: 279, Col: 159}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var59))
 		if templ_7745c5c3_Err != nil {

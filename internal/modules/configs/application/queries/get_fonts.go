@@ -6,14 +6,14 @@ import (
 	"github.com/yaien/cultural/internal/modules/configs/models"
 )
 
-type GetFontsQery struct {
+type GetFontsQuery struct {
 	fonts models.FontRepository
 }
 
-func NewGetFontsQuery(fonts models.FontRepository) *GetFontsQery {
-	return &GetFontsQery{fonts}
+func NewGetFontsQuery(fonts models.FontRepository) *GetFontsQuery {
+	return &GetFontsQuery{fonts}
 }
 
-func (q *GetFontsQery) GetFonts(ctx context.Context, options *models.FindFontOptions) ([]*models.Font, error) {
+func (q *GetFontsQuery) GetFonts(ctx context.Context, options *models.FindFontOptions) ([]*models.Font, error) {
 	return q.fonts.Find(ctx, options)
 }

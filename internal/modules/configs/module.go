@@ -4,11 +4,11 @@ import (
 	"time"
 
 	"github.com/yaien/cultural/internal/infrastructure"
+	"github.com/yaien/cultural/internal/library/cache"
 	"github.com/yaien/cultural/internal/modules/configs/application"
 	_ "github.com/yaien/cultural/internal/modules/configs/interface/migrations"
 	"github.com/yaien/cultural/internal/modules/configs/interface/repositories"
 	"github.com/yaien/cultural/internal/modules/configs/interface/web"
-	"github.com/yaien/cultural/internal/modules/configs/library/cache"
 	"github.com/yaien/cultural/internal/modules/configs/models"
 )
 
@@ -26,6 +26,7 @@ func (m *Module) Init(mono *infrastructure.Monolith) error {
 		Groups:        repositories.NewGroupRepository(mono.MongoDB),
 		Users:         repositories.NewUserRepository(mono.MongoDB),
 		Fonts:         repositories.NewFontRepository(mono.MongoDB),
+		Files:         repositories.NewFileRepository(mono.MongoDB),
 		Cache:         cache.New[*models.Config](time.Hour),
 		Mail:          mono.Mail,
 	})

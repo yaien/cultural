@@ -3,7 +3,7 @@ package queries
 import (
 	"context"
 
-	"github.com/yaien/cultural/internal/modules/configs/library/cache"
+	"github.com/yaien/cultural/internal/library/cache"
 	"github.com/yaien/cultural/internal/modules/configs/models"
 )
 

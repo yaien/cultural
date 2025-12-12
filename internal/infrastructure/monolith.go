@@ -11,6 +11,7 @@ import (
 	"github.com/markbates/goth"
 	"github.com/markbates/goth/gothic"
 	"github.com/markbates/goth/providers/google"
+	"github.com/yaien/cultural/internal/library/storage"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"gopkg.in/gomail.v2"
@@ -24,6 +25,7 @@ type Monolith struct {
 	WebRouter    *http.ServeMux
 	SessionStore sessions.Store
 	Mail         *gomail.Dialer
+	Storage      storage.Storage
 }
 
 func NewMonolith() *Monolith {
@@ -36,6 +38,7 @@ func NewMonolith() *Monolith {
 		MongoDB:      setupMongoDB(config),
 		SessionStore: setupSessionStore(config),
 		Mail:         setupMailDialer(config),
+		Storage:      setupStorage(config),
 		Router:       http.NewServeMux(),
 		WebRouter:    http.NewServeMux(),
 	}
@@ -56,6 +59,16 @@ func setupMailDialer(config *Config) *gomail.Dialer {
 		config.SMTPConfig.Pass,
 	)
 	return dialer
+}
+
+func setupStorage(config *Config) storage.Storage {
+	switch config.Storage.Provider {
+	case "local":
+		return storage.NewLocal(config.Storage.Local.Path)
+	default:
+		log.Fatal("Unsupported storage provider:", config.Storage.Provider)
+		return nil
+	}
 }
 
 func setupSessionStore(config *Config) sessions.Store {

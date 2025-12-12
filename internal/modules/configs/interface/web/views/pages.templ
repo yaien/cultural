@@ -101,7 +101,7 @@ templ Pages() {
 										<div x-show="on(states.initial)" x-transition:enter.delay.75ms>
 											<div class="fonts">
 												<div class="list">
-													<template x-for="(font, key) in current" :key="font.family">
+													<template x-for="(font, key) in current" :key="key">
 														<div class="font" @click="select(font, key, states.browsing)">
 															<div class="preview" x-text="font.family" :style="style(font.family)"></div>
 															<span x-text="key"></span>
@@ -109,7 +109,7 @@ templ Pages() {
 													</template>
 												</div>
 												<p x-show="empty" style="text-align: center;">
-													Aún no hay fuentes configuradas. 
+													Aún no hay fuentes configuradas.
 													<br/>
 													Agrega una nueva fuente para comenzar
 												</p>

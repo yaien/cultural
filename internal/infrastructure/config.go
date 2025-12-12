@@ -17,6 +17,7 @@ type Config struct {
 	SessionConfig SessionConfig
 	SMTPConfig    SMTPConfig
 	Google        GoogleConfig
+	Storage       StorageConfig
 }
 
 type MongoDBConfig struct {
@@ -54,6 +55,15 @@ type InitConfig struct {
 	Email string
 }
 
+type StorageConfig struct {
+	Provider string
+	Local    Local
+}
+
+type Local struct {
+	Path string
+}
+
 func LoadConfig() *Config {
 	return &Config{
 		Debug: viper.GetBool("DEBUG"),
@@ -85,6 +95,12 @@ func LoadConfig() *Config {
 			ClientID:     viper.GetString("GOOGLE_CLIENT_ID"),
 			ClientSecret: viper.GetString("GOOGLE_CLIENT_SECRET"),
 			APIKey:       viper.GetString("GOOGLE_API_KEY"),
+		},
+		Storage: StorageConfig{
+			Provider: viper.GetString("STORAGE_PROVIDER"),
+			Local: Local{
+				Path: viper.GetString("STORAGE_LOCAL_PATH"),
+			},
 		},
 	}
 }

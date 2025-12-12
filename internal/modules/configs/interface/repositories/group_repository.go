@@ -19,8 +19,8 @@ func NewGroupRepository(db *mongo.Database) *GroupRepository {
 	return &GroupRepository{db: db}
 }
 
-func (r *GroupRepository) GetByIDAndOrganizationID(ctx context.Context, id, organizationId primitive.ObjectID) (*models.Group, error) {
+func (r *GroupRepository) GetByIDAndOrganizationID(ctx context.Context, id, organizationID primitive.ObjectID) (*models.Group, error) {
 	var group models.Group
-	err := r.db.Collection("groups").FindOne(ctx, bson.M{"id": id, "organizationId": organizationId}).Decode(&group)
+	err := r.db.Collection("groups").FindOne(ctx, bson.M{"id": id, "organizationId": organizationID}).Decode(&group)
 	return &group, translate(err)
 }

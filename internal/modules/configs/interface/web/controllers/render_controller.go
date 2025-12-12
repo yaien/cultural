@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/yaien/cultural/internal/modules/configs/library/render"
+	"github.com/yaien/cultural/internal/library/render"
 	"github.com/yaien/cultural/internal/modules/configs/models"
 )
 

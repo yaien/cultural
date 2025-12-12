@@ -24,7 +24,7 @@ type Role struct {
 }
 
 type RoleRepository interface {
-	GetByUserIDAndOrganizationID(ctx context.Context, userId, organizationId primitive.ObjectID) (*Role, error)
+	GetByUserIDAndOrganizationID(ctx context.Context, userId, organizationID primitive.ObjectID) (*Role, error)
 	Create(ctx context.Context, role *Role) error
 	Update(ctx context.Context, role *Role) error
 }
@@ -40,7 +40,7 @@ type Group struct {
 }
 
 type GroupRepository interface {
-	GetByIDAndOrganizationID(ctx context.Context, id, organizationId primitive.ObjectID) (*Group, error)
+	GetByIDAndOrganizationID(ctx context.Context, id, organizationID primitive.ObjectID) (*Group, error)
 }
 
 func (p Permissions) Has(permission string) bool {

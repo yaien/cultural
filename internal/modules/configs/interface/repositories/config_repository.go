@@ -27,9 +27,9 @@ func (r *ConfigRepository) GetByHost(ctx context.Context, host string) (*models.
 	return &config, translate(err)
 }
 
-func (r *ConfigRepository) GetByOrganizationID(ctx context.Context, organizationId primitive.ObjectID) (*models.Config, error) {
+func (r *ConfigRepository) GetByOrganizationID(ctx context.Context, organizationID primitive.ObjectID) (*models.Config, error) {
 	var config models.Config
-	err := r.db.Collection("configs").FindOne(ctx, bson.M{"organizationId": organizationId}).Decode(&config)
+	err := r.db.Collection("configs").FindOne(ctx, bson.M{"organizationId": organizationID}).Decode(&config)
 	return &config, translate(err)
 }
 

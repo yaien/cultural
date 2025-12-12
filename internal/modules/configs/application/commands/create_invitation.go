@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/yaien/cultural/internal/modules/configs/library/render"
+	"github.com/yaien/cultural/internal/library/render"
 	"github.com/yaien/cultural/internal/modules/configs/models"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"gopkg.in/gomail.v2"
