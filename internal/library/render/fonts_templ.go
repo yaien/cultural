@@ -5,12 +5,12 @@ package render
 
 //lint:file-ignore SA4006 This context is only used if a nested component is present.
 
-import (
-	"strings"
+import "github.com/a-h/templ"
+import templruntime "github.com/a-h/templ/runtime"
 
-	"github.com/a-h/templ"
-	templruntime "github.com/a-h/templ/runtime"
+import (
 	"github.com/yaien/cultural/internal/modules/configs/models"
+	"strings"
 )
 
 func GoogleFontURL(font models.Font) string {

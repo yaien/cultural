@@ -99,7 +99,15 @@ func Pages() templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</button> <button @click=\"open = false; set(states.editor)\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</button> <button @click=\"set(states.files)\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = icons.Files().Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</button> <button @click=\"open = false; set(states.editor)\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -107,7 +115,7 @@ func Pages() templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</button> <button @click=\"open = false; set(states.styles)\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</button> <button @click=\"open = false; set(states.styles)\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -115,7 +123,39 @@ func Pages() templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</button></div><form @submit.prevent=\"update()\" x-show=\"on(states.initial)\" x-transition:enter.delay.75ms><fieldset><legend>Seleccionar Sitio</legend> <select name=\"page\" @change=\"select($event.target.value)\"><template x-for=\"(value, key) in pages\" :key=\"key\"><option :value=\"key\" x-text=\"value.name\"></option></template></select></fieldset><fieldset><legend>Nombre</legend> <input name=\"name\" x-model=\"data.name\" required></fieldset><fieldset><legend>Titulo</legend> <input name=\"title\" x-model=\"data.title\" required></fieldset><fieldset role=\"group\"><legend>Url</legend> <input name=\"url\" :value=\"pageUrl\" required :disabled=\"pageIsIndex\"></fieldset><div class=\"actions\"><button type=\"submit\" :disabled=\"loading\">Guardar</button></div></form><form @submit.prevent=\"create()\" x-show=\"on(states.create)\" x-transition:enter.delay.75ms><fieldset><legend>Nombre</legend> <input name=\"name\" x-model=\"data.name\" required></fieldset><fieldset><legend>Titulo</legend> <input name=\"title\" x-model=\"data.title\" required></fieldset><fieldset role=\"grop\"><legend>Url</legend> <input name=\"url\" :value=\"pageUrl\" required></fieldset><div class=\"actions\"><button type=\"submit\" :disabled=\"loading\">Crear</button></div></form><div x-show=\"on(states.delete)\" x-transition:enter.delay.75ms><p>¿Estás seguro de que deseas eliminar este sitio ?</p><div class=\"actions\"><button @click=\"set(states.initial)\" :disabled=\"loading\">Cancelar</button> <button @click=\"remove()\" :disabled=\"loading\">Eliminar</button></div></div><div x-show=\"on(states.font)\" x-transition:enter.delay.75ms><div x-data=\"fonts\" @updated=\"render()\"><template x-if=\"ready\"><div><div x-show=\"on(states.initial)\" x-transition:enter.delay.75ms><div class=\"fonts\"><div class=\"list\"><template x-for=\"(font, key) in current\" :key=\"key\"><div class=\"font\" @click=\"select(font, key, states.browsing)\"><div class=\"preview\" x-text=\"font.family\" :style=\"style(font.family)\"></div><span x-text=\"key\"></span></div></template></div><p x-show=\"empty\" style=\"text-align: center;\">Aún no hay fuentes configuradas.<br>Agrega una nueva fuente para comenzar</p><div class=\"actions\"><button @click=\"set(states.browsing)\">Fuentes</button></div></div></div><div x-show=\"on(states.browsing)\" x-transition:enter.delay.75ms><div class=\"fonts\"><fieldset role=\"group\"><legend>Fuentes</legend> <input type=\"text\" placeholder=\"Buscar fuente\" @input.debounce.500ms=\"search($event.target.value)\"></fieldset><div class=\"list\" @scroll.debounce.200ms=\"scroll($event)\"><template x-for=\"font in fonts\" :key=\"font.family\"><div class=\"font\" @click=\"select(font, selected.tag)\"><div class=\"preview\" x-text=\"font.family\" :style=\"style(font.family)\"></div></div></template></div><div class=\"actions\"><button @click=\"set(states.initial)\">Volver</button></div></div></div><div x-show=\"on(states.configuring)\" x-transition:enter.delay.75ms><div class=\"fonts configure\"><h1 x-text=\"selected.font.family\" :style=\"style(selected.font.family)\"></h1><form @submit.prevent=\"add()\"><small>Use \"primary\" para cambiar la fuente base de la página o \"headings\" para cambiar los encabezados</small><fieldset><legend>Tag</legend> <input name=\"tag\" x-model=\"selected.tag\" required></fieldset><div class=\"actions\"><button type=\"button\" @click=\"set(states.browsing)\" :disabled=\"loading\">Volver</button> <button type=\"submit\" :disabled=\"loading\">Guardar</button></div></form></div></div></div></template></div></div><div style=\"height: 80%;\" x-show=\"on(states.editor)\" x-transition:enter.delay.75ms><div x-data=\"mirror(data.body)\" @update=\"edit($event.detail)\"></div><div class=\"actions\"><button @click=\"update()\" :disabled=\"loading\">Guardar</button></div></div><div style=\"height: 80%;\" x-show=\"on(states.styles)\" x-transition:enter.delay.75ms><div x-data=\"mirror(data.styles, 'css')\" @update=\"edit($event.detail, 'styles')\"></div><div class=\"actions\"><button @click=\"update()\" :disabled=\"loading\">Guardar</button></div></div></div><div class=\"page\" x-show=\"srcdoc\" x-transition><iframe x-ref=\"iframe\" :srcdoc=\"srcdoc\"></iframe></div></div></template></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</button></div><form x-show=\"on(states.initial)\" x-transition:enter.delay.75ms @submit.prevent=\"update()\"><fieldset><legend>Seleccionar Sitio</legend> <select name=\"page\" @change=\"select($event.target.value)\"><template x-for=\"(value, key) in pages\" :key=\"key\"><option :value=\"key\" x-text=\"value.name\"></option></template></select></fieldset><fieldset><legend>Nombre</legend> <input name=\"name\" x-model=\"data.name\" required></fieldset><fieldset><legend>Titulo</legend> <input name=\"title\" x-model=\"data.title\" required></fieldset><fieldset role=\"group\"><legend>Url</legend> <input name=\"url\" :value=\"pageUrl\" required :disabled=\"pageIsIndex\"></fieldset><div class=\"actions\"><button type=\"submit\" :disabled=\"loading\">Guardar</button></div></form><form x-show=\"on(states.create)\" x-transition:enter.delay.75ms @submit.prevent=\"create()\"><fieldset><legend>Nombre</legend> <input name=\"name\" x-model=\"data.name\" required></fieldset><fieldset><legend>Titulo</legend> <input name=\"title\" x-model=\"data.title\" required></fieldset><fieldset role=\"grop\"><legend>Url</legend> <input name=\"url\" :value=\"pageUrl\" required></fieldset><div class=\"actions\"><button type=\"submit\" :disabled=\"loading\">Crear</button></div></form><div x-show=\"on(states.delete)\" x-transition:enter.delay.75ms><p>¿Estás seguro de que deseas eliminar este sitio ?</p><div class=\"actions\"><button @click=\"set(states.initial)\" :disabled=\"loading\">Cancelar</button> <button @click=\"remove()\" :disabled=\"loading\">Eliminar</button></div></div><div x-show=\"on(states.files)\" x-transition:enter.delay.75ms class=\"grow\"><div x-data=\"files\" class=\"files\"><div class=\"actions\"><input type=\"file\" x-ref=\"input\" hidden accept=\"image/*\" multiple @change=\"upload($event)\"> <button @click=\"$refs.input.click()\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = icons.Add().Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</button></div><div class=\"grid\"><template x-for=\"file in files\" :key=\"file.id\"><div class=\"item\"><img x-bind:src=\"'/dashboard/files/' + file.name\" :title=\"file.name\" :alt=\"file.name\"><div role=\"group\"><button @click=\"rename(file)\" title=\"Rename\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = icons.Edit().Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</button> <button @click=\"copyUrl(file)\" title=\"Copy URL\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = icons.Copy().Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</button> <button @click=\"delete(file)\" title=\"Delete\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = icons.Trash().Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</button></div></div></template></div></div></div><div x-show=\"on(states.font)\" x-transition:enter.delay.75ms><div x-data=\"fonts\" @updated=\"render()\"><template x-if=\"ready\"><div><div x-show=\"on(states.initial)\" x-transition:enter.delay.75ms><div class=\"fonts\"><div class=\"list\"><template x-for=\"(font, key) in current\" :key=\"key\"><div class=\"font\" @click=\"select(font, key, states.browsing)\"><div class=\"preview\" x-text=\"font.family\" :style=\"style(font.family)\"></div><span x-text=\"key\"></span></div></template></div><p x-show=\"empty\" style=\"text-align: center;\">Aún no hay fuentes configuradas.<br>Agrega una nueva fuente para comenzar</p><div class=\"actions\"><button @click=\"set(states.browsing)\">Fuentes</button></div></div></div><div x-show=\"on(states.browsing)\" x-transition:enter.delay.75ms><div class=\"fonts\"><fieldset role=\"group\"><legend>Fuentes</legend> <input type=\"text\" placeholder=\"Buscar fuente\" @input.debounce.500ms=\"search($event.target.value)\"></fieldset><div class=\"list\" @scroll.debounce.200ms=\"scroll($event)\"><template x-for=\"font in fonts\" :key=\"font.family\"><div class=\"font\" @click=\"select(font, selected.tag)\"><div class=\"preview\" x-text=\"font.family\" :style=\"style(font.family)\"></div></div></template></div><div class=\"actions\"><button @click=\"set(states.initial)\">Volver</button></div></div></div><div x-show=\"on(states.configuring)\" x-transition:enter.delay.75ms><template x-if=\"selected.font\"><div class=\"fonts configure\"><h1 x-text=\"selected.font.family\" :style=\"style(selected.font.family)\"></h1><form @submit.prevent=\"add()\"><small>Use \"primary\" para cambiar la fuente base de la página o \"headings\" para cambiar los encabezados</small><fieldset><legend>Tag</legend> <input name=\"tag\" x-model=\"selected.tag\" required></fieldset><div class=\"actions\"><button type=\"button\" @click=\"set(states.browsing)\" :disabled=\"loading\">Volver</button> <button type=\"submit\" :disabled=\"loading\">Guardar</button></div></form></div></template></div></div></template></div></div><div x-show=\"on(states.editor)\" x-transition:enter.delay.75ms class=\"grow\"><div x-data=\"mirror(data.body)\" @update=\"edit($event.detail)\"></div><div class=\"actions\"><button @click=\"update()\" :disabled=\"loading\">Guardar</button></div></div><div x-show=\"on(states.styles)\" x-transition:enter.delay.75ms class=\"grow\"><div x-data=\"mirror(data.styles, 'css')\" @update=\"edit($event.detail, 'styles')\"></div><div class=\"actions\"><button @click=\"update()\" :disabled=\"loading\">Guardar</button></div></div></div><div class=\"page\" x-show=\"srcdoc\" x-transition><iframe x-ref=\"iframe\" :srcdoc=\"srcdoc\"></iframe></div></div></template></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

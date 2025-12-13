@@ -36,7 +36,7 @@ func (c *UploadFileCommand) UploadFile(ctx context.Context, req *UploadFileReque
 	switch {
 	case err == nil:
 		return nil, &models.Error{Code: "name_already_exits", Err: errors.New("file already exists")}
-	case errors.As(err, &e) && e.Code == "file_not_found":
+	case errors.As(err, &e) && e.Code == "not_found":
 	default:
 		return nil, fmt.Errorf("failed to check file existence: %w", err)
 	}

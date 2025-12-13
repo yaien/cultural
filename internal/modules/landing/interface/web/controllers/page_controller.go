@@ -24,7 +24,7 @@ func (c *PageController) Index(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "text/html")
-	_ = render.Page(page, nil).Render(r.Context(), w)
+	_ = render.Page(page).Render(r.Context(), w)
 }
 
 func (c *PageController) Page(w http.ResponseWriter, r *http.Request) {
@@ -45,7 +45,7 @@ func (c *PageController) Page(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "text/html")
-	_ = render.Page(page, nil).Render(r.Context(), w)
+	_ = render.Page(page).Render(r.Context(), w)
 }
 
 func (c *PageController) PageStyles(w http.ResponseWriter, r *http.Request) {

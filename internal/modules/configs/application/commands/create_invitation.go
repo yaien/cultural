@@ -111,7 +111,7 @@ func (c *CreateInvitationCommand) CreateInvitation(ctx context.Context, req *Cre
 	email.Subject = render.BindStr(email.Subject, data)
 
 	var body bytes.Buffer
-	err = render.Email(email, data).Render(ctx, &body)
+	err = render.Email(email, render.WithData(data)).Render(ctx, &body)
 	if err != nil {
 		return nil, fmt.Errorf("failed creating email body: %w", err)
 	}

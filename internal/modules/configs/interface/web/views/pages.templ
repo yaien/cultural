@@ -38,6 +38,9 @@ templ Pages() {
 							<button @click="set(states.font)">
 								@icons.BrandFamily()
 							</button>
+							<button @click="set(states.files)">
+								@icons.Files()
+							</button>
 							<button @click="open = false; set(states.editor)">
 								@icons.CodeBlocks()
 							</button>
@@ -45,7 +48,7 @@ templ Pages() {
 								@icons.BorderStyle()
 							</button>
 						</div>
-						<form @submit.prevent="update()" x-show="on(states.initial)" x-transition:enter.delay.75ms>
+						<form x-show="on(states.initial)" x-transition:enter.delay.75ms @submit.prevent="update()">
 							<fieldset>
 								<legend>Seleccionar Sitio</legend>
 								<select name="page" @change="select($event.target.value)">
@@ -70,7 +73,7 @@ templ Pages() {
 								<button type="submit" :disabled="loading">Guardar</button>
 							</div>
 						</form>
-						<form @submit.prevent="create()" x-show="on(states.create)" x-transition:enter.delay.75ms>
+						<form x-show="on(states.create)" x-transition:enter.delay.75ms @submit.prevent="create()">
 							<fieldset>
 								<legend>Nombre</legend>
 								<input name="name" x-model="data.name" required/>
@@ -92,6 +95,34 @@ templ Pages() {
 							<div class="actions">
 								<button @click="set(states.initial)" :disabled="loading">Cancelar</button>
 								<button @click="remove()" :disabled="loading">Eliminar</button>
+							</div>
+						</div>
+						<div x-show="on(states.files)" x-transition:enter.delay.75ms class="grow">
+							<div x-data="files" class="files">
+								<div class="actions">
+									<input type="file" x-ref="input" hidden accept="image/*" multiple @change="upload($event)"/>
+									<button @click="$refs.input.click()">
+										@icons.Add()
+									</button>
+								</div>
+								<div class="grid">
+									<template x-for="file in files" :key="file.id">
+										<div class="item">
+											<img x-bind:src="'/dashboard/files/' + file.name" :title="file.name" :alt="file.name"/>
+											<div role="group">
+												<button @click="rename(file)" title="Rename">
+													@icons.Edit()
+												</button>
+												<button @click="copyUrl(file)" title="Copy URL">
+													@icons.Copy()
+												</button>
+												<button @click="delete(file)" title="Delete">
+													@icons.Trash()
+												</button>
+											</div>
+										</div>
+									</template>
+								</div>
 							</div>
 						</div>
 						<div x-show="on(states.font)" x-transition:enter.delay.75ms>
@@ -137,32 +168,34 @@ templ Pages() {
 											</div>
 										</div>
 										<div x-show="on(states.configuring)" x-transition:enter.delay.75ms>
-											<div class="fonts configure">
-												<h1 x-text="selected.font.family" :style="style(selected.font.family)"></h1>
-												<form @submit.prevent="add()">
-													<small>Use "primary" para cambiar la fuente base de la página o "headings" para cambiar los encabezados</small>
-													<fieldset>
-														<legend>Tag</legend>
-														<input name="tag" x-model="selected.tag" required/>
-													</fieldset>
-													<div class="actions">
-														<button type="button" @click="set(states.browsing)" :disabled="loading">Volver</button>
-														<button type="submit" :disabled="loading">Guardar</button>
-													</div>
-												</form>
-											</div>
+											<template x-if="selected.font">
+												<div class="fonts configure">
+													<h1 x-text="selected.font.family" :style="style(selected.font.family)"></h1>
+													<form @submit.prevent="add()">
+														<small>Use "primary" para cambiar la fuente base de la página o "headings" para cambiar los encabezados</small>
+														<fieldset>
+															<legend>Tag</legend>
+															<input name="tag" x-model="selected.tag" required/>
+														</fieldset>
+														<div class="actions">
+															<button type="button" @click="set(states.browsing)" :disabled="loading">Volver</button>
+															<button type="submit" :disabled="loading">Guardar</button>
+														</div>
+													</form>
+												</div>
+											</template>
 										</div>
 									</div>
 								</template>
 							</div>
 						</div>
-						<div style="height: 80%;" x-show="on(states.editor)" x-transition:enter.delay.75ms>
+						<div x-show="on(states.editor)" x-transition:enter.delay.75ms class="grow">
 							<div x-data="mirror(data.body)" @update="edit($event.detail)"></div>
 							<div class="actions">
 								<button @click="update()" :disabled="loading">Guardar</button>
 							</div>
 						</div>
-						<div style="height: 80%;" x-show="on(states.styles)" x-transition:enter.delay.75ms>
+						<div x-show="on(states.styles)" x-transition:enter.delay.75ms class="grow">
 							<div x-data="mirror(data.styles, 'css')" @update="edit($event.detail, 'styles')"></div>
 							<div class="actions">
 								<button @click="update()" :disabled="loading">Guardar</button>

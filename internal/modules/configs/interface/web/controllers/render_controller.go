@@ -34,9 +34,9 @@ func (c *RenderController) Render(w http.ResponseWriter, r *http.Request) {
 
 	switch input.Type {
 	case "page":
-		_ = render.Page(input.Page, nil, render.WithInlineStyles()).Render(r.Context(), &buffer)
+		_ = render.Page(input.Page, render.WithInlineStyles(), render.WithFilepath("/dashboard/files/")).Render(r.Context(), &buffer)
 	case "email":
-		_ = render.Email(input.Email, nil).Render(r.Context(), &buffer)
+		_ = render.Email(input.Email).Render(r.Context(), &buffer)
 	}
 
 	w.Header().Set("Content-Type", "application/json")

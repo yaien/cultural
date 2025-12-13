@@ -1,4 +1,4 @@
-package render 
+package render
 
 import (
 	"fmt"
@@ -7,6 +7,8 @@ import (
 
 type options struct {
 	inlineStyles bool
+	filepath     string
+	data         map[string]any
 }
 
 type Option func(*options)
@@ -17,7 +19,19 @@ func WithInlineStyles() Option {
 	}
 }
 
-templ Page(page models.Page, data map[string]any, opts ...Option) {
+func WithFilepath(filepath string) Option {
+	return func(o *options) {
+		o.filepath = filepath
+	}
+}
+
+func WithData(data map[string]any) Option {
+	return func(o *options) {
+		o.data = data
+	}
+}
+
+templ Page(page models.Page, opts ...Option) {
 	{{
 		var o options
 		for _, option := range opts {
@@ -44,7 +58,7 @@ templ Page(page models.Page, data map[string]any, opts ...Option) {
 			<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 		</head>
 		<body>
-			@Render(page.Body, data)
+			@Render(page.Body, o)
 		</body>
 	</html>
 }

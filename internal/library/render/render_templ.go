@@ -44,7 +44,7 @@ func BindNode(data map[string]any, node models.Node) models.Node {
 	return node
 }
 
-func Render(node models.Node, data map[string]any) templ.Component {
+func Render(node models.Node, opts options) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -67,8 +67,8 @@ func Render(node models.Node, data map[string]any) templ.Component {
 		ctx = templ.ClearChildren(ctx)
 		component, ok := Components[node.Type]
 		if ok {
-			if data != nil {
-				node = BindNode(data, node)
+			if opts.data != nil {
+				node = BindNode(opts.data, node)
 			}
 			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, " ")
 			if templ_7745c5c3_Err != nil {
@@ -87,14 +87,14 @@ func Render(node models.Node, data map[string]any) templ.Component {
 				}
 				ctx = templ.InitializeContext(ctx)
 				for _, child := range node.Children {
-					if data != nil {
-						child = BindNode(data, child)
+					if opts.data != nil {
+						child = BindNode(opts.data, child)
 					}
 					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, " ")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = Render(child, data).Render(ctx, templ_7745c5c3_Buffer)
+					templ_7745c5c3_Err = Render(child, opts).Render(ctx, templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}

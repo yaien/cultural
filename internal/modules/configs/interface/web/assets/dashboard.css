@@ -47,8 +47,6 @@ body {
     font-family: var(--font-family-primary);
     font-optical-sizing: auto;
     margin: 0;
-
-   
 }
 
 body.open aside {
@@ -139,9 +137,10 @@ main {
 }
 
 body.open main {
-    padding-left: calc(var(--aside-width) + var(--aside-padding) * 2 + var(--aside-space));
+    padding-left: calc(
+        var(--aside-width) + var(--aside-padding) * 2 + var(--aside-space)
+    );
 }
-
 
 header {
     padding-left: var(--aside-space);
@@ -160,7 +159,9 @@ header {
 }
 
 body.open header {
-    padding-left: calc(var(--aside-width) + var(--aside-padding) * 2 + var(--aside-space));
+    padding-left: calc(
+        var(--aside-width) + var(--aside-padding) * 2 + var(--aside-space)
+    );
 }
 
 header .title {
@@ -173,8 +174,6 @@ header .account {
     justify-content: center;
     align-items: center;
 }
-
-
 
 header button.toggle {
     color: var(--header-text-color);
@@ -206,7 +205,9 @@ fieldset:focus-within {
     border-color: var(--primary-color);
 }
 
-select, input, textarea {
+select,
+input,
+textarea {
     width: 100%;
     margin: 0;
     border: none;
@@ -214,11 +215,15 @@ select, input, textarea {
     background: none;
 }
 
-select:focus, input:focus, textarea:focus {
+select:focus,
+input:focus,
+textarea:focus {
     outline: none;
 }
 
-select:disabled, input:disabled, textarea:disabled {
+select:disabled,
+input:disabled,
+textarea:disabled {
     background: none;
 }
 
@@ -228,23 +233,23 @@ button {
     cursor: pointer;
 }
 
-div[role=group] {
+div[role="group"] {
     display: flex;
     justify-content: center;
     margin: 1rem 0;
 }
 
-div[role=group] button {
+div[role="group"] button {
     border: none;
     margin: 0;
     border-right: 1px solid var(--border-color);
 }
 
-div[role=group] button:first-child {
+div[role="group"] button:first-child {
     border-radius: var(--border-radius) 0 0 var(--border-radius);
 }
 
-div[role=group] button:last-child {
+div[role="group"] button:last-child {
     border-radius: 0 var(--border-radius) var(--border-radius) 0;
     border-right: none;
 }

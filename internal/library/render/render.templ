@@ -36,18 +36,18 @@ func BindNode(data map[string]any, node models.Node) models.Node {
 	return node
 }
 
-templ Render(node models.Node, data map[string]any) {
+templ Render(node models.Node, opts options) {
 	{{ component, ok := Components[node.Type] }}
 	if ok {
-		if data != nil {
-			{{ node = BindNode(data, node) }}
+		if opts.data != nil {
+			{{ node = BindNode(opts.data, node) }}
 		}
 		@component(node) {
 			for _, child := range node.Children {
-				if data != nil {
-					{{ child = BindNode(data, child) }}
+				if opts.data != nil {
+					{{ child = BindNode(opts.data, child) }}
 				}
-				@Render(child, data)
+				@Render(child, opts)
 			}
 		}
 	}

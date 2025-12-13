@@ -1,7 +1,6 @@
-import { EditorView, basicSetup } from 'codemirror'
-import { javascript } from '@codemirror/lang-javascript'
-import { css } from '@codemirror/lang-css'
-
+import { EditorView, basicSetup } from "codemirror";
+import { javascript } from "@codemirror/lang-javascript";
+import { css } from "@codemirror/lang-css";
 
 document.addEventListener("alpine:init", () => {
     Alpine.data("pages", ({ url }) => ({
@@ -19,8 +18,9 @@ document.addEventListener("alpine:init", () => {
             create: 1,
             fonts: 2,
             delete: 3,
-            editor: 4,
-            styles: 5,
+            files: 4,
+            editor: 5,
+            styles: 6,
         },
 
         async init() {
@@ -47,9 +47,8 @@ document.addEventListener("alpine:init", () => {
                 return;
             }
 
-            this.$refs.iframe.contentDocument.documentElement.innerHTML = data.html;
-
-
+            this.$refs.iframe.contentDocument.documentElement.innerHTML =
+                data.html;
         },
         async update() {
             this.loading = true;
@@ -102,7 +101,6 @@ document.addEventListener("alpine:init", () => {
     }));
 
     Alpine.data("mirror", (data, mode = "json") => ({
-
         init() {
             const theme = EditorView.theme({
                 "&": {
@@ -112,22 +110,19 @@ document.addEventListener("alpine:init", () => {
                 "&.cm-focused": {
                     outline: "none",
                 },
-            })
-
-            const listener = EditorView.updateListener.of(({ docChanged, state }) => {
-                if (!docChanged) return
-                const content = state.doc.toString();
-                this.dispatch(content);
             });
+
+            const listener = EditorView.updateListener.of(
+                ({ docChanged, state }) => {
+                    if (!docChanged) return;
+                    const content = state.doc.toString();
+                    this.dispatch(content);
+                },
+            );
 
             new EditorView({
                 doc: this.format(data),
-                extensions: [
-                    basicSetup,
-                    theme,
-                    this.extension(),
-                    listener
-                ],
+                extensions: [basicSetup, theme, this.extension(), listener],
                 parent: this.$el,
             });
         },
@@ -135,7 +130,7 @@ document.addEventListener("alpine:init", () => {
         format(data) {
             switch (mode) {
                 case "css":
-                    return typeof data === 'string' ? data : '';
+                    return typeof data === "string" ? data : "";
                 case "json":
                 default:
                     return JSON.stringify(data, null, 2);
@@ -159,7 +154,7 @@ document.addEventListener("alpine:init", () => {
                     case "json":
                         const parsedData = JSON.parse(content);
                         this.$dispatch("update", parsedData);
-                        break
+                        break;
                     default:
                         this.$dispatch("update", content);
                 }
@@ -186,15 +181,17 @@ document.addEventListener("alpine:init", () => {
         },
 
         async init() {
-            await Promise.all([this.fetchFonts(), this.fetchCurrent()])
+            await Promise.all([this.fetchFonts(), this.fetchCurrent()]);
             this.ready = true;
         },
 
         async fetchFonts() {
             this.loading = true;
-            const res = await fetch(`/dashboard/api/fonts?family=${this.family}&limit=${this.limit}&offset=${this.offset}`)
+            const res = await fetch(
+                `/dashboard/api/fonts?family=${this.family}&limit=${this.limit}&offset=${this.offset}`,
+            );
             const fonts = await res.json();
-            fonts.forEach(font => this.load(font))
+            fonts.forEach((font) => this.load(font));
             this.fonts = this.fonts.concat(fonts);
             this.loading = false;
         },
@@ -205,11 +202,15 @@ document.addEventListener("alpine:init", () => {
         },
 
         async load(font) {
-            const face = new FontFace(font.family, `url("${font.files.regular}")`, {
-                weight: "normal",
-                display: 'swap'
-            });
-            const loaded = await face.load()
+            const face = new FontFace(
+                font.family,
+                `url("${font.files.regular}")`,
+                {
+                    weight: "normal",
+                    display: "swap",
+                },
+            );
+            const loaded = await face.load();
             document.fonts.add(loaded);
         },
 
@@ -221,7 +222,10 @@ document.addEventListener("alpine:init", () => {
         },
 
         async scroll(event) {
-            if (event.target.scrollTop + event.target.clientHeight >= event.target.scrollHeight - 100) {
+            if (
+                event.target.scrollTop + event.target.clientHeight >=
+                event.target.scrollHeight - 100
+            ) {
                 this.offset += this.limit;
                 await this.fetchFonts();
             }
@@ -234,13 +238,13 @@ document.addEventListener("alpine:init", () => {
                 headers: { "content-type": "application/json" },
                 body: JSON.stringify({
                     ...this.current,
-                    [this.selected.tag]: this.selected.font
+                    [this.selected.tag]: this.selected.font,
                 }),
             });
 
             if (res.ok) {
                 await this.fetchCurrent();
-                this.$dispatch("updated")
+                this.$dispatch("updated");
                 this.state = this.states.initial;
             }
 
@@ -248,15 +252,15 @@ document.addEventListener("alpine:init", () => {
         },
 
         style(family) {
-            return { "font-family": `"${family}", sans-serif` }
+            return { "font-family": `"${family}", sans-serif` };
         },
 
         on(state) {
-            return this.state == state
+            return this.state == state;
         },
 
         set(state) {
-            this.state = state
+            this.state = state;
         },
 
         select(font, tag = "", state = this.states.configuring) {
@@ -266,9 +270,45 @@ document.addEventListener("alpine:init", () => {
 
         empty() {
             return Object.keys(this.current).length == 0;
-        }
-    }))
+        },
+    }));
 
+    Alpine.data("files", () => ({
+        files: [],
+        ready: false,
+        loading: false,
+        state: 0,
+
+        async init() {
+            await this.fetch();
+            this.ready = true;
+        },
+        async fetch() {
+            this.loading = true;
+            const res = await fetch("/dashboard/api/files");
+            this.files = (await res.json()) || [];
+            this.loading = false;
+        },
+        async upload(event) {
+            this.loading = true;
+
+            for (const file of event.target.files) {
+                const data = new FormData();
+                data.append("file", file);
+
+                const res = await fetch("/dashboard/api/files", {
+                    method: "POST",
+                    body: data,
+                });
+
+                if (res.ok) {
+                    this.files.push(await res.json());
+                } else {
+                    alert("Error uploading file");
+                }
+            }
+
+            this.loading = false;
+        },
+    }));
 });
-
-

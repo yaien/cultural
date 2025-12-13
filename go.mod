@@ -1,6 +1,6 @@
 module github.com/yaien/cultural
 
-go 1.25.2
+go 1.25.5
 
 require (
 	github.com/a-h/templ v0.3.960
