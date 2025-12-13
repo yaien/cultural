@@ -1,12 +1,10 @@
 package commands
 
 import (
-	"bytes"
 	"context"
 	"errors"
 	"fmt"
 	"io"
-	"net/http"
 	"time"
 
 	"github.com/yaien/cultural/internal/library/storage"
@@ -15,23 +13,24 @@ import (
 )
 
 type UploadFileCommand struct {
-	storage    storage.Storage
-	repository models.FileRepository
+	storage storage.Storage
+	files   models.FileRepository
 }
 
-type UploadFileCommandRequest struct {
+type UploadFileRequest struct {
 	Name           string
 	Size           int64
+	MimeType       string
 	Data           io.Reader
 	OrganizationID primitive.ObjectID
 }
 
-func NewUploadFileCommand(repo models.FileRepository, st storage.Storage) *UploadFileCommand {
-	return &UploadFileCommand{st, repo}
+func NewUploadFileCommand(files models.FileRepository, st storage.Storage) *UploadFileCommand {
+	return &UploadFileCommand{st, files}
 }
 
-func (c *UploadFileCommand) UploadFile(ctx context.Context, req *UploadFileCommandRequest) (*models.File, error) {
-	_, err := c.repository.Get(ctx, req.OrganizationID, req.Name)
+func (c *UploadFileCommand) UploadFile(ctx context.Context, req *UploadFileRequest) (*models.File, error) {
+	_, err := c.files.Get(ctx, req.OrganizationID, req.Name)
 
 	var e *models.Error
 	switch {
@@ -42,27 +41,22 @@ func (c *UploadFileCommand) UploadFile(ctx context.Context, req *UploadFileComma
 		return nil, fmt.Errorf("failed to check file existence: %w", err)
 	}
 
-	data, err := io.ReadAll(req.Data)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read file data: %w", err)
-	}
-
 	file := &models.File{
 		ID:             primitive.NewObjectID(),
 		Name:           req.Name,
 		Size:           req.Size,
-		MimeType:       http.DetectContentType(data),
+		MimeType:       req.MimeType,
 		OrganizationID: req.OrganizationID,
 		CreatedAt:      time.Now(),
 		UpdatedAt:      time.Now(),
 	}
 
-	err = c.repository.Create(ctx, file)
+	err = c.files.Create(ctx, file)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create file record: %w", err)
 	}
 
-	err = c.storage.Create(file.ID.Hex(), req.Size, bytes.NewReader(data))
+	err = c.storage.Create(file.ID.Hex(), req.Size, req.Data)
 	if err != nil {
 		return nil, fmt.Errorf("failed to upload file to storage: %w", err)
 	}

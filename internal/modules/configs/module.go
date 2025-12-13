@@ -29,6 +29,7 @@ func (m *Module) Init(mono *infrastructure.Monolith) error {
 		Files:         repositories.NewFileRepository(mono.MongoDB),
 		Cache:         cache.New[*models.Config](time.Hour),
 		Mail:          mono.Mail,
+		Storage:       mono.Storage,
 	})
 
 	m.Web = web.Register(mono, m.App)

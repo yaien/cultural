@@ -11,16 +11,16 @@ import (
 )
 
 type GetFileQuery struct {
-	repository models.FileRepository
-	storage    storage.Storage
+	files   models.FileRepository
+	storage storage.Storage
 }
 
-func NewGetFileQuery(repository models.FileRepository, st storage.Storage) *GetFileQuery {
-	return &GetFileQuery{repository, st}
+func NewGetFileQuery(files models.FileRepository, st storage.Storage) *GetFileQuery {
+	return &GetFileQuery{files, st}
 }
 
 func (q *GetFileQuery) GetFile(ctx context.Context, organizationID primitive.ObjectID, name string) (*models.File, io.ReadCloser, error) {
-	file, err := q.repository.Get(ctx, organizationID, name)
+	file, err := q.files.Get(ctx, organizationID, name)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to get file: %w", err)
 	}

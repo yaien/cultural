@@ -8,15 +8,15 @@ import (
 )
 
 type GetFilesQuery struct {
-	repository models.FileRepository
+	files models.FileRepository
 }
 
-func NewGetFilesQuery(repository models.FileRepository) *GetFilesQuery {
+func NewGetFilesQuery(files models.FileRepository) *GetFilesQuery {
 	return &GetFilesQuery{
-		repository: repository,
+		files: files,
 	}
 }
 
 func (q *GetFilesQuery) GetFiles(ctx context.Context, organizationID primitive.ObjectID) ([]*models.File, error) {
-	return q.repository.List(ctx, organizationID)
+	return q.files.List(ctx, organizationID)
 }

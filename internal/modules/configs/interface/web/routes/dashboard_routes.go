@@ -40,6 +40,15 @@ func dashboard(mono *infrastructure.Monolith, app *application.Application, md *
 		router.HandleFunc("PUT /dashboard/api/pages/{page}", ctrl.Update)
 	}
 
+	{
+		ctrl := controllers.NewFileController(app)
+		router.HandleFunc("POST /dashboard/api/files", ctrl.Upload)
+		router.HandleFunc("GET /dashboard/api/files", ctrl.List)
+		router.HandleFunc("GET /dashboard/api/files/{filename}", ctrl.Get)
+		router.HandleFunc("DELETE /dashboard/api/files/{filename}", ctrl.Delete)
+		router.HandleFunc("GET /dashboard/files/{filename}", ctrl.Download)
+	}
+
 	router.Handle("GET /dashboard/events", templ.Handler(views.Events()))
 	router.Handle("GET /dashboard/products", templ.Handler(views.Products()))
 	router.Handle("GET /dashboard/members", templ.Handler(views.Members()))
