@@ -39,7 +39,6 @@ func dashboard(mono *infrastructure.Monolith, app *application.Application, md *
 	}
 
 	{
-<<<<<<< Updated upstream
 		ctrl := controllers.NewFileController(app)
 		router.HandleFunc("POST /dashboard/api/files", ctrl.Upload)
 		router.HandleFunc("GET /dashboard/api/files", ctrl.List)
@@ -49,8 +48,6 @@ func dashboard(mono *infrastructure.Monolith, app *application.Application, md *
 	}
 
 	{
-=======
->>>>>>> Stashed changes
 		ctrl := controllers.NewEventsController(app)
 		router.HandleFunc("GET /dashboard/events", ctrl.Index)
 	}
