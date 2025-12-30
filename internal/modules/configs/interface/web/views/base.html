@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{block "title" .}}{{end}} - {{.Config.Title}}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/assets/static/dashboard/dashboard.css" />
+    {{block "links" .}}{{end}}
+  </head>
+  <body x-data="{ open: true }" class="open" :class="{ open }">
+    <header>
+      <button class="toggle" @click="open = !open" aria-label="Toggle Menu">{{template "menu.svg"}}</button>
+      <div class="title">
+        <h3>{{block "title" .}}{{end}}</h3>
+      </div>
+      <div class="account">
+        <span>{{.User.Name}} ({{.User.Email}})</span>
+      </div>
+    </header>
+    <aside>
+      <div class="title">
+        <h2>{{.Config.Title}}</h2>
+      </div>
+      <nav>
+        <ul>
+          {{ define "link" }}
+          <li class="{{and .Active `active`}}">
+            <a href="{{.Path}}"> {{.Icon}} {{.Name}} </a>
+          </li>
+          {{ end }}
+
+          <!-- Dashboard -->
+          {{ template "link" .Link "/dashboard" "Dashboard" "home.svg" }}
+
+          <!-- Sites -->
+          {{ template "link" .Link "/dashboard/pages" "Sitios" "website.svg" }}
+
+          <!-- Events -->
+          {{ template "link" .Link "/dashboard/events" "Eventos" "calendar.svg" }}
+
+          <!-- Products -->
+          {{ template "link" .Link "/dashboard/products" "Productos" "box.svg" }}
+
+          <!-- Members -->
+          {{ template "link" .Link "/dashboard/members" "Miembros" "user_list.svg" }}
+        </ul>
+      </nav>
+      <div class="footer">
+        <nav>
+          <ul>
+            <li>
+              <a href="/auth/logout"> {{ template "logout.svg" }} Cerrar Sesión </a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </aside>
+
+    <!-- Content Section -->
+    <main>{{block "content" .}}{{end}}</main>
+
+    <!-- Scripts Section -->
+    {{block "scripts" .}}{{end}}
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  </body>
+</html>

@@ -40,6 +40,6 @@ func (c *InvitationController) OnInvitation(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	_ = views.OnInvitation().Render(r.Context(), w)
+	views.Welcome(w, r)
 
 }

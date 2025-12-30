@@ -16,5 +16,5 @@ func NewDashboardController(app *application.Application) *DashboardController {
 }
 
 func (c *DashboardController) Home(w http.ResponseWriter, r *http.Request) {
-	_ = views.Home().Render(r.Context(), w)
+	views.Home(w, r)
 }

@@ -1,0 +1,73 @@
+package views
+
+import (
+	"fmt"
+	"html/template"
+	"net/http"
+
+	"github.com/yaien/cultural/internal/modules/configs/models"
+)
+
+type data struct {
+	Config *models.Config
+	User   *models.User
+	Path   string
+	Meta   any
+}
+
+type option func(*data)
+
+func Meta(meta any) option {
+	return func(d *data) {
+		d.Meta = meta
+	}
+}
+
+func newData(r *http.Request, opts ...option) *data {
+	var data data
+
+	data.Path = r.URL.Path
+
+	if config, ok := r.Context().Value(models.ConfigContextKey).(*models.Config); ok {
+		data.Config = config
+	}
+
+	if user, ok := r.Context().Value(models.UserContextKey).(*models.User); ok {
+		data.User = user
+	}
+
+	for _, opt := range opts {
+		opt(&data)
+	}
+
+	return &data
+}
+
+type Link struct {
+	Path   string
+	Name   string
+	Icon   template.HTML
+	Active bool
+}
+
+func (d *data) Link(path, name, icon string) (*Link, error) {
+	svg, err := fs.ReadFile(fmt.Sprintf("icons/%s", icon))
+	if err != nil {
+		return nil, fmt.Errorf("failed reading icon: %w", err)
+	}
+
+	return &Link{
+		Path:   path,
+		Name:   name,
+		Icon:   template.HTML(svg),
+		Active: path == d.Path,
+	}, nil
+}
+
+var links = []*Link{
+	{Path: "/dashboard", Name: "Dashboard", Icon: "home"},
+	{Path: "/dashboard/pages", Name: "Sitios", Icon: "website"},
+	{Path: "/dashboard/events", Name: "Eventos", Icon: "calendar"},
+	{Path: "/dashboard/products", Name: "Productos", Icon: "box"},
+	{Path: "/dashboard/members", Name: "Miembros", Icon: "user_list"},
+}

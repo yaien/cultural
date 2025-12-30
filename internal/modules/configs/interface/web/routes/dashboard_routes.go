@@ -3,13 +3,11 @@ package routes
 import (
 	"net/http"
 
-	"github.com/a-h/templ"
 	"github.com/yaien/cultural/internal/infrastructure"
 	"github.com/yaien/cultural/internal/modules/configs/application"
 	"github.com/yaien/cultural/internal/modules/configs/interface/web/assets"
 	"github.com/yaien/cultural/internal/modules/configs/interface/web/controllers"
 	"github.com/yaien/cultural/internal/modules/configs/interface/web/middlewares"
-	"github.com/yaien/cultural/internal/modules/configs/interface/web/views"
 )
 
 func dashboard(mono *infrastructure.Monolith, app *application.Application, md *middlewares.Middlewares) {
@@ -49,9 +47,20 @@ func dashboard(mono *infrastructure.Monolith, app *application.Application, md *
 		router.HandleFunc("GET /dashboard/files/{filename}", ctrl.Download)
 	}
 
-	router.Handle("GET /dashboard/events", templ.Handler(views.Events()))
-	router.Handle("GET /dashboard/products", templ.Handler(views.Products()))
-	router.Handle("GET /dashboard/members", templ.Handler(views.Members()))
+	{
+		ctrl := controllers.NewEventsController(app)
+		router.HandleFunc("GET /dashboard/events", ctrl.Index)
+	}
+
+	{
+		ctrl := controllers.NewMembersController(app)
+		router.HandleFunc("GET /dashboard/members", ctrl.Index)
+	}
+
+	{
+		ctrl := controllers.NewProductsController(app)
+		router.HandleFunc("GET /dashboard/products", ctrl.Index)
+	}
 
 	mono.WebRouter.HandleFunc("/dashboard/", md.WithUser(md.WithRole(router)))
 

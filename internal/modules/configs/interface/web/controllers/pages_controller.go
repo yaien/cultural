@@ -19,7 +19,7 @@ func NewPagesController(app *application.Application) *PagesController {
 }
 
 func (c *PagesController) Index(w http.ResponseWriter, r *http.Request) {
-	_ = views.Pages().Render(r.Context(), w)
+	views.Pages(w, r)
 }
 
 func (c *PagesController) List(w http.ResponseWriter, r *http.Request) {
