@@ -25,7 +25,7 @@ func (q *GetFileQuery) GetFile(ctx context.Context, organizationID primitive.Obj
 		return nil, nil, fmt.Errorf("failed to get file: %w", err)
 	}
 
-	data, err := q.storage.Open(file.ID.Hex())
+	data, err := q.storage.Get(file.ID.Hex())
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to open file from storage: %w", err)
 	}

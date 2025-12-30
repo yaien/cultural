@@ -137,9 +137,7 @@ main {
 }
 
 body.open main {
-    padding-left: calc(
-        var(--aside-width) + var(--aside-padding) * 2 + var(--aside-space)
-    );
+    padding-left: calc(var(--aside-width) + var(--aside-padding) * 2 + var(--aside-space));
 }
 
 header {
@@ -159,9 +157,7 @@ header {
 }
 
 body.open header {
-    padding-left: calc(
-        var(--aside-width) + var(--aside-padding) * 2 + var(--aside-space)
-    );
+    padding-left: calc(var(--aside-width) + var(--aside-padding) * 2 + var(--aside-space));
 }
 
 header .title {
@@ -231,6 +227,15 @@ button {
     padding: 0.5rem;
     font-size: medium;
     cursor: pointer;
+}
+
+button.clear {
+    background: none;
+    border: none;
+}
+
+button.clear:focus {
+    border: none;
 }
 
 div[role="group"] {

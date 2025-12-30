@@ -56,7 +56,7 @@ func (c *UploadFileCommand) UploadFile(ctx context.Context, req *UploadFileReque
 		return nil, fmt.Errorf("failed to create file record: %w", err)
 	}
 
-	err = c.storage.Create(file.ID.Hex(), req.Size, req.Data)
+	err = c.storage.Put(file.ID.Hex(), req.Size, req.Data)
 	if err != nil {
 		return nil, fmt.Errorf("failed to upload file to storage: %w", err)
 	}

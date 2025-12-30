@@ -12,7 +12,7 @@
 
 <!-- Content -->
 {{ define "content" }}
-<div x-data="{{ printf `pages({ url: %q })` .Config.Url }}">
+<div x-data="{{ printf `pages({ url: %q })` .Config.Url }}" style="height: 100%">
   <template x-if="ready">
     <div class="container">
       <div class="edit">
@@ -84,86 +84,101 @@
 
         <!-- Fonts Page -->
         <div x-show="on(states.font)" x-transition:enter.delay.75ms>
-          <div x-data="fonts" @updated="render()">
-            <template x-if="ready">
-              <div>
-                <div x-show="on(states.initial)" x-transition:enter.delay.75ms>
-                  <div class="fonts">
-                    <div class="list">
-                      <template x-for="(font, key) in current" :key="font.family">
-                        <div class="font" @click="select(font, key, states.browsing)">
-                          <div class="preview" x-text="font.family" :style="style(font.family)"></div>
-                          <span x-text="key"></span>
-                        </div>
-                      </template>
-                    </div>
-                    <p x-show="empty" style="text-align: center">
-                      Aún no hay fuentes configuradas.
-                      <br />
-                      Agrega una nueva fuente para comenzar
-                    </p>
-                    <div class="actions">
-                      <button @click="set(states.browsing)">Fuentes</button>
-                    </div>
-                  </div>
-                </div>
-                <div x-show="on(states.browsing)" x-transition:enter.delay.75ms>
-                  <div class="fonts">
-                    <fieldset role="group">
-                      <legend>Fuentes</legend>
-                      <input
-                        type="text"
-                        placeholder="Buscar fuente"
-                        @input.debounce.500ms="search($event.target.value)"
-                      />
-                    </fieldset>
-                    <div class="list" @scroll.debounce.200ms="scroll($event)">
-                      <template x-for="font in fonts" :key="font.family">
-                        <div class="font" @click="select(font, selected.tag)">
-                          <div class="preview" x-text="font.family" :style="style(font.family)"></div>
-                        </div>
-                      </template>
-                    </div>
-                    <div class="actions">
-                      <button @click="set(states.initial)">Volver</button>
-                    </div>
-                  </div>
-                </div>
-                <div x-show="on(states.configuring)" x-transition:enter.delay.75ms>
-                  <div class="fonts configure">
-                    <h1 x-text="selected.font.family" :style="style(selected.font.family)"></h1>
-                    <form @submit.prevent="add()">
-                      <small
-                        >Use "primary" para cambiar la fuente base de la página o "headings" para cambiar los
-                        encabezados</small
-                      >
-                      <fieldset>
-                        <legend>Tag</legend>
-                        <input name="tag" x-model="selected.tag" required />
-                      </fieldset>
-                      <div class="actions">
-                        <button type="button" @click="set(states.browsing)" :disabled="loading">Volver</button>
-                        <button type="submit" :disabled="loading">Guardar</button>
+          <template x-if="on(states.font)">
+            <div x-data="fonts" @updated="render()">
+              <template x-if="ready">
+                <div>
+                  <div x-show="on(states.initial)" x-transition:enter.delay.75ms>
+                    <div class="fonts">
+                      <div class="list">
+                        <template x-for="(font, key) in current" :key="font.family">
+                          <div class="font" @click="select(font, key, states.browsing)">
+                            <div class="preview" x-text="font.family" :style="style(font.family)"></div>
+                            <span x-text="key"></span>
+                          </div>
+                        </template>
                       </div>
-                    </form>
+                      <p x-show="empty" style="text-align: center">
+                        Aún no hay fuentes configuradas.
+                        <br />
+                        Agrega una nueva fuente para comenzar
+                      </p>
+                      <div class="actions">
+                        <button @click="set(states.browsing)">Fuentes</button>
+                      </div>
+                    </div>
+                  </div>
+                  <div x-show="on(states.browsing)" x-transition:enter.delay.75ms>
+                    <div class="fonts">
+                      <fieldset role="group">
+                        <legend>Fuentes</legend>
+                        <input
+                          type="text"
+                          placeholder="Buscar fuente"
+                          @input.debounce.500ms="search($event.target.value)"
+                        />
+                      </fieldset>
+                      <div class="list" @scroll.debounce.200ms="scroll($event)">
+                        <template x-for="font in fonts" :key="font.family">
+                          <div class="font" @click="select(font, selected.tag)">
+                            <div class="preview" x-text="font.family" :style="style(font.family)"></div>
+                          </div>
+                        </template>
+                      </div>
+                      <div class="actions">
+                        <button @click="set(states.initial)">Volver</button>
+                      </div>
+                    </div>
+                  </div>
+                  <div x-show="on(states.configuring)" x-transition:enter.delay.75ms>
+                    <template x-if="selected.font">
+                      <div class="fonts configure">
+                        <h1 x-text="selected.font.family" :style="style(selected.font.family)"></h1>
+                        <form @submit.prevent="add()">
+                          <small
+                            >Use "primary" para cambiar la fuente base de la página o "headings" para cambiar los
+                            encabezados</small
+                          >
+                          <fieldset>
+                            <legend>Tag</legend>
+                            <input name="tag" x-model="selected.tag" required />
+                          </fieldset>
+                          <div class="actions">
+                            <button type="button" @click="set(states.browsing)" :disabled="loading">Volver</button>
+                            <button type="submit" :disabled="loading">Guardar</button>
+                          </div>
+                        </form>
+                      </div>
+                    </template>
                   </div>
                 </div>
-              </div>
-            </template>
-          </div>
+              </template>
+            </div>
+          </template>
         </div>
 
         <!-- Files Page -->
         <div x-show="on(states.files)" x-transition:enter.delay.75ms class="grow">
           <div x-data="files" class="files">
             <div class="actions">
-              <input type="file" x-ref="input" hidden accept="image/*" multiple @change="upload($event)" />
-              <button @click="$refs.input.click()">{{ template "add.svg" }}</button>
+              <input type="file" x-ref="input" hidden accept="image/*,video/*" multiple @change="upload($event)" />
+              <button @click="$refs.input.click()" class="clear">{{ template "add.svg" }}</button>
             </div>
             <div class="grid">
               <template x-for="file in files" :key="file.id">
                 <div class="item">
-                  <img x-bind:src="'/dashboard/files/' + file.name" :title="file.name" :alt="file.name" />
+                  <template x-if="file.mimeType.startsWith('image')">
+                    <img x-bind:src="'/dashboard/files/' + file.name" :title="file.name" :alt="file.name" />
+                  </template>
+                  <template x-if="file.mimeType.startsWith('video')">
+                    <video
+                      x-bind:src="'/dashboard/files/' + file.name"
+                      :title="file.name"
+                      :alt="file.name"
+                      @mouseenter="$event.target.play()"
+                      @mouseleave="$event.target.pause()"
+                    ></video>
+                  </template>
                   <div role="group">
                     <button @click="rename(file)" title="Rename">{{ template "edit.svg" }}</button>
                     <button @click="copyUrl(file)" title="Copy URL">{{ template "copy.svg" }}</button>
