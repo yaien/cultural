@@ -4,7 +4,6 @@ import (
 	"context"
 	"time"
 
-	"github.com/a-h/templ"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -21,8 +20,6 @@ type Invitation struct {
 	UserDisplayName string             `bson:"userDisplayName" json:"userDisplayName"`
 	UserEmail       string             `bson:"userEmail" json:"userEmail"`
 }
-
-type InvitationEmailBuilder func(org *Organization, inv *Invitation, creator *User, link string) templ.Component
 
 type InvitationRepository interface {
 	GetByIDAndOrganizationID(ctx context.Context, id, organizationID primitive.ObjectID) (*Invitation, error)

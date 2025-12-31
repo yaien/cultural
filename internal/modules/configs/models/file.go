@@ -2,6 +2,7 @@ package models
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -23,4 +24,12 @@ type FileRepository interface {
 	Rename(ctx context.Context, organizationID primitive.ObjectID, oldName, newName string) error
 	Delete(ctx context.Context, organizationID primitive.ObjectID, name string) error
 	List(ctx context.Context, organizationID primitive.ObjectID) ([]*File, error)
+}
+
+type ExternalFileURLFunc func(filename string) string
+
+func NewExternalFileURLFunc(serverURL string, organizationID primitive.ObjectID) ExternalFileURLFunc {
+	return func(filename string) string {
+		return fmt.Sprintf("%s/assets/external/%s/%s", serverURL, organizationID.Hex(), filename)
+	}
 }

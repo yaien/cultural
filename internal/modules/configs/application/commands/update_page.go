@@ -17,15 +17,15 @@ func NewUpdatePageCommand(configs models.ConfigRepository, ch *cache.Cache[*mode
 }
 
 type UpdatePageRequest struct {
-	Config models.Config
-	Page   models.Page
+	Config *models.Config
+	Page   *models.Page
 	Path   string
 }
 
 func (c *UpdatePageCommand) UpdatePage(ctx context.Context, req *UpdatePageRequest) error {
 	req.Config.Pages[req.Path] = req.Page
 
-	err := c.configs.Update(ctx, &req.Config)
+	err := c.configs.Update(ctx, req.Config)
 	if err != nil {
 		return err
 	}

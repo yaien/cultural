@@ -50,7 +50,7 @@ func (c *FontsController) Get(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c *FontsController) Update(w http.ResponseWriter, r *http.Request) {
-	var fonts models.Fonts
+	var fonts map[string]*models.Font
 	err := json.NewDecoder(r.Body).Decode(&fonts)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)

@@ -3,7 +3,6 @@ module github.com/yaien/cultural
 go 1.25.5
 
 require (
-	github.com/a-h/templ v0.3.960
 	github.com/gorilla/sessions v1.4.0
 	github.com/markbates/goth v1.82.0
 	github.com/spf13/viper v1.21.0
@@ -88,6 +87,5 @@ require (
 )
 
 tool (
-	github.com/a-h/templ/cmd/templ
 	github.com/air-verse/air
 )

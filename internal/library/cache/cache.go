@@ -33,10 +33,7 @@ func New[T any](ttl time.Duration) *Cache[T] {
 	}
 	// default cleanup interval is half the ttl, with a sensible floor
 	if ttl > 0 {
-		c.cleanupInterval = ttl / 2
-		if c.cleanupInterval < time.Millisecond*100 {
-			c.cleanupInterval = time.Millisecond * 100
-		}
+		c.cleanupInterval = max(ttl/2, time.Millisecond*100)
 	} else {
 		c.cleanupInterval = time.Second
 	}
@@ -98,10 +95,8 @@ func (c *Cache[T]) Get(key string) (t T, ok bool) {
 		// expired — remove and report miss
 		c.mu.Lock()
 		// ensure we don't race with a newer value being set
-		if cur, exists := c.items[key]; exists {
-			if cur.expiry.Equal(it.expiry) {
-				delete(c.items, key)
-			}
+		if cur, exists := c.items[key]; exists && cur.expiry.Equal(it.expiry) {
+			delete(c.items, key)
 		}
 		c.mu.Unlock()
 		return t, false

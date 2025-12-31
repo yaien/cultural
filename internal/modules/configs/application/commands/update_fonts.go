@@ -16,7 +16,7 @@ func NewUpdateFontsCommand(configs models.ConfigRepository, ch *cache.Cache[*mod
 	return &UpdateFontsCommand{configs, ch}
 }
 
-func (c *UpdateFontsCommand) UpdateFonts(ctx context.Context, config models.Config, fonts models.Fonts) error {
+func (c *UpdateFontsCommand) UpdateFonts(ctx context.Context, config models.Config, fonts map[string]*models.Font) error {
 	config.Fonts = fonts
 
 	err := c.configs.Update(ctx, &config)

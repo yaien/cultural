@@ -4,27 +4,43 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/yaien/cultural/internal/library/render"
 	"github.com/yaien/cultural/internal/modules/configs/models"
+	"github.com/yaien/cultural/internal/modules/landing/application"
 )
 
-type PageController struct{}
+type PageController struct {
+	app *application.Application
+}
 
-func NewPageController() *PageController {
-	return &PageController{}
+func NewPageController(app *application.Application) *PageController {
+	return &PageController{
+		app: app,
+	}
 }
 
 func (c *PageController) Index(w http.ResponseWriter, r *http.Request) {
 	config := r.Context().Value(models.ConfigContextKey).(*models.Config)
 
-	page, ok := config.Pages["index"]
-	if !ok {
+	parsed, found, err := c.app.GetPageTemplate(config, "index")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	if !found {
 		http.Error(w, "No index page configured", http.StatusInternalServerError)
 		return
 	}
 
+	page := config.Pages["index"]
+
+	data := models.NewPageData(config, page).
+		WithFilePath("/assets/dynamic/landing/").
+		Data()
+
 	w.Header().Set("Content-Type", "text/html")
-	_ = render.Page(page).Render(r.Context(), w)
+	parsed.Execute(w, data)
+
 }
 
 func (c *PageController) Page(w http.ResponseWriter, r *http.Request) {
@@ -38,14 +54,26 @@ func (c *PageController) Page(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	page, ok := config.Pages[path]
-	if !ok {
-		http.NotFound(w, r)
+	parsed, found, err := c.app.GetPageTemplate(config, path)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
+	if !found {
+		http.Error(w, "No page template found", http.StatusInternalServerError)
+		return
+	}
+
+	page := config.Pages[path]
+
+	data := models.NewPageData(config, page).
+		WithFilePath("/assets/dynamic/landing/").
+		Data()
+
 	w.Header().Set("Content-Type", "text/html")
-	_ = render.Page(page).Render(r.Context(), w)
+	parsed.Execute(w, data)
+
 }
 
 func (c *PageController) PageStyles(w http.ResponseWriter, r *http.Request) {
@@ -70,11 +98,11 @@ func (c *PageController) PageStyles(w http.ResponseWriter, r *http.Request) {
 	_, _ = w.Write([]byte(page.Styles))
 }
 
-func (c *PageController) Styles(w http.ResponseWriter, r *http.Request) {
+func (c *PageController) BaseStyles(w http.ResponseWriter, r *http.Request) {
 	config := r.Context().Value(models.ConfigContextKey).(*models.Config)
 
 	w.Header().Set("Content-Type", "text/css")
-	err := models.Styles.Execute(w, config)
+	err := models.PageBaseStyles.Execute(w, config)
 	if err != nil {
 		http.Error(w, "Failed to generate styles", http.StatusInternalServerError)
 		return

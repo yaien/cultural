@@ -50,8 +50,8 @@ func init() {
 					CreatedAt:      time.Now(),
 					UpdatedAt:      time.Now(),
 					Colors:         models.DefaultColors,
-					Pages:          map[string]models.Page{"index": models.DefaultIndexPage},
-					Emails:         map[string]models.Email{"invitation": models.DefaultInvitationEmail},
+					Pages:          models.DefaultPages,
+					Emails:         models.DefaultEmails,
 				})
 
 			return err

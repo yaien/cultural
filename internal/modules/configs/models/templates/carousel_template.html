@@ -1,0 +1,17 @@
+<div class="carousel" role="carousel" x-data="{ active: 0, count: {{len .}} }">
+  <button @click="active = active == 0 ? count - 1 : active - 1">⟨</button>
+  <ul>
+    {{ range $index, $item := . }}
+    <li x-show="active == {{$index}}" x-transition>
+      {{ if eq .Type "text" }}
+      <div>{{ $item.Text }}</div>
+      {{ else if eq $item.Type "image" }}
+      <img src="{{ $item.Src }}" alt="{{ $item.Alt }}" />
+      {{ else if eq $item.Type "video" }}
+      <video src="{{ $item.Src }}" controls></video>
+      {{ end }}
+    </li>
+    {{ end }}
+  </ul>
+  <button @click="active = active == count - 1 ? 0 : active + 1">⟩</button>
+</div>

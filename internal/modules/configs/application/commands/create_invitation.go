@@ -4,9 +4,9 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"html/template"
 	"time"
 
-	"github.com/yaien/cultural/internal/library/render"
 	"github.com/yaien/cultural/internal/modules/configs/models"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"gopkg.in/gomail.v2"
@@ -27,7 +27,8 @@ func NewCreateInvitationCommand(
 	configs models.ConfigRepository,
 	roles models.RoleRepository,
 	groups models.GroupRepository,
-	mail *gomail.Dialer) *CreateInvitationCommand {
+	mail *gomail.Dialer,
+) *CreateInvitationCommand {
 	return &CreateInvitationCommand{
 		invitations,
 		organizations,
@@ -102,24 +103,46 @@ func (c *CreateInvitationCommand) CreateInvitation(ctx context.Context, req *Cre
 		return nil, fmt.Errorf("invitation email template not found in config")
 	}
 
-	data := map[string]any{
-		"user.name":         req.UserDisplayName,
-		"organization.name": organization.Name,
-		"invitation.url":    fmt.Sprintf("%s/invitation/%s", config.Url, invitation.ID.Hex()),
+	data := struct {
+		UserDisplayName  string
+		OrganizationName string
+		InvitationURL    string
+		ConfigURL        string
+		FileURL          models.ExternalFileURLFunc
+	}{
+		UserDisplayName:  req.UserDisplayName,
+		OrganizationName: organization.Name,
+		InvitationURL:    fmt.Sprintf("%s/invitation/%s", config.Url, invitation.ID.Hex()),
+		ConfigURL:        config.Url,
+		FileURL:          models.NewExternalFileURLFunc(config.Url, organization.ID),
 	}
 
-	email.Subject = render.BindStr(email.Subject, data)
+	subjectTemplate, err := template.New("subject").Parse(email.Subject)
+	if err != nil {
+		return nil, fmt.Errorf("failed creating email subject: %w", err)
+	}
 
-	var body bytes.Buffer
-	err = render.Email(email, render.WithData(data)).Render(ctx, &body)
+	var subject bytes.Buffer
+	err = subjectTemplate.Execute(&subject, data)
+	if err != nil {
+		return nil, fmt.Errorf("failed executing email subject template: %w", err)
+	}
+
+	bodyTemplate, err := template.New("body").Parse(email.Body)
 	if err != nil {
 		return nil, fmt.Errorf("failed creating email body: %w", err)
+	}
+
+	var body bytes.Buffer
+	err = bodyTemplate.Execute(&body, data)
+	if err != nil {
+		return nil, fmt.Errorf("failed executing email body template: %w", err)
 	}
 
 	message := gomail.NewMessage()
 	message.SetHeader("From", fmt.Sprintf("%s <%s>", organization.Name, config.Email))
 	message.SetHeader("To", fmt.Sprintf("%s <%s>", req.UserDisplayName, req.UserEmail))
-	message.SetHeader("Subject", email.Subject)
+	message.SetHeader("Subject", subject.String())
 	message.SetBody("text/html", body.String())
 
 	err = c.mail.DialAndSend(message)

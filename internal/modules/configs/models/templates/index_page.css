@@ -1,0 +1,14 @@
+.text-center {
+    text-align: center;
+}
+.brand-logo {
+    max-width: 200px;
+    margin: 1rem auto;
+    display: block;
+}
+
+.carousel-container {
+    display: flex;
+    justify-content: center;
+    margin: 1rem auto;
+}

@@ -40,8 +40,8 @@ func (c *PagesController) Update(w http.ResponseWriter, r *http.Request) {
 	config := r.Context().Value(models.ConfigContextKey).(*models.Config)
 
 	err = c.app.UpdatePage(r.Context(), &commands.UpdatePageRequest{
-		Config: *config,
-		Page:   page,
+		Page:   &page,
+		Config: config,
 		Path:   path,
 	})
 

@@ -1,11 +1,29 @@
-package render 
+package models
 
 import (
-	"github.com/yaien/cultural/internal/modules/configs/models"
+	"fmt"
+	"html/template"
 	"strings"
 )
 
-func GoogleFontURL(font models.Font) string {
+func (p *pageComponents) Fonts() (template.HTML, error) {
+	setted := make(map[string]bool)
+	sb := strings.Builder{}
+	for _, font := range p.options.Config.Fonts {
+		switch font.Provider {
+		case "google":
+			if !setted[font.Provider] {
+				setted[font.Provider] = true
+				fmt.Fprintln(&sb, `<link rel="preconnect" href="https://fonts.googleapis.com"/>`)
+				fmt.Fprintln(&sb, `<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>`)
+			}
+			fmt.Fprintf(&sb, `<link rel="stylesheet" href="%s"/>`, googleFontURL(font))
+		}
+	}
+	return template.HTML(sb.String()), nil
+}
+
+func googleFontURL(font *Font) string {
 	url := "https://fonts.googleapis.com/css2?"
 	family := strings.ReplaceAll(font.Family, " ", "+")
 	url += "family=" + family
@@ -78,20 +96,4 @@ func GoogleFontURL(font models.Font) string {
 	// Agregar display=swap para mejor rendimiento
 	url += "&display=swap"
 	return url
-}
-
-templ Fonts(fonts models.Fonts) {
-	{{ setted := make(map[string]bool) }}
-	for _, font := range fonts {
-		switch font.Provider {
-			case "google":
-				{{  }}
-				if !setted[font.Provider] {
-					{{ setted[font.Provider] = true }}
-					<link rel="preconnect" href="https://fonts.googleapis.com"/>
-					<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-				}
-				<link rel="stylesheet" href={ GoogleFontURL(font) }/>
-		}
-	}
 }

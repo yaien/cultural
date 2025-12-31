@@ -3,9 +3,9 @@ package controllers
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/http"
 
-	"github.com/yaien/cultural/internal/library/render"
 	"github.com/yaien/cultural/internal/modules/configs/models"
 )
 
@@ -19,24 +19,56 @@ func NewRenderController() *RenderController {
 func (c *RenderController) Render(w http.ResponseWriter, r *http.Request) {
 
 	var input struct {
-		Type  string       `json:"type"`
-		Page  models.Page  `json:"page"`
-		Email models.Email `json:"email"`
+		Page *models.Page `json:"page"`
 	}
 
 	err := json.NewDecoder(r.Body).Decode(&input)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]any{"error": err.Error()})
+		return
+	}
+
+	if input.Page == nil {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]any{"error": "page is required"})
 		return
 	}
 
 	var buffer bytes.Buffer
 
-	switch input.Type {
-	case "page":
-		_ = render.Page(input.Page, render.WithInlineStyles(), render.WithFilepath("/dashboard/files/")).Render(r.Context(), &buffer)
-	case "email":
-		_ = render.Email(input.Email).Render(r.Context(), &buffer)
+	base, err := models.PageTemplate.Clone()
+	if err != nil {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]any{"error": err.Error()})
+		return
+	}
+
+	parsed, err := base.Parse(fmt.Sprintf(`{{define "body"}}%s{{end}}`, input.Page.Body))
+	if err != nil {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]any{"error": err.Error()})
+		return
+	}
+
+	config := r.Context().Value(models.ConfigContextKey).(*models.Config)
+
+	data := models.NewPageData(config, input.Page).
+		WithInlineStyles(true).
+		WithFilePath("/dashboard/files").
+		Data()
+
+	err = parsed.Execute(&buffer, data)
+
+	if err != nil {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]any{"error": err.Error()})
+		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")

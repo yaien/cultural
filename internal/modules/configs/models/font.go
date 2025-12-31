@@ -20,8 +20,6 @@ type Font struct {
 	Files     map[string]string  `bson:"files" json:"files"`
 }
 
-type Fonts map[string]Font
-
 type FindFontOptions struct {
 	Family string
 	Offset int64
