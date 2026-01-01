@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
+	"log/slog"
 	"net/http"
 
 	"github.com/yaien/cultural/internal/modules/configs/application"
@@ -45,7 +46,6 @@ func (fc *FileController) Upload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.WriteHeader(http.StatusCreated)
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(file)
 }
@@ -72,7 +72,6 @@ func (fc *FileController) List(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(files)
 }
@@ -87,7 +86,6 @@ func (fc *FileController) Get(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(file)
 }
@@ -104,11 +102,10 @@ func (fc *FileController) Download(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Disposition", "attachment; filename=\""+file.Name+"\"")
 	w.Header().Set("Content-Type", file.MimeType)
 	w.Header().Set("Content-Length", fmt.Sprint(file.Size))
-	w.WriteHeader(http.StatusOK)
 
 	_, err = bufio.NewWriter(w).ReadFrom(data)
 	if err != nil {
-		http.Error(w, "error downloading the file", http.StatusInternalServerError)
+		slog.Error("error downloading the file", "err", err)
 		return
 	}
 }

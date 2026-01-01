@@ -15,7 +15,7 @@
 <div x-data="{{ printf `pages({ url: %q })` .Config.Url }}" style="height: 100%">
   <template x-if="ready">
     <div class="container">
-      <div class="edit">
+      <div class="editor">
         <!-- Page Selector -->
         <div role="group">
           <button @click="set(states.initial)">{{template "home.svg"}}</button>
@@ -110,6 +110,9 @@
                   </div>
                   <div x-show="on(states.browsing)" x-transition:enter.delay.75ms>
                     <div class="fonts">
+                      <div class="actions">
+                        <button @click="set(states.initial)">Volver</button>
+                      </div>
                       <fieldset role="group">
                         <legend>Fuentes</legend>
                         <input
@@ -125,14 +128,14 @@
                           </div>
                         </template>
                       </div>
-                      <div class="actions">
-                        <button @click="set(states.initial)">Volver</button>
-                      </div>
                     </div>
                   </div>
                   <div x-show="on(states.configuring)" x-transition:enter.delay.75ms>
                     <template x-if="selected.font">
                       <div class="fonts configure">
+                        <div class="actions">
+                          <button type="button" @click="set(states.browsing)" :disabled="loading">Volver</button>
+                        </div>
                         <h1 x-text="selected.font.family" :style="style(selected.font.family)"></h1>
                         <form @submit.prevent="add()">
                           <small
@@ -144,7 +147,6 @@
                             <input name="tag" x-model="selected.tag" required />
                           </fieldset>
                           <div class="actions">
-                            <button type="button" @click="set(states.browsing)" :disabled="loading">Volver</button>
                             <button type="submit" :disabled="loading">Guardar</button>
                           </div>
                         </form>
@@ -160,30 +162,63 @@
         <!-- Files Page -->
         <div x-show="on(states.files)" x-transition:enter.delay.75ms class="grow">
           <div x-data="files" class="files">
-            <div class="actions">
-              <input type="file" x-ref="input" hidden accept="image/*,video/*" multiple @change="upload($event)" />
-              <button @click="$refs.input.click()" class="clear">{{ template "add.svg" }}</button>
-            </div>
-            <div class="grid">
-              <template x-for="file in files" :key="file.id">
-                <div class="item">
-                  <template x-if="file.mimeType.startsWith('image')">
-                    <img x-bind:src="'/dashboard/files/' + file.name" :title="file.name" :alt="file.name" />
-                  </template>
-                  <template x-if="file.mimeType.startsWith('video')">
-                    <video
-                      x-bind:src="'/dashboard/files/' + file.name"
-                      :title="file.name"
-                      :alt="file.name"
-                      @mouseenter="$event.target.play()"
-                      @mouseleave="$event.target.pause()"
-                    ></video>
-                  </template>
-                  <div role="group">
-                    <button @click="rename(file)" title="Rename">{{ template "edit.svg" }}</button>
-                    <button @click="copyUrl(file)" title="Copy URL">{{ template "copy.svg" }}</button>
-                    <button @click="delete(file)" title="Delete">{{ template "trash.svg" }}</button>
+            <!-- List files -->
+            <div x-show="on(states.initial)" x-transition:enter.delay.75ms>
+              <div class="actions">
+                <input type="file" x-ref="input" hidden accept="image/*,video/*" multiple @change="upload($event)" />
+                <button @click="$refs.input.click()" class="clear">{{ template "add.svg" }}</button>
+              </div>
+              <div class="grid">
+                <template x-for="file in files" :key="file.id">
+                  <div class="item" @click="select(file)">
+                    <div class="hover" :title="file.name"></div>
+                    <template x-if="file.mimeType.startsWith('image')">
+                      <img x-bind:src="'/dashboard/files/' + file.name" :title="file.name" :alt="file.name" />
+                    </template>
+                    <template x-if="file.mimeType.startsWith('video')">
+                      <video x-bind:src="'/dashboard/files/' + file.name" :title="file.name" :alt="file.name"></video>
+                    </template>
                   </div>
+                </template>
+              </div>
+            </div>
+
+            <!-- Edit File -->
+            <div x-show="on(states.edit)" x-transition:enter.delay.75ms>
+              <template x-if="selected">
+                <div class="edit">
+                  <div class="actions">
+                    <button type="button" @click="set(states.initial)">Volver</button>
+                  </div>
+
+                  <div class="preview">
+                    <template x-if="selected.mimeType.startsWith('image')">
+                      <img
+                        x-bind:src="'/dashboard/files/' + selected.name"
+                        :title="selected.name"
+                        :alt="selected.name"
+                      />
+                    </template>
+                    <template x-if="selected.mimeType.startsWith('video')">
+                      <video
+                        x-bind:src="'/dashboard/files/' + selected.name"
+                        :title="selected.name"
+                        :alt="selected.name"
+                        controls
+                      ></video>
+                    </template>
+                  </div>
+                  <form @submit.prevent="update()">
+                    <fieldset>
+                      <legend>Nombre</legend>
+                      <input name="name" x-model="selected.name" required />
+                    </fieldset>
+
+                    <div class="actions">
+                      <button type="submit" :disabled="loading">Guardar</button>
+                      <button class="danger" @click="delete()">Eliminar</button>
+                    </div>
+                  </form>
                 </div>
               </template>
             </div>

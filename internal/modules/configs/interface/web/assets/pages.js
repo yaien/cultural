@@ -242,7 +242,12 @@ document.addEventListener("alpine:init", () => {
     files: [],
     ready: false,
     loading: false,
+    selected: null,
     state: 0,
+    states: {
+      initial: 0,
+      edit: 1,
+    },
 
     async init() {
       await this.fetch();
@@ -274,6 +279,19 @@ document.addEventListener("alpine:init", () => {
       }
 
       this.loading = false;
+    },
+
+    select(file) {
+      this.selected = { ...file };
+      this.state = this.states.edit;
+    },
+
+    on(state) {
+      return this.state == state;
+    },
+
+    set(state) {
+      this.state = state;
     },
   }));
 });
