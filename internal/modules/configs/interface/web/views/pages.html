@@ -1,4 +1,4 @@
-{{ define "title"}} Pages {{end}}
+{{ define "title"}} Sitios {{end}}
 
 <!-- Links -->
 {{ define "links"}}
@@ -12,7 +12,7 @@
 
 <!-- Content -->
 {{ define "content" }}
-<div x-data="{{ printf `pages({ url: %q })` .Config.Url }}" style="height: 100%">
+<div x-data="{{ printf `pages({ url: %q, filepath: '/assets/dynamic/files/' })` .Config.Url }}" style="height: 100%">
   <template x-if="ready">
     <div class="container">
       <div class="editor">
@@ -173,10 +173,10 @@
                   <div class="item" @click="select(file)">
                     <div class="hover" :title="file.name"></div>
                     <template x-if="file.mimeType.startsWith('image')">
-                      <img x-bind:src="'/dashboard/files/' + file.name" :title="file.name" :alt="file.name" />
+                      <img x-bind:src="filepath + file.name" :title="file.name" :alt="file.name" />
                     </template>
                     <template x-if="file.mimeType.startsWith('video')">
-                      <video x-bind:src="'/dashboard/files/' + file.name" :title="file.name" :alt="file.name"></video>
+                      <video x-bind:src="filepath + file.name" :title="file.name" :alt="file.name"></video>
                     </template>
                   </div>
                 </template>
@@ -193,15 +193,11 @@
 
                   <div class="preview">
                     <template x-if="selected.mimeType.startsWith('image')">
-                      <img
-                        x-bind:src="'/dashboard/files/' + selected.name"
-                        :title="selected.name"
-                        :alt="selected.name"
-                      />
+                      <img x-bind:src="filepath + selected.name" :title="selected.name" :alt="selected.name" />
                     </template>
                     <template x-if="selected.mimeType.startsWith('video')">
                       <video
-                        x-bind:src="'/dashboard/files/' + selected.name"
+                        x-bind:src="'filepath + selected.name"
                         :title="selected.name"
                         :alt="selected.name"
                         controls
@@ -211,12 +207,12 @@
                   <form @submit.prevent="update()">
                     <fieldset>
                       <legend>Nombre</legend>
-                      <input name="name" x-model="selected.name" required />
+                      <input name="name" x-model="data.name" required />
                     </fieldset>
 
-                    <div class="actions">
+                    <div class="actions around">
+                      <button type="button" class="danger" @click="drop()">Eliminar</button>
                       <button type="submit" :disabled="loading">Guardar</button>
-                      <button class="danger" @click="delete()">Eliminar</button>
                     </div>
                   </form>
                 </div>

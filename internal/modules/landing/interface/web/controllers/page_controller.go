@@ -35,7 +35,7 @@ func (c *PageController) Index(w http.ResponseWriter, r *http.Request) {
 	page := config.Pages["index"]
 
 	data := models.NewPageData(config, page).
-		WithFilePath("/assets/dynamic/landing/").
+		WithFilePath("/assets/dynamic/files/").
 		Data()
 
 	w.Header().Set("Content-Type", "text/html")

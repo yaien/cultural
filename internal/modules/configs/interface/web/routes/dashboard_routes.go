@@ -44,7 +44,9 @@ func dashboard(mono *infrastructure.Monolith, app *application.Application, md *
 		router.HandleFunc("GET /dashboard/api/files", ctrl.List)
 		router.HandleFunc("GET /dashboard/api/files/{filename}", ctrl.Get)
 		router.HandleFunc("DELETE /dashboard/api/files/{filename}", ctrl.Delete)
-		router.HandleFunc("GET /dashboard/files/{filename}", ctrl.Download)
+		router.HandleFunc("PUT /dashboard/api/files/{filename}", ctrl.Rename)
+
+		mono.WebRouter.HandleFunc("GET /assets/dynamic/files/{filename}", ctrl.Download)
 	}
 
 	{

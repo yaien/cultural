@@ -13,7 +13,7 @@
     <link rel="stylesheet" href="/assets/static/dashboard/dashboard.css" />
     {{block "links" .}}{{end}}
   </head>
-  <body x-data="{ open: true }" class="open" :class="{ open }">
+  <body x-data="{ open: false }" :class="{ open }">
     <header>
       <div class="start">
         <button class="toggle" @click="open = !open" aria-label="Toggle Menu">{{template "menu.svg"}}</button>
@@ -32,7 +32,7 @@
         <nav>
           <ul>
             {{ define "link" }}
-            <li class="{{and .Active `active`}}">
+            <li class="{{and .Active `active`}}" title="{{.Name}}">
               <a href="{{.Path}}"> {{.Icon}} <span>{{.Name}}</span></a>
             </li>
             {{ end }}

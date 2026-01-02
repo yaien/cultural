@@ -38,6 +38,11 @@
     padding-bottom: 1rem;
 }
 
+.actions.around {
+    display: flex;
+    justify-content: space-around;
+}
+
 .cm-editor {
     border: 1px solid var(--border-color);
     border-radius: 0.5rem;
@@ -117,9 +122,6 @@
     left: 0;
     width: 100%;
     height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
     cursor: pointer;
     z-index: 10;
 }

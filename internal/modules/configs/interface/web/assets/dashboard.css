@@ -129,6 +129,7 @@ aside li.active a {
 
 aside li a span {
     display: none;
+    text-wrap-mode: nowrap;
 }
 
 body.open aside li a span {
@@ -171,7 +172,7 @@ body.open main {
 
 header {
     padding-left: calc(var(--aside-width-closed) + var(--aside-space));
-    color: var(--primary-color);
+    color: var(--dark-color);
     height: var(--header-height);
     display: flex;
     align-items: center;
@@ -215,6 +216,7 @@ header button.toggle {
     box-shadow: none;
     padding: 0.5rem;
     background-color: unset;
+    color: var(--dark-color);
 }
 
 header h3 {
@@ -274,8 +276,8 @@ button:hover {
 }
 
 button.danger {
-    background: var(--danger-color);
-    color: var(--danger-color-light);
+    background: var(--danger-color-light);
+    color: var(--danger-color);
 }
 
 button.danger:hover {
@@ -286,6 +288,40 @@ button.danger.clear {
     color: var(--danger-color);
 }
 
+button.dark {
+    background: var(--dark-color-light);
+    color: var(--light-color);
+}
+
+button.dark:hover {
+    background-color: var(--dark-color-hover);
+}
+
+button.dark.clear {
+    color: var(--dark-color);
+}
+
+button.dark.clear:hover {
+    color: var(--dark-color-dark);
+}
+
+button.light {
+    background: var(--light-color-light);
+    color: var(--dark-color);
+}
+
+button.light:hover {
+    background-color: var(--light-color-hover);
+}
+
+button.light.clear {
+    color: var(--light-color);
+}
+
+button.light.clear:hover {
+    color: var(--light-color-dark);
+}
+
 button.clear {
     background: none;
     border: none;
@@ -293,6 +329,7 @@ button.clear {
 }
 
 button.clear:hover {
+    background: none;
     color: var(--primary-color-dark);
 }
 

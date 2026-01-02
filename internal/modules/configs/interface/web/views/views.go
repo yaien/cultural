@@ -11,11 +11,11 @@ import (
 var fs embed.FS
 
 var Welcome = compile("welcome.html", "icons/*.svg")
-var Home = compile("base.html", "home.html", "icons/*.svg")
-var Members = compile("base.html", "members.html", "icons/*.svg")
-var Pages = compile("base.html", "pages.html", "icons/*.svg")
-var Products = compile("base.html", "products.html", "icons/*.svg")
-var Events = compile("base.html", "events.html", "icons/*.svg")
+var Home = compile("dashboard.html", "home.html", "icons/*.svg")
+var Members = compile("dashboard.html", "members.html", "icons/*.svg")
+var Pages = compile("dashboard.html", "pages.html", "icons/*.svg")
+var Products = compile("dashboard.html", "products.html", "icons/*.svg")
+var Events = compile("dashboard.html", "events.html", "icons/*.svg")
 
 func compile(patterns ...string) func(w http.ResponseWriter, r *http.Request, options ...option) {
 	t := template.Must(template.ParseFS(fs, patterns...))

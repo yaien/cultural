@@ -3,13 +3,15 @@
   <ul>
     {{ range $index, $item := . }}
     <li x-show="active == {{$index}}" x-transition>
-      {{ if eq .Type "text" }}
-      <div>{{ $item.Text }}</div>
-      {{ else if eq $item.Type "image" }}
-      <img src="{{ $item.Src }}" alt="{{ $item.Alt }}" />
-      {{ else if eq $item.Type "video" }}
-      <video src="{{ $item.Src }}" controls></video>
-      {{ end }}
+      <template x-if="active == {{$index}}">
+        {{ if eq .Type "text" }}
+        <div>{{ $item.Text }}</div>
+        {{ else if eq $item.Type "image" }}
+        <img src="{{ $item.Src }}" alt="{{ $item.Alt }}" />
+        {{ else if eq $item.Type "video" }}
+        <video src="{{ $item.Src }}" controls></video>
+        {{ end }}
+      </template>
     </li>
     {{ end }}
   </ul>

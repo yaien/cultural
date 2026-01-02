@@ -3,7 +3,8 @@ import { css } from "@codemirror/lang-css";
 import { html } from "@codemirror/lang-html";
 
 document.addEventListener("alpine:init", () => {
-  Alpine.data("pages", ({ url }) => ({
+  Alpine.data("pages", ({ url, filepath }) => ({
+    filepath: filepath,
     url: url,
     pages: {},
     data: null,
@@ -243,6 +244,7 @@ document.addEventListener("alpine:init", () => {
     ready: false,
     loading: false,
     selected: null,
+    data: {},
     state: 0,
     states: {
       initial: 0,
@@ -253,12 +255,14 @@ document.addEventListener("alpine:init", () => {
       await this.fetch();
       this.ready = true;
     },
+
     async fetch() {
       this.loading = true;
       const res = await fetch("/dashboard/api/files");
       this.files = (await res.json()) || [];
       this.loading = false;
     },
+
     async upload(event) {
       this.loading = true;
 
@@ -281,8 +285,53 @@ document.addEventListener("alpine:init", () => {
       this.loading = false;
     },
 
+    async update() {
+      try {
+        this.loading = true;
+        const res = await fetch(`/dashboard/api/files/${this.selected.name}`, {
+          method: "PUT",
+          body: JSON.stringify({ newName: this.data.name }),
+          headers: { "Content-Type": "application/json" },
+        });
+
+        if (!res.ok) {
+          const data = await res.json();
+          throw new Error(data.error);
+        }
+
+        this.selected.name = this.data.name;
+        this.set(this.states.initial);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        this.loading = false;
+      }
+    },
+
+    async drop() {
+      try {
+        this.loading = true;
+        const res = await fetch(`/dashboard/api/files/${this.selected.name}`, {
+          method: "DELETE",
+        });
+
+        if (!res.ok) {
+          const data = await res.json();
+          throw new Error(data.error);
+        }
+
+        this.files = this.files.filter((file) => file.id != this.selected.id);
+        this.set(this.states.initial);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        this.loading = false;
+      }
+    },
+
     select(file) {
-      this.selected = { ...file };
+      this.selected = file;
+      this.data = { name: file.name };
       this.state = this.states.edit;
     },
 

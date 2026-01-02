@@ -27,6 +27,7 @@ func (fc *FileController) Upload(w http.ResponseWriter, r *http.Request) {
 
 	data, handler, err := r.FormFile("file")
 	if err != nil {
+		slog.Error("error retrieving the file", "err", err)
 		http.Error(w, "error retrieving the file", http.StatusBadRequest)
 		return
 	}
@@ -42,7 +43,10 @@ func (fc *FileController) Upload(w http.ResponseWriter, r *http.Request) {
 	})
 
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		slog.Error("error uploading file", "err", err)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusInternalServerError)
+		_ = json.NewEncoder(w).Encode(map[string]string{"error": err.Error()})
 		return
 	}
 
@@ -57,6 +61,7 @@ func (fc *FileController) Delete(w http.ResponseWriter, r *http.Request) {
 
 	err := fc.app.DeleteFile(r.Context(), config.OrganizationID, filename)
 	if err != nil {
+		slog.Error("error deleting file", "err", err)
 		http.Error(w, "error deleting the file", http.StatusInternalServerError)
 		return
 	}
@@ -68,7 +73,10 @@ func (fc *FileController) List(w http.ResponseWriter, r *http.Request) {
 	config := r.Context().Value(models.ConfigContextKey).(*models.Config)
 	files, err := fc.app.GetFiles(r.Context(), config.OrganizationID)
 	if err != nil {
-		http.Error(w, "error listing files", http.StatusInternalServerError)
+		slog.Error("error listing files", "err", err)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(map[string]any{"error": "error listing files"})
 		return
 	}
 
@@ -82,7 +90,10 @@ func (fc *FileController) Get(w http.ResponseWriter, r *http.Request) {
 
 	file, _, err := fc.app.GetFile(r.Context(), config.OrganizationID, filename)
 	if err != nil {
-		http.Error(w, "error retrieving the file", http.StatusInternalServerError)
+		slog.Error("error retrieving file", "err", err)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(map[string]any{"error": "error retrieving the file"})
 		return
 	}
 
@@ -95,7 +106,10 @@ func (fc *FileController) Download(w http.ResponseWriter, r *http.Request) {
 	filename := r.PathValue("filename")
 	file, data, err := fc.app.GetFile(r.Context(), config.OrganizationID, filename)
 	if err != nil {
-		http.Error(w, "error retrieving the file", http.StatusInternalServerError)
+		slog.Error("error retrieving file", "err", err)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(map[string]any{"error": "error retrieving the file"})
 		return
 	}
 
@@ -120,13 +134,19 @@ func (fc *FileController) Rename(w http.ResponseWriter, r *http.Request) {
 
 	err := json.NewDecoder(r.Body).Decode(&input)
 	if err != nil {
-		http.Error(w, "invalid request body", http.StatusBadRequest)
+		slog.Error("error parsing request body", "err", err)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]any{"error": "invalid request body"})
 		return
 	}
 
 	err = fc.app.RenameFile(r.Context(), config.OrganizationID, filename, input.NewName)
 	if err != nil {
-		http.Error(w, "error renaming the file", http.StatusInternalServerError)
+		slog.Error("error renaming the file", "err", err)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(map[string]any{"error": "error renaming the file"})
 		return
 	}
 

@@ -59,7 +59,7 @@ func (c *RenderController) Render(w http.ResponseWriter, r *http.Request) {
 
 	data := models.NewPageData(config, input.Page).
 		WithInlineStyles(true).
-		WithFilePath("/dashboard/files").
+		WithFilePath("/assets/dynamic/files/").
 		Data()
 
 	err = parsed.Execute(&buffer, data)
