@@ -1,5 +1,5 @@
-tmp/
-storage/
-db/
+/tmp
+/storage
+/db
 .env
 node_modules/
