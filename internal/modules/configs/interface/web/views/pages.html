@@ -20,11 +20,13 @@
         <div role="group">
           <button @click="set(states.initial)">{{template "home.svg"}}</button>
           <button @click="set(states.create)">{{template "add.svg"}}</button>
-          <button @click="set(states.delete)">{{template "trash.svg"}}</button>
+          <template x-if="page != 'index'">
+            <button @click="set(states.delete)">{{template "trash.svg"}}</button>
+          </template>
           <button @click="set(states.font)">{{template "brand_family.svg"}}</button>
-          <button @click="set(states.files)">{{template "files.svg"}}</button>
-          <button @click="open = false; set(states.editor)">{{template "code_blocks.svg"}}</button>
-          <button @click="open = false; set(states.styles)">{{template "border_style.svg"}}</button>
+          <button @click="set(states.files)">{{template "image.svg"}}</button>
+          <button @click="open = false; set(states.editor)">{{template "html.svg"}}</button>
+          <button @click="open = false; set(states.styles)">{{template "css.svg"}}</button>
         </div>
 
         <!-- Select Site Page  -->
@@ -58,18 +60,18 @@
         <form @submit.prevent="create()" x-show="on(states.create)" x-transition:enter.delay.75ms>
           <fieldset>
             <legend>Nombre</legend>
-            <input name="name" x-model="data.name" required />
+            <input name="name" x-model="form.name" required />
           </fieldset>
           <fieldset>
             <legend>Titulo</legend>
-            <input name="title" x-model="data.title" required />
+            <input name="title" x-model="form.title" required />
           </fieldset>
           <fieldset role="grop">
             <legend>Url</legend>
-            <input name="url" :value="pageUrl" required />
+            <input name="url" :value="url + '/' + (form.name || '')" required />
           </fieldset>
           <div class="actions">
-            <button type="submit" :disabled="loading">Crear</button>
+            <button type="submit" :disabled="loading || pages[form.name]">Crear</button>
           </div>
         </form>
 
@@ -115,11 +117,8 @@
                       </div>
                       <fieldset role="group">
                         <legend>Fuentes</legend>
-                        <input
-                          type="text"
-                          placeholder="Buscar fuente"
-                          @input.debounce.500ms="search($event.target.value)"
-                        />
+                        <input type="text" placeholder="Buscar fuente"
+                          @input.debounce.500ms="search($event.target.value)" />
                       </fieldset>
                       <div class="list" @scroll.debounce.200ms="scroll($event)">
                         <template x-for="font in fonts" :key="font.family">
@@ -138,10 +137,8 @@
                         </div>
                         <h1 x-text="selected.font.family" :style="style(selected.font.family)"></h1>
                         <form @submit.prevent="add()">
-                          <small
-                            >Use "primary" para cambiar la fuente base de la página o "headings" para cambiar los
-                            encabezados</small
-                          >
+                          <small>Use "primary" para cambiar la fuente base de la página o "headings" para cambiar los
+                            encabezados</small>
                           <fieldset>
                             <legend>Tag</legend>
                             <input name="tag" x-model="selected.tag" required />
@@ -196,12 +193,8 @@
                       <img x-bind:src="filepath + selected.name" :title="selected.name" :alt="selected.name" />
                     </template>
                     <template x-if="selected.mimeType.startsWith('video')">
-                      <video
-                        x-bind:src="'filepath + selected.name"
-                        :title="selected.name"
-                        :alt="selected.name"
-                        controls
-                      ></video>
+                      <video x-bind:src="'filepath + selected.name" :title="selected.name" :alt="selected.name"
+                        controls></video>
                     </template>
                   </div>
                   <form @submit.prevent="update()">

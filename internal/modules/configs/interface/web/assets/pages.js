@@ -7,6 +7,7 @@ document.addEventListener("alpine:init", () => {
     filepath: filepath,
     url: url,
     pages: {},
+    form: {},
     data: null,
     page: null,
     ready: false,
@@ -75,6 +76,30 @@ document.addEventListener("alpine:init", () => {
       if (this.data) {
         this.data[scope] = content;
         await this.render({ reset: false });
+      }
+    },
+
+    async create() {
+      try {
+        this.loading = true
+        const res = await fetch(`/dashboard/api/pages/${this.form.name}`, {
+          method: "PUT",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify(this.form),
+        });
+
+        if (!res.ok) {
+          const data = await res.json()
+          throw Error(data.error)
+        }
+
+        const page = { ...this.form, styles: "", body: "" }
+        this.pages = { ...this.pages, [page.name]: page }
+        this.select(page.name)
+      } catch (err) {
+        this.console.log(err)
+      } finally {
+        this.loading = false
       }
     },
 
