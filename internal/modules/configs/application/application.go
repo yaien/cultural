@@ -21,6 +21,7 @@ type Application struct {
 	*commands.SyncUserCommand
 	*commands.AcceptInvitationCommand
 	*commands.UpdatePageCommand
+	*commands.CreatePageCommand
 	*commands.UpdateFontsCommand
 	*commands.UploadFileCommand
 	*commands.RenameFileCommand
@@ -54,6 +55,7 @@ func New(deps Deps) *Application {
 		commands.NewSyncUserCommand(deps.Users),
 		commands.NewAcceptInvitationCommand(deps.Invitations, deps.Roles),
 		commands.NewUpdatePageCommand(deps.Configs, deps.Cache),
+		commands.NewCreatePageCommand(deps.Configs, deps.Cache),
 		commands.NewUpdateFontsCommand(deps.Configs, deps.Cache),
 		commands.NewUploadFileCommand(deps.Files, deps.Storage),
 		commands.NewRenameFileCommand(deps.Files),

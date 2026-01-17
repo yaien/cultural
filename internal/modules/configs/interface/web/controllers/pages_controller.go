@@ -28,6 +28,29 @@ func (c *PagesController) List(w http.ResponseWriter, r *http.Request) {
 	_ = json.NewEncoder(w).Encode(config.Pages)
 }
 
+func (c *PagesController) Create(w http.ResponseWriter, r *http.Request) {
+
+	var page models.Page
+	err := json.NewDecoder(r.Body).Decode(&page)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	config := r.Context().Value(models.ConfigContextKey).(*models.Config)
+
+	err = c.app.CreatePage(r.Context(), config, &page)
+
+	if err != nil {
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(map[string]any{"error": err.Error()})
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	_ = json.NewEncoder(w).Encode(map[string]any{"path": page.Name})
+}
+
 func (c *PagesController) Update(w http.ResponseWriter, r *http.Request) {
 	var page models.Page
 	err := json.NewDecoder(r.Body).Decode(&page)

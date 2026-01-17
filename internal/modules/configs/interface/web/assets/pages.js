@@ -82,8 +82,8 @@ document.addEventListener("alpine:init", () => {
     async create() {
       try {
         this.loading = true
-        const res = await fetch(`/dashboard/api/pages/${this.form.name}`, {
-          method: "PUT",
+        const res = await fetch(`/dashboard/api/pages`, {
+          method: "POST",
           headers: { "content-type": "application/json" },
           body: JSON.stringify(this.form),
         });
