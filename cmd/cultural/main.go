@@ -110,7 +110,7 @@ func invite() *cobra.Command {
 				log.Fatal("Failed to get config by host:", err)
 			}
 
-			_, err = cfg.App.CreateInvitation(ctx, &commands.CreateInvitation{
+			_, err = cfg.App.CreateInvitation(ctx, &commands.CreateInvitationRequest{
 				OrganizationID:  config.OrganizationID,
 				UserEmail:       args[0],
 				UserDisplayName: args[1],
