@@ -27,6 +27,8 @@ type AcceptInvitationRequest struct {
 	OrganizationID primitive.ObjectID
 	UserID         primitive.ObjectID
 	UserEmail      string
+	UserName       string
+	UserAvatarUrl  string
 }
 
 func (c *AcceptInvitationCommand) AcceptInvitation(ctx context.Context, req *AcceptInvitationRequest) error {
@@ -72,6 +74,9 @@ func (c *AcceptInvitationCommand) AcceptInvitation(ctx context.Context, req *Acc
 	case errors.As(err, &e) && e.Code == "not_found":
 		role = &models.Role{
 			UserID:         req.UserID,
+			UserEmail:      req.UserEmail,
+			UserName:       req.UserName,
+			UserAvatarUrl:  req.UserAvatarUrl,
 			OrganizationID: req.OrganizationID,
 			Name:           invitation.RoleName,
 			Permissions:    invitation.RolePermissions,

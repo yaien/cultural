@@ -37,6 +37,7 @@ func dashboard(mono *infrastructure.Monolith, app *application.Application, md *
 		router.HandleFunc("GET /dashboard/api/pages", ctrl.List)
 		router.HandleFunc("POST /dashboard/api/pages", ctrl.Create)
 		router.HandleFunc("PUT /dashboard/api/pages/{page}", ctrl.Update)
+		router.HandleFunc("DELETE /dashboard/api/pages/{page}", ctrl.Delete)
 	}
 
 	{

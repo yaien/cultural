@@ -13,6 +13,7 @@ type Application struct {
 	*queries.GetConfigByHostQuery
 	*queries.GetUserByIDQuery
 	*queries.GetRoleQuery
+	*queries.GetRolesQuery
 	*queries.GetFontsQuery
 	*queries.GetFileQuery
 	*queries.GetFilesQuery
@@ -20,8 +21,11 @@ type Application struct {
 	*commands.CreateInvitationCommand
 	*commands.SyncUserCommand
 	*commands.AcceptInvitationCommand
+	*commands.UpdateRoleCommand
+	*commands.DeleteRoleCommand
 	*commands.UpdatePageCommand
 	*commands.CreatePageCommand
+	*commands.DeletePageCommand
 	*commands.UpdateFontsCommand
 	*commands.UploadFileCommand
 	*commands.RenameFileCommand
@@ -47,6 +51,7 @@ func New(deps Deps) *Application {
 		queries.NewGetConfigByHostQuery(deps.Configs, deps.Cache),
 		queries.NewGetUserByIDQuery(deps.Users),
 		queries.NewGetRoleQuery(deps.Roles),
+		queries.NewGetRolesQuery(deps.Roles),
 		queries.NewGetFontsQuery(deps.Fonts),
 		queries.NewGetFileQuery(deps.Files, deps.Storage),
 		queries.NewGetFilesQuery(deps.Files),
@@ -54,8 +59,11 @@ func New(deps Deps) *Application {
 		commands.NewCreateInvitationCommand(deps.Invitations, deps.Organizations, deps.Configs, deps.Roles, deps.Groups, deps.Mail),
 		commands.NewSyncUserCommand(deps.Users),
 		commands.NewAcceptInvitationCommand(deps.Invitations, deps.Roles),
+		commands.NewUpdateRoleCommand(deps.Roles, deps.Groups),
+		commands.NewDeleteRoleCommand(deps.Roles),
 		commands.NewUpdatePageCommand(deps.Configs, deps.Cache),
 		commands.NewCreatePageCommand(deps.Configs, deps.Cache),
+		commands.NewDeletePageCommand(deps.Configs, deps.Cache),
 		commands.NewUpdateFontsCommand(deps.Configs, deps.Cache),
 		commands.NewUploadFileCommand(deps.Files, deps.Storage),
 		commands.NewRenameFileCommand(deps.Files),

@@ -43,7 +43,7 @@ type CreateInvitationRequest struct {
 	ExpiresAt       time.Time
 	OrganizationID  primitive.ObjectID
 	CreatorID       primitive.ObjectID
-	RoleGroupID     primitive.ObjectID
+	RoleGroupID     *primitive.ObjectID
 	RolePermissions []string
 	RoleName        string
 	UserDisplayName string
@@ -63,8 +63,8 @@ func (c *CreateInvitationCommand) CreateInvitation(ctx context.Context, req *Cre
 	}
 
 	// validate role group if provided
-	if !req.RoleGroupID.IsZero() {
-		_, err = c.groups.GetByIDAndOrganizationID(ctx, req.RoleGroupID, req.OrganizationID)
+	if req.RoleGroupID != nil {
+		_, err = c.groups.GetByIDAndOrganizationID(ctx, *req.RoleGroupID, req.OrganizationID)
 		if err != nil {
 			return nil, fmt.Errorf("group not found in organization: %w", err)
 		}

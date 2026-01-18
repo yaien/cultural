@@ -33,7 +33,9 @@ func (c *PagesController) Create(w http.ResponseWriter, r *http.Request) {
 	var page models.Page
 	err := json.NewDecoder(r.Body).Decode(&page)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]any{"error": err.Error()})
 		return
 	}
 
@@ -43,6 +45,7 @@ func (c *PagesController) Create(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(map[string]any{"error": err.Error()})
 		return
 	}
@@ -55,7 +58,9 @@ func (c *PagesController) Update(w http.ResponseWriter, r *http.Request) {
 	var page models.Page
 	err := json.NewDecoder(r.Body).Decode(&page)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]any{"error": err.Error()})
 		return
 	}
 
@@ -69,10 +74,29 @@ func (c *PagesController) Update(w http.ResponseWriter, r *http.Request) {
 	})
 
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]any{"error": err.Error()})
 		return
 	}
 
+	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(map[string]any{"path": path})
 
+}
+
+func (c *PagesController) Delete(w http.ResponseWriter, r *http.Request) {
+	path := r.PathValue("page")
+	config := r.Context().Value(models.ConfigContextKey).(*models.Config)
+
+	err := c.app.DeletePage(r.Context(), config, path)
+	if err != nil {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]any{"error": err.Error()})
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	_ = json.NewEncoder(w).Encode(map[string]any{"path": path})
 }

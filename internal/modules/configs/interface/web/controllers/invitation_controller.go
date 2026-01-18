@@ -33,6 +33,8 @@ func (c *InvitationController) OnInvitation(w http.ResponseWriter, r *http.Reque
 		OrganizationID: config.OrganizationID,
 		UserID:         user.ID,
 		UserEmail:      user.Email,
+		UserName:       user.Name,
+		UserAvatarUrl:  user.AvatarUrl,
 	})
 
 	if err != nil {
