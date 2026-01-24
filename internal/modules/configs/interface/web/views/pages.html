@@ -35,13 +35,13 @@
             <legend>Seleccionar Sitio</legend>
             <select name="page" @change="select($event.target.value)">
               <template x-for="(value, key) in pages" :key="key">
-                <option :value="key" x-text="value.name"></option>
+                <option :value="key" :selected="key === page" x-text="value.name"></option>
               </template>
             </select>
           </fieldset>
           <fieldset>
             <legend>Nombre</legend>
-            <input name="name" x-model="data.name" required />
+            <input name="name" x-model="data.name" required :disabled="pageIsIndex" />
           </fieldset>
           <fieldset>
             <legend>Titulo</legend>
@@ -49,7 +49,7 @@
           </fieldset>
           <fieldset role="group">
             <legend>Url</legend>
-            <input name="url" :value="pageUrl" required :disabled="pageIsIndex" />
+            <input name="url" :value="pageUrl" required disabled />
           </fieldset>
           <div class="actions">
             <button type="submit" :disabled="loading">Guardar</button>
@@ -68,19 +68,19 @@
           </fieldset>
           <fieldset role="grop">
             <legend>Url</legend>
-            <input name="url" :value="url + '/' + (form.name || '')" required />
+            <input name="url" :value="url + '/' + (form.name || '')" disabled />
           </fieldset>
           <div class="actions">
-            <button type="submit" :disabled="loading || pages[form.name]">Crear</button>
+            <button :disabled="loading || !!pages[form.name]">Crear</button>
           </div>
         </form>
 
         <!-- Delete Page -->
-        <div x-show="on(states.delete)" x-transition:enter.delay.75ms>
+        <div x-show="on(states.delete)" x-transition:enter.delay.75ms class="delete">
           <p>¿Estás seguro de que deseas eliminar este sitio ?</p>
           <div class="actions">
             <button @click="set(states.initial)" :disabled="loading">Cancelar</button>
-            <button @click="remove()" :disabled="loading">Eliminar</button>
+            <button @click="remove()" class="danger" :disabled="loading">Eliminar</button>
           </div>
         </div>
 
@@ -117,8 +117,11 @@
                       </div>
                       <fieldset role="group">
                         <legend>Fuentes</legend>
-                        <input type="text" placeholder="Buscar fuente"
-                          @input.debounce.500ms="search($event.target.value)" />
+                        <input
+                          type="text"
+                          placeholder="Buscar fuente"
+                          @input.debounce.500ms="search($event.target.value)"
+                        />
                       </fieldset>
                       <div class="list" @scroll.debounce.200ms="scroll($event)">
                         <template x-for="font in fonts" :key="font.family">
@@ -137,8 +140,10 @@
                         </div>
                         <h1 x-text="selected.font.family" :style="style(selected.font.family)"></h1>
                         <form @submit.prevent="add()">
-                          <small>Use "primary" para cambiar la fuente base de la página o "headings" para cambiar los
-                            encabezados</small>
+                          <small
+                            >Use "primary" para cambiar la fuente base de la página o "headings" para cambiar los
+                            encabezados</small
+                          >
                           <fieldset>
                             <legend>Tag</legend>
                             <input name="tag" x-model="selected.tag" required />
@@ -193,8 +198,12 @@
                       <img x-bind:src="filepath + selected.name" :title="selected.name" :alt="selected.name" />
                     </template>
                     <template x-if="selected.mimeType.startsWith('video')">
-                      <video x-bind:src="'filepath + selected.name" :title="selected.name" :alt="selected.name"
-                        controls></video>
+                      <video
+                        x-bind:src="'filepath + selected.name"
+                        :title="selected.name"
+                        :alt="selected.name"
+                        controls
+                      ></video>
                     </template>
                   </div>
                   <form @submit.prevent="update()">
@@ -216,18 +225,22 @@
 
         <!-- Editor Page -->
         <div style="height: 80%" x-show="on(states.editor)" x-transition:enter.delay.75ms>
-          <div x-data="mirror(data.body)" @update="edit($event.detail)"></div>
-          <div class="actions">
-            <button @click="update()" :disabled="loading">Guardar</button>
-          </div>
+          <template x-if="on(states.editor)">
+            <div x-data="mirror(data.body)" @update="edit($event.detail)"></div>
+            <div class="actions">
+              <button @click="update()" :disabled="loading">Guardar</button>
+            </div>
+          </template>
         </div>
 
         <!-- Styles Page -->
         <div style="height: 80%" x-show="on(states.styles)" x-transition:enter.delay.75ms>
-          <div x-data="mirror(data.styles, 'css')" @update="edit($event.detail, 'styles')"></div>
-          <div class="actions">
-            <button @click="update()" :disabled="loading">Guardar</button>
-          </div>
+          <template x-if="on(states.styles)">
+            <div x-data="mirror(data.styles, 'css')" @update="edit($event.detail, 'styles')"></div>
+            <div class="actions">
+              <button @click="update()" :disabled="loading">Guardar</button>
+            </div>
+          </template>
         </div>
       </div>
 

@@ -2,6 +2,7 @@ package commands
 
 import (
 	"context"
+	"time"
 
 	"github.com/yaien/cultural/internal/library/cache"
 	"github.com/yaien/cultural/internal/modules/configs/models"
@@ -24,6 +25,7 @@ type UpdatePageRequest struct {
 
 func (c *UpdatePageCommand) UpdatePage(ctx context.Context, req *UpdatePageRequest) error {
 	req.Config.Pages[req.Path] = req.Page
+	req.Config.UpdatedAt = time.Now()
 
 	err := c.configs.Update(ctx, req.Config)
 	if err != nil {

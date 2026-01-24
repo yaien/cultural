@@ -31,10 +31,12 @@ document.addEventListener("alpine:init", () => {
       await this.render();
       this.ready = true;
     },
+
     async fetch() {
       const res = await fetch("/dashboard/api/pages");
       this.pages = await res.json();
     },
+
     async render(options = { reset: true }) {
       const res = await fetch("/dashboard/api/render", {
         method: "POST",
@@ -81,7 +83,7 @@ document.addEventListener("alpine:init", () => {
 
     async create() {
       try {
-        this.loading = true
+        this.loading = true;
         const res = await fetch(`/dashboard/api/pages`, {
           method: "POST",
           headers: { "content-type": "application/json" },
@@ -89,17 +91,40 @@ document.addEventListener("alpine:init", () => {
         });
 
         if (!res.ok) {
-          const data = await res.json()
-          throw Error(data.error)
+          const data = await res.json();
+          throw Error(data.error);
         }
 
-        const page = { ...this.form, styles: "", body: "" }
-        this.pages = { ...this.pages, [page.name]: page }
-        this.select(page.name)
+        const page = { ...this.form, styles: "", body: "" };
+        this.pages = { ...this.pages, [page.name]: page };
+        this.select(page.name);
+        this.state = this.states.initial;
       } catch (err) {
-        this.console.log(err)
+        this.console.log(err);
       } finally {
-        this.loading = false
+        this.loading = false;
+      }
+    },
+
+    async remove() {
+      try {
+        this.loading = true;
+        const res = await fetch(`/dashboard/api/pages/${this.page}`, {
+          method: "DELETE",
+        });
+
+        if (!res.ok) {
+          const data = await res.json();
+          throw Error(data.error);
+        }
+
+        delete this.pages[this.page];
+        this.select("index");
+        this.state = this.states.initial;
+      } catch (err) {
+        console.error(err);
+      } finally {
+        this.loading = false;
       }
     },
 
@@ -114,10 +139,11 @@ document.addEventListener("alpine:init", () => {
     select(page) {
       this.page = page;
       this.data = { ...this.pages[page], path: page };
+      this.render();
     },
     get pageUrl() {
       if (!this.data) return "";
-      let path = this.data.path == "index" ? "" : "/" + this.data.path;
+      let path = this.data.name == "index" ? "" : "/" + this.data.name;
       return this.url + path;
     },
     get pageIsIndex() {

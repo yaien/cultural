@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/yaien/cultural/internal/library/cache"
 	"github.com/yaien/cultural/internal/modules/configs/models"
@@ -27,6 +28,7 @@ func (c *CreatePageCommand) CreatePage(ctx context.Context, config *models.Confi
 	}
 
 	config.Pages[page.Name] = page
+	config.UpdatedAt = time.Now()
 
 	err := c.configs.Update(ctx, config)
 	if err != nil {

@@ -17,7 +17,7 @@
   --primary-color-dark: oklch(from var(--primary-color) calc(l - 0.15) calc(c + 0.06) h);
   --secondary-color: #a1a1aa;
   --secondary-color-hover: oklch(from var(--secondary-color) calc(l + 0.25) calc(c - 0.12) h);
-  --secondary-color-light: oklch(from var(--secondary-color) calc(l + 0.3) calc(c - 0.15) h);
+  --secondary-color-light: oklch(from var(--secondary-color) calc(l + 0.25) c h);
   --secondary-color-dark: oklch(from var(--secondary-color) calc(l - 0.15) calc(c + 0.06) h);
   --danger-color: #ef4444;
   --danger-color-hover: oklch(from var(--danger-color) calc(l + 0.25) calc(c - 0.12) h);
@@ -267,6 +267,12 @@ button {
 
 button:hover {
   background-color: var(--primary-color-hover);
+}
+
+button:disabled {
+  cursor: default;
+  background-color: var(--secondary-color-light);
+  color: var(--secondary-color);
 }
 
 button.danger {

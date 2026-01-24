@@ -3,6 +3,7 @@ package commands
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/yaien/cultural/internal/library/cache"
 	"github.com/yaien/cultural/internal/modules/configs/models"
@@ -30,6 +31,7 @@ func (c *DeletePageCommand) DeletePage(ctx context.Context, config *models.Confi
 	}
 
 	delete(config.Pages, pagename)
+	config.UpdatedAt = time.Now()
 
 	err := c.configs.Update(ctx, config)
 	if err != nil {

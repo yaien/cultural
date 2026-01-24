@@ -1,158 +1,162 @@
 .container {
-    display: flex;
-    height: 100%;
-    width: 100%;
-    gap: 1rem;
-    padding: 1rem;
-    box-sizing: border-box;
+  display: flex;
+  height: 100%;
+  width: 100%;
+  gap: 1rem;
+  padding: 1rem;
+  box-sizing: border-box;
 }
 
 .page {
-    flex-grow: 1;
+  flex-grow: 1;
 }
 
 .page iframe {
-    width: 100%;
-    height: 100%;
-    border: 1px solid var(--border-color);
-    box-shadow: 1px 1px 5px var(--shadow-color);
-    border-radius: 0.5rem;
+  width: 100%;
+  height: 100%;
+  border: 1px solid var(--border-color);
+  box-shadow: 1px 1px 5px var(--shadow-color);
+  border-radius: 0.5rem;
+}
+
+.delete p {
+  text-align: center;
 }
 
 .editor {
-    width: 40%;
-    padding: 1rem;
-    box-sizing: border-box;
-    overflow: auto;
-    display: flex;
-    flex-direction: column;
+  width: 40%;
+  padding: 1rem;
+  box-sizing: border-box;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
 }
 
 .grow {
-    flex-grow: 1;
-    max-height: 80%;
+  flex-grow: 1;
+  max-height: 80%;
 }
 
 .actions {
-    text-align: center;
-    padding-bottom: 1rem;
+  text-align: center;
+  padding-bottom: 1rem;
 }
 
 .actions.around {
-    display: flex;
-    justify-content: space-around;
+  display: flex;
+  justify-content: space-around;
 }
 
 .cm-editor {
-    border: 1px solid var(--border-color);
-    border-radius: 0.5rem;
+  border: 1px solid var(--border-color);
+  border-radius: 0.5rem;
 }
 
 .cm-editor:focus {
-    outline: none;
+  outline: none;
 }
 
 .fonts .font {
-    padding: 0.5rem;
-    border-bottom: 1px solid var(--border-color);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+  padding: 0.5rem;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .fonts .font:last-child {
-    border-bottom: none;
+  border-bottom: none;
 }
 
 .fonts .font:hover {
-    background-color: var(--header-bg-color);
-    cursor: pointer;
+  background-color: var(--header-bg-color);
+  cursor: pointer;
 }
 
 .fonts .font .preview {
-    font-size: 1rem;
-    padding: 0.5rem 0;
-    white-space: nowrap;
-    overflow: hidden;
+  font-size: 1rem;
+  padding: 0.5rem 0;
+  white-space: nowrap;
+  overflow: hidden;
 }
 
 .fonts .list {
-    max-height: 70%;
-    overflow: auto;
-    scroll-behavior: smooth;
-    margin-bottom: 0.5rem;
+  max-height: 70%;
+  overflow: auto;
+  scroll-behavior: smooth;
+  margin-bottom: 0.5rem;
 }
 
 .fonts.configure {
-    text-align: center;
+  text-align: center;
 }
 
 .fonts.configure .actions {
-    display: flex;
-    justify-content: space-around;
+  display: flex;
+  justify-content: space-around;
 }
 
 .fonts.configure small {
-    margin-bottom: 1rem;
-    display: block;
+  margin-bottom: 1rem;
+  display: block;
 }
 
 .files .grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    gap: 1rem;
-    max-height: 70%;
-    overflow: auto;
-    scroll-behavior: smooth;
-    margin-bottom: 2rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 1rem;
+  max-height: 70%;
+  overflow: auto;
+  scroll-behavior: smooth;
+  margin-bottom: 2rem;
 }
 
 .files .grid .item {
-    position: relative;
-    height: 200px;
-    border-radius: var(--border-radius);
-    overflow: hidden;
-    box-shadow: 1px 1px 5px var(--shadow-color);
-    cursor: pointer;
+  position: relative;
+  height: 200px;
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  box-shadow: 1px 1px 5px var(--shadow-color);
+  cursor: pointer;
 }
 
 .files .grid .item .hover {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    cursor: pointer;
-    z-index: 10;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+  z-index: 10;
 }
 
 .files .grid .item .hover:hover {
-    background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.5);
 }
 
 .files .grid img,
 .files .grid video {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    position: absolute;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  position: absolute;
 }
 
 .files .edit .preview {
-    border-radius: var(--border-radius);
-    overflow: hidden;
-    box-shadow: 1px 1px 5px var(--shadow-color);
-    margin: 1rem auto;
-    box-sizing: content-box;
-    position: relative;
-    width: 300px;
-    height: 300px;
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  box-shadow: 1px 1px 5px var(--shadow-color);
+  margin: 1rem auto;
+  box-sizing: content-box;
+  position: relative;
+  width: 300px;
+  height: 300px;
 }
 
 .files .edit .preview img,
 .files .edit .preview video {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    position: absolute;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  position: absolute;
 }
