@@ -16,7 +16,10 @@
   <body x-data="{ open: false }" :class="{ open }">
     <header>
       <div class="start">
-        <button class="toggle" @click="open = !open" aria-label="Toggle Menu">{{template "menu.svg"}}</button>
+        <button class="toggle" @click="open = !open" aria-label="Toggle Menu">
+          <template x-if="!open">{{template "menu.svg"}}</template>
+          <template x-if="open">{{template "close.svg"}}</template>
+        </button>
         <div class="title">
           <h3>{{block "title" .}}{{end}}</h3>
         </div>
@@ -28,41 +31,39 @@
       </div>
     </header>
     <aside>
-      <section>
+      <nav>
+        <ul>
+          {{ define "link" }}
+          <li class="{{and .Active `active`}}" title="{{.Name}}">
+            <a href="{{.Path}}"> {{.Icon}} <span>{{.Name}}</span></a>
+          </li>
+          {{ end }}
+
+          <!-- Dashboard -->
+          {{ template "link" .Link "/dashboard" "Dashboard" "home.svg" }}
+
+          <!-- Sites -->
+          {{ template "link" .Link "/dashboard/pages" "Sitios" "website.svg" }}
+
+          <!-- Events -->
+          {{ template "link" .Link "/dashboard/events" "Eventos" "calendar.svg" }}
+
+          <!-- Products -->
+          {{ template "link" .Link "/dashboard/products" "Productos" "box.svg" }}
+
+          <!-- Members -->
+          {{ template "link" .Link "/dashboard/members" "Miembros" "user_list.svg" }}
+        </ul>
+      </nav>
+      <div class="footer">
         <nav>
           <ul>
-            {{ define "link" }}
-            <li class="{{and .Active `active`}}" title="{{.Name}}">
-              <a href="{{.Path}}"> {{.Icon}} <span>{{.Name}}</span></a>
+            <li>
+              <a href="/auth/logout"> {{ template "logout.svg" }} <span> Cerrar Sesión </span> </a>
             </li>
-            {{ end }}
-
-            <!-- Dashboard -->
-            {{ template "link" .Link "/dashboard" "Dashboard" "home.svg" }}
-
-            <!-- Sites -->
-            {{ template "link" .Link "/dashboard/pages" "Sitios" "website.svg" }}
-
-            <!-- Events -->
-            {{ template "link" .Link "/dashboard/events" "Eventos" "calendar.svg" }}
-
-            <!-- Products -->
-            {{ template "link" .Link "/dashboard/products" "Productos" "box.svg" }}
-
-            <!-- Members -->
-            {{ template "link" .Link "/dashboard/members" "Miembros" "user_list.svg" }}
           </ul>
         </nav>
-        <div class="footer">
-          <nav>
-            <ul>
-              <li>
-                <a href="/auth/logout"> {{ template "logout.svg" }} <span> Cerrar Sesión </span> </a>
-              </li>
-            </ul>
-          </nav>
-        </div>
-      </section>
+      </div>
     </aside>
 
     <!-- Content Section -->

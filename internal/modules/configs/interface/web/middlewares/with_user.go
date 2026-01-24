@@ -31,7 +31,9 @@ func NewWithUser(app *application.Application, store sessions.Store) func(next h
 
 			user, err := app.GetUserByID(r.Context(), oid)
 			if err != nil {
-				http.Error(w, "Failed to get user", http.StatusInternalServerError)
+				session.AddFlash(r.URL.Path, controllers.RedirectKey)
+				_ = session.Save(r, w)
+				http.Redirect(w, r, "/auth/google/login", http.StatusTemporaryRedirect)
 				return
 			}
 
