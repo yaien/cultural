@@ -11,5 +11,5 @@ import (
 
 func invitations(mono *infrastructure.Monolith, app *application.Application, md *middlewares.Middlewares) {
 	ctrl := controllers.NewInvitationController(app)
-	mono.WebRouter.HandleFunc("GET /invitation/{id}", md.WithUser(http.HandlerFunc(ctrl.OnInvitation)))
+	mono.WebRouter.HandleFunc("GET /invitation/{id}", md.WithUser(http.HandlerFunc(ctrl.Accept)))
 }

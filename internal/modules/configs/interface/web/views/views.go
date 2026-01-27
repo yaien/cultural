@@ -12,7 +12,7 @@ var fs embed.FS
 
 var Welcome = compile("welcome.html", "icons/*.svg")
 var Home = compile("dashboard.html", "home.html", "icons/*.svg")
-var Members = compile("dashboard.html", "members.html", "icons/*.svg")
+var Roles = compile("dashboard.html", "roles.html", "icons/*.svg")
 var Pages = compile("dashboard.html", "pages.html", "icons/*.svg")
 var Products = compile("dashboard.html", "products.html", "icons/*.svg")
 var Events = compile("dashboard.html", "events.html", "icons/*.svg")

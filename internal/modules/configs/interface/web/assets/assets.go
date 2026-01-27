@@ -2,7 +2,7 @@ package assets
 
 import "embed"
 
-//go:generate npx esbuild pages.js --bundle --outfile=dist/pages.min.js --minify --sourcemap
+//go:generate npx esbuild *.js *.css --entry-names=[name].min --bundle --outdir=dist/  --minify --sourcemap
 
-//go:embed *.css dist/*
+//go:embed dist/*
 var FS embed.FS

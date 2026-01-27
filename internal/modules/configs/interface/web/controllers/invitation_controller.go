@@ -1,7 +1,9 @@
 package controllers
 
 import (
+	"encoding/json"
 	"net/http"
+	"time"
 
 	"github.com/yaien/cultural/internal/modules/configs/application"
 	"github.com/yaien/cultural/internal/modules/configs/application/commands"
@@ -11,14 +13,57 @@ import (
 )
 
 type InvitationController struct {
-	App *application.Application
+	app *application.Application
 }
 
 func NewInvitationController(app *application.Application) *InvitationController {
-	return &InvitationController{App: app}
+	return &InvitationController{app: app}
 }
 
-func (c *InvitationController) OnInvitation(w http.ResponseWriter, r *http.Request) {
+func (c *InvitationController) Create(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	config := ctx.Value(models.ConfigContextKey).(*models.Config)
+	user := ctx.Value(models.UserContextKey).(*models.User)
+
+	var req struct {
+		GroupID         *primitive.ObjectID `json:"groupId"`
+		Permissions     []string            `json:"permissions"`
+		Name            string              `json:"name"`
+		UserDisplayName string              `json:"userDisplayName"`
+		UserEmail       string              `json:"userEmail"`
+	}
+
+	err := json.NewDecoder(r.Body).Decode(&req)
+	if err != nil {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]string{"error": "invalid request payload: " + err.Error()})
+	}
+
+	_, err = c.app.CreateInvitation(ctx, &commands.CreateInvitationRequest{
+		ExpiresAt:       time.Now().Add(24 * time.Hour),
+		OrganizationID:  config.OrganizationID,
+		CreatorID:       user.ID,
+		RoleGroupID:     req.GroupID,
+		RolePermissions: req.Permissions,
+		RoleName:        req.Name,
+		UserDisplayName: req.UserDisplayName,
+		UserEmail:       req.UserEmail,
+	})
+
+	if err != nil {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(map[string]string{"error": err.Error()})
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]string{"status": "invitation sent"})
+
+}
+
+func (c *InvitationController) Accept(w http.ResponseWriter, r *http.Request) {
 	id, err := primitive.ObjectIDFromHex(r.PathValue("id"))
 	if err != nil {
 		http.NotFound(w, r)
@@ -28,7 +73,7 @@ func (c *InvitationController) OnInvitation(w http.ResponseWriter, r *http.Reque
 	config := r.Context().Value(models.ConfigContextKey).(*models.Config)
 	user := r.Context().Value(models.UserContextKey).(*models.User)
 
-	err = c.App.AcceptInvitation(r.Context(), &commands.AcceptInvitationRequest{
+	err = c.app.AcceptInvitation(r.Context(), &commands.AcceptInvitationRequest{
 		InvitationID:   id,
 		OrganizationID: config.OrganizationID,
 		UserID:         user.ID,

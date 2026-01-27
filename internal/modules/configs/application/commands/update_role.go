@@ -22,7 +22,7 @@ func NewUpdateRoleCommand(roles models.RoleRepository, groups models.GroupReposi
 }
 
 type UpdateRoleRequest struct {
-	UserID         primitive.ObjectID
+	ID             primitive.ObjectID
 	OrganizationID primitive.ObjectID
 	GroupID        *primitive.ObjectID
 	Permissions    models.Permissions
@@ -30,7 +30,7 @@ type UpdateRoleRequest struct {
 }
 
 func (c *UpdateRoleCommand) UpdateRole(ctx context.Context, r *UpdateRoleRequest) error {
-	role, err := c.roles.GetByUserIDAndOrganizationID(ctx, r.UserID, r.OrganizationID)
+	role, err := c.roles.GetByUserIDAndOrganizationID(ctx, r.ID, r.OrganizationID)
 	if err != nil {
 		return fmt.Errorf("failed to get role: %w", err)
 	}

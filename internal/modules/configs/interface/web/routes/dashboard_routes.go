@@ -57,8 +57,16 @@ func dashboard(mono *infrastructure.Monolith, app *application.Application, md *
 	}
 
 	{
+		ctrl := controllers.NewInvitationController(app)
+		router.HandleFunc("POST /dashboard/api/invitations", ctrl.Create)
+	}
+
+	{
 		ctrl := controllers.NewMembersController(app)
-		router.HandleFunc("GET /dashboard/members", ctrl.Index)
+		router.HandleFunc("GET /dashboard/roles", ctrl.Index)
+		router.HandleFunc("GET /dashboard/api/roles", ctrl.List)
+		router.HandleFunc("PUT /dashboard/api/roles/{id}", ctrl.Update)
+		router.HandleFunc("DELETE /dashboard/api/roles/{id}", ctrl.Delete)
 	}
 
 	{

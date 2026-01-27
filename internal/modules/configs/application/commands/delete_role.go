@@ -18,8 +18,8 @@ func NewDeleteRoleCommand(roles models.RoleRepository) *DeleteRoleCommand {
 	}
 }
 
-func (c *DeleteRoleCommand) DeleteRole(ctx context.Context, userID, organizationID primitive.ObjectID) error {
-	role, err := c.roles.GetByUserIDAndOrganizationID(ctx, userID, organizationID)
+func (c *DeleteRoleCommand) DeleteRole(ctx context.Context, id, organizationID primitive.ObjectID) error {
+	role, err := c.roles.GetByIDAndOrganizationID(ctx, id, organizationID)
 	if err != nil {
 		return fmt.Errorf("failed to get role: %w", err)
 	}

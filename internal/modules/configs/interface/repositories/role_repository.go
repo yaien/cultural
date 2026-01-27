@@ -19,6 +19,12 @@ func NewRoleRepository(db *mongo.Database) *RoleRepository {
 	return &RoleRepository{db: db}
 }
 
+func (r *RoleRepository) GetByIDAndOrganizationID(ctx context.Context, id, organizationID primitive.ObjectID) (*models.Role, error) {
+	var role models.Role
+	err := r.db.Collection("roles").FindOne(ctx, bson.M{"_id": id, "organizationId": organizationID}).Decode(&role)
+	return &role, translate(err)
+}
+
 func (r *RoleRepository) GetByUserIDAndOrganizationID(ctx context.Context, userID, organizationID primitive.ObjectID) (*models.Role, error) {
 	var role models.Role
 	err := r.db.Collection("roles").FindOne(ctx, bson.M{"userId": userID, "organizationId": organizationID}).Decode(&role)

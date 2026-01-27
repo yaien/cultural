@@ -10,7 +10,7 @@
       href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="/assets/static/dashboard/dashboard.css" />
+    <link rel="stylesheet" href="/assets/static/dashboard/dist/dashboard.min.css" />
     {{block "links" .}}{{end}}
   </head>
   <body x-data="{ open: false }" :class="{ open }">
@@ -51,8 +51,8 @@
           <!-- Products -->
           {{ template "link" .Link "/dashboard/products" "Productos" "box.svg" }}
 
-          <!-- Members -->
-          {{ template "link" .Link "/dashboard/members" "Miembros" "user_list.svg" }}
+          <!-- Roles -->
+          {{ template "link" .Link "/dashboard/roles" "Roles" "user_list.svg" }}
         </ul>
       </nav>
       <div class="footer">
