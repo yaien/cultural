@@ -1,8 +1,47 @@
+<!-- Title -->
 {{define "title"}} Roles {{end}}
 
-{{define ""}}
+<!-- Links -->
+{{ define "links"}}
+<link rel="stylesheet" href="/assets/static/dashboard/dist/roles.min.css" />
+{{end}}
+
+<!-- Scripts -->
+{{ define "scripts"}}
+<script src="/assets/static/dashboard/dist/roles.min.js"></script>
+{{end}}
 
 <!-- Content -->
 {{define "content"}}
-<h1>Roles Page</h1>
+<div class="container" x-data="roles">
+  <table>
+    <thead>
+      <tr>
+        <th>Usuario</th>
+        <th>Correo</th>
+        <th>Rol</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <template x-for="role in roles" :key="role.id">
+        <tr>
+          <td x-text="role.userName"></td>
+          <td x-text="role.userEmail"></td>
+          <td x-text="role.name"></td>
+          <td>
+            <div role="group">
+              <button class="warning">{{ template "edit.svg"}}</button>
+              <button class="danger">{{ template "trash.svg"}}</button>
+            </div>
+          </td>
+        </tr>
+      </template>
+    </tbody>
+  </table>
+
+  <div class="actions">
+    <button class="primary clear">{{ template "add.svg"}}</button>
+  </div>
+</div>
 {{end}}

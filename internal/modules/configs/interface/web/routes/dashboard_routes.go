@@ -62,7 +62,7 @@ func dashboard(mono *infrastructure.Monolith, app *application.Application, md *
 	}
 
 	{
-		ctrl := controllers.NewMembersController(app)
+		ctrl := controllers.NewRolesController(app)
 		router.HandleFunc("GET /dashboard/roles", ctrl.Index)
 		router.HandleFunc("GET /dashboard/api/roles", ctrl.List)
 		router.HandleFunc("PUT /dashboard/api/roles/{id}", ctrl.Update)

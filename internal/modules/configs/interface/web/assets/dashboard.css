@@ -24,8 +24,8 @@
   --danger-color-light: oklch(from var(--danger-color) calc(l + 0.3) calc(c - 0.15) h);
   --danger-color-dark: oklch(from var(--danger-color) calc(l - 0.15) calc(c + 0.06) h);
   --warning-color: #f59e0b;
-  --warning-color-hover: oklch(from var(--warning-color) calc(l + 0.25) calc(c - 0.12) h);
-  --warning-color-light: oklch(from var(--warning-color) calc(l + 0.3) calc(c - 0.15) h);
+  --warning-color-hover: oklch(from var(--warning-color) calc(l + 0.15) c h);
+  --warning-color-light: oklch(from var(--warning-color) calc(l + 0.2) c h);
   --warning-color-dark: oklch(from var(--warning-color) calc(l - 0.15) calc(c + 0.06) h);
   --success-color: #10b981;
   --success-color-hover: oklch(from var(--success-color) calc(l + 0.25) calc(c - 0.12) h);
@@ -144,7 +144,6 @@ aside .footer {
 
 main {
   padding-left: calc(var(--aside-width-closed) + var(--aside-space));
-  padding-right: var(--aside-space);
   padding-top: var(--header-height);
   background-color: var(--light-color-light);
   color: var(--main-text-color);
@@ -159,7 +158,7 @@ main {
 }
 
 body.open main {
-  padding-left: calc(var(--aside-width-open) + var(--aside-padding) * 2 + var(--aside-space));
+  padding-left: var(--aside-width-open);
 }
 
 header {
@@ -179,7 +178,7 @@ header {
 }
 
 body.open header {
-  padding-left: calc(var(--aside-width-open) + var(--aside-padding) * 2 + var(--aside-space));
+  padding-left: calc(var(--aside-width-open) + var(--aside-space));
 }
 
 header .start {
@@ -288,6 +287,19 @@ button.danger.clear {
   color: var(--danger-color);
 }
 
+button.warning {
+  background: var(--warning-color-light);
+  color: var(--warning-color);
+}
+
+button.warning:hover {
+  background-color: var(--warning-color-hover);
+}
+
+button.warning.clear {
+  color: var(--warning-color);
+}
+
 button.dark {
   background: var(--dark-color-light);
   color: var(--light-color);
@@ -361,4 +373,32 @@ div[role="group"] button:first-child {
 div[role="group"] button:last-child {
   border-radius: 0 var(--border-radius) var(--border-radius) 0;
   border-right: none;
+}
+
+.container {
+  padding: 1rem;
+}
+
+table {
+  width: 100%;
+}
+
+th,
+td {
+  border-bottom: 1px solid var(--border-color);
+  padding: 1rem 0.5rem;
+  text-align: center;
+  color: var(--dark-color);
+}
+
+th {
+  color: var(--dark-color-light);
+}
+
+td div[role="group"] {
+  margin: 0 auto;
+}
+
+tbody tr:hover {
+  background-color: var(--light-color-dark);
 }

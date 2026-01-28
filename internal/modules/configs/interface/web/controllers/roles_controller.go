@@ -11,19 +11,19 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-type MembersController struct {
+type RolesController struct {
 	app *application.Application
 }
 
-func NewMembersController(app *application.Application) *MembersController {
-	return &MembersController{app: app}
+func NewRolesController(app *application.Application) *RolesController {
+	return &RolesController{app: app}
 }
 
-func (c *MembersController) Index(w http.ResponseWriter, r *http.Request) {
+func (c *RolesController) Index(w http.ResponseWriter, r *http.Request) {
 	views.Roles(w, r)
 }
 
-func (c *MembersController) List(w http.ResponseWriter, r *http.Request) {
+func (c *RolesController) List(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	config := ctx.Value(models.ConfigContextKey).(*models.Config)
 
@@ -40,7 +40,7 @@ func (c *MembersController) List(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func (c *MembersController) Update(w http.ResponseWriter, r *http.Request) {
+func (c *RolesController) Update(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	config := ctx.Value(models.ConfigContextKey).(*models.Config)
 
@@ -85,7 +85,7 @@ func (c *MembersController) Update(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]string{"status": "role updated"})
 }
 
-func (c *MembersController) Delete(w http.ResponseWriter, r *http.Request) {
+func (c *RolesController) Delete(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	config := ctx.Value(models.ConfigContextKey).(*models.Config)
 

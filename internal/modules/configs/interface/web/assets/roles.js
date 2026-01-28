@@ -1,10 +1,18 @@
 document.addEventListener("alpine:init", () => {
-  Alpine.data("members", () => ({
-    members: [],
+  Alpine.data("roles", () => ({
+    roles: [],
     loading: true,
     init() {
-      console.log("Component 38654706270 initialized");
+      this.fetch();
     },
-    message: "Hello from component 38654706270!",
+    async fetch() {
+      try {
+        this.loading = true;
+        const res = await fetch("/dashboard/api/roles");
+        this.roles = (await res.json()) || [];
+      } catch (error) {
+        console.error(error);
+      }
+    },
   }));
 });
