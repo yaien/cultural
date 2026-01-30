@@ -37,7 +37,7 @@ document.addEventListener("alpine:init", () => {
           body: JSON.stringify({
             groupId: null,
             permissions: ["*"],
-            name: "admin",
+            name: "Admin",
             userDisplayName: this.userDisplayName,
             userEmail: this.userEmail,
           }),
@@ -48,14 +48,15 @@ document.addEventListener("alpine:init", () => {
           throw Error(data.error);
         }
 
-        this.$dispatch("toast", { message: "Invitación enviada correctamente", type: "success" });
+        this.$dispatch("toast", { message: "Invitación enviada correctamente a el correo " + this.userEmail });
         this.$dispatch("submitted");
       } catch (error) {
         switch (error.message) {
           case "user_already_exist":
-            this.$dispatch("toast", { message: "El correo ya pertenece a un rol ya asignado", type: "warning" });
+            this.$dispatch("toast", { message: "El correo ya pertenece a un rol asignado", type: "warning" });
+            break;
           default:
-            this.$dispatch("toast", { message: "Ha ocurrido un error inesperado", type: "error" });
+            this.$dispatch("toast", { message: "Error al enviar la invitación", type: "danger" });
         }
       }
     },

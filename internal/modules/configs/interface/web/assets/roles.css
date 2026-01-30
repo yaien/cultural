@@ -2,3 +2,7 @@
   margin: auto;
   text-align: center;
 }
+
+.capitalize {
+  text-transform: capitalize;
+}

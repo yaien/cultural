@@ -28,7 +28,7 @@
         <tr>
           <td x-text="role.userName"></td>
           <td x-text="role.userEmail"></td>
-          <td x-text="role.name"></td>
+          <td x-text="role.name" class="capitalize"></td>
           <td>
             <div role="group">
               <button class="warning">{{ template "edit.svg"}}</button>
@@ -59,7 +59,7 @@
               <input name="email" type="email" x-model="userEmail" required />
             </fieldset>
             <div class="actions">
-              <button type="submit" class="primary">Invitar</button>
+              <button type="submit" class="primary" :disabled="loading">Invitar</button>
             </div>
           </form>
         </div>

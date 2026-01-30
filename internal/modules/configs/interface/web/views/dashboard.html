@@ -13,12 +13,12 @@
     <link rel="stylesheet" href="/assets/static/dashboard/dist/dashboard.min.css" />
     {{block "links" .}}{{end}}
   </head>
-  <body x-data="dashboard" :class="{ open: sidebarIsOpen }">
+  <body x-data="dashboard" x-bind="bindings">
     <header>
       <div class="start">
-        <button class="toggle" @click="toggleSidebar()" aria-label="Toggle Menu">
-          <template x-if="!sidebarIsOpen">{{template "menu.svg"}}</template>
-          <template x-if="sidebarIsOpen">{{template "close.svg"}}</template>
+        <button class="toggle" @click="sidebar = !sidebar" aria-label="Toggle Menu">
+          <template x-if="!sidebar">{{template "menu.svg"}}</template>
+          <template x-if="sidebar">{{template "close.svg"}}</template>
         </button>
         <div class="title">
           <h3>{{block "title" .}}{{end}}</h3>
@@ -67,7 +67,15 @@
     </aside>
 
     <!-- Content Section -->
-    <main>{{block "content" .}}{{end}}</main>
+    <main>
+      {{block "content" .}}{{end}}
+      <template x-if="toast">
+        <div class="toast" :class="toast && { variant: toast.variant, leave: toast.leave }">
+          <span x-text="toast.message"></span>
+          <button class="toast-close" @click="$dispatch('toast')"></button>
+        </div>
+      </template>
+    </main>
 
     <!-- Scripts Section -->
     {{block "scripts" .}}{{end}}

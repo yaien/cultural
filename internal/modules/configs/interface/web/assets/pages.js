@@ -62,16 +62,15 @@ document.addEventListener("alpine:init", () => {
       });
 
       if (!res.ok) {
-        alert("Error saving page");
+        this.$dispatch("toast", { message: "Error inesperado al guardar sitios", variant: "danger" });
         return;
       }
 
       const updated = await res.json();
-
       await this.fetch();
       this.select(updated.path);
-
       this.loading = false;
+      this.$dispatch("toast", { message: "Cambios guardados" });
     },
 
     async edit(content, scope = "body") {
