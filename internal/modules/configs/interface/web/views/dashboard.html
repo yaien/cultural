@@ -13,12 +13,12 @@
     <link rel="stylesheet" href="/assets/static/dashboard/dist/dashboard.min.css" />
     {{block "links" .}}{{end}}
   </head>
-  <body x-data="{ open: false }" :class="{ open }">
+  <body x-data="dashboard" :class="{ open: sidebarIsOpen }">
     <header>
       <div class="start">
-        <button class="toggle" @click="open = !open" aria-label="Toggle Menu">
-          <template x-if="!open">{{template "menu.svg"}}</template>
-          <template x-if="open">{{template "close.svg"}}</template>
+        <button class="toggle" @click="toggleSidebar()" aria-label="Toggle Menu">
+          <template x-if="!sidebarIsOpen">{{template "menu.svg"}}</template>
+          <template x-if="sidebarIsOpen">{{template "close.svg"}}</template>
         </button>
         <div class="title">
           <h3>{{block "title" .}}{{end}}</h3>
@@ -71,6 +71,7 @@
 
     <!-- Scripts Section -->
     {{block "scripts" .}}{{end}}
+    <script src="/assets/static/dashboard/dist/dashboard.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
   </body>
 </html>

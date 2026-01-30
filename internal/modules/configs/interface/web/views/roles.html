@@ -41,7 +41,30 @@
   </table>
 
   <div class="actions">
-    <button class="primary clear">{{ template "add.svg"}}</button>
+    <button class="primary clear" @click="modals.invitation = true">{{ template "add.svg"}}</button>
+    <div class="modal" :class="{ open: modals.invitation }" @click.self="modals.invitation = false">
+      <div class="modal-content" x-data="invitation" @submitted="modals.invitation = false">
+        <div class="modal-header">
+          <h2 class="modal-title">Invitar usuario</h2>
+          <button class="modal-close" @click="modals.invitation = false"></button>
+        </div>
+        <div class="modal-body">
+          <form @submit.prevent="invite">
+            <fieldset>
+              <legend>Nombre</legend>
+              <input name="name" x-model="userDisplayName" required />
+            </fieldset>
+            <fieldset>
+              <legend>Correo</legend>
+              <input name="email" type="email" x-model="userEmail" required />
+            </fieldset>
+            <div class="actions">
+              <button type="submit" class="primary">Invitar</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 {{end}}

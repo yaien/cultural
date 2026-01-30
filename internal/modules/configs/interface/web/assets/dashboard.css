@@ -41,16 +41,14 @@
   --dark-color-dark: oklch(from var(--dark-color) calc(l - 0.15) calc(c + 0.06) h);
 }
 
+/* Body Styles */
 body {
   font-family: var(--font-family-primary);
   font-optical-sizing: auto;
   margin: 0;
 }
 
-body.open aside {
-  --aside-width: var(--aside-width-open);
-}
-
+/* Aside Styles */
 aside {
   width: var(--aside-width);
   height: 100%;
@@ -66,6 +64,10 @@ aside {
   flex-direction: column;
   background-color: var(--light-color-dark);
   border-right: 1px solid var(--border-color);
+}
+
+body.open aside {
+  --aside-width: var(--aside-width-open);
 }
 
 aside h2 {
@@ -142,6 +144,7 @@ aside .footer {
   color: var(--aside-text-color);
 }
 
+/* Main Content Styles */
 main {
   padding-left: calc(var(--aside-width-closed) + var(--aside-space));
   padding-top: var(--header-height);
@@ -161,6 +164,7 @@ body.open main {
   padding-left: var(--aside-width-open);
 }
 
+/* Header Styles */
 header {
   padding-left: calc(var(--aside-width-closed) + var(--aside-space));
   color: var(--primary-color);
@@ -217,6 +221,7 @@ header h3 {
   font-size: 20px;
 }
 
+/* Form Styles */
 legend {
   font-weight: medium;
 }
@@ -253,6 +258,7 @@ textarea:disabled {
   background: none;
 }
 
+/* Button Styles */
 button {
   padding: 0.8rem;
   font-size: medium;
@@ -349,6 +355,7 @@ button.clear:focus {
   border: none;
 }
 
+/* Button Group Styles */
 div[role="group"] {
   display: flex;
   justify-content: center;
@@ -375,10 +382,12 @@ div[role="group"] button:last-child {
   border-right: none;
 }
 
+/* Container Styles */
 .container {
   padding: 1rem;
 }
 
+/* Table Styles */
 table {
   width: 100%;
 }
@@ -401,4 +410,59 @@ td div[role="group"] {
 
 tbody tr:hover {
   background-color: var(--light-color-dark);
+}
+
+/* Modal Styles */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
+}
+
+.modal.open {
+  display: flex;
+}
+
+.modal-content {
+  background-color: var(--light-color);
+  border-radius: var(--border-radius);
+  box-shadow: 0 2px 4px var(--shadow-color);
+  width: 90%;
+  max-width: 500px;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.3rem 0.5rem 0.1rem 0.5rem;
+}
+
+.modal-title {
+  margin: 0 0.8rem;
+}
+
+.modal-close {
+  border: none;
+  box-shadow: none;
+  background: none;
+}
+
+.modal-close::after {
+  content: "×";
+}
+
+.modal-close:hover {
+  background: none;
+}
+
+.modal-body {
+  padding: 1rem;
 }
