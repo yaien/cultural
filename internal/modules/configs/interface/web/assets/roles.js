@@ -1,7 +1,10 @@
 document.addEventListener("alpine:init", () => {
-  Alpine.data("roles", () => ({
+  Alpine.data("roles", ({ currentUserId }) => ({
+    currentUserId,
     roles: [],
     loading: true,
+    deleting: true,
+    selected: null,
     modals: {
       invitation: false,
       edition: false,
@@ -17,7 +20,19 @@ document.addEventListener("alpine:init", () => {
         this.roles = (await res.json()) || [];
       } catch (error) {
         console.error(error);
+      } finally {
+        this.loading = false;
       }
+    },
+
+    async openDeleteModal(role) {
+      this.selected = role;
+      this.modals.deletion = true;
+    },
+
+    onDeleted() {
+      this.modals.deletion = false;
+      this.fetch();
     },
   }));
 
@@ -58,6 +73,30 @@ document.addEventListener("alpine:init", () => {
           default:
             this.$dispatch("toast", { message: "Error al enviar la invitación", type: "danger" });
         }
+      }
+    },
+  }));
+
+  Alpine.data("deletion", ({ selected }) => ({
+    loading: false,
+    selected: selected,
+
+    async confirmDelete() {
+      try {
+        this.loading = true;
+        const res = await fetch(`/dashboard/api/roles/${this.selected.id}`, {
+          method: "DELETE",
+        });
+
+        if (!res.ok) {
+          const data = await res.json();
+          throw Error(data.error);
+        }
+
+        this.$dispatch("toast", { message: "Rol eliminado correctamente" });
+        this.$dispatch("deleted");
+      } catch (error) {
+        this.$dispatch("toast", { message: "Error al eliminar el rol", type: "danger" });
       }
     },
   }));

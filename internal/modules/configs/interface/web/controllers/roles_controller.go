@@ -88,6 +88,7 @@ func (c *RolesController) Update(w http.ResponseWriter, r *http.Request) {
 func (c *RolesController) Delete(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	config := ctx.Value(models.ConfigContextKey).(*models.Config)
+	sessionRole := ctx.Value(models.RoleContextKey).(*models.Role)
 
 	id, err := primitive.ObjectIDFromHex(r.PathValue("id"))
 	if err != nil {
@@ -97,7 +98,12 @@ func (c *RolesController) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = c.app.DeleteRole(ctx, id, config.OrganizationID)
+	err = c.app.DeleteRole(ctx, &commands.DeleteRoleRequest{
+		SessionRole:    sessionRole,
+		TargetRoleID:   id,
+		OrganizationID: config.OrganizationID,
+	})
+
 	if err != nil {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)

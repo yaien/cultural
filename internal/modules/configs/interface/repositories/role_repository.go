@@ -19,6 +19,11 @@ func NewRoleRepository(db *mongo.Database) *RoleRepository {
 	return &RoleRepository{db: db}
 }
 
+func (r *RoleRepository) CountAdminsByOrganizationID(ctx context.Context, organizationID primitive.ObjectID) (int64, error) {
+	count, err := r.db.Collection("roles").CountDocuments(ctx, bson.M{"organizationId": organizationID, "permissions": "*"})
+	return count, translate(err)
+}
+
 func (r *RoleRepository) GetByIDAndOrganizationID(ctx context.Context, id, organizationID primitive.ObjectID) (*models.Role, error) {
 	var role models.Role
 	err := r.db.Collection("roles").FindOne(ctx, bson.M{"_id": id, "organizationId": organizationID}).Decode(&role)

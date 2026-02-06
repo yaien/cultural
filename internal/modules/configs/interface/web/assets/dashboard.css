@@ -276,8 +276,8 @@ button:hover {
 
 button:disabled {
   cursor: default;
-  background-color: var(--secondary-color-light);
-  color: var(--secondary-color);
+  background-color: var(--secondary-color-light) !important;
+  color: var(--secondary-color) !important;
 }
 
 button.danger {
@@ -374,12 +374,13 @@ div[role="group"] button {
 }
 
 div[role="group"] button:first-child {
-  border-radius: var(--border-radius) 0 0 var(--border-radius);
+  border-top-left-radius: var(--border-radius);
+  border-bottom-left-radius: var(--border-radius);
 }
 
 div[role="group"] button:last-child {
-  border-radius: 0 var(--border-radius) var(--border-radius) 0;
-  border-right: none;
+  border-top-right-radius: var(--border-radius);
+  border-bottom-right-radius: var(--border-radius);
 }
 
 /* Container Styles */
@@ -419,7 +420,7 @@ tbody tr:hover {
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.3);
   display: none;
   justify-content: center;
   align-items: center;

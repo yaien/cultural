@@ -11,6 +11,7 @@ import (
 type data struct {
 	Config *models.Config
 	User   *models.User
+	Role   *models.Role
 	Path   string
 	Meta   any
 }
@@ -34,6 +35,10 @@ func newData(r *http.Request, opts ...option) *data {
 
 	if user, ok := r.Context().Value(models.UserContextKey).(*models.User); ok {
 		data.User = user
+	}
+
+	if role, ok := r.Context().Value(models.RoleContextKey).(*models.Role); ok {
+		data.Role = role
 	}
 
 	for _, opt := range opts {
@@ -62,12 +67,4 @@ func (d *data) Link(path, name, icon string) (*Link, error) {
 		Icon:   template.HTML(svg),
 		Active: path == d.Path,
 	}, nil
-}
-
-var links = []*Link{
-	{Path: "/dashboard", Name: "Dashboard", Icon: "home"},
-	{Path: "/dashboard/pages", Name: "Sitios", Icon: "website"},
-	{Path: "/dashboard/events", Name: "Eventos", Icon: "calendar"},
-	{Path: "/dashboard/products", Name: "Productos", Icon: "box"},
-	{Path: "/dashboard/members", Name: "Miembros", Icon: "user_list"},
 }

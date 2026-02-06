@@ -13,7 +13,7 @@
 
 <!-- Content -->
 {{define "content"}}
-<div class="container" x-data="roles">
+<div class="container" x-data="{{ printf `roles({ currentUserId: %q })` .User.ID.Hex }}">
   <table>
     <thead>
       <tr>
@@ -31,8 +31,14 @@
           <td x-text="role.name" class="capitalize"></td>
           <td>
             <div role="group">
-              <button class="warning">{{ template "edit.svg"}}</button>
-              <button class="danger">{{ template "trash.svg"}}</button>
+              <!-- -- <button class="warning">{{ template "edit.svg"}}</button> -->
+              <button
+                x-show="role.userId !== currentUserId && roles.length != 1"
+                class="danger"
+                @click="openDeleteModal(role)"
+              >
+                {{ template "trash.svg"}}
+              </button>
             </div>
           </td>
         </tr>
@@ -42,29 +48,50 @@
 
   <div class="actions">
     <button class="primary clear" @click="modals.invitation = true">{{ template "add.svg"}}</button>
-    <div class="modal" :class="{ open: modals.invitation }" @click.self="modals.invitation = false">
-      <div class="modal-content" x-data="invitation" @submitted="modals.invitation = false">
-        <div class="modal-header">
-          <h2 class="modal-title">Invitar usuario</h2>
-          <button class="modal-close" @click="modals.invitation = false"></button>
-        </div>
-        <div class="modal-body">
-          <form @submit.prevent="invite">
-            <fieldset>
-              <legend>Nombre</legend>
-              <input name="name" x-model="userDisplayName" required />
-            </fieldset>
-            <fieldset>
-              <legend>Correo</legend>
-              <input name="email" type="email" x-model="userEmail" required />
-            </fieldset>
-            <div class="actions">
-              <button type="submit" class="primary" :disabled="loading">Invitar</button>
-            </div>
-          </form>
-        </div>
+  </div>
+
+  <!-- Invitation Modal -->
+  <div class="modal" :class="{ open: modals.invitation }" @click.self="modals.invitation = false">
+    <div class="modal-content" x-data="invitation" @submitted="modals.invitation = false">
+      <div class="modal-header">
+        <h2 class="modal-title">Invitar usuario</h2>
+        <button class="modal-close" @click="modals.invitation = false"></button>
+      </div>
+      <div class="modal-body">
+        <form @submit.prevent="invite">
+          <fieldset>
+            <legend>Nombre</legend>
+            <input name="name" x-model="userDisplayName" required />
+          </fieldset>
+          <fieldset>
+            <legend>Correo</legend>
+            <input name="email" type="email" x-model="userEmail" required />
+          </fieldset>
+          <div class="actions">
+            <button type="submit" class="primary" :disabled="loading">Invitar</button>
+          </div>
+        </form>
       </div>
     </div>
   </div>
+
+  <!-- Delete Modal -->
+  <div class="modal" :class="{ open: modals.deletion }" @click.self="modals.deletion = false">
+    <template x-if="selected">
+      <div class="modal-content" x-data="deletion({ selected })" @deleted="onDeleted">
+        <div class="modal-header">
+          <h2 class="modal-title">Eliminar usuario</h2>
+          <button class="modal-close" @click="modals.deletion = false"></button>
+        </div>
+        <div class="modal-body">
+          <p>¿Estás seguro de que deseas eliminar a <b x-text="selected.userName"></b>?</p>
+          <div class="actions">
+            <button class="secondary" @click="modals.deletion = false">Cancelar</button>
+            <button class="danger" @click="confirmDelete" :disabled="loading">Eliminar</button>
+          </div>
+        </div>
+      </div>
+    </template>
+  </div>
+  {{end}}
 </div>
-{{end}}
