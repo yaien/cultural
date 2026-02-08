@@ -16,6 +16,10 @@ jobs:
       - uses: webfactory/ssh-agent@v0.9.0
         with:
           ssh-private-key: ${{secrets.SERVER_PRIVATE_KEY}}
+      - name: Add SSH Host Key
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
       - name: Deploy
         run: |
           rsync -avz cultural cultural@142.93.80.76:deploy/cultural
