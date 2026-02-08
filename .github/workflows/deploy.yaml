@@ -23,6 +23,6 @@ jobs:
       - name: Deploy
         run: |
           rsync -avz cultural cultural@142.93.80.76:deploy/cultural
-          rsync -avz Dockerfile cultural@142.93.80.76:deploy Dockerfile
+          rsync -avz Dockerfile cultural@142.93.80.76:deploy/Dockerfile
           ssh cultural@142.93.80.76 "./deploy/deploy.sh"
       
