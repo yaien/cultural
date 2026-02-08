@@ -1,7 +1,9 @@
 package models
 
 import (
+	"fmt"
 	"html/template"
+	"io"
 )
 
 type Page struct {
@@ -11,16 +13,32 @@ type Page struct {
 	Body   template.HTML `bson:"body" json:"body"`
 }
 
-var PageBaseStyles = template.Must(template.New("styles").Parse(`
-	:root {
-	{{range $key, $font := .Fonts}}
-		--font-{{ $key }}: '{{ $font.Family }}', sans-serif;
-	{{ end }}
-	{{range $key, $value := .Colors}}
-		--color-{{ $key }}: {{ $value }};
-	{{ end }}
+func WritePageBaseStyles(b io.Writer, cfg *Config) error {
+
+	_, err := fmt.Fprintln(b, ":root {")
+	if err != nil {
+		return err
 	}
-`))
+
+	for key, font := range cfg.Fonts {
+		_, err := fmt.Fprintf(b, "\t--font-%s: %q, sans-serif;\n", key, font.Family)
+		if err != nil {
+			return err
+		}
+	}
+	for key, value := range cfg.Colors {
+		_, err := fmt.Fprintf(b, "\t--color-%s: %s;\n", key, value)
+		if err != nil {
+			return err
+		}
+	}
+	_, err = fmt.Fprintln(b, "}")
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
 
 var PageTemplate = template.Must(template.New("page").Parse(read("templates/page.html")))
 

@@ -102,7 +102,7 @@ func (c *PageController) BaseStyles(w http.ResponseWriter, r *http.Request) {
 	config := r.Context().Value(models.ConfigContextKey).(*models.Config)
 
 	w.Header().Set("Content-Type", "text/css")
-	err := models.PageBaseStyles.Execute(w, config)
+	err := models.WritePageBaseStyles(w, config)
 	if err != nil {
 		http.Error(w, "Failed to generate styles", http.StatusInternalServerError)
 		return

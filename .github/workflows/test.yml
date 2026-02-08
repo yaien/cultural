@@ -3,17 +3,18 @@
 
 name: Go
 
-on: 
+on:
   pull_request:
-    branches: main
+    branches:
+      - main
 
 jobs:
   test:
     runs-on: ubuntu-slim
     steps:
-    - uses: actions/checkout@v6
-    - uses: actions/setup-go@v6
-      with:
-        go-version: '1.25'
-    - name: 
-      run: go test ./...
+      - uses: actions/checkout@v6
+      - uses: actions/setup-go@v6
+        with:
+          go-version: "1.25"
+      - name: Test
+        run: go test ./...
