@@ -27,11 +27,6 @@ func NewWithConfig(app *application.Application) func(next http.Handler) http.Ha
 				scheme = "http"
 			}
 
-			if host, found := strings.CutPrefix(r.Host, "www."); found {
-				http.Redirect(w, r, fmt.Sprintf("%s://%s%s", scheme, host, r.URL.Path), http.StatusMovedPermanently)
-				return
-			}
-
 			slog.Debug(
 				"Request",
 				"host", host,
@@ -39,6 +34,11 @@ func NewWithConfig(app *application.Application) func(next http.Handler) http.Ha
 				"path", r.URL.Path,
 				"method", r.Method,
 			)
+
+			if host, found := strings.CutPrefix(r.Host, "www."); found {
+				http.Redirect(w, r, fmt.Sprintf("%s://%s%s", scheme, host, r.URL.Path), http.StatusMovedPermanently)
+				return
+			}
 
 			if host == "" {
 				http.Error(w, "Missing host header", http.StatusBadRequest)
