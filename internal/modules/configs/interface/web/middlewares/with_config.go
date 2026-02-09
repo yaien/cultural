@@ -2,6 +2,7 @@ package middlewares
 
 import (
 	"context"
+	"log/slog"
 	"net/http"
 
 	"github.com/yaien/cultural/internal/modules/configs/application"
@@ -16,6 +17,15 @@ func NewWithConfig(app *application.Application) func(next http.Handler) http.Ha
 			if forwardedHost := r.Header.Get("X-Forwarded-Host"); forwardedHost != "" {
 				host = forwardedHost
 			}
+
+			slog.Debug(
+				"Request Received",
+				"host", r.Host,
+				"forwarded-host", r.Header.Get("X-Forwarded-Host"),
+				"path", r.URL.Path,
+				"method", r.Method,
+				"url", r.URL.String(),
+			)
 
 			if host == "" {
 				http.Error(w, "Missing host header", http.StatusBadRequest)
