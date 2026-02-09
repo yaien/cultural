@@ -15,18 +15,29 @@ func NewWithConfig(app *application.Application) func(next http.Handler) http.Ha
 	return func(next http.Handler) http.HandlerFunc {
 		return func(w http.ResponseWriter, r *http.Request) {
 			host := r.Host
+			if r.Header.Get("X-Forwarded-Host") != "" {
+				host = r.Header.Get("X-Forwarded-Host")
+			}
+
+			scheme := r.Header.Get("X-Forwarded-Proto")
+			if scheme == "" {
+				if r.TLS != nil {
+					scheme = "https"
+				}
+				scheme = "http"
+			}
 
 			if host, found := strings.CutPrefix(r.Host, "www."); found {
-				http.Redirect(w, r, fmt.Sprintf("%s://%s%s", r.URL.Scheme, host, r.URL.Path), http.StatusMovedPermanently)
+				http.Redirect(w, r, fmt.Sprintf("%s://%s%s", scheme, host, r.URL.Path), http.StatusMovedPermanently)
 				return
 			}
 
 			slog.Debug(
-				"Request Received",
+				"Request",
 				"host", host,
+				"scheme", scheme,
 				"path", r.URL.Path,
 				"method", r.Method,
-				"url", r.URL.String(),
 			)
 
 			if host == "" {
