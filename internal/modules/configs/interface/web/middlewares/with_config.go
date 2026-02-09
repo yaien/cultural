@@ -2,8 +2,10 @@ package middlewares
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 	"net/http"
+	"strings"
 
 	"github.com/yaien/cultural/internal/modules/configs/application"
 	"github.com/yaien/cultural/internal/modules/configs/models"
@@ -14,14 +16,14 @@ func NewWithConfig(app *application.Application) func(next http.Handler) http.Ha
 		return func(w http.ResponseWriter, r *http.Request) {
 			host := r.Host
 
-			if forwardedHost := r.Header.Get("X-Forwarded-Host"); forwardedHost != "" {
-				host = forwardedHost
+			if host, found := strings.CutPrefix(r.Host, "www."); found {
+				http.Redirect(w, r, fmt.Sprintf("%s://%s%s", r.URL.Scheme, host, r.URL.Path), http.StatusMovedPermanently)
+				return
 			}
 
 			slog.Debug(
 				"Request Received",
-				"host", r.Host,
-				"forwarded-host", r.Header.Get("X-Forwarded-Host"),
+				"host", host,
 				"path", r.URL.Path,
 				"method", r.Method,
 				"url", r.URL.String(),
