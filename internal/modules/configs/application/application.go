@@ -2,11 +2,11 @@ package application
 
 import (
 	"github.com/yaien/cultural/internal/library/cache"
+	"github.com/yaien/cultural/internal/library/mail"
 	"github.com/yaien/cultural/internal/library/storage"
 	"github.com/yaien/cultural/internal/modules/configs/application/commands"
 	"github.com/yaien/cultural/internal/modules/configs/application/queries"
 	"github.com/yaien/cultural/internal/modules/configs/models"
-	"gopkg.in/gomail.v2"
 )
 
 type Application struct {
@@ -42,7 +42,7 @@ type Deps struct {
 	Fonts         models.FontRepository
 	Files         models.FileRepository
 	Cache         *cache.Cache[*models.Config]
-	Mail          *gomail.Dialer
+	Mail          mail.Mail
 	Storage       storage.Storage
 }
 

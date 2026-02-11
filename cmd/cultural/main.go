@@ -40,8 +40,8 @@ func serve() *cobra.Command {
 				log.Fatal("Failed to register modules:", err)
 			}
 
-			log.Printf("MongoDB Database: %s", mono.Config.MongoDB.Database)
-			log.Printf("MongoDB URI: %s", mono.Config.MongoDB.URI)
+			log.Printf("Mongodb database: %s", mono.Config.MongoDB.Database)
+			log.Printf("Mongodb uri: %s", mono.Config.MongoDB.URI)
 			log.Printf("App is running on %s", mono.Config.Server.URL)
 
 			err = http.ListenAndServe(mono.Config.Server.Addr, mono.Router)
