@@ -11,10 +11,10 @@ import (
 	"github.com/markbates/goth"
 	"github.com/markbates/goth/gothic"
 	"github.com/markbates/goth/providers/google"
+	"github.com/yaien/cultural/internal/library/mail"
 	"github.com/yaien/cultural/internal/library/storage"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"gopkg.in/gomail.v2"
 )
 
 type Monolith struct {
@@ -24,7 +24,7 @@ type Monolith struct {
 	Router       *http.ServeMux
 	WebRouter    *http.ServeMux
 	SessionStore sessions.Store
-	Mail         *gomail.Dialer
+	Mail         mail.Mail
 	Storage      storage.Storage
 }
 
@@ -37,7 +37,7 @@ func NewMonolith() *Monolith {
 		Config:       config,
 		MongoDB:      setupMongoDB(config),
 		SessionStore: setupSessionStore(config),
-		Mail:         setupMailDialer(config),
+		Mail:         setupMail(config),
 		Storage:      setupStorage(config),
 		Router:       http.NewServeMux(),
 		WebRouter:    http.NewServeMux(),
@@ -51,14 +51,22 @@ func setupOauthProviders(config *Config) {
 	)
 }
 
-func setupMailDialer(config *Config) *gomail.Dialer {
-	dialer := gomail.NewDialer(
-		config.SMTPConfig.Host,
-		config.SMTPConfig.Port,
-		config.SMTPConfig.User,
-		config.SMTPConfig.Pass,
-	)
-	return dialer
+func setupMail(config *Config) mail.Mail {
+	switch config.Mail.Provider {
+	case "mailtrap":
+		client, err := mail.NewMailtrap(mail.MailtrapOptions{
+			Token:   config.Mail.Mailtrap.Token,
+			Sandbox: config.Mail.Mailtrap.Sandbox,
+			InboxID: config.Mail.Mailtrap.InboxID,
+		})
+		if err != nil {
+			log.Fatal("Failed to create mailtrap client: ", err)
+		}
+		return client
+	default:
+		log.Fatal("Unsupported mail provider:", config.Mail.Provider)
+		return nil
+	}
 }
 
 func setupStorage(config *Config) storage.Storage {
@@ -89,15 +97,15 @@ func setupMongoDB(config *Config) *mongo.Database {
 
 	client, err := mongo.Connect(ctx, opts)
 	if err != nil {
-		log.Fatal("Failed to connect to MongoDB:", err)
+		log.Fatal("Failed to connect to mongodb:", err)
 	}
 
 	err = client.Ping(ctx, nil)
 	if err != nil {
-		log.Fatal("Failed to ping MongoDB:", err)
+		log.Fatal("Failed to ping mongodb:", err)
 	}
 
-	log.Println("Connected to MongoDB successfully")
+	log.Println("Connected to mongodb successfully")
 
 	database := client.Database(config.MongoDB.Database)
 
@@ -110,9 +118,9 @@ type sink struct {
 }
 
 func (s *sink) Info(level int, msg string, args ...any) {
-	slog.With(args...).Debug("MongoDB", "level", level, "msg", msg)
+	slog.With(args...).Debug("Mongodb", "level", level, "msg", msg)
 }
 
 func (s *sink) Error(err error, msg string, args ...any) {
-	slog.With(args...).Error("MongoDB", "error", err, "msg", msg)
+	slog.With(args...).Error("Mongodb", "error", err, "msg", msg)
 }

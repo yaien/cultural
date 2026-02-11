@@ -7,9 +7,9 @@ import (
 	"html/template"
 	"time"
 
+	"github.com/yaien/cultural/internal/library/mail"
 	"github.com/yaien/cultural/internal/modules/configs/models"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"gopkg.in/gomail.v2"
 )
 
 type CreateInvitationCommand struct {
@@ -18,7 +18,7 @@ type CreateInvitationCommand struct {
 	configs       models.ConfigRepository
 	roles         models.RoleRepository
 	groups        models.GroupRepository
-	mail          *gomail.Dialer
+	mail          mail.Mail
 }
 
 func NewCreateInvitationCommand(
@@ -27,7 +27,7 @@ func NewCreateInvitationCommand(
 	configs models.ConfigRepository,
 	roles models.RoleRepository,
 	groups models.GroupRepository,
-	mail *gomail.Dialer,
+	emails mail.Mail,
 ) *CreateInvitationCommand {
 	return &CreateInvitationCommand{
 		invitations,
@@ -35,7 +35,7 @@ func NewCreateInvitationCommand(
 		configs,
 		roles,
 		groups,
-		mail,
+		emails,
 	}
 }
 
@@ -48,6 +48,14 @@ type CreateInvitationRequest struct {
 	RoleName        string
 	UserDisplayName string
 	UserEmail       string
+}
+
+type invitationEmailData struct {
+	UserDisplayName  string
+	OrganizationName string
+	InvitationURL    string
+	ConfigURL        string
+	FileURL          models.ExternalFileURLFunc
 }
 
 func (c *CreateInvitationCommand) CreateInvitation(ctx context.Context, req *CreateInvitationRequest) (*models.Invitation, error) {
@@ -103,13 +111,7 @@ func (c *CreateInvitationCommand) CreateInvitation(ctx context.Context, req *Cre
 		return nil, fmt.Errorf("invitation email template not found in config")
 	}
 
-	data := struct {
-		UserDisplayName  string
-		OrganizationName string
-		InvitationURL    string
-		ConfigURL        string
-		FileURL          models.ExternalFileURLFunc
-	}{
+	data := invitationEmailData{
 		UserDisplayName:  req.UserDisplayName,
 		OrganizationName: organization.Name,
 		InvitationURL:    fmt.Sprintf("%s/invitation/%s", config.Url, invitation.ID.Hex()),
@@ -139,13 +141,14 @@ func (c *CreateInvitationCommand) CreateInvitation(ctx context.Context, req *Cre
 		return nil, fmt.Errorf("failed executing email body template: %w", err)
 	}
 
-	message := gomail.NewMessage()
-	message.SetHeader("From", fmt.Sprintf("%s <%s>", organization.Name, config.Email))
-	message.SetHeader("To", fmt.Sprintf("%s <%s>", req.UserDisplayName, req.UserEmail))
-	message.SetHeader("Subject", subject.String())
-	message.SetBody("text/html", body.String())
+	err = c.mail.Send(ctx, &mail.Email{
+		To:       mail.Recipient{Name: req.UserDisplayName, Email: req.UserEmail},
+		From:     mail.Recipient{Name: organization.Name, Email: config.Email},
+		Subject:  subject.String(),
+		Body:     body.String(),
+		Category: "invitation",
+	})
 
-	err = c.mail.DialAndSend(message)
 	if err != nil {
 		return nil, fmt.Errorf("failed sending the invitation email: %w", err)
 	}

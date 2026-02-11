@@ -14,9 +14,9 @@ type Config struct {
 	Server        ServerConfig
 	Init          InitConfig
 	SessionConfig SessionConfig
-	SMTPConfig    SMTPConfig
 	Google        GoogleConfig
 	Storage       StorageConfig
+	Mail          MailConfig
 }
 
 type MongoDBConfig struct {
@@ -56,11 +56,22 @@ type InitConfig struct {
 
 type StorageConfig struct {
 	Provider string
-	Local    Local
+	Local    LocalStorageConfig
 }
 
-type Local struct {
+type LocalStorageConfig struct {
 	Path string
+}
+
+type MailConfig struct {
+	Provider string
+	Mailtrap MailtrapMailConfig
+}
+
+type MailtrapMailConfig struct {
+	Token   string
+	Sandbox bool
+	InboxID string
 }
 
 func LoadConfig() *Config {
@@ -83,11 +94,13 @@ func LoadConfig() *Config {
 			URI:      viper.GetString("MONGODB_URI"),
 			Database: viper.GetString("MONGODB_DATABASE"),
 		},
-		SMTPConfig: SMTPConfig{
-			Host: viper.GetString("SMTP_HOST"),
-			Port: viper.GetInt("SMTP_PORT"),
-			User: viper.GetString("SMTP_USER"),
-			Pass: viper.GetString("SMTP_PASS"),
+		Mail: MailConfig{
+			Provider: viper.GetString("MAIL_PROVIDER"),
+			Mailtrap: MailtrapMailConfig{
+				Token:   viper.GetString("MAIL_MAILTRAP_TOKEN"),
+				Sandbox: viper.GetBool("MAIL_MAILTRAP_SANDBOX"),
+				InboxID: viper.GetString("MAIL_MAILTRAP_INBOX_ID"),
+			},
 		},
 		Google: GoogleConfig{
 			ClientID:     viper.GetString("GOOGLE_CLIENT_ID"),
@@ -96,7 +109,7 @@ func LoadConfig() *Config {
 		},
 		Storage: StorageConfig{
 			Provider: viper.GetString("STORAGE_PROVIDER"),
-			Local: Local{
+			Local: LocalStorageConfig{
 				Path: viper.GetString("STORAGE_LOCAL_PATH"),
 			},
 		},
@@ -108,19 +121,23 @@ func init() {
 	viper.AutomaticEnv()
 	_ = viper.ReadInConfig()
 
+	logLevel := slog.Level(viper.GetInt("LOG_LEVEL"))
 	switch viper.GetString("LOG_FORMAT") {
 	case "tint":
 		slog.SetDefault(slog.New(tint.NewHandler(os.Stderr, &tint.Options{
 			TimeFormat: time.DateTime,
+			Level:      logLevel,
 		})))
 
 	case "json":
-		slog.SetDefault(slog.New(slog.NewJSONHandler(os.Stderr, nil)))
+		slog.SetDefault(slog.New(slog.NewJSONHandler(os.Stderr, &slog.HandlerOptions{
+			Level: logLevel,
+		})))
 
 	default:
-		slog.SetDefault(slog.New(slog.NewTextHandler(os.Stderr, nil)))
+		slog.SetDefault(slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{
+			Level: logLevel,
+		})))
 	}
-
-	slog.SetLogLoggerLevel(slog.Level(viper.GetInt("LOG_LEVEL")))
 
 }
