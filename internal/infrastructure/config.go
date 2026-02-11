@@ -10,7 +10,6 @@ import (
 )
 
 type Config struct {
-	Debug         bool
 	MongoDB       MongoDBConfig
 	Server        ServerConfig
 	Init          InitConfig
@@ -66,7 +65,6 @@ type Local struct {
 
 func LoadConfig() *Config {
 	return &Config{
-		Debug: viper.GetBool("DEBUG"),
 		Server: ServerConfig{
 			Addr: viper.GetString("SERVER_ADDR"),
 			URL:  viper.GetString("SERVER_URL"),
@@ -110,18 +108,19 @@ func init() {
 	viper.AutomaticEnv()
 	_ = viper.ReadInConfig()
 
-	slog.SetLogLoggerLevel(slog.LevelDebug)
-
-	if viper.GetBool("DEBUG") {
+	switch viper.GetString("LOG_FORMAT") {
+	case "tint":
 		slog.SetDefault(slog.New(tint.NewHandler(os.Stderr, &tint.Options{
-			Level:      slog.LevelDebug,
 			TimeFormat: time.DateTime,
 		})))
 
-	} else {
-		slog.SetDefault(slog.New(slog.NewJSONHandler(os.Stderr, &slog.HandlerOptions{
-			Level: slog.LevelInfo,
-		})))
+	case "json":
+		slog.SetDefault(slog.New(slog.NewJSONHandler(os.Stderr, nil)))
+
+	default:
+		slog.SetDefault(slog.New(slog.NewTextHandler(os.Stderr, nil)))
 	}
+
+	slog.SetLogLoggerLevel(slog.Level(viper.GetInt("LOG_LEVEL")))
 
 }

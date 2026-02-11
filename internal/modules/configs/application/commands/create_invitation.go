@@ -147,7 +147,7 @@ func (c *CreateInvitationCommand) CreateInvitation(ctx context.Context, req *Cre
 
 	err = c.mail.DialAndSend(message)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed sending the invitation email: %w", err)
 	}
 
 	return invitation, nil
