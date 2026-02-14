@@ -15,27 +15,24 @@ jobs:
           go-version: "1.25"
       - name: Build Binary
         run: GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build ./cmd/cultural
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v6.0.0
-        with:
-          path: |
-            cultural
-            Dockerfile
+      - name: Login to GHCR
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+      - name: Build Docker Image
+        run: docker build -t ghcr.io/${{ github.repository_owner }}/cultural:latest .
+      - name: Push Docker Image
+        run: docker push ghcr.io/${{ github.repository_owner }}/cultural:latest
+
   deploy:
     runs-on: ubuntu-slim
     needs: build
     steps:
-      - name: Download Artifact
-        uses: actions/download-artifact@v7.0.0
       - name: Setup SSH
         uses: webfactory/ssh-agent@v0.9.0
         with:
-          ssh-private-key: ${{secrets.SERVER_PRIVATE_KEY}}
+          ssh-private-key: ${{secrets.VPS_SSH_KEY}}
       - name: Setup SSH Host Key
         run: |
           mkdir -p ~/.ssh
-          ssh-keyscan -H ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
+          ssh-keyscan -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
       - name: Deploy
-        run: |
-          rsync -avz cultural Dockerfile cultural@142.93.80.76:deploy/
-          ssh cultural@142.93.80.76 "./deploy/deploy.sh"
+        run: ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "./deploy.sh"
