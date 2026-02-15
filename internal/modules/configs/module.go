@@ -5,11 +5,11 @@ import (
 
 	"github.com/yaien/cultural/internal/infrastructure"
 	"github.com/yaien/cultural/internal/library/cache"
-	"github.com/yaien/cultural/internal/modules/configs/application"
-	_ "github.com/yaien/cultural/internal/modules/configs/interface/migrations"
-	"github.com/yaien/cultural/internal/modules/configs/interface/repositories"
-	"github.com/yaien/cultural/internal/modules/configs/interface/web"
-	"github.com/yaien/cultural/internal/modules/configs/models"
+	"github.com/yaien/cultural/internal/modules/configs/internal/application"
+	_ "github.com/yaien/cultural/internal/modules/configs/internal/interface/migrations"
+	"github.com/yaien/cultural/internal/modules/configs/internal/interface/repositories"
+	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web"
+	"github.com/yaien/cultural/internal/modules/configs/internal/models"
 )
 
 type Module struct {
