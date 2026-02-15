@@ -6,8 +6,8 @@ import (
 
 	"github.com/yaien/cultural/internal/infrastructure"
 	"github.com/yaien/cultural/internal/library/cache"
-	"github.com/yaien/cultural/internal/modules/landing/application"
-	"github.com/yaien/cultural/internal/modules/landing/interface/web/routes"
+	"github.com/yaien/cultural/internal/modules/landing/internal/application"
+	"github.com/yaien/cultural/internal/modules/landing/internal/interface/web/routes"
 )
 
 type Module struct {

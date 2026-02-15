@@ -9,7 +9,6 @@ import (
 	"github.com/yaien/cultural/internal/infrastructure"
 	"github.com/yaien/cultural/internal/infrastructure/migrations"
 	"github.com/yaien/cultural/internal/modules/configs"
-	"github.com/yaien/cultural/internal/modules/configs/application/commands"
 )
 
 func main() {
@@ -110,7 +109,7 @@ func invite() *cobra.Command {
 				log.Fatal("Failed to get config by host:", err)
 			}
 
-			_, err = cfg.App.CreateInvitation(ctx, &commands.CreateInvitationRequest{
+			_, err = cfg.App.CreateInvitation(ctx, &configs.CreateInvitationRequest{
 				OrganizationID:  config.OrganizationID,
 				UserEmail:       args[0],
 				UserDisplayName: args[1],
