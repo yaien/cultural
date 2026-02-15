@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/yaien/cultural/internal/modules/configs/internal/application"
@@ -24,79 +25,63 @@ func (c *PagesController) Index(w http.ResponseWriter, r *http.Request) {
 
 func (c *PagesController) List(w http.ResponseWriter, r *http.Request) {
 	config := r.Context().Value(models.ConfigContextKey).(*models.Config)
-	w.Header().Set("Content-Type", "application/json")
-	_ = json.NewEncoder(w).Encode(config.Pages)
+	WriteJSON(w, config.Pages)
 }
 
 func (c *PagesController) Create(w http.ResponseWriter, r *http.Request) {
 
 	var page models.Page
-	err := json.NewDecoder(r.Body).Decode(&page)
-	if err != nil {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(map[string]any{"error": err.Error()})
+
+	if err := json.NewDecoder(r.Body).Decode(&page); err != nil {
+		WriteJSONErr(w, models.DecodeError(err))
 		return
 	}
 
 	config := r.Context().Value(models.ConfigContextKey).(*models.Config)
 
-	err = c.app.CreatePage(r.Context(), config, &page)
-
-	if err != nil {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(map[string]any{"error": err.Error()})
+	if err := c.app.CreatePage(r.Context(), config, &page); err != nil {
+		WriteJSONErr(w, fmt.Errorf("failed creating page: %w", err))
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	_ = json.NewEncoder(w).Encode(map[string]any{"path": page.Name})
+	WriteJSON(w, map[string]any{"path": page.Name})
 }
 
 func (c *PagesController) Update(w http.ResponseWriter, r *http.Request) {
 	var page models.Page
-	err := json.NewDecoder(r.Body).Decode(&page)
-	if err != nil {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(map[string]any{"error": err.Error()})
+	if err := json.NewDecoder(r.Body).Decode(&page); err != nil {
+		WriteJSONErr(w, models.DecodeError(err))
 		return
 	}
 
+	ctx := r.Context()
 	path := r.PathValue("page")
-	config := r.Context().Value(models.ConfigContextKey).(*models.Config)
+	config := ctx.Value(models.ConfigContextKey).(*models.Config)
 
-	err = c.app.UpdatePage(r.Context(), &commands.UpdatePageRequest{
+	request := &commands.UpdatePageRequest{
 		Page:   &page,
 		Config: config,
 		Path:   path,
-	})
+	}
 
-	if err != nil {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(map[string]any{"error": err.Error()})
+	if err := c.app.UpdatePage(ctx, request); err != nil {
+		WriteJSONErr(w, fmt.Errorf("failed updating page: %w", err))
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	_ = json.NewEncoder(w).Encode(map[string]any{"path": path})
+	WriteJSON(w, map[string]any{"path": path})
 
 }
 
 func (c *PagesController) Delete(w http.ResponseWriter, r *http.Request) {
 	path := r.PathValue("page")
-	config := r.Context().Value(models.ConfigContextKey).(*models.Config)
+	ctx := r.Context()
+	config := ctx.Value(models.ConfigContextKey).(*models.Config)
 
-	err := c.app.DeletePage(r.Context(), config, path)
-	if err != nil {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(map[string]any{"error": err.Error()})
+	if err := c.app.DeletePage(r.Context(), config, path); err != nil {
+		WriteJSONErr(w, fmt.Errorf("failed deleting page: %w", err))
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	_ = json.NewEncoder(w).Encode(map[string]any{"path": path})
+	WriteJSON(w, map[string]any{"path": path})
 }

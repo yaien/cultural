@@ -34,7 +34,7 @@ func (c *AuthController) Login(w http.ResponseWriter, r *http.Request) {
 
 	user, err := c.app.SyncUser(r.Context(), u)
 	if err != nil {
-		http.Error(w, fmt.Sprintf("Failed to sync user: %v", err), http.StatusInternalServerError)
+		WriteHTMLErr(w, fmt.Errorf("Failed to sync user: %w", err))
 		return
 	}
 
@@ -49,6 +49,7 @@ func (c *AuthController) Login(w http.ResponseWriter, r *http.Request) {
 
 	err = session.Save(r, w)
 	if err != nil {
+		WriteHTMLErr(w, fmt.Errorf("failed to save session: %w", err))
 		http.Error(w, "Failed to save session", http.StatusInternalServerError)
 		return
 	}
@@ -59,7 +60,7 @@ func (c *AuthController) Login(w http.ResponseWriter, r *http.Request) {
 func (c *AuthController) Logout(w http.ResponseWriter, r *http.Request) {
 	err := gothic.Logout(w, r)
 	if err != nil {
-		http.Error(w, "Failed to logout", http.StatusInternalServerError)
+		WriteHTMLErr(w, fmt.Errorf("Failed to logout: %w", err))
 		return
 	}
 
@@ -68,7 +69,7 @@ func (c *AuthController) Logout(w http.ResponseWriter, r *http.Request) {
 	session.Values = make(map[any]any)
 	err = session.Save(r, w)
 	if err != nil {
-		http.Error(w, "Failed to clear session", http.StatusInternalServerError)
+		WriteHTMLErr(w, fmt.Errorf("Failed to clear session: %w", err))
 		return
 	}
 
@@ -78,13 +79,13 @@ func (c *AuthController) Logout(w http.ResponseWriter, r *http.Request) {
 func (c *AuthController) Callback(w http.ResponseWriter, r *http.Request) {
 	u, err := gothic.CompleteUserAuth(w, r)
 	if err != nil {
-		http.Error(w, fmt.Sprintf("Authentication failed: %v", err), http.StatusUnauthorized)
+		WriteHTMLErr(w, fmt.Errorf("Authentication failed: %w", err))
 		return
 	}
 
 	user, err := c.app.SyncUser(r.Context(), u)
 	if err != nil {
-		http.Error(w, fmt.Sprintf("Failed to sync user: %v", err), http.StatusInternalServerError)
+		WriteHTMLErr(w, fmt.Errorf("Failed to sync user: %w", err))
 		return
 	}
 
@@ -99,7 +100,7 @@ func (c *AuthController) Callback(w http.ResponseWriter, r *http.Request) {
 
 	err = session.Save(r, w)
 	if err != nil {
-		http.Error(w, "Failed to save session", http.StatusInternalServerError)
+		WriteHTMLErr(w, fmt.Errorf("Failed to save session: %w", err))
 		return
 	}
 

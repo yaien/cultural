@@ -3,6 +3,7 @@ package controllers
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 
@@ -22,18 +23,13 @@ func (c *RenderController) Render(w http.ResponseWriter, r *http.Request) {
 		Page *models.Page `json:"page"`
 	}
 
-	err := json.NewDecoder(r.Body).Decode(&input)
-	if err != nil {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(map[string]any{"error": err.Error()})
+	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
+		WriteJSONErr(w, models.DecodeError(err))
 		return
 	}
 
 	if input.Page == nil {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(map[string]any{"error": "page is required"})
+		WriteJSONErr(w, models.DecodeError(errors.New("page is required")))
 		return
 	}
 
@@ -41,17 +37,13 @@ func (c *RenderController) Render(w http.ResponseWriter, r *http.Request) {
 
 	base, err := models.PageTemplate.Clone()
 	if err != nil {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(map[string]any{"error": err.Error()})
+		WriteJSONErr(w, fmt.Errorf("failed decoding template: %w", err))
 		return
 	}
 
 	parsed, err := base.Parse(fmt.Sprintf(`{{define "body"}}%s{{end}}`, input.Page.Body))
 	if err != nil {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(map[string]any{"error": err.Error()})
+		WriteJSONErr(w, fmt.Errorf("failed parsing template: %w", err))
 		return
 	}
 
@@ -62,16 +54,10 @@ func (c *RenderController) Render(w http.ResponseWriter, r *http.Request) {
 		WithFilePath("/assets/dynamic/files/").
 		Data()
 
-	err = parsed.Execute(&buffer, data)
-
-	if err != nil {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(map[string]any{"error": err.Error()})
+	if err := parsed.Execute(&buffer, data); err != nil {
+		WriteJSONErr(w, fmt.Errorf("failed executing template: %w", err))
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	_ = json.NewEncoder(w).Encode(map[string]any{"html": buffer.String()})
-
+	WriteJSON(w, map[string]any{"html": buffer.String()})
 }

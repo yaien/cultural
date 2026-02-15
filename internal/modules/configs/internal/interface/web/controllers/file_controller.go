@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"bufio"
 	"encoding/json"
 	"fmt"
 	"log/slog"
@@ -43,15 +42,11 @@ func (fc *FileController) Upload(w http.ResponseWriter, r *http.Request) {
 	})
 
 	if err != nil {
-		slog.Error("error uploading file", "err", err)
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusInternalServerError)
-		_ = json.NewEncoder(w).Encode(map[string]string{"error": err.Error()})
+		WriteJSONErr(w, err)
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	_ = json.NewEncoder(w).Encode(file)
+	WriteJSON(w, file)
 }
 
 func (fc *FileController) Delete(w http.ResponseWriter, r *http.Request) {
@@ -61,8 +56,7 @@ func (fc *FileController) Delete(w http.ResponseWriter, r *http.Request) {
 
 	err := fc.app.DeleteFile(r.Context(), config.OrganizationID, filename)
 	if err != nil {
-		slog.Error("error deleting file", "err", err)
-		http.Error(w, "error deleting the file", http.StatusInternalServerError)
+		WriteJSONErr(w, err)
 		return
 	}
 
@@ -73,15 +67,11 @@ func (fc *FileController) List(w http.ResponseWriter, r *http.Request) {
 	config := r.Context().Value(models.ConfigContextKey).(*models.Config)
 	files, err := fc.app.GetFiles(r.Context(), config.OrganizationID)
 	if err != nil {
-		slog.Error("error listing files", "err", err)
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(map[string]any{"error": "error listing files"})
+		WriteJSONErr(w, fmt.Errorf("failed listing files: %w", err))
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	_ = json.NewEncoder(w).Encode(files)
+	WriteJSON(w, files)
 }
 
 func (fc *FileController) Get(w http.ResponseWriter, r *http.Request) {
@@ -90,15 +80,12 @@ func (fc *FileController) Get(w http.ResponseWriter, r *http.Request) {
 
 	file, _, err := fc.app.GetFile(r.Context(), config.OrganizationID, filename)
 	if err != nil {
-		slog.Error("error retrieving file", "err", err)
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(map[string]any{"error": "error retrieving the file"})
+		WriteJSONErr(w, fmt.Errorf("failed retriving the file: %w", err))
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	_ = json.NewEncoder(w).Encode(file)
+	WriteJSON(w, file)
+
 }
 
 func (fc *FileController) Download(w http.ResponseWriter, r *http.Request) {
@@ -106,22 +93,14 @@ func (fc *FileController) Download(w http.ResponseWriter, r *http.Request) {
 	filename := r.PathValue("filename")
 	file, data, err := fc.app.GetFile(r.Context(), config.OrganizationID, filename)
 	if err != nil {
-		slog.Error("error retrieving file", "err", err)
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(map[string]any{"error": "error retrieving the file"})
+		WriteJSONErr(w, fmt.Errorf("failed getting file: %w", err))
 		return
 	}
 
-	w.Header().Set("Content-Disposition", "attachment; filename=\""+file.Name+"\"")
-	w.Header().Set("Content-Type", file.MimeType)
-	w.Header().Set("Content-Length", fmt.Sprint(file.Size))
+	WriteFile(w, file, data)
 
-	_, err = bufio.NewWriter(w).ReadFrom(data)
-	if err != nil {
-		slog.Error("error downloading the file", "err", err)
-		return
-	}
+	defer data.Close()
+
 }
 
 func (fc *FileController) Rename(w http.ResponseWriter, r *http.Request) {
@@ -134,21 +113,15 @@ func (fc *FileController) Rename(w http.ResponseWriter, r *http.Request) {
 
 	err := json.NewDecoder(r.Body).Decode(&input)
 	if err != nil {
-		slog.Error("error parsing request body", "err", err)
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(map[string]any{"error": "invalid request body"})
+		WriteJSONErr(w, models.DecodeError(err))
 		return
 	}
 
 	err = fc.app.RenameFile(r.Context(), config.OrganizationID, filename, input.NewName)
 	if err != nil {
-		slog.Error("error renaming the file", "err", err)
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(map[string]any{"error": "error renaming the file"})
+		WriteJSONErr(w, fmt.Errorf("failed renaming file: %w", err))
 		return
 	}
 
-	w.WriteHeader(http.StatusNoContent)
+	WriteJSONSuccess(w)
 }

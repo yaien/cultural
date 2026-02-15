@@ -1,11 +1,11 @@
 package controllers
 
 import (
-	"bufio"
 	"fmt"
 	"net/http"
 
 	"github.com/yaien/cultural/internal/modules/configs/internal/application"
+	"github.com/yaien/cultural/internal/modules/configs/internal/models"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -22,7 +22,7 @@ func NewExternalController(app *application.Application) *ExternalController {
 func (c *ExternalController) GetFile(w http.ResponseWriter, r *http.Request) {
 	organizationID, err := primitive.ObjectIDFromHex(r.PathValue("organization_id"))
 	if err != nil {
-		http.Error(w, "invalid organization id", http.StatusBadRequest)
+		WriteJSONErr(w, models.DecodeError(fmt.Errorf("invalid organization id: %w", err)))
 		return
 	}
 
@@ -34,15 +34,5 @@ func (c *ExternalController) GetFile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Set("Content-Type", file.MimeType)
-	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%s", filename))
-	w.Header().Set("Content-Length", fmt.Sprintf("%d", file.Size))
-	w.WriteHeader(http.StatusOK)
-
-	_, err = bufio.NewWriter(w).ReadFrom(data)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
+	WriteFile(w, file, data)
 }

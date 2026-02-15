@@ -30,6 +30,7 @@ type Application struct {
 	*commands.UploadFileCommand
 	*commands.RenameFileCommand
 	*commands.DeleteFileCommand
+	*commands.UpdateColorsCommand
 }
 
 type Deps struct {
@@ -68,5 +69,6 @@ func New(deps Deps) *Application {
 		commands.NewUploadFileCommand(deps.Files, deps.Storage),
 		commands.NewRenameFileCommand(deps.Files),
 		commands.NewDeleteFileCommand(deps.Files, deps.Storage),
+		commands.NewUpdateColorsCommand(deps.Configs, deps.Cache),
 	}
 }

@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -83,7 +84,7 @@ func (c *InvitationController) Accept(w http.ResponseWriter, r *http.Request) {
 	})
 
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		WriteHTMLErr(w, fmt.Errorf("failed accepting invitation: %w", err))
 		return
 	}
 
