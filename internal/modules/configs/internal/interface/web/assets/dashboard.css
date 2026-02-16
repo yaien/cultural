@@ -293,6 +293,10 @@ button.danger.clear {
     color: var(--danger-color);
 }
 
+button.danger.clear :hover {
+    color: var(--danger-color-dark);
+}
+
 button.success {
     background: var(--success-color-light);
     color: var(--success-color-dark);

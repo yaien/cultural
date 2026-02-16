@@ -170,3 +170,45 @@
     object-fit: cover;
     position: absolute;
 }
+
+/* Colors */
+.colors .color {
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+    margin-bottom: 0.5rem;
+}
+
+.colors .field {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem;
+    border-bottom: 1px solid var(--border-color);
+    background-color: var(--light-color-dark);
+}
+
+.colors .field input {
+    color: inherit;
+}
+
+.colors .field input[data-coloris] {
+    text-align: right;
+}
+
+.colors .hint {
+    display: flex;
+    justify-content: space-between;
+    padding: 0 0.5rem;
+    align-items: center;
+}
+
+.colors .hint small {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.colors .hint button {
+    padding: 0;
+}
