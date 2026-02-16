@@ -14,12 +14,10 @@ import (
 func NewWithUser(app *application.Application, store sessions.Store) func(next http.Handler) http.HandlerFunc {
 	return func(next http.Handler) http.HandlerFunc {
 		return func(w http.ResponseWriter, r *http.Request) {
-			session, _ := store.Get(r, controllers.SessionName)
-			id, ok := session.Values[controllers.UserIDKey].(string)
+			s, _ := store.Get(r, controllers.SessionName)
+			id, ok := s.Values[controllers.UserIDKey].(string)
 			if !ok || id == "" {
-				session.AddFlash(r.URL.Path, controllers.RedirectKey)
-				_ = session.Save(r, w)
-				http.Redirect(w, r, "/auth/google/login", http.StatusTemporaryRedirect)
+				redirect(s, w, r)
 				return
 			}
 
@@ -31,9 +29,7 @@ func NewWithUser(app *application.Application, store sessions.Store) func(next h
 
 			user, err := app.GetUserByID(r.Context(), oid)
 			if err != nil {
-				session.AddFlash(r.URL.Path, controllers.RedirectKey)
-				_ = session.Save(r, w)
-				http.Redirect(w, r, "/auth/google/login", http.StatusTemporaryRedirect)
+				redirect(s, w, r)
 				return
 			}
 
@@ -41,4 +37,15 @@ func NewWithUser(app *application.Application, store sessions.Store) func(next h
 			next.ServeHTTP(w, nr)
 		}
 	}
+}
+
+func redirect(s *sessions.Session, w http.ResponseWriter, r *http.Request) {
+	s.AddFlash(r.URL.Path, controllers.RedirectKey)
+
+	if err := s.Save(r, w); err != nil {
+		http.Error(w, "Failed to save session", http.StatusInternalServerError)
+		return
+	}
+
+	http.Redirect(w, r, "/auth/google/login", http.StatusPermanentRedirect)
 }

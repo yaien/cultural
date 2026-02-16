@@ -1,396 +1,501 @@
 import { EditorView, basicSetup } from "codemirror";
 import { css } from "@codemirror/lang-css";
 import { html } from "@codemirror/lang-html";
+import { javascript } from "@codemirror/lang-javascript";
 
 document.addEventListener("alpine:init", () => {
-  Alpine.data("pages", ({ url, filepath }) => ({
-    filepath: filepath,
-    url: url,
-    pages: {},
-    form: {},
-    data: null,
-    page: null,
-    ready: false,
-    loading: false,
-    editing: false,
-    state: 0,
-    srcdoc: "",
-    states: {
-      initial: 0,
-      create: 1,
-      fonts: 2,
-      delete: 3,
-      files: 4,
-      editor: 5,
-      styles: 6,
-    },
-
-    async init() {
-      await this.fetch();
-      this.select("index");
-      await this.render();
-      this.ready = true;
-    },
-
-    async fetch() {
-      const res = await fetch("/dashboard/api/pages");
-      this.pages = await res.json();
-    },
-
-    async render(options = { reset: true }) {
-      const res = await fetch("/dashboard/api/render", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ type: "page", page: this.data }),
-      });
-
-      const data = await res.json();
-
-      if (options.reset) {
-        this.srcdoc = data.html;
-        return;
-      }
-
-      this.$refs.iframe.contentDocument.documentElement.innerHTML = data.html;
-    },
-    async update() {
-      this.loading = true;
-      const res = await fetch(`/dashboard/api/pages/${this.page}`, {
-        method: "PUT",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify(this.data),
-      });
-
-      if (!res.ok) {
-        this.$dispatch("toast", { message: "Error inesperado al guardar sitios", variant: "danger" });
-        return;
-      }
-
-      const updated = await res.json();
-      await this.fetch();
-      this.select(updated.path);
-      this.loading = false;
-      this.$dispatch("toast", { message: "Cambios guardados" });
-    },
-
-    async edit(content, scope = "body") {
-      if (this.data) {
-        this.data[scope] = content;
-        await this.render({ reset: false });
-      }
-    },
-
-    async create() {
-      try {
-        this.loading = true;
-        const res = await fetch(`/dashboard/api/pages`, {
-          method: "POST",
-          headers: { "content-type": "application/json" },
-          body: JSON.stringify(this.form),
-        });
-
-        if (!res.ok) {
-          const data = await res.json();
-          throw Error(data.error);
-        }
-
-        const page = { ...this.form, styles: "", body: "" };
-        this.pages = { ...this.pages, [page.name]: page };
-        this.select(page.name);
-        this.state = this.states.initial;
-      } catch (err) {
-        this.console.log(err);
-      } finally {
-        this.loading = false;
-      }
-    },
-
-    async remove() {
-      try {
-        this.loading = true;
-        const res = await fetch(`/dashboard/api/pages/${this.page}`, {
-          method: "DELETE",
-        });
-
-        if (!res.ok) {
-          const data = await res.json();
-          throw Error(data.error);
-        }
-
-        delete this.pages[this.page];
-        this.select("index");
-        this.state = this.states.initial;
-      } catch (err) {
-        console.error(err);
-      } finally {
-        this.loading = false;
-      }
-    },
-
-    set(state) {
-      this.state = state;
-    },
-
-    on(state) {
-      return this.state == state;
-    },
-
-    select(page) {
-      this.page = page;
-      this.data = { ...this.pages[page], path: page };
-      this.render();
-    },
-    get pageUrl() {
-      if (!this.data) return "";
-      let path = this.data.name == "index" ? "" : "/" + this.data.name;
-      return this.url + path;
-    },
-    get pageIsIndex() {
-      return this.page == "index";
-    },
-  }));
-
-  Alpine.data("mirror", (data, mode = "html") => ({
-    init() {
-      const theme = EditorView.theme({
-        "&": {
-          height: "100%",
-          "margin-bottom": "1rem",
+    Alpine.data("pages", ({ url, filepath }) => ({
+        filepath: filepath,
+        url: url,
+        draft: null,
+        model: { map: "", key: "", value: {} },
+        ready: false,
+        loading: false,
+        state: 0,
+        states: {
+            initial: 0,
+            create: 1,
+            fonts: 2,
+            delete: 3,
+            files: 4,
+            editor: 5,
+            styles: 6,
+            colors: 7,
+            publish: 8,
         },
-        "&.cm-focused": {
-          outline: "none",
+
+        async init() {
+            await this.fetch();
+            await this.select("index", "pages");
+            this.ready = true;
         },
-      });
 
-      const listener = EditorView.updateListener.of(({ docChanged, state }) => {
-        if (!docChanged) return;
-        const content = state.doc.toString();
-        this.$dispatch("update", content);
-      });
+        async fetch() {
+            const res = await fetch("/dashboard/api/draft");
+            this.draft = await res.json();
+        },
 
-      new EditorView({
-        doc: this.format(data),
-        extensions: [basicSetup, theme, this.extension(), listener],
-        parent: this.$el,
-      });
-    },
+        async select(key, map) {
+            this.model = { map, key, value: { ...this.draft[map][key] } };
+            await this.render();
+        },
 
-    format(data) {
-      return typeof data === "string" ? data : "";
-    },
+        async render(options = { reset: true }) {
+            this.loading = true;
 
-    extension() {
-      switch (mode) {
-        case "css":
-          return css();
-        case "html":
-          return html();
-      }
-    },
-  }));
+            const res = await fetch("/dashboard/api/render", {
+                method: "POST",
+                headers: { "content-type": "application/json" },
+                body: JSON.stringify({
+                    map: this.model.map,
+                    key: this.model.key,
+                    pages: this.draft.pages,
+                    layouts: this.draft.layouts,
+                    emails: this.draft.emails,
+                    colors: this.draft.colors,
+                    fonts: this.draft.fonts,
+                }),
+            });
 
-  Alpine.data("fonts", () => ({
-    current: null,
-    fonts: [],
-    limit: 20,
-    offset: 0,
-    family: "",
-    ready: false,
-    loading: false,
-    state: 0,
-    selected: { font: null, tag: "" },
-    states: {
-      initial: 0,
-      browsing: 1,
-      configuring: 2,
-    },
+            const data = await res.json();
 
-    async init() {
-      await Promise.all([this.fetchFonts(), this.fetchCurrent()]);
-      this.ready = true;
-    },
+            this.loading = false;
 
-    async fetchFonts() {
-      this.loading = true;
-      const res = await fetch(`/dashboard/api/fonts?family=${this.family}&limit=${this.limit}&offset=${this.offset}`);
-      const fonts = await res.json();
-      fonts.forEach((font) => this.load(font));
-      this.fonts = this.fonts.concat(fonts);
-      this.loading = false;
-    },
+            if (options.reset) {
+                this.srcdoc = data.html;
+                return;
+            }
 
-    async fetchCurrent() {
-      const res = await fetch("/dashboard/api/fonts/config");
-      this.current = (await res.json()) ?? {};
-    },
+            this.$refs.iframe.contentDocument.documentElement.innerHTML = data.html;
+        },
 
-    async load(font) {
-      const face = new FontFace(font.family, `url("${font.files.regular}")`, {
-        weight: "normal",
-        display: "swap",
-      });
-      const loaded = await face.load();
-      document.fonts.add(loaded);
-    },
+        async update({ toast } = { toast: true }) {
+            this.loading = true;
 
-    async search(family) {
-      this.family = family;
-      this.offset = 0;
-      this.fonts = [];
-      await this.fetchFonts();
-    },
+            const res = await fetch("/dashboard/api/draft", {
+                method: "PUT",
+                headers: { "content-type": "application/json" },
+                body: JSON.stringify({
+                    pages: this.draft.pages,
+                    layouts: this.draft.layouts,
+                    emails: this.draft.emails,
+                    colors: this.draft.colors,
+                    fonts: this.draft.fonts,
+                }),
+            });
 
-    async scroll(event) {
-      if (event.target.scrollTop + event.target.clientHeight >= event.target.scrollHeight - 100) {
-        this.offset += this.limit;
-        await this.fetchFonts();
-      }
-    },
+            if (!res.ok) {
+                this.$dispatch("toast", { message: "Error inesperado al guardar sitios", variant: "danger" });
+                return;
+            }
 
-    async add() {
-      this.loading = true;
-      const res = await fetch("/dashboard/api/fonts/config", {
-        method: "PUT",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          ...this.current,
-          [this.selected.tag]: this.selected.font,
-        }),
-      });
+            if (toast) {
+                this.$dispatch("toast", { message: "Cambios guardados" });
+            }
 
-      if (res.ok) {
-        await this.fetchCurrent();
-        this.$dispatch("updated");
-        this.state = this.states.initial;
-      }
+            this.loading = false;
 
-      this.loading = false;
-    },
+            await this.render({ reset: false });
+        },
 
-    style(family) {
-      return { "font-family": `"${family}", sans-serif` };
-    },
+        set(state) {
+            this.state = state;
+        },
 
-    on(state) {
-      return this.state == state;
-    },
+        on(state) {
+            return this.state == state;
+        },
 
-    set(state) {
-      this.state = state;
-    },
+        get deleteable() {
+            if (!this.model) return false;
+            return this.model.map == "layouts" || (this.model.map == "pages" && this.model.key != "index");
+        },
+        get forWeb() {
+            if (!this.model) return false;
+            return this.model.map == "pages" || this.model.map == "layouts";
+        },
+    }));
 
-    select(font, tag = "", state = this.states.configuring) {
-      this.selected = { font: font, tag: tag };
-      this.state = state;
-    },
+    Alpine.data("basic", ({ draft, model }) => ({
+        draft: draft,
+        model: model,
 
-    empty() {
-      return Object.keys(this.current).length == 0;
-    },
-  }));
+        get pageUrl() {
+            if (this.model.map != "pages") return "";
+            let path = this.model.key == "index" ? "" : "/" + this.model.key;
+            return this.url + path;
+        },
+        get pageIsIndex() {
+            return this.model.map == "pages" && this.model.key == "index";
+        },
 
-  Alpine.data("files", () => ({
-    files: [],
-    ready: false,
-    loading: false,
-    selected: null,
-    data: {},
-    state: 0,
-    states: {
-      initial: 0,
-      edit: 1,
-    },
+        submit() {
+            this.draft[this.model.map][this.model.value.name] = this.model.value;
+            if (this.model.key != this.model.value.name) {
+                delete this.draft[this.model.map][this.model.key];
+                this.model.key = this.model.value.name;
+            }
+            this.$dispatch("update", { draft: this.draft, model: this.model, toast: true });
+        },
 
-    async init() {
-      await this.fetch();
-      this.ready = true;
-    },
+        changeTemplate(key) {
+            this.model.key = key;
+            this.model.value = this.draft[this.model.map][key];
+            this.$dispatch("model", this.model);
+        },
 
-    async fetch() {
-      this.loading = true;
-      const res = await fetch("/dashboard/api/files");
-      this.files = (await res.json()) || [];
-      this.loading = false;
-    },
+        changeMap(map) {
+            switch (map) {
+                case "pages":
+                    this.model.map = "pages";
+                    this.model.key = "index";
+                    this.model.value = this.draft.pages.index;
+                    this.$dispatch("model", this.model);
+                    break;
 
-    async upload(event) {
-      this.loading = true;
+                case "emails":
+                    this.model.map = "emails";
+                    this.model.key = "invitation";
+                    this.model.value = this.draft.emails.invitation;
+                    this.$dispatch("model", this.model);
+                    break;
+            }
+        },
+    }));
 
-      for (const file of event.target.files) {
-        const data = new FormData();
-        data.append("file", file);
+    Alpine.data("create", ({ draft, model }) => ({
+        draft: draft,
+        model: model,
+        form: {
+            map: "pages",
+            value: {},
+        },
 
-        const res = await fetch("/dashboard/api/files", {
-          method: "POST",
-          body: data,
-        });
+        submit() {
+            this.draft[this.form.map][this.form.value.name] = this.form.value;
+            this.model.map = this.form.map;
+            this.model.key = this.form.value.name;
+            this.model.value = this.form.value;
+            this.$dispatch("update", { draft: this.draft, model: this.model, toast: true });
+            this.$dispatch("submitted");
+        },
 
-        if (res.ok) {
-          this.files.push(await res.json());
-        } else {
-          alert("Error uploading file");
-        }
-      }
+        get disabled() {
+            return this.form && this.draft[this.form.map][this.form.value.name];
+        },
+    }));
 
-      this.loading = false;
-    },
+    Alpine.data("remove", ({ draft, model }) => ({
+        draft: draft,
+        model: model,
 
-    async update() {
-      try {
-        this.loading = true;
-        const res = await fetch(`/dashboard/api/files/${this.selected.name}`, {
-          method: "PUT",
-          body: JSON.stringify({ newName: this.data.name }),
-          headers: { "Content-Type": "application/json" },
-        });
+        remove() {
+            delete this.draft[this.model.map][this.model.key];
+            switch (this.model.map) {
+                case "layouts":
+                    if (this.draft.layouts?.length) {
+                        this.model.key = this.draft.layouts[0];
+                        this.model.value = this.draft.layouts[this.model.key];
+                        break;
+                    }
+                default:
+                    this.model.key = "index";
+                    this.model.value = this.draft.pages.index;
+                    break;
+            }
+            this.$dispatch("update", { draft: this.draft, model: this.model, toast: true });
+            this.$dispatch("removed");
+        },
+    }));
 
-        if (!res.ok) {
-          const data = await res.json();
-          throw new Error(data.error);
-        }
+    Alpine.data("mirror", ({ draft, model, mode }) => ({
+        draft: draft,
+        model: model,
+        mode: mode,
+        init() {
+            const theme = EditorView.theme({
+                "&": {
+                    height: "80vh",
+                    "margin-bottom": "1rem",
+                },
+                "&.cm-focused": {
+                    outline: "none",
+                },
+            });
 
-        this.selected.name = this.data.name;
-        this.set(this.states.initial);
-      } catch (error) {
-        console.error(error);
-      } finally {
-        this.loading = false;
-      }
-    },
+            const listener = EditorView.updateListener.of(({ docChanged, state }) => {
+                if (!docChanged) return;
+                const content = state.doc.toString();
+                this.dispach(content);
+            });
 
-    async drop() {
-      try {
-        this.loading = true;
-        const res = await fetch(`/dashboard/api/files/${this.selected.name}`, {
-          method: "DELETE",
-        });
+            new EditorView({
+                doc: this.doc(),
+                extensions: [basicSetup, theme, this.extension(), listener],
+                parent: this.$el,
+            });
+        },
 
-        if (!res.ok) {
-          const data = await res.json();
-          throw new Error(data.error);
-        }
+        dispach(content) {
+            switch (this.mode) {
+                case "css":
+                    this.model.value.styles = content;
+                    break;
+                case "html":
+                    this.model.value.body = content;
+                    break;
+                case "ts":
+                    this.model.value.script = content;
+                    break;
+            }
 
-        this.files = this.files.filter((file) => file.id != this.selected.id);
-        this.set(this.states.initial);
-      } catch (error) {
-        console.error(error);
-      } finally {
-        this.loading = false;
-      }
-    },
+            this.draft[this.model.map][this.model.key] = this.model.value;
+            this.$dispatch("update", { draft: this.draft, model: this.model, toast: false });
+        },
 
-    select(file) {
-      this.selected = file;
-      this.data = { name: file.name };
-      this.state = this.states.edit;
-    },
+        doc() {
+            switch (this.mode) {
+                case "css":
+                    return this.model.value.styles || "";
+                case "html":
+                    return this.model.value.body || "";
+            }
+        },
 
-    on(state) {
-      return this.state == state;
-    },
+        extension() {
+            switch (this.mode) {
+                case "css":
+                    return css();
+                case "html":
+                    return html();
+                case "ts":
+                    return javascript({ typescript: true });
+            }
+        },
+    }));
 
-    set(state) {
-      this.state = state;
-    },
-  }));
+    Alpine.data("fonts", ({ draft }) => ({
+        draft: draft,
+        fonts: [],
+        limit: 30,
+        offset: 0,
+        family: "",
+        ready: false,
+        loading: false,
+        state: 0,
+        selected: { font: null, tag: "" },
+        states: {
+            initial: 0,
+            browsing: 1,
+            configuring: 2,
+        },
+
+        async init() {
+            await Promise.all([this.fetchFonts(), this.initFonts()]);
+            this.ready = true;
+        },
+
+        async initFonts() {
+            if (this.draft.fonts) {
+                for (const tag in this.draft.fonts) {
+                    const font = this.draft.fonts[tag];
+                    await this.load(font);
+                }
+            }
+        },
+
+        async fetchFonts() {
+            this.loading = true;
+            const res = await fetch(
+                `/dashboard/api/fonts?family=${this.family}&limit=${this.limit}&offset=${this.offset}`,
+            );
+            const fonts = await res.json();
+            if (fonts) {
+                fonts.forEach((font) => this.load(font));
+                this.fonts = this.fonts.concat(fonts);
+            }
+            this.loading = false;
+        },
+
+        async load(font) {
+            const face = new FontFace(font.family, `url("${font.files.regular}")`, {
+                weight: "normal",
+                display: "swap",
+            });
+            const loaded = await face.load();
+            document.fonts.add(loaded);
+        },
+
+        async search(family) {
+            this.family = family;
+            this.offset = 0;
+            this.fonts = [];
+            await this.fetchFonts();
+        },
+
+        async scroll(event) {
+            if (event.target.scrollTop + event.target.clientHeight >= event.target.scrollHeight - 100) {
+                this.offset += this.limit;
+                await this.fetchFonts();
+            }
+        },
+
+        async add() {
+            if (!this.draft.fonts) {
+                this.draft.fonts = {};
+            }
+            this.draft.fonts[this.selected.tag] = this.selected.font;
+            this.$dispatch("update", { draft: this.draft, toast: true });
+            this.set(this.states.initial);
+        },
+
+        style(family) {
+            return { "font-family": `"${family}", sans-serif` };
+        },
+
+        on(state) {
+            return this.state == state;
+        },
+
+        set(state) {
+            this.state = state;
+        },
+
+        select(font, tag = "", state = this.states.configuring) {
+            this.selected = { font: font, tag: tag };
+            this.state = state;
+        },
+
+        empty() {
+            return Object.keys(this.draft.fonts || {}).length == 0;
+        },
+    }));
+
+    Alpine.data("files", () => ({
+        files: [],
+        ready: false,
+        loading: false,
+        selected: null,
+        data: {},
+        state: 0,
+        states: {
+            initial: 0,
+            edit: 1,
+        },
+
+        async init() {
+            await this.fetch();
+            this.ready = true;
+        },
+
+        async fetch() {
+            this.loading = true;
+            const res = await fetch("/dashboard/api/files");
+            this.files = (await res.json()) || [];
+            this.loading = false;
+        },
+
+        async upload(event) {
+            this.loading = true;
+
+            for (const file of event.target.files) {
+                const data = new FormData();
+                data.append("file", file);
+
+                const res = await fetch("/dashboard/api/files", {
+                    method: "POST",
+                    body: data,
+                });
+
+                if (res.ok) {
+                    this.files.push(await res.json());
+                } else {
+                    alert("Error uploading file");
+                }
+            }
+
+            this.loading = false;
+        },
+
+        async update() {
+            try {
+                this.loading = true;
+                const res = await fetch(`/dashboard/api/files/${this.selected.name}`, {
+                    method: "PUT",
+                    body: JSON.stringify({ newName: this.data.name }),
+                    headers: { "Content-Type": "application/json" },
+                });
+
+                if (!res.ok) {
+                    const data = await res.json();
+                    throw new Error(data.error);
+                }
+
+                this.selected.name = this.data.name;
+                this.set(this.states.initial);
+            } catch (error) {
+                console.error(error);
+            } finally {
+                this.loading = false;
+            }
+        },
+
+        async drop() {
+            try {
+                this.loading = true;
+                const res = await fetch(`/dashboard/api/files/${this.selected.name}`, {
+                    method: "DELETE",
+                });
+
+                if (!res.ok) {
+                    const data = await res.json();
+                    throw new Error(data.error);
+                }
+
+                this.files = this.files.filter((file) => file.id != this.selected.id);
+                this.set(this.states.initial);
+            } catch (error) {
+                console.error(error);
+            } finally {
+                this.loading = false;
+            }
+        },
+
+        select(file) {
+            this.selected = file;
+            this.data = { name: file.name };
+            this.state = this.states.edit;
+        },
+
+        on(state) {
+            return this.state == state;
+        },
+
+        set(state) {
+            this.state = state;
+        },
+    }));
+
+    Alpine.data("publish", () => ({
+        loading: false,
+
+        async publish() {
+            this.loading = true;
+
+            const res = await fetch("/dashboard/api/draft/commit", {
+                method: "POST",
+                headers: { "content-type": "application/json" },
+            });
+
+            if (!res.ok) {
+                this.$dispatch("toast", { message: "Error inesperado al publicar sitios", variant: "danger" });
+                return;
+            }
+
+            this.loading = false;
+
+            this.$dispatch("toast", { message: "La configuracion ha sido publicada", variant: "success" });
+            this.$dispatch("published");
+        },
+    }));
 });

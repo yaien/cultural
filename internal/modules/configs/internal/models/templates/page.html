@@ -3,14 +3,13 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>{{.Page.Title}} - {{.Config.Title}}</title>
+    <title>{{.Page.Title}}</title>
     {{.Components.Fonts}}
-    <base href="{{ .Config.Url }}" />
     <link rel="stylesheet" href="/assets/static/landing/base.css" />
     <link rel="stylesheet" href="/assets/landing/styles.css" />
     {{if .InlineStyles}}
     <style type="text/css">
-      {{.Page.Styles}}
+      {{.Components.Styles}}
     </style>
     {{else}}
     <link rel="stylesheet" href="{{ printf `/assets/landing/styles/%s.css` .Page.Name }}" />

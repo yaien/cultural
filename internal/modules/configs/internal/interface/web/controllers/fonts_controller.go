@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -34,36 +34,10 @@ func (c *FontsController) List(w http.ResponseWriter, r *http.Request) {
 
 	fonts, err := c.app.GetFonts(r.Context(), options)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		WriteJSONErr(w, fmt.Errorf("failed getting fonts: %w", err))
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	_ = json.NewEncoder(w).Encode(fonts)
+	WriteJSON(w, fonts)
 
-}
-
-func (c *FontsController) Get(w http.ResponseWriter, r *http.Request) {
-	config := r.Context().Value(models.ConfigContextKey).(*models.Config)
-	w.Header().Set("Content-Type", "application/json")
-	_ = json.NewEncoder(w).Encode(config.Fonts)
-}
-
-func (c *FontsController) Update(w http.ResponseWriter, r *http.Request) {
-	var fonts map[string]*models.Font
-	err := json.NewDecoder(r.Body).Decode(&fonts)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	config := r.Context().Value(models.ConfigContextKey).(*models.Config)
-
-	err = c.app.UpdateFonts(r.Context(), *config, fonts)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	_ = json.NewEncoder(w).Encode(map[string]any{"status": "ok"})
 }

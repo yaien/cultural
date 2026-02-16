@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"log/slog"
 	"net/http"
 	"time"
 
@@ -33,6 +34,7 @@ func serve() *cobra.Command {
 	cmd := &cobra.Command{
 		Use: "serve",
 		Run: func(cmd *cobra.Command, args []string) {
+			ctx := cmd.Context()
 			mono := infrastructure.NewMonolith()
 			err := register(mono)
 			if err != nil {
@@ -42,6 +44,13 @@ func serve() *cobra.Command {
 			log.Printf("Mongodb database: %s", mono.Config.MongoDB.Database)
 			log.Printf("Mongodb uri: %s", mono.Config.MongoDB.URI)
 			log.Printf("App is running on %s", mono.Config.Server.URL)
+
+			go func() {
+				if err := migrations.Migrate(ctx, mono.MongoDB); err != nil {
+					slog.Error("Failed running migrations", "error", err)
+				}
+				log.Println("Migrations checked successfully")
+			}()
 
 			err = http.ListenAndServe(mono.Config.Server.Addr, mono.Router)
 			if err != nil {

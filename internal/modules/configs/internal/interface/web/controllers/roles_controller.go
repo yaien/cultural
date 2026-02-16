@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/yaien/cultural/internal/modules/configs/internal/application"
@@ -29,14 +30,11 @@ func (c *RolesController) List(w http.ResponseWriter, r *http.Request) {
 
 	roles, err := c.app.GetRoles(ctx, config.OrganizationID)
 	if err != nil {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(map[string]string{"error": err.Error()})
+		WriteJSONErr(w, fmt.Errorf("failed getting roles: %w", err))
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(roles)
+	WriteJSON(w, roles)
 
 }
 
@@ -46,9 +44,7 @@ func (c *RolesController) Update(w http.ResponseWriter, r *http.Request) {
 
 	id, err := primitive.ObjectIDFromHex(r.PathValue("id"))
 	if err != nil {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(map[string]string{"error": "invalid role id: " + err.Error()})
+		WriteJSONErr(w, models.DecodeError(fmt.Errorf("invalid role id: %w", err)))
 		return
 	}
 
@@ -58,31 +54,25 @@ func (c *RolesController) Update(w http.ResponseWriter, r *http.Request) {
 		Name        string              `json:"name"`
 	}
 
-	err = json.NewDecoder(r.Body).Decode(&input)
-	if err != nil {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(map[string]string{"error": "invalid request payload: " + err.Error()})
+	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
+		WriteJSONErr(w, models.DecodeError(fmt.Errorf("invalid request payload: %w", err)))
 		return
 	}
 
-	err = c.app.UpdateRole(ctx, &commands.UpdateRoleRequest{
+	request := &commands.UpdateRoleRequest{
 		ID:             id,
 		OrganizationID: config.OrganizationID,
 		GroupID:        input.GroupID,
 		Permissions:    input.Permissions,
 		Name:           input.Name,
-	})
+	}
 
-	if err != nil {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(map[string]string{"error": err.Error()})
+	if err := c.app.UpdateRole(ctx, request); err != nil {
+		WriteJSONErr(w, fmt.Errorf("failed updating role: %w", err))
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]string{"status": "role updated"})
+	WriteJSONSuccess(w)
 }
 
 func (c *RolesController) Delete(w http.ResponseWriter, r *http.Request) {
@@ -92,25 +82,19 @@ func (c *RolesController) Delete(w http.ResponseWriter, r *http.Request) {
 
 	id, err := primitive.ObjectIDFromHex(r.PathValue("id"))
 	if err != nil {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(map[string]string{"error": "invalid role id: " + err.Error()})
+		WriteJSONErr(w, models.DecodeError(fmt.Errorf("invalid role id: %w", err)))
 		return
 	}
 
-	err = c.app.DeleteRole(ctx, &commands.DeleteRoleRequest{
+	request := &commands.DeleteRoleRequest{
 		SessionRole:    sessionRole,
 		TargetRoleID:   id,
 		OrganizationID: config.OrganizationID,
-	})
+	}
 
-	if err != nil {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(map[string]string{"error": err.Error()})
+	if err := c.app.DeleteRole(ctx, request); err != nil {
+		WriteJSONErr(w, fmt.Errorf("failed deleting role: %w", err))
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]string{"status": "role deleted"})
 }

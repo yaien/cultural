@@ -34,7 +34,7 @@ func (c *PageController) Index(w http.ResponseWriter, r *http.Request) {
 
 	page := config.Pages["index"]
 
-	data := configs.NewPageData(config, page).
+	data := configs.NewPageData(page).
 		WithFilePath("/assets/dynamic/files/").
 		Data()
 
@@ -67,7 +67,7 @@ func (c *PageController) Page(w http.ResponseWriter, r *http.Request) {
 
 	page := config.Pages[path]
 
-	data := configs.NewPageData(config, page).
+	data := configs.NewPageData(page).
 		WithFilePath("/assets/dynamic/landing/").
 		Data()
 

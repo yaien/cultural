@@ -17,13 +17,19 @@ func dashboard(mono *infrastructure.Monolith, app *application.Application, md *
 	{
 		ctrl := controllers.NewDashboardController(app)
 		mono.WebRouter.Handle("GET /dashboard", md.WithUser(md.WithRole(http.HandlerFunc(ctrl.Home))))
+		router.Handle("GET /dashboard/", http.RedirectHandler("/dashboard", http.StatusPermanentRedirect))
 	}
 
 	{
 		ctrl := controllers.NewFontsController(app)
 		router.HandleFunc("GET /dashboard/api/fonts", ctrl.List)
-		router.HandleFunc("GET /dashboard/api/fonts/config", ctrl.Get)
-		router.HandleFunc("PUT /dashboard/api/fonts/config", ctrl.Update)
+	}
+
+	{
+		ctrl := controllers.NewDraftController(app)
+		router.HandleFunc("GET /dashboard/api/draft", ctrl.Get)
+		router.HandleFunc("PUT /dashboard/api/draft", ctrl.Update)
+		router.HandleFunc("POST /dashboard/api/draft/commit", ctrl.Commit)
 	}
 
 	{
@@ -34,10 +40,6 @@ func dashboard(mono *infrastructure.Monolith, app *application.Application, md *
 	{
 		ctrl := controllers.NewPagesController(app)
 		router.HandleFunc("GET /dashboard/pages", ctrl.Index)
-		router.HandleFunc("GET /dashboard/api/pages", ctrl.List)
-		router.HandleFunc("POST /dashboard/api/pages", ctrl.Create)
-		router.HandleFunc("PUT /dashboard/api/pages/{page}", ctrl.Update)
-		router.HandleFunc("DELETE /dashboard/api/pages/{page}", ctrl.Delete)
 	}
 
 	{

@@ -17,19 +17,18 @@ type Application struct {
 	*queries.GetFontsQuery
 	*queries.GetFileQuery
 	*queries.GetFilesQuery
+	*queries.GetDraftByConfigIDQuery
 
 	*commands.CreateInvitationCommand
 	*commands.SyncUserCommand
 	*commands.AcceptInvitationCommand
 	*commands.UpdateRoleCommand
 	*commands.DeleteRoleCommand
-	*commands.UpdatePageCommand
-	*commands.CreatePageCommand
-	*commands.DeletePageCommand
-	*commands.UpdateFontsCommand
 	*commands.UploadFileCommand
 	*commands.RenameFileCommand
 	*commands.DeleteFileCommand
+	*commands.UpdateDraftCommand
+	*commands.CommitDraftCommand
 }
 
 type Deps struct {
@@ -41,6 +40,7 @@ type Deps struct {
 	Users         models.UserRepository
 	Fonts         models.FontRepository
 	Files         models.FileRepository
+	Drafts        models.DraftRepository
 	Cache         *cache.Cache[*models.Config]
 	Mail          mail.Mail
 	Storage       storage.Storage
@@ -55,18 +55,17 @@ func New(deps Deps) *Application {
 		queries.NewGetFontsQuery(deps.Fonts),
 		queries.NewGetFileQuery(deps.Files, deps.Storage),
 		queries.NewGetFilesQuery(deps.Files),
+		queries.NewGetDraftByConfigIDQuery(deps.Drafts),
 
 		commands.NewCreateInvitationCommand(deps.Invitations, deps.Organizations, deps.Configs, deps.Roles, deps.Groups, deps.Mail),
 		commands.NewSyncUserCommand(deps.Users),
 		commands.NewAcceptInvitationCommand(deps.Invitations, deps.Roles),
 		commands.NewUpdateRoleCommand(deps.Roles, deps.Groups),
 		commands.NewDeleteRoleCommand(deps.Roles),
-		commands.NewUpdatePageCommand(deps.Configs, deps.Cache),
-		commands.NewCreatePageCommand(deps.Configs, deps.Cache),
-		commands.NewDeletePageCommand(deps.Configs, deps.Cache),
-		commands.NewUpdateFontsCommand(deps.Configs, deps.Cache),
 		commands.NewUploadFileCommand(deps.Files, deps.Storage),
 		commands.NewRenameFileCommand(deps.Files),
 		commands.NewDeleteFileCommand(deps.Files, deps.Storage),
+		commands.NewUpdateDraftCommand(deps.Drafts),
+		commands.NewCommitDraftCommand(deps.Configs, deps.Drafts, deps.Cache),
 	}
 }
