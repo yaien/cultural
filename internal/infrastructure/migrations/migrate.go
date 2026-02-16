@@ -34,8 +34,6 @@ type MigrationEntry struct {
 func Migrate(ctx context.Context, db *mongo.Database) error {
 	collection := db.Collection("migrations")
 
-	slog.Info("starting migrations", "count", len(migrations))
-
 	slices.SortFunc(migrations, func(a, b Migration) int {
 		return strings.Compare(a.Name, b.Name)
 	})

@@ -2,6 +2,7 @@ import { EditorView, basicSetup } from "codemirror";
 import { css } from "@codemirror/lang-css";
 import { html } from "@codemirror/lang-html";
 import { javascript } from "@codemirror/lang-javascript";
+import { readableColor } from "polished";
 
 document.addEventListener("alpine:init", () => {
     Alpine.data("pages", ({ url, filepath }) => ({
@@ -475,6 +476,37 @@ document.addEventListener("alpine:init", () => {
             this.state = state;
         },
     }));
+
+    Alpine.data("colors", ({ draft }) => ({
+        draft: draft,
+        init() {
+            Coloris({
+                formatToggle: true,
+                alpha: false,
+            });
+        },
+        readable(color) {
+            return readableColor(color, "#000", "#fff");
+        },
+        change(key, value) {
+            this.draft.colors[key] = value;
+            if (value === "") {
+                delete this.draft.colors[key];
+            }
+            this.$dispatch("update", { draft: this.draft, toast: false });
+        },
+        add() {
+            let index = 1;
+            let key = "color-" + index;
+            while (this.draft.colors[key]) {
+                key = "color-" + index++;
+            }
+            this.draft.colors[key] = "#000000";
+            this.$dispatch("update", { draft: this.draft, toast: false });
+        },
+    }));
+
+    Alpine.data();
 
     Alpine.data("publish", () => ({
         loading: false,

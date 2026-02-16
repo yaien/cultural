@@ -3,10 +3,12 @@
 <!-- Links -->
 {{ define "links"}}
 <link rel="stylesheet" href="/assets/static/dashboard/dist/pages.min.css" />
+<link rel="stylesheet" href="/assets/static/dashboard/dist/coloris.min.css" />
 {{end}}
 
 <!-- Scripts -->
 {{ define "scripts"}}
+<script src="/assets/static/dashboard/dist/coloris.min.js"></script>
 <script src="/assets/static/dashboard/dist/pages.min.js"></script>
 {{end}}
 
@@ -26,6 +28,7 @@
           <button @click="set(states.delete)" x-show="deleteable">{{template "trash.svg"}}</button>
           <button @click="set(states.font)" x-show="forWeb">{{template "brand_family.svg"}}</button>
           <button @click="set(states.files)">{{template "image.svg"}}</button>
+          <button @click="set(states.colors)" x-show="forWeb">{{template "palette.svg"}}</button>
           <button @click="set(states.editor)">{{template "html.svg"}}</button>
           <button @click="set(states.styles)" x-show="forWeb">{{template "css.svg"}}</button>
           <button @click="set(states.publish)">{{template "publish.svg"}}</button>
@@ -214,66 +217,87 @@
 
         <!-- Files Page -->
         <div x-show="on(states.files)" x-transition:enter.delay.75ms class="grow">
-          <template x-if="on(states.files)">
-            <div x-data="files" class="files">
-              <!-- List files -->
-              <div x-show="on(states.initial)" x-transition:enter.delay.75ms>
-                <div class="actions">
-                  <input type="file" x-ref="input" hidden accept="image/*,video/*" multiple @change="upload($event)" />
-                  <button @click="$refs.input.click()" class="clear">{{ template "add.svg" }}</button>
-                </div>
-                <div class="grid">
-                  <template x-for="file in files" :key="file.id">
-                    <div class="item" @click="select(file)">
-                      <div class="hover" :title="file.name"></div>
-                      <template x-if="file.mimeType.startsWith('image')">
-                        <img x-bind:src="filepath + file.name" :title="file.name" :alt="file.name" />
-                      </template>
-                      <template x-if="file.mimeType.startsWith('video')">
-                        <video x-bind:src="filepath + file.name" :title="file.name" :alt="file.name"></video>
-                      </template>
-                    </div>
-                  </template>
-                </div>
+          <div x-data="files" class="files">
+            <!-- List files -->
+            <div x-show="on(states.initial)" x-transition:enter.delay.75ms>
+              <div class="actions">
+                <input type="file" x-ref="input" hidden accept="image/*,video/*" multiple @change="upload($event)" />
+                <button @click="$refs.input.click()" class="clear">{{ template "add.svg" }}</button>
               </div>
-
-              <!-- Edit File -->
-              <div x-show="on(states.edit)" x-transition:enter.delay.75ms>
-                <template x-if="selected">
-                  <div class="edit">
-                    <div class="actions">
-                      <button type="button" @click="set(states.initial)">Volver</button>
-                    </div>
-
-                    <div class="preview">
-                      <template x-if="selected.mimeType.startsWith('image')">
-                        <img x-bind:src="filepath + selected.name" :title="selected.name" :alt="selected.name" />
-                      </template>
-                      <template x-if="selected.mimeType.startsWith('video')">
-                        <video
-                          x-bind:src="'filepath + selected.name"
-                          :title="selected.name"
-                          :alt="selected.name"
-                          controls
-                        ></video>
-                      </template>
-                    </div>
-                    <form @submit.prevent="update()">
-                      <fieldset>
-                        <legend>Nombre</legend>
-                        <input name="name" x-model="data.name" required />
-                      </fieldset>
-
-                      <div class="actions around">
-                        <button type="button" class="danger" @click="drop()">Eliminar</button>
-                        <button type="submit" :disabled="loading">Guardar</button>
-                      </div>
-                    </form>
+              <div class="grid">
+                <template x-for="file in files" :key="file.id">
+                  <div class="item" @click="select(file)">
+                    <div class="hover" :title="file.name"></div>
+                    <template x-if="file.mimeType.startsWith('image')">
+                      <img x-bind:src="filepath + file.name" :title="file.name" :alt="file.name" />
+                    </template>
+                    <template x-if="file.mimeType.startsWith('video')">
+                      <video x-bind:src="filepath + file.name" :title="file.name" :alt="file.name"></video>
+                    </template>
                   </div>
                 </template>
               </div>
             </div>
-          </template>
+
+            <!-- Edit File -->
+            <div x-show="on(states.edit)" x-transition:enter.delay.75ms>
+              <template x-if="selected">
+                <div class="edit">
+                  <div class="actions">
+                    <button type="button" @click="set(states.initial)">Volver</button>
+                  </div>
+
+                  <div class="preview">
+                    <template x-if="selected.mimeType.startsWith('image')">
+                      <img x-bind:src="filepath + selected.name" :title="selected.name" :alt="selected.name" />
+                    </template>
+                    <template x-if="selected.mimeType.startsWith('video')">
+                      <video
+                        x-bind:src="'filepath + selected.name"
+                        :title="selected.name"
+                        :alt="selected.name"
+                        controls
+                      ></video>
+                    </template>
+                  </div>
+                  <form @submit.prevent="update()">
+                    <fieldset>
+                      <legend>Nombre</legend>
+                      <input name="name" x-model="data.name" required />
+                    </fieldset>
+
+                    <div class="actions around">
+                      <button type="button" class="danger" @click="drop()">Eliminar</button>
+                      <button type="submit" :disabled="loading">Guardar</button>
+                    </div>
+                  </form>
+                </div>
+              </template>
+            </div>
+          </div>
+        </div>
+
+        <!-- Colors Page -->
+        <div x-show="on(states.colors)">
+          <div x-data="colors({ draft })" class="colors">
+            <template x-for="(color, key) in draft.colors || {}" :key="key">
+              <div class="color">
+                <div class="field" :style="{ 'background-color': color, 'color': readable(color) }">
+                  <input :value="key" />
+                  <input :value="color" data-coloris @input="change(key, $event.target.value)" />
+                </div>
+                <div class="hint">
+                  <small>
+                    {{ template "css.svg" }}
+                    <pre>var(--<span x-text="key"></span>-color)</pre>
+                  </small>
+                </div>
+              </div>
+            </template>
+            <div class="actions">
+              <button @click="add()" class="clear">{{ template "add.svg" }}</button>
+            </div>
+          </div>
         </div>
 
         <!-- Editor Page -->
