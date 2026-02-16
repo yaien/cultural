@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -41,28 +40,4 @@ func (c *FontsController) List(w http.ResponseWriter, r *http.Request) {
 
 	WriteJSON(w, fonts)
 
-}
-
-func (c *FontsController) Get(w http.ResponseWriter, r *http.Request) {
-	config := r.Context().Value(models.ConfigContextKey).(*models.Config)
-	WriteJSON(w, config.Fonts)
-}
-
-func (c *FontsController) Update(w http.ResponseWriter, r *http.Request) {
-	var fonts map[string]*models.Font
-	err := json.NewDecoder(r.Body).Decode(&fonts)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	config := r.Context().Value(models.ConfigContextKey).(*models.Config)
-
-	err = c.app.UpdateFonts(r.Context(), *config, fonts)
-	if err != nil {
-		WriteJSONErr(w, fmt.Errorf("failed updating fonts: %w", err))
-		return
-	}
-
-	WriteJSONSuccess(w)
 }

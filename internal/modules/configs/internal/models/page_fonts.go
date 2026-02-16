@@ -9,7 +9,7 @@ import (
 func (p *pageComponents) Fonts() (template.HTML, error) {
 	setted := make(map[string]bool)
 	sb := strings.Builder{}
-	for _, font := range p.options.Config.Fonts {
+	for _, font := range p.options.Fonts {
 		switch font.Provider {
 		case "google":
 			if !setted[font.Provider] {

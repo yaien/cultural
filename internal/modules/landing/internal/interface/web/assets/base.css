@@ -1,9 +1,9 @@
 body {
     margin: 0;
     padding: 0;
-    background-color: var(--color-background);
-    color: var(--color-text);
-    font-family: var(--font-primary);
+    background-color: var(--background-color);
+    color: var(--text-color);
+    font-family: var(--primary-font-family);
 }
 
 h1,

@@ -70,7 +70,7 @@
     <main>
       {{block "content" .}}{{end}}
       <template x-if="toast">
-        <div class="toast" :class="toast && { variant: toast.variant, leave: toast.leave }">
+        <div class="toast" :class="toast && { [toast.variant]: true, leave: toast.leave }">
           <span x-text="toast.message"></span>
           <button class="toast-close" @click="$dispatch('toast')"></button>
         </div>

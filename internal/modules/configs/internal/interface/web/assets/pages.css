@@ -23,6 +23,10 @@
     text-align: center;
 }
 
+.publish p {
+    text-align: center;
+}
+
 .editor {
     width: 40%;
     padding: 1rem;
@@ -35,6 +39,12 @@
 .grow {
     flex-grow: 1;
     max-height: 80%;
+}
+
+.status {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 }
 
 .actions {
@@ -81,7 +91,7 @@
 }
 
 .fonts .list {
-    max-height: 500px;
+    height: 53vh;
     overflow: auto;
     scroll-behavior: smooth;
     margin-bottom: 0.5rem;

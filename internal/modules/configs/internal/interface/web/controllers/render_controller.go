@@ -3,7 +3,6 @@ package controllers
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"net/http"
 
@@ -17,22 +16,38 @@ func NewRenderController() *RenderController {
 	return &RenderController{}
 }
 
+type RenderControllerInput struct {
+	Map     string                   `json:"map"`
+	Key     string                   `json:"key"`
+	Layouts map[string]*models.Page  `bson:"layouts" json:"layouts"`
+	Fonts   map[string]*models.Font  `bson:"fonts" json:"fonts"`
+	Pages   map[string]*models.Page  `bson:"pages" json:"pages"`
+	Emails  map[string]*models.Email `bson:"emails" json:"emails"`
+	Colors  map[string]string        `bson:"colors" json:"colors"`
+}
+
 func (c *RenderController) Render(w http.ResponseWriter, r *http.Request) {
 
-	var input struct {
-		Page *models.Page `json:"page"`
-	}
+	var input RenderControllerInput
 
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
 		WriteJSONErr(w, models.DecodeError(err))
 		return
 	}
 
-	if input.Page == nil {
-		WriteJSONErr(w, models.DecodeError(errors.New("page is required")))
+	switch input.Map {
+	case "pages":
+		c.RenderPage(w, &input)
+	case "emails":
+		c.RenderEmail(w, &input)
+	default:
+		WriteJSONErr(w, models.DecodeError(fmt.Errorf("invalid map: %s", input.Map)))
 		return
 	}
 
+}
+
+func (c *RenderController) RenderPage(w http.ResponseWriter, input *RenderControllerInput) {
 	var buffer bytes.Buffer
 
 	base, err := models.PageTemplate.Clone()
@@ -41,23 +56,39 @@ func (c *RenderController) Render(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	parsed, err := base.Parse(fmt.Sprintf(`{{define "body"}}%s{{end}}`, input.Page.Body))
-	if err != nil {
-		WriteJSONErr(w, fmt.Errorf("failed parsing template: %w", err))
+	page, ok := input.Pages[input.Key]
+	if !ok {
+		WriteJSONErr(w, &models.Error{Code: "page_not_found", Err: fmt.Errorf("page %q not found in input pages", input.Key)})
 		return
 	}
 
-	config := r.Context().Value(models.ConfigContextKey).(*models.Config)
+	parsed, err := base.Parse(fmt.Sprintf(`{{define "body"}}%s{{end}}`, page.Body))
+	if err != nil {
+		WriteJSONErr(w, &models.Error{Code: "parse_failed", Err: fmt.Errorf("failed parsing template: %w", err)})
+		return
+	}
 
-	data := models.NewPageData(config, input.Page).
+	data := models.NewPageData(page).
 		WithInlineStyles(true).
+		WithColors(input.Colors).
+		WithFonts(input.Fonts).
 		WithFilePath("/assets/dynamic/files/").
 		Data()
 
 	if err := parsed.Execute(&buffer, data); err != nil {
-		WriteJSONErr(w, fmt.Errorf("failed executing template: %w", err))
+		WriteJSONErr(w, &models.Error{Code: "execution_failed", Err: fmt.Errorf("failed executing template: %w", err)})
 		return
 	}
 
 	WriteJSON(w, map[string]any{"html": buffer.String()})
+}
+
+func (c *RenderController) RenderEmail(w http.ResponseWriter, input *RenderControllerInput) {
+	email, ok := input.Emails[input.Key]
+	if !ok {
+		WriteJSONErr(w, &models.Error{Code: "email not found", Err: fmt.Errorf("email %s not found in input emails", input.Key)})
+		return
+	}
+
+	WriteJSON(w, map[string]any{"html": email.Body})
 }

@@ -40,7 +40,7 @@ func WriteJSONErr(w http.ResponseWriter, err error) {
 
 		w.WriteHeader(status)
 
-		err = json.NewEncoder(w).Encode(map[string]string{"error": e.Code})
+		err = json.NewEncoder(w).Encode(map[string]string{"error": e.Code, "message": e.Error()})
 		return
 	default:
 		slog.Error("Internal server error", "err", err.Error())
