@@ -29,6 +29,8 @@ func (c *CommitDraftCommand) CommitDraft(ctx context.Context, config *models.Con
 		return fmt.Errorf("failed to get draft: %w", err)
 	}
 
+	config.Pages = draft.Pages
+	config.Emails = draft.Emails
 	config.Colors = draft.Colors
 	config.Fonts = draft.Fonts
 	config.Layouts = draft.Layouts
