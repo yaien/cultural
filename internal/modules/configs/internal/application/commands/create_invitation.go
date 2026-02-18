@@ -48,6 +48,7 @@ type CreateInvitationRequest struct {
 	RoleName        string
 	UserDisplayName string
 	UserEmail       string
+	FileURL         models.FileURLFunc
 }
 
 type invitationEmailData struct {
@@ -55,7 +56,7 @@ type invitationEmailData struct {
 	OrganizationName string
 	InvitationURL    string
 	ConfigURL        string
-	FileURL          models.ExternalFileURLFunc
+	FileURL          models.FileURLFunc
 }
 
 func (c *CreateInvitationCommand) CreateInvitation(ctx context.Context, req *CreateInvitationRequest) (*models.Invitation, error) {

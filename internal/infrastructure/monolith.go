@@ -5,6 +5,7 @@ import (
 	"log"
 	"log/slog"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/gorilla/sessions"
@@ -13,6 +14,7 @@ import (
 	"github.com/markbates/goth/providers/google"
 	"github.com/yaien/cultural/internal/library/mail"
 	"github.com/yaien/cultural/internal/library/storage"
+	"github.com/yaien/cultural/internal/library/worker"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -26,6 +28,8 @@ type Monolith struct {
 	SessionStore sessions.Store
 	Mail         mail.Mail
 	Storage      storage.Storage
+	Queue        *worker.Queue
+	Worker       *worker.Worker
 }
 
 func NewMonolith() *Monolith {
@@ -33,15 +37,23 @@ func NewMonolith() *Monolith {
 
 	setupOauthProviders(config)
 
-	return &Monolith{
-		Config:       config,
-		MongoDB:      setupMongoDB(config),
-		SessionStore: setupSessionStore(config),
-		Mail:         setupMail(config),
-		Storage:      setupStorage(config),
-		Router:       http.NewServeMux(),
-		WebRouter:    http.NewServeMux(),
-	}
+	var m Monolith
+	m.Config = config
+	m.MongoDB = setupMongoDB(config)
+	m.SessionStore = setupSessionStore(config)
+	m.Mail = setupMail(config)
+	m.Storage = setupStorage(config)
+	m.Router = http.NewServeMux()
+	m.WebRouter = http.NewServeMux()
+
+	stream := worker.NewMemoryStream()
+	store := worker.NewMongoStore(m.MongoDB, "")
+
+	m.Queue = worker.NewQueue(store, stream)
+	m.Worker = worker.New(store, stream)
+
+	return &m
+
 }
 
 func setupOauthProviders(config *Config) {
@@ -104,12 +116,14 @@ func setupMongoDB(config *Config) *mongo.Database {
 
 	client, err := mongo.Connect(ctx, opts)
 	if err != nil {
-		log.Fatal("Failed to connect to mongodb:", err)
+		slog.Error("Failed to connect to mongodb:", "error", err)
+		os.Exit(1)
 	}
 
 	err = client.Ping(ctx, nil)
 	if err != nil {
-		log.Fatal("Failed to ping mongodb:", err)
+		slog.Error("Failed to ping mongodb:", "error", err)
+		os.Exit(1)
 	}
 
 	log.Println("Connected to mongodb successfully")

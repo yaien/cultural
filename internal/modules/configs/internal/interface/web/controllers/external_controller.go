@@ -3,8 +3,10 @@ package controllers
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/yaien/cultural/internal/modules/configs/internal/application"
+	"github.com/yaien/cultural/internal/modules/configs/internal/application/queries"
 	"github.com/yaien/cultural/internal/modules/configs/internal/models"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -20,19 +22,31 @@ func NewExternalController(app *application.Application) *ExternalController {
 }
 
 func (c *ExternalController) GetFile(w http.ResponseWriter, r *http.Request) {
-	organizationID, err := primitive.ObjectIDFromHex(r.PathValue("organization_id"))
+	var req queries.GetFileRequest
+	var err error
+
+	req.OrganizationID, err = primitive.ObjectIDFromHex(r.PathValue("organization_id"))
 	if err != nil {
 		WriteJSONErr(w, models.DecodeError(fmt.Errorf("invalid organization id: %w", err)))
 		return
 	}
 
-	filename := r.PathValue("filename")
+	req.Name = r.PathValue("filename")
 
-	file, data, err := c.app.GetFile(r.Context(), organizationID, filename)
+	if quality := r.URL.Query().Get("q"); quality != "" {
+		if req.Quality, err = strconv.Atoi(quality); err != nil {
+			WriteJSONErr(w, models.DecodeError(fmt.Errorf("invalid quality: %w", err)))
+			return
+		}
+	}
+
+	ctx := r.Context()
+
+	res, err := c.app.GetFile(ctx, &req)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	WriteFile(w, file, data)
+	WriteFile(w, res.Name, res.Type, res.Size, res.Data)
 }

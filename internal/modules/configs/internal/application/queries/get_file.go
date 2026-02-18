@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"time"
 
 	"github.com/yaien/cultural/internal/library/storage"
 	"github.com/yaien/cultural/internal/modules/configs/internal/models"
@@ -19,16 +20,45 @@ func NewGetFileQuery(files models.FileRepository, st storage.Storage) *GetFileQu
 	return &GetFileQuery{files, st}
 }
 
-func (q *GetFileQuery) GetFile(ctx context.Context, organizationID primitive.ObjectID, name string) (*models.File, io.ReadCloser, error) {
-	file, err := q.files.Get(ctx, organizationID, name)
+type GetFileRequest struct {
+	OrganizationID primitive.ObjectID
+	Name           string
+	Quality        int
+}
+
+type GetFileResponse struct {
+	models.Format
+	Name      string
+	Data      io.ReadCloser
+	Type      string
+	CreatedAt time.Time
+	UpdatedAt time.Time
+}
+
+func (q *GetFileQuery) GetFile(ctx context.Context, req *GetFileRequest) (*GetFileResponse, error) {
+	file, err := q.files.Get(ctx, req.OrganizationID, req.Name)
 	if err != nil {
-		return nil, nil, fmt.Errorf("failed to get file: %w", err)
+		return nil, fmt.Errorf("failed to get file: %w", err)
 	}
 
-	data, err := q.storage.Get(file.ID.Hex())
+	format, err := file.GetFormat(req.Quality)
 	if err != nil {
-		return nil, nil, fmt.Errorf("failed to open file from storage: %w", err)
+		return nil, fmt.Errorf("failed to get file format: %w", err)
 	}
 
-	return file, data, nil
+	data, err := q.storage.Get(format.ID.Hex())
+	if err != nil {
+		return nil, fmt.Errorf("failed to open file from storage: %w", err)
+	}
+
+	res := GetFileResponse{
+		Format:    format,
+		Name:      file.Name,
+		Type:      file.ContentType,
+		CreatedAt: file.CreatedAt,
+		UpdatedAt: file.UpdatedAt,
+		Data:      data,
+	}
+
+	return &res, nil
 }

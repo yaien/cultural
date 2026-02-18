@@ -4,6 +4,7 @@ import (
 	"github.com/yaien/cultural/internal/library/cache"
 	"github.com/yaien/cultural/internal/library/mail"
 	"github.com/yaien/cultural/internal/library/storage"
+	"github.com/yaien/cultural/internal/library/worker"
 	"github.com/yaien/cultural/internal/modules/configs/internal/application/commands"
 	"github.com/yaien/cultural/internal/modules/configs/internal/application/queries"
 	"github.com/yaien/cultural/internal/modules/configs/internal/models"
@@ -42,6 +43,7 @@ type Deps struct {
 	Files         models.FileRepository
 	Drafts        models.DraftRepository
 	Cache         *cache.Cache[*models.Config]
+	Queue         *worker.Queue
 	Mail          mail.Mail
 	Storage       storage.Storage
 }
@@ -62,7 +64,7 @@ func New(deps Deps) *Application {
 		commands.NewAcceptInvitationCommand(deps.Invitations, deps.Roles),
 		commands.NewUpdateRoleCommand(deps.Roles, deps.Groups),
 		commands.NewDeleteRoleCommand(deps.Roles),
-		commands.NewUploadFileCommand(deps.Files, deps.Storage),
+		commands.NewUploadFileCommand(deps.Files, deps.Storage, deps.Queue),
 		commands.NewRenameFileCommand(deps.Files),
 		commands.NewDeleteFileCommand(deps.Files, deps.Storage),
 		commands.NewUpdateDraftCommand(deps.Drafts),

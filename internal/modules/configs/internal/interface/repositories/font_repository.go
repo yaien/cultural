@@ -36,11 +36,7 @@ func (r *FontRepository) Find(ctx context.Context, opts *models.FindFontOptions)
 		opts.Offset = 0
 	}
 
-	cursor, err := collection.Find(ctx, filter, &options.FindOptions{
-		Skip:  &opts.Offset,
-		Limit: &opts.Limit,
-	})
-
+	cursor, err := collection.Find(ctx, filter, options.Find().SetSkip(opts.Offset).SetLimit(opts.Limit))
 	if err != nil {
 		return nil, fmt.Errorf("failed finding fonts: %w", err)
 	}

@@ -5,9 +5,11 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
+	"strconv"
 
 	"github.com/yaien/cultural/internal/modules/configs/internal/application"
 	"github.com/yaien/cultural/internal/modules/configs/internal/application/commands"
+	"github.com/yaien/cultural/internal/modules/configs/internal/application/queries"
 	"github.com/yaien/cultural/internal/modules/configs/internal/models"
 )
 
@@ -36,7 +38,7 @@ func (fc *FileController) Upload(w http.ResponseWriter, r *http.Request) {
 	file, err := fc.app.UploadFile(r.Context(), &commands.UploadFileRequest{
 		Name:           handler.Filename,
 		Size:           handler.Size,
-		MimeType:       handler.Header.Get("Content-Type"),
+		Type:           handler.Header.Get("Content-Type"),
 		OrganizationID: config.OrganizationID,
 		Data:           data,
 	})
@@ -74,32 +76,29 @@ func (fc *FileController) List(w http.ResponseWriter, r *http.Request) {
 	WriteJSON(w, files)
 }
 
-func (fc *FileController) Get(w http.ResponseWriter, r *http.Request) {
-	config := r.Context().Value(models.ConfigContextKey).(*models.Config)
-	filename := r.PathValue("filename")
-
-	file, _, err := fc.app.GetFile(r.Context(), config.OrganizationID, filename)
-	if err != nil {
-		WriteJSONErr(w, fmt.Errorf("failed retriving the file: %w", err))
-		return
-	}
-
-	WriteJSON(w, file)
-
-}
-
 func (fc *FileController) Download(w http.ResponseWriter, r *http.Request) {
 	config := r.Context().Value(models.ConfigContextKey).(*models.Config)
-	filename := r.PathValue("filename")
-	file, data, err := fc.app.GetFile(r.Context(), config.OrganizationID, filename)
+
+	var err error
+	var req queries.GetFileRequest
+
+	req.Name = r.PathValue("filename")
+	req.OrganizationID = config.OrganizationID
+
+	if quality := r.URL.Query().Get("q"); quality != "" {
+		if req.Quality, err = strconv.Atoi(quality); err != nil {
+			WriteJSONErr(w, models.DecodeError(fmt.Errorf("invalid quality: %w", err)))
+			return
+		}
+	}
+
+	res, err := fc.app.GetFile(r.Context(), &req)
 	if err != nil {
 		WriteJSONErr(w, fmt.Errorf("failed getting file: %w", err))
 		return
 	}
 
-	WriteFile(w, file, data)
-
-	defer data.Close()
+	WriteFile(w, res.Name, res.Type, res.Size, res.Data)
 
 }
 
