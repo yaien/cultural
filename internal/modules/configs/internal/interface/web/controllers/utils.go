@@ -68,10 +68,12 @@ func WriteHTMLErr(w http.ResponseWriter, err error) {
 	}
 }
 
-func WriteFile(w http.ResponseWriter, file *models.File, data io.ReadCloser) {
-	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%q", file.Name))
-	w.Header().Set("Content-Type", file.MimeType)
-	w.Header().Set("Content-Length", fmt.Sprint(file.Size))
+func WriteFile(w http.ResponseWriter, name, typ string, size int64, data io.ReadCloser) {
+	defer data.Close()
+
+	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%q", name))
+	w.Header().Set("Content-Type", typ)
+	w.Header().Set("Content-Length", fmt.Sprint(size))
 
 	_, err := bufio.NewWriter(w).ReadFrom(data)
 	if err != nil {

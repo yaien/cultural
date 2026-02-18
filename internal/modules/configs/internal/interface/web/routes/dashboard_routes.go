@@ -46,7 +46,6 @@ func dashboard(mono *infrastructure.Monolith, app *application.Application, md *
 		ctrl := controllers.NewFileController(app)
 		router.HandleFunc("POST /dashboard/api/files", ctrl.Upload)
 		router.HandleFunc("GET /dashboard/api/files", ctrl.List)
-		router.HandleFunc("GET /dashboard/api/files/{filename}", ctrl.Get)
 		router.HandleFunc("DELETE /dashboard/api/files/{filename}", ctrl.Delete)
 		router.HandleFunc("PUT /dashboard/api/files/{filename}", ctrl.Rename)
 

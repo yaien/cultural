@@ -4,6 +4,7 @@ import (
 	"log"
 	"log/slog"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -48,9 +49,18 @@ func serve() *cobra.Command {
 			go func() {
 				if err := migrations.Migrate(ctx, mono.MongoDB); err != nil {
 					slog.Error("Failed running migrations", "error", err)
+					return
 				}
 				log.Println("Migrations checked successfully")
 			}()
+
+			err = mono.Worker.Start()
+			if err != nil {
+				slog.Error("Failed to start worker", "error", err)
+				os.Exit(1)
+			}
+
+			log.Println("Worker started successfully")
 
 			err = http.ListenAndServe(mono.Config.Server.Addr, mono.Router)
 			if err != nil {

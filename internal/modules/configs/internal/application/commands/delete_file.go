@@ -32,9 +32,11 @@ func (c *DeleteFileCommand) DeleteFile(ctx context.Context, organizationID primi
 		return fmt.Errorf("failed to delete file from repository: %w", err)
 	}
 
-	err = c.storage.Remove(file.ID.Hex())
-	if err != nil {
-		return fmt.Errorf("failed to delete file from storage: %w", err)
+	for _, format := range file.Formats {
+		err = c.storage.Remove(format.ID.Hex())
+		if err != nil {
+			return fmt.Errorf("failed to delete file from storage: %w", err)
+		}
 	}
 
 	return nil

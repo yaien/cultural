@@ -6,4 +6,5 @@ type Storage interface {
 	Put(id string, size int64, data io.Reader) error
 	Remove(id string) error
 	Get(id string) (io.ReadCloser, error)
+	Dimension(id, typ string) (width, height, quality int, err error)
 }

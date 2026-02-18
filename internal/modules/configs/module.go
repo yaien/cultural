@@ -31,6 +31,7 @@ func (m *Module) Init(mono *infrastructure.Monolith) error {
 		Cache:         cache.New[*models.Config](time.Hour),
 		Mail:          mono.Mail,
 		Storage:       mono.Storage,
+		Queue:         mono.Queue,
 	})
 
 	m.Web = web.Register(mono, m.App)

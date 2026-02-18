@@ -475,6 +475,16 @@ document.addEventListener("alpine:init", () => {
         set(state) {
             this.state = state;
         },
+
+        enter($event) {
+            const video = $event.target.querySelector("video");
+            video?.play();
+        },
+
+        leave($event) {
+            const video = $event.target.querySelector("video");
+            video?.pause();
+        },
     }));
 
     Alpine.data("colors", ({ draft }) => ({
@@ -505,8 +515,6 @@ document.addEventListener("alpine:init", () => {
             this.$dispatch("update", { draft: this.draft, toast: false });
         },
     }));
-
-    Alpine.data();
 
     Alpine.data("publish", () => ({
         loading: false,

@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/yaien/cultural/internal/library/storage"
+	"github.com/yaien/cultural/internal/library/worker"
 	"github.com/yaien/cultural/internal/modules/configs/internal/models"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -15,18 +16,19 @@ import (
 type UploadFileCommand struct {
 	storage storage.Storage
 	files   models.FileRepository
+	queue   *worker.Queue
 }
 
 type UploadFileRequest struct {
 	Name           string
 	Size           int64
-	MimeType       string
+	Type           string
 	Data           io.Reader
 	OrganizationID primitive.ObjectID
 }
 
-func NewUploadFileCommand(files models.FileRepository, st storage.Storage) *UploadFileCommand {
-	return &UploadFileCommand{st, files}
+func NewUploadFileCommand(files models.FileRepository, st storage.Storage, q *worker.Queue) *UploadFileCommand {
+	return &UploadFileCommand{st, files, q}
 }
 
 func (c *UploadFileCommand) UploadFile(ctx context.Context, req *UploadFileRequest) (*models.File, error) {
@@ -41,14 +43,34 @@ func (c *UploadFileCommand) UploadFile(ctx context.Context, req *UploadFileReque
 		return nil, fmt.Errorf("failed to check file existence: %w", err)
 	}
 
+	id := primitive.NewObjectID()
+
+	err = c.storage.Put(id.Hex(), req.Size, req.Data)
+	if err != nil {
+		return nil, fmt.Errorf("failed to upload file to storage: %w", err)
+	}
+
+	width, height, quality, err := c.storage.Dimension(id.Hex(), req.Type)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get file dimensions: %w", err)
+	}
+
 	file := &models.File{
-		ID:             primitive.NewObjectID(),
-		Name:           req.Name,
-		Size:           req.Size,
-		MimeType:       req.MimeType,
+		ID:             id,
 		OrganizationID: req.OrganizationID,
+		Name:           req.Name,
+		ContentType:    req.Type,
 		CreatedAt:      time.Now(),
 		UpdatedAt:      time.Now(),
+		Formats: map[int]models.Format{
+			quality: {
+				ID:      id,
+				Size:    req.Size,
+				Width:   width,
+				Height:  height,
+				Quality: quality,
+			},
+		},
 	}
 
 	err = c.files.Create(ctx, file)
@@ -56,9 +78,8 @@ func (c *UploadFileCommand) UploadFile(ctx context.Context, req *UploadFileReque
 		return nil, fmt.Errorf("failed to create file record: %w", err)
 	}
 
-	err = c.storage.Put(file.ID.Hex(), req.Size, req.Data)
-	if err != nil {
-		return nil, fmt.Errorf("failed to upload file to storage: %w", err)
+	if err = c.queue.Push(ctx, file.NewGenerateFormatsTask()); err != nil {
+		return nil, fmt.Errorf("failed to push compress-file job: %w", err)
 	}
 
 	return file, nil

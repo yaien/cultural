@@ -226,13 +226,13 @@
               </div>
               <div class="grid">
                 <template x-for="file in files" :key="file.id">
-                  <div class="item" @click="select(file)">
+                  <div class="item" @click="select(file)" @mouseenter="enter($event)" @mouseleave="leave($event)">
                     <div class="hover" :title="file.name"></div>
-                    <template x-if="file.mimeType.startsWith('image')">
+                    <template x-if="file.contentType.startsWith('image')">
                       <img x-bind:src="filepath + file.name" :title="file.name" :alt="file.name" />
                     </template>
-                    <template x-if="file.mimeType.startsWith('video')">
-                      <video x-bind:src="filepath + file.name" :title="file.name" :alt="file.name"></video>
+                    <template x-if="file.contentType.startsWith('video')">
+                      <video x-bind:src="filepath + file.name" :title="file.name" :alt="file.name" muted></video>
                     </template>
                   </div>
                 </template>
@@ -248,12 +248,12 @@
                   </div>
 
                   <div class="preview">
-                    <template x-if="selected.mimeType.startsWith('image')">
+                    <template x-if="selected.contentType.startsWith('image')">
                       <img x-bind:src="filepath + selected.name" :title="selected.name" :alt="selected.name" />
                     </template>
-                    <template x-if="selected.mimeType.startsWith('video')">
+                    <template x-if="selected.contentType.startsWith('video')">
                       <video
-                        x-bind:src="'filepath + selected.name"
+                        x-bind:src="filepath + selected.name"
                         :title="selected.name"
                         :alt="selected.name"
                         controls
