@@ -498,9 +498,15 @@ document.addEventListener("alpine:init", () => {
         readable(color) {
             return readableColor(color, "#000", "#fff");
         },
-        change(key, value) {
-            this.draft.colors[key] = value;
-            if (value === "") {
+        changeKey(oldKey, newKey) {
+            if (oldKey == newKey) return;
+            this.draft.colors[newKey] = this.draft.colors[oldKey];
+            delete this.draft.colors[oldKey];
+            this.$dispatch("update", { draft: this.draft, toast: false });
+        },
+        changeColor(key, color) {
+            this.draft.colors[key] = color;
+            if (color === "") {
                 delete this.draft.colors[key];
             }
             this.$dispatch("update", { draft: this.draft, toast: false });

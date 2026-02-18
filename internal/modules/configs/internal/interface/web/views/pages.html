@@ -283,15 +283,13 @@
             <template x-for="(color, key) in draft.colors || {}" :key="key">
               <div class="color">
                 <div class="field" :style="{ 'background-color': color, 'color': readable(color) }">
-                  <input :value="key" />
-                  <input :value="color" data-coloris @input="change(key, $event.target.value)" />
+                  <input :value="key" @change="changeKey(key, $event.target.value)" />
+                  <input :value="color" data-coloris @input="changeColor(key, $event.target.value)" />
                 </div>
-                <div class="hint">
-                  <small>
-                    {{ template "css.svg" }}
-                    <pre>var(--<span x-text="key"></span>-color)</pre>
-                  </small>
-                </div>
+                <small class="hint">
+                  {{ template "css.svg" }}
+                  <pre>var(--<span x-text="key"></span>-color)</pre>
+                </small>
               </div>
             </template>
             <div class="actions">
