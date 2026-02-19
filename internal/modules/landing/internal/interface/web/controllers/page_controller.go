@@ -1,11 +1,14 @@
 package controllers
 
 import (
+	"io"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/yaien/cultural/internal/modules/configs"
 	"github.com/yaien/cultural/internal/modules/landing/internal/application"
+	"github.com/yaien/cultural/internal/modules/landing/internal/interface/web/assets"
 )
 
 type PageController struct {
@@ -107,4 +110,31 @@ func (c *PageController) BaseStyles(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Failed to generate styles", http.StatusInternalServerError)
 		return
 	}
+}
+
+func (c *PageController) Favicon(w http.ResponseWriter, r *http.Request) {
+	icon, err := assets.FS.Open("favicon.png")
+	if err != nil {
+		http.Error(w, "Failed to open favicon", http.StatusInternalServerError)
+		return
+	}
+
+	defer icon.Close()
+
+	stat, err := icon.Stat()
+	if err != nil {
+		http.Error(w, "Failed to get favicon stats", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "image/png")
+	w.Header().Set("Cache-Control", "no-store")
+	w.Header().Set("Content-Length", strconv.FormatInt(stat.Size(), 10))
+
+	_, err = io.Copy(w, icon)
+	if err != nil {
+		http.Error(w, "Failed to copy favicon", http.StatusInternalServerError)
+		return
+	}
+
 }

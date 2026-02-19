@@ -15,31 +15,6 @@ h6 {
     font-family: var(--font-headings);
 }
 
-nav {
-    height: 80px;
-    display: flex;
-    align-items: center;
-    justify-content: space-around;
-    position: absolute;
-    width: 100%;
-}
-
-nav a {
-    font-size: 1.5rem;
-    text-decoration: none;
-    font-family: var(--font-text);
-    color: var(--color-text);
-    font-weight: 600;
-}
-
-main {
-    padding: 100px 10px 0 10px;
-}
-
-p {
-    text-align: justify;
-}
-
 .carousel {
     height: 300px;
     position: relative;
