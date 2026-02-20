@@ -329,7 +329,9 @@
 
       <!-- Preview Page -->
       <div class="page" x-show="srcdoc" x-transition>
-        <iframe x-ref="iframe" :srcdoc="srcdoc"></iframe>
+        <div class="resizeable">
+          <iframe x-ref="iframe" :srcdoc="srcdoc"></iframe>
+        </div>
       </div>
     </div>
   </template>
