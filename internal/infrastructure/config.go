@@ -10,13 +10,13 @@ import (
 )
 
 type Config struct {
-	MongoDB       MongoDBConfig
-	Server        ServerConfig
-	Init          InitConfig
-	SessionConfig SessionConfig
-	Google        GoogleConfig
-	Storage       StorageConfig
-	Mail          MailConfig
+	MongoDB MongoDBConfig
+	Server  ServerConfig
+	Init    InitConfig
+	Session SessionConfig
+	Google  GoogleConfig
+	Storage StorageConfig
+	Mail    MailConfig
 }
 
 type MongoDBConfig struct {
@@ -86,7 +86,7 @@ func LoadConfig() *Config {
 			Title: viper.GetString("INIT_TITLE"),
 			Email: viper.GetString("INIT_EMAIL"),
 		},
-		SessionConfig: SessionConfig{
+		Session: SessionConfig{
 			Secret: viper.GetString("SESSION_SECRET"),
 			Secure: viper.GetBool("SESSION_SECURE"),
 		},

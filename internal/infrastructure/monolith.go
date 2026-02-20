@@ -57,11 +57,11 @@ func NewMonolith() *Monolith {
 }
 
 func setupOauthProviders(config *Config) {
-	store := sessions.NewCookieStore([]byte(config.SessionConfig.Secret))
-	store.Options.Path = "/"
+	store := sessions.NewCookieStore([]byte(config.Session.Secret))
+	store.Options.Path = ""
 	store.Options.HttpOnly = true
 	store.Options.SameSite = http.SameSiteLaxMode
-	store.Options.Secure = store.Options.Secure
+	store.Options.Secure = config.Session.Secure
 
 	gothic.Store = store
 
@@ -99,8 +99,8 @@ func setupStorage(config *Config) storage.Storage {
 }
 
 func setupSessionStore(config *Config) sessions.Store {
-	store := sessions.NewCookieStore([]byte(config.SessionConfig.Secret))
-	store.Options.Secure = config.SessionConfig.Secure
+	store := sessions.NewCookieStore([]byte(config.Session.Secret))
+	store.Options.Secure = config.Session.Secure
 	store.Options.HttpOnly = true
 	store.Options.SameSite = http.SameSiteLaxMode
 	store.Options.MaxAge = int((7 * 24 * time.Hour).Seconds()) // 7 days
