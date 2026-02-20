@@ -11,6 +11,17 @@
     flex-grow: 1;
     display: flex;
     justify-content: center;
+    max-width: 50%;
+}
+
+.page .resizeable {
+    display: block;
+    overflow: hidden;
+    resize: both;
+    width: 100%;
+    height: 100%;
+    max-width: 98%;
+    max-height: 100%;
 }
 
 .page iframe {
@@ -34,7 +45,8 @@
 }
 
 .editor {
-    width: 40%;
+    width: 50%;
+    min-width: 50%;
     padding: 1rem;
     box-sizing: border-box;
     overflow: auto;

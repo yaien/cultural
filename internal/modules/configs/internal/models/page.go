@@ -19,6 +19,7 @@ type pageData struct {
 	Page         *Page
 	Fonts        map[string]*Font
 	Colors       map[string]string
+	Version      int64
 	Components   *pageComponents
 }
 
@@ -28,6 +29,7 @@ type pageDataOptions struct {
 	Page         *Page
 	Fonts        map[string]*Font
 	Colors       map[string]string
+	Version      int64
 }
 
 func NewPageData(page *Page) *pageDataOptions {
@@ -54,11 +56,17 @@ func (p *pageDataOptions) WithColors(colors map[string]string) *pageDataOptions 
 	return p
 }
 
+func (p *pageDataOptions) WithVersion(version int64) *pageDataOptions {
+	p.Version = version
+	return p
+}
+
 func (p *pageDataOptions) Data() *pageData {
 	return &pageData{
 		InlineStyles: p.InlineStyles,
 		FilePath:     p.FilePath,
 		Page:         p.Page,
+		Version:      p.Version,
 		Components:   &pageComponents{options: p},
 	}
 }
