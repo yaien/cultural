@@ -22,5 +22,7 @@ jobs:
               with:
                   path: /go/pkg/mod
                   key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-            - name: Test
+            - name: Go mod download
+              run: go mod download
+            - name: Go Test
               run: go test ./...
