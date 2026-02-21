@@ -16,7 +16,7 @@ jobs:
             - name: Checkout
               uses: actions/checkout@v6
             - name: Setup dependencies
-              run: apk add --no-cache --update tzdata ffmpeg vips vips-tools
+              run: apk add --no-cache --update tar tzdata ffmpeg vips vips-tools
             - name: Cache Go modules
               uses: actions/cache@v3
               with:
