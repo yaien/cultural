@@ -7,6 +7,7 @@ import (
 
 	"github.com/yaien/cultural/internal/infrastructure"
 	"github.com/yaien/cultural/internal/infrastructure/migrations"
+	"github.com/yaien/cultural/internal/library/storage"
 	"github.com/yaien/cultural/internal/library/worker"
 	"github.com/yaien/cultural/internal/modules/configs/internal/models"
 	"go.mongodb.org/mongo-driver/bson"
@@ -42,7 +43,7 @@ func init() {
 
 			cfg := infrastructure.LoadConfig()
 			collection := db.Collection("files")
-			root := cfg.Storage.Local.Path
+			local := storage.NewLocal(cfg.Storage.Local.Path)
 			queue := worker.NewQueue(worker.NewMongoStore(db, ""), nil)
 
 			var oldies []OldFile
@@ -62,7 +63,14 @@ func init() {
 					continue
 				}
 
-				width, height, quality, err := models.GetFileDimension(root, oldie.ID.Hex(), oldie.MimeType)
+				input, err := local.Get(oldie.ID.Hex())
+				if err != nil {
+					return fmt.Errorf("failed getting file %s from storage: %w", oldie.ID.Hex(), err)
+				}
+
+				defer input.Close()
+
+				width, height, quality, err := models.GetFileDimension(input, oldie.MimeType)
 				if err != nil {
 					return fmt.Errorf("failed getting dimensions for file %s: %w", oldie.ID.Hex(), err)
 				}

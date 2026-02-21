@@ -54,7 +54,6 @@ func (q *GetFileQuery) GetFile(ctx context.Context, req *GetFileRequest) (*GetFi
 	res := GetFileResponse{
 		Format:    format,
 		Name:      file.Name,
-		Type:      file.ContentType,
 		CreatedAt: file.CreatedAt,
 		UpdatedAt: file.UpdatedAt,
 		Data:      data,

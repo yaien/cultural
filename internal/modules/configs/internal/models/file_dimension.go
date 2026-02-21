@@ -1,12 +1,11 @@
 package models
 
 import (
+	"bytes"
 	"fmt"
 	"image"
 	"io"
-	"os"
 	"os/exec"
-	"path"
 	"strconv"
 	"strings"
 
@@ -16,14 +15,14 @@ import (
 	_ "golang.org/x/image/webp"
 )
 
-func GetFileDimension(dir, name, contentType string) (width, height, quality int, err error) {
+func GetFileDimension(input io.Reader, contentType string) (width, height, quality int, err error) {
 	switch {
 
 	case strings.HasPrefix(contentType, "image"):
-		return GetImageDimension(dir, name)
+		return GetImageDimension(input)
 
 	case strings.HasPrefix(contentType, "video"):
-		return GetVideoDimension(dir, name)
+		return GetVideoDimension(input)
 
 	default:
 		err = fmt.Errorf("%w: %s", ErrUnsupportedContentType, contentType)
@@ -32,18 +31,10 @@ func GetFileDimension(dir, name, contentType string) (width, height, quality int
 }
 
 // GetImageDimension decodes the image config to get dimensions without loading the entire image into memory.
-func GetImageDimension(dir, name string) (width, height, variant int, err error) {
-	var data io.ReadCloser
-	data, err = os.OpenInRoot(dir, name)
-	if err != nil {
-		err = fmt.Errorf("failed getting file from storage: %w", err)
-		return
-	}
-
-	defer data.Close()
+func GetImageDimension(input io.Reader) (width, height, variant int, err error) {
 
 	var img image.Config
-	img, _, err = image.DecodeConfig(data)
+	img, _, err = image.DecodeConfig(input)
 	if err != nil {
 		err = fmt.Errorf("failed decoding image: %w", err)
 		return
@@ -54,21 +45,24 @@ func GetImageDimension(dir, name string) (width, height, variant int, err error)
 }
 
 // GetVideoDimension uses ffprobe to get the dimensions of a video file without loading the entire video into memory.
-func GetVideoDimension(dir, name string) (width, height, variant int, err error) {
-
-	filepath := path.Join(dir, name)
+func GetVideoDimension(input io.Reader) (width, height, variant int, err error) {
 
 	cmd := exec.Command("ffprobe",
 		"-v", "error",
 		"-select_streams", "v:0",
 		"-show_entries", "stream=width,height",
 		"-of", "csv=s=x:p=0",
-		filepath)
+		"-i", "pipe:0")
+
+	cmd.Stdin = input
+
+	var errp bytes.Buffer
+	cmd.Stderr = &errp
 
 	var output []byte
 	output, err = cmd.Output()
 	if err != nil {
-		err = fmt.Errorf("failed executing ffprobe: %w", err)
+		err = fmt.Errorf("failed executing ffprobe: %s: %w", errp.String(), err)
 		return
 	}
 

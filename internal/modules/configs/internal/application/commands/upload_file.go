@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"log/slog"
 	"time"
 
 	"github.com/yaien/cultural/internal/library/storage"
@@ -23,7 +22,7 @@ type UploadFileCommand struct {
 type UploadFileRequest struct {
 	Name           string
 	Size           int64
-	Type           string
+	ContentType    string
 	Data           io.Reader
 	OrganizationID primitive.ObjectID
 }
@@ -51,18 +50,14 @@ func (c *UploadFileCommand) UploadFile(ctx context.Context, req *UploadFileReque
 		return nil, fmt.Errorf("failed to upload file to storage: %w", err)
 	}
 
-	root, err := c.storage.Mount(id.Hex())
+	input, err := c.storage.Get(id.Hex())
 	if err != nil {
-		return nil, fmt.Errorf("failed to mount file from storage: %w", err)
+		return nil, fmt.Errorf("failed to retrieve file from storage: %w", err)
 	}
 
-	defer func() {
-		if err := c.storage.Unmount(root, id.Hex()); err != nil {
-			slog.Error("Failed to unmount file from storage", "error", err, "root", root, "id", id.Hex())
-		}
-	}()
+	defer input.Close()
 
-	width, height, variant, err := models.GetFileDimension(root, id.Hex(), req.Type)
+	width, height, variant, err := models.GetFileDimension(input, req.ContentType)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get file dimensions: %w", err)
 	}
@@ -71,16 +66,16 @@ func (c *UploadFileCommand) UploadFile(ctx context.Context, req *UploadFileReque
 		ID:             id,
 		OrganizationID: req.OrganizationID,
 		Name:           req.Name,
-		ContentType:    req.Type,
 		CreatedAt:      time.Now(),
 		UpdatedAt:      time.Now(),
 		Formats: map[int]models.Format{
 			variant: {
-				ID:      id,
-				Size:    req.Size,
-				Width:   width,
-				Height:  height,
-				Variant: variant,
+				ID:          id,
+				Width:       width,
+				Height:      height,
+				Variant:     variant,
+				Size:        req.Size,
+				ContentType: req.ContentType,
 			},
 		},
 	}

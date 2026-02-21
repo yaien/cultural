@@ -38,7 +38,7 @@ func (fc *FileController) Upload(w http.ResponseWriter, r *http.Request) {
 	file, err := fc.app.UploadFile(r.Context(), &commands.UploadFileRequest{
 		Name:           handler.Filename,
 		Size:           handler.Size,
-		Type:           handler.Header.Get("Content-Type"),
+		ContentType:    handler.Header.Get("Content-Type"),
 		OrganizationID: config.OrganizationID,
 		Data:           data,
 	})

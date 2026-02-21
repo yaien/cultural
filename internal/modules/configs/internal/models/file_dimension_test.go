@@ -1,6 +1,9 @@
 package models
 
-import "testing"
+import (
+	"os"
+	"testing"
+)
 
 func TestGetFileDimension(t *testing.T) {
 	var tests = []struct {
@@ -31,7 +34,14 @@ func TestGetFileDimension(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			width, height, quality, err := GetFileDimension("testdata", test.file, test.contentType)
+			input, err := os.OpenInRoot("testdata", test.file)
+			if err != nil {
+				t.Fatalf("failed getting input file: %v", err)
+			}
+
+			defer input.Close()
+
+			width, height, quality, err := GetFileDimension(input, test.contentType)
 			if err != nil {
 				t.Fatalf("GetFileDimension returned an error: %v", err)
 			}
