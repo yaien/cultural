@@ -21,6 +21,7 @@ jobs:
                   cache: true
             - name: Setup dependencies
               run: |
+                  sudo apt update
                   sudo apt install -y ffmpeg libvips
             - name: Test
               run: go test ./...
