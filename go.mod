@@ -1,6 +1,6 @@
 module github.com/yaien/cultural
 
-go 1.25.5
+go 1.26
 
 require (
 	github.com/gorilla/sessions v1.4.0
