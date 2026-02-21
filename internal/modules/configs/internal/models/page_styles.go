@@ -21,12 +21,12 @@ func WritePageBaseStyles(b io.Writer, cfg *Config) error {
 	})
 }
 
-func (c *pageComponents) Styles() (template.CSS, error) {
+func (c *pageData) Styles() (template.CSS, error) {
 	buff := &bytes.Buffer{}
 	data := &PageStyleTemplateData{
-		Fonts:  c.options.Fonts,
-		Colors: c.options.Colors,
-		Styles: c.options.Page.Styles,
+		Fonts:  c.Fonts,
+		Colors: c.Colors,
+		Styles: c.Page.Styles,
 	}
 
 	if err := PageStyleTemplate.Execute(buff, data); err != nil {

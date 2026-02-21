@@ -13,16 +13,6 @@ type Page struct {
 
 var PageTemplate = template.Must(template.New("page").Parse(read("templates/page.html")))
 
-type pageData struct {
-	InlineStyles bool
-	FilePath     string
-	Page         *Page
-	Fonts        map[string]*Font
-	Colors       map[string]string
-	Version      int64
-	Components   *pageComponents
-}
-
 type pageDataOptions struct {
 	InlineStyles bool
 	FilePath     string
@@ -61,16 +51,26 @@ func (p *pageDataOptions) WithVersion(version int64) *pageDataOptions {
 	return p
 }
 
+type pageData struct {
+	InlineStyles bool
+	FilePath     string
+	Page         *Page
+	Fonts        map[string]*Font
+	Colors       map[string]string
+	Version      int64
+}
+
 func (p *pageDataOptions) Data() *pageData {
 	return &pageData{
 		InlineStyles: p.InlineStyles,
 		FilePath:     p.FilePath,
 		Page:         p.Page,
 		Version:      p.Version,
-		Components:   &pageComponents{options: p},
+		Fonts:        p.Fonts,
+		Colors:       p.Colors,
 	}
 }
 
-type pageComponents struct {
-	options *pageDataOptions
+func (p *pageData) FileURL(filename string) string {
+	return p.FilePath + "/" + filename
 }
