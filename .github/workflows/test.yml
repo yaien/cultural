@@ -11,17 +11,11 @@ on:
 jobs:
     test:
         runs-on: ubuntu-latest
+        container: golang:1.26-alpine
         steps:
             - name: Checkout
               uses: actions/checkout@v6
-            - name: Setup Go
-              uses: actions/setup-go@v6
-              with:
-                  go-version: "1.26"
-                  cache: true
             - name: Setup dependencies
-              run: |
-                  sudo apt update
-                  sudo apt install -y ffmpeg libvips libvips-tools
+              run: apk add --no-cache --update ffmpeg vips
             - name: Test
               run: go test ./...
