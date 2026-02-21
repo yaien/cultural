@@ -7,7 +7,6 @@ import (
 
 	"github.com/yaien/cultural/internal/infrastructure"
 	"github.com/yaien/cultural/internal/infrastructure/migrations"
-	"github.com/yaien/cultural/internal/library/storage"
 	"github.com/yaien/cultural/internal/library/worker"
 	"github.com/yaien/cultural/internal/modules/configs/internal/models"
 	"go.mongodb.org/mongo-driver/bson"
@@ -43,7 +42,7 @@ func init() {
 
 			cfg := infrastructure.LoadConfig()
 			collection := db.Collection("files")
-			local := storage.NewLocal(cfg.Storage.Local.Path)
+			root := cfg.Storage.Local.Path
 			queue := worker.NewQueue(worker.NewMongoStore(db, ""), nil)
 
 			var oldies []OldFile
@@ -63,7 +62,7 @@ func init() {
 					continue
 				}
 
-				width, height, quality, err := local.Dimension(oldie.ID.Hex(), oldie.MimeType)
+				width, height, quality, err := models.GetFileDimension(root, oldie.ID.Hex(), oldie.MimeType)
 				if err != nil {
 					return fmt.Errorf("failed getting dimensions for file %s: %w", oldie.ID.Hex(), err)
 				}
@@ -73,7 +72,7 @@ func init() {
 					Size:    oldie.Size,
 					Width:   width,
 					Height:  height,
-					Quality: quality,
+					Variant: quality,
 				}
 
 				newbie := &NewFile{
@@ -81,7 +80,7 @@ func init() {
 					OrganizationID: oldie.OrganizationID,
 					Name:           oldie.Name,
 					ContentType:    oldie.MimeType,
-					Formats:        map[int]models.Format{format.Quality: format},
+					Formats:        map[int]models.Format{format.Variant: format},
 					CreatedAt:      oldie.CreatedAt,
 					UpdatedAt:      time.Now(),
 				}

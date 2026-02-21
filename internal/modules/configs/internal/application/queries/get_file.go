@@ -23,7 +23,7 @@ func NewGetFileQuery(files models.FileRepository, st storage.Storage) *GetFileQu
 type GetFileRequest struct {
 	OrganizationID primitive.ObjectID
 	Name           string
-	Quality        int
+	Variant        int
 }
 
 type GetFileResponse struct {
@@ -41,7 +41,7 @@ func (q *GetFileQuery) GetFile(ctx context.Context, req *GetFileRequest) (*GetFi
 		return nil, fmt.Errorf("failed to get file: %w", err)
 	}
 
-	format, err := file.GetFormat(req.Quality)
+	format, err := file.GetFormat(req.Variant)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get file format: %w", err)
 	}

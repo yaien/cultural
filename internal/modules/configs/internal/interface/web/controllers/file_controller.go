@@ -85,8 +85,8 @@ func (fc *FileController) Download(w http.ResponseWriter, r *http.Request) {
 	req.Name = r.PathValue("filename")
 	req.OrganizationID = config.OrganizationID
 
-	if quality := r.URL.Query().Get("q"); quality != "" {
-		if req.Quality, err = strconv.Atoi(quality); err != nil {
+	if variant := r.URL.Query().Get("variant"); variant != "" {
+		if req.Variant, err = strconv.Atoi(variant); err != nil {
 			WriteJSONErr(w, models.DecodeError(fmt.Errorf("invalid quality: %w", err)))
 			return
 		}
