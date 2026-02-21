@@ -16,6 +16,11 @@ jobs:
             - name: Checkout
               uses: actions/checkout@v6
             - name: Setup dependencies
-              run: apk add --no-cache --update ffmpeg vips
+              run: apk add --no-cache --update tzdata ffmpeg vips vips-tools
+            - name: Cache Go modules
+              uses: actions/cache@v3
+              with:
+                  path: /go/pkg/mod
+                  key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }
             - name: Test
               run: go test ./...
