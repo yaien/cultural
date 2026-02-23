@@ -64,18 +64,18 @@ func ConvertImage(ctx context.Context, src, outdir string, variants []int) (conv
 func ConvertVideo(ctx context.Context, src, outdir string, variants []int) (conversions []Conversion, err error) {
 	for _, variant := range variants {
 
-		outfile := path.Join(outdir, fmt.Sprintf("output_%d.webm", variant))
+		outfile := path.Join(outdir, fmt.Sprintf("output_%d.mp4", variant))
 
 		cmd := exec.CommandContext(ctx, "ffmpeg",
 			"-i", src,
 			"-vf", fmt.Sprintf("scale=-2:%d", variant),
-			"-c:v", "libvpx-vp9",
-			"-b:v", "0",
-			"-crf", "32",
-			"-row-mt", "1",
-			"-deadline", "good",
-			"-c:a", "libopus",
-			"-f", "webm",
+			"-c:v", "libx264",
+			"-preset", "medium",
+			"-crf", "23",
+			"-movflags", "+faststart",
+			"-c:a", "aac",
+			"-b:a", "128k",
+
 			outfile,
 		)
 
@@ -98,7 +98,7 @@ func ConvertVideo(ctx context.Context, src, outdir string, variants []int) (conv
 		conversions = append(conversions, Conversion{
 			Variant:     variant,
 			Path:        outfile,
-			ContentType: "video/webm",
+			ContentType: "video/mp4",
 			Size:        stat.Size(),
 			Width:       width,
 			Height:      height,

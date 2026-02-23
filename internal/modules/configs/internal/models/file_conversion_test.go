@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func TestConvertImage(t *testing.T) {
+func TestConvertFiles(t *testing.T) {
 	tests := []struct {
 		name      string
 		src       string
@@ -15,7 +15,7 @@ func TestConvertImage(t *testing.T) {
 		dimension GetFileDimensionFunc
 	}{
 		{"convert a big photo", "testdata/big_photo.jpg", []int{320, 640, 1280}, ConvertImage, GetImageDimension},
-		{"convert a big video", "testdata/big_video.mp4", []int{720, 1080}, ConvertVideo, GetVideoDimension},
+		{"convert a big video", "testdata/big_video.mp4", []int{420, 720}, ConvertVideo, GetVideoDimension},
 	}
 
 	for _, test := range tests {
