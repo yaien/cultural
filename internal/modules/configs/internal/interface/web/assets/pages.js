@@ -3,6 +3,7 @@ import { css } from "@codemirror/lang-css";
 import { html } from "@codemirror/lang-html";
 import { javascript } from "@codemirror/lang-javascript";
 import { readableColor } from "polished";
+import { filesize } from "filesize";
 
 document.addEventListener("alpine:init", () => {
     Alpine.data("pages", ({ url, filepath }) => ({
@@ -41,7 +42,7 @@ document.addEventListener("alpine:init", () => {
             await this.render();
         },
 
-        async render(options = { reset: true }) {
+        async render(options = { reset: true, wait: 0 }) {
             this.loading = true;
 
             const res = await fetch("/dashboard/api/render", {
@@ -62,6 +63,11 @@ document.addEventListener("alpine:init", () => {
 
             this.loading = false;
 
+            if (options.wait) {
+                this.srcdoc = null;
+                await new Promise((resolve) => setTimeout(resolve, options.wait));
+            }
+
             if (options.reset) {
                 this.srcdoc = data.html;
                 return;
@@ -70,8 +76,16 @@ document.addEventListener("alpine:init", () => {
             this.$refs.iframe.contentDocument.documentElement.innerHTML = data.html;
         },
 
-        async update({ toast } = { toast: true }) {
+        async update({ toast, draft, model } = { toast: true, draft: null, model: null }) {
             this.loading = true;
+
+            if (draft) {
+                this.draft = draft;
+            }
+
+            if (model) {
+                this.model = model;
+            }
 
             const res = await fetch("/dashboard/api/draft", {
                 method: "PUT",
@@ -276,9 +290,9 @@ document.addEventListener("alpine:init", () => {
     }));
 
     Alpine.data("fonts", ({ draft }) => ({
-        draft: draft,
+        draft: { ...draft },
         fonts: [],
-        limit: 30,
+        limit: 10,
         offset: 0,
         family: "",
         ready: false,
@@ -416,6 +430,8 @@ document.addEventListener("alpine:init", () => {
             }
 
             this.loading = false;
+            this.$dispatch("toast", { message: "Archivo(s) subido(s)" });
+            this.$dispatch("updated");
         },
 
         async update() {
@@ -434,6 +450,8 @@ document.addEventListener("alpine:init", () => {
 
                 this.selected.name = this.data.name;
                 this.set(this.states.initial);
+                this.$dispatch("toast", { message: "Archivo actualizado" });
+                this.$dispatch("updated");
             } catch (error) {
                 console.error(error);
             } finally {
@@ -455,6 +473,8 @@ document.addEventListener("alpine:init", () => {
 
                 this.files = this.files.filter((file) => file.id != this.selected.id);
                 this.set(this.states.initial);
+                this.$dispatch("toast", { message: "Archivo eliminado" });
+                this.$dispatch("updated");
             } catch (error) {
                 console.error(error);
             } finally {
@@ -484,6 +504,10 @@ document.addEventListener("alpine:init", () => {
         leave($event) {
             const video = $event.target.querySelector("video");
             video?.pause();
+        },
+
+        filesize(size) {
+            return filesize(size);
         },
     }));
 

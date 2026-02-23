@@ -63,7 +63,12 @@ func init() {
 					continue
 				}
 
-				width, height, quality, err := local.Dimension(oldie.ID.Hex(), oldie.MimeType)
+				_, src, err := local.Mount(oldie.ID.Hex())
+				if err != nil {
+					return fmt.Errorf("failed getting file %s from storage: %w", oldie.ID.Hex(), err)
+				}
+
+				width, height, quality, err := models.GetFileDimensionByContentType(ctx, src, oldie.MimeType)
 				if err != nil {
 					return fmt.Errorf("failed getting dimensions for file %s: %w", oldie.ID.Hex(), err)
 				}
@@ -73,7 +78,7 @@ func init() {
 					Size:    oldie.Size,
 					Width:   width,
 					Height:  height,
-					Quality: quality,
+					Variant: quality,
 				}
 
 				newbie := &NewFile{
@@ -81,7 +86,7 @@ func init() {
 					OrganizationID: oldie.OrganizationID,
 					Name:           oldie.Name,
 					ContentType:    oldie.MimeType,
-					Formats:        map[int]models.Format{format.Quality: format},
+					Formats:        map[int]models.Format{format.Variant: format},
 					CreatedAt:      oldie.CreatedAt,
 					UpdatedAt:      time.Now(),
 				}

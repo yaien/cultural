@@ -18,5 +18,5 @@ func NewGetFilesQuery(files models.FileRepository) *GetFilesQuery {
 }
 
 func (q *GetFilesQuery) GetFiles(ctx context.Context, organizationID primitive.ObjectID) ([]*models.File, error) {
-	return q.files.List(ctx, organizationID)
+	return q.files.GetByOrganizationID(ctx, organizationID)
 }

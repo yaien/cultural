@@ -6,10 +6,10 @@ import (
 	"strings"
 )
 
-func (p *pageComponents) Fonts() (template.HTML, error) {
+func (p *pageData) FontLinks() (template.HTML, error) {
 	setted := make(map[string]bool)
 	sb := strings.Builder{}
-	for _, font := range p.options.Fonts {
+	for _, font := range p.Fonts {
 		switch font.Provider {
 		case "google":
 			if !setted[font.Provider] {

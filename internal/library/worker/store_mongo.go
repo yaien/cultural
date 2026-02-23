@@ -10,6 +10,8 @@ import (
 
 var _ Store = (*MongoStore)(nil)
 
+const DefaultJobsCollection = "jobs"
+
 type MongoStore struct {
 	collection *mongo.Collection
 	limit      int64
@@ -18,7 +20,7 @@ type MongoStore struct {
 // NewMongoStore creates a new MongoStore with the given MongoDB database and collection name. If the collection name is empty, it defaults to "jobs".
 func NewMongoStore(db *mongo.Database, collection string) *MongoStore {
 	if collection == "" {
-		collection = "jobs"
+		collection = DefaultJobsCollection
 	}
 
 	return &MongoStore{

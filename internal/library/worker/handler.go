@@ -4,10 +4,12 @@ import (
 	"context"
 )
 
-type Handler struct {
+type H struct {
+	Handler
 	Name       string
 	MaxRetries int
-	Handle     HandleFunc
 }
 
-type HandleFunc func(ctx context.Context, data map[string]string) error
+type Handler interface {
+	Handle(ctx context.Context, data map[string]any) error
+}

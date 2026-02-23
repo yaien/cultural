@@ -2,7 +2,7 @@ FROM alpine:latest
 
 WORKDIR /app
 
-RUN apk add --no-cache tzdata ffmpeg vips
+RUN apk add --no-cache tzdata ffmpeg vips vips-tools
 
 COPY cultural .
 RUN chmod +x ./cultural

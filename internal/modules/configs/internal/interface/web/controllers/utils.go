@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"bufio"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -9,6 +8,7 @@ import (
 	"log/slog"
 	"net/http"
 
+	"github.com/yaien/cultural/internal/modules/configs/internal/application/queries"
 	"github.com/yaien/cultural/internal/modules/configs/internal/models"
 )
 
@@ -68,16 +68,29 @@ func WriteHTMLErr(w http.ResponseWriter, err error) {
 	}
 }
 
-func WriteFile(w http.ResponseWriter, name, typ string, size int64, data io.ReadCloser) {
-	defer data.Close()
+func WriteFile(w http.ResponseWriter, r *http.Request, res *queries.GetFileResponse) {
+	defer res.Data.Close()
 
-	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%q", name))
-	w.Header().Set("Content-Type", typ)
-	w.Header().Set("Content-Length", fmt.Sprint(size))
+	w.Header().Set("Content-Type", res.ContentType)
+	w.Header().Set("Content-Length", fmt.Sprint(res.Size))
+	w.Header().Set("Cache-Control", "public, max-age=0")
+	w.Header().Set("ETag", res.ID.Hex())
+	w.Header().Set("Last-Modified", res.UpdatedAt.Format(http.TimeFormat))
 
-	_, err := bufio.NewWriter(w).ReadFrom(data)
-	if err != nil {
-		slog.Error("error downloading the file", "err", err)
+	if match := r.Header.Get("If-None-Match"); match != "" && match == res.ID.Hex() {
+		w.WriteHeader(http.StatusNotModified)
+		return
+	}
+
+	if modified := r.Header.Get("If-Modified-Since"); modified != "" {
+		if t, err := http.ParseTime(modified); err == nil && res.UpdatedAt.Equal(t) {
+			w.WriteHeader(http.StatusNotModified)
+			return
+		}
+	}
+
+	if _, err := io.Copy(w, res.Data); err != nil {
+		slog.Warn("error downloading the file", "err", err)
 		return
 	}
 }

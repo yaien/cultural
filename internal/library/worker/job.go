@@ -18,7 +18,7 @@ const (
 type Job struct {
 	ID         primitive.ObjectID `bson:"_id" json:"id"`
 	Name       string             `bson:"name" json:"name"`
-	Data       map[string]string  `bson:"data" json:"data"`
+	Data       map[string]any     `bson:"data" json:"data"`
 	Status     Status             `bson:"status" json:"status"`
 	CreatedAt  time.Time          `bson:"createdAt" json:"createdAt"`
 	UpdatedAt  time.Time          `bson:"updatedAt" json:"updatedAt"`
@@ -27,8 +27,8 @@ type Job struct {
 }
 
 type Execution struct {
-	StartedAt  time.Time     `bson:"startedAt" json:"startedAt"`
-	FinishedAt time.Time     `bson:"finishedAt" json:"finishedAt"`
-	FinishedIn time.Duration `bson:"finishedIn" json:"finishedIn"`
-	Error      string        `bson:"error,omitempty" json:"error,omitempty"`
+	StartedAt  time.Time `bson:"startedAt" json:"startedAt"`
+	FinishedAt time.Time `bson:"finishedAt" json:"finishedAt"`
+	FinishedIn string    `bson:"finishedIn" json:"finishedIn"`
+	Error      string    `bson:"error,omitempty" json:"error,omitempty"`
 }

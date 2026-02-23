@@ -11,7 +11,6 @@
     flex-grow: 1;
     display: flex;
     justify-content: center;
-    max-width: 50%;
 }
 
 .page .resizeable {
@@ -46,7 +45,7 @@
 
 .editor {
     width: 50%;
-    min-width: 50%;
+    max-width: 600px;
     padding: 1rem;
     box-sizing: border-box;
     overflow: auto;
@@ -84,6 +83,10 @@
     outline: none;
 }
 
+.fonts {
+    height: 100%;
+}
+
 .fonts .font {
     padding: 0.5rem;
     border-bottom: 1px solid var(--border-color);
@@ -109,22 +112,25 @@
 }
 
 .fonts .list {
-    height: 53vh;
-    overflow: auto;
-    scroll-behavior: smooth;
     margin-bottom: 0.5rem;
 }
 
-.fonts.configure {
+.fonts .scrollable {
+    height: 53vh;
+    overflow: auto;
+    scroll-behavior: smooth;
+}
+
+.fonts .configure {
     text-align: center;
 }
 
-.fonts.configure .actions {
+.fonts .configure .actions {
     display: flex;
     justify-content: space-around;
 }
 
-.fonts.configure small {
+.fonts .configure small {
     margin-bottom: 1rem;
     display: block;
 }
