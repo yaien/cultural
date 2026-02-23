@@ -70,10 +70,10 @@ func (c *UploadFileCommand) UploadFile(ctx context.Context, req *UploadFileReque
 	// Extract preset from content type (e.g., "image/jpeg" -> "image")
 	preset := strings.Split(req.ContentType, "/")[0]
 
-	// Remove file extension from name
+	// Remove file extension from name (e.g., "photo.jpg" -> "photo")
 	name := req.Name
-	if idx := strings.LastIndex(name, "."); idx != -1 {
-		name = name[:idx]
+	if idx := strings.LastIndex(req.Name, "."); idx != -1 {
+		name = req.Name[:idx-1]
 	}
 
 	file := &models.File{
