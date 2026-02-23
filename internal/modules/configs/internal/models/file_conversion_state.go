@@ -28,7 +28,7 @@ var ConversionPresets = map[string]*ConversionPreset{
 	},
 	"video": {
 		Convert:     ConvertVideo,
-		Variants:    []int{420, 720},
+		Variants:    []int{480, 720},
 		ContentType: "video/mp4",
 	},
 }

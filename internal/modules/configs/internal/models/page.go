@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	"html/template"
 )
 
@@ -71,6 +72,9 @@ func (p *pageDataOptions) Data() *pageData {
 	}
 }
 
-func (p *pageData) FileURL(filename string) string {
+func (p *pageData) FileURL(filename string, variant ...int) string {
+	if len(variant) > 0 {
+		return fmt.Sprintf("%s/%s?variant=%d", p.FilePath, filename, variant[0])
+	}
 	return p.FilePath + "/" + filename
 }

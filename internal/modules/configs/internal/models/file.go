@@ -37,10 +37,13 @@ type FileRepository interface {
 	DeleteByOrganizationIDAndName(ctx context.Context, organizationID primitive.ObjectID, name string) error
 }
 
-type FileURLFunc func(filename string) string
+type FileURLFunc func(filename string, variant ...int) string
 
 func NewExternalFileURLFunc(serverURL string, organizationID primitive.ObjectID) FileURLFunc {
-	return func(filename string) string {
+	return func(filename string, variant ...int) string {
+		if len(variant) > 0 {
+			return fmt.Sprintf("%s/assets/external/%s/%s?variant=%d", serverURL, organizationID.Hex(), filename, variant[0])
+		}
 		return fmt.Sprintf("%s/assets/external/%s/%s", serverURL, organizationID.Hex(), filename)
 	}
 }
