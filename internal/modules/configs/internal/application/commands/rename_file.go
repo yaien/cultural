@@ -16,5 +16,5 @@ func NewRenameFileCommand(files models.FileRepository) *RenameFileCommand {
 }
 
 func (c *RenameFileCommand) RenameFile(ctx context.Context, organizationId primitive.ObjectID, oldName, newName string) error {
-	return c.files.Rename(ctx, organizationId, oldName, newName)
+	return c.files.RenameByOrganizationIDAndName(ctx, organizationId, oldName, newName)
 }

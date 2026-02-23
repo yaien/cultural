@@ -1,8 +1,10 @@
 package storage
 
 import (
+	"fmt"
 	"io"
 	"os"
+	"path"
 )
 
 var _ Storage = (*Local)(nil)
@@ -22,6 +24,7 @@ func (l *Local) Put(id string, size int64, data io.Reader) error {
 	if err != nil {
 		return err
 	}
+
 	defer root.Close()
 
 	file, err := root.Create(id)
@@ -31,9 +34,8 @@ func (l *Local) Put(id string, size int64, data io.Reader) error {
 
 	defer file.Close()
 
-	_, err = io.CopyN(file, data, size)
-	if err != nil {
-		return err
+	if _, err = io.CopyN(file, data, size); err != nil {
+		return fmt.Errorf("failed in copy data to file: %w", err)
 	}
 
 	return nil
@@ -53,12 +55,10 @@ func (l *Local) Get(id string) (io.ReadCloser, error) {
 	return os.OpenInRoot(l.root, id)
 }
 
-// Mount returns the root path of the local storage. The id parameter is ignored since local storage does not require mounting.
-func (l *Local) Mount(id string) (string, error) {
-	return l.root, nil
+func (l *Local) Mount(id string) (dir, src string, err error) {
+	return l.root, path.Join(l.root, id), nil
 }
 
-// Unmount is a no-op for local storage since it does not require unmounting. The id parameter is ignored.
-func (l *Local) Unmount(root, id string) error {
+func (l *Local) Unmount(dir string) error {
 	return nil
 }

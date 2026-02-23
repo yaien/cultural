@@ -12,7 +12,8 @@ type File struct {
 	ID             primitive.ObjectID `bson:"_id" json:"id"`
 	OrganizationID primitive.ObjectID `bson:"organizationId" json:"organizationId"`
 	Name           string             `bson:"name" json:"name"`
-	Formats        map[int]Format     `bson:"formats" json:"formats"`
+	Preset         string             `bson:"preset" json:"preset"`
+	Formats        []Format           `bson:"formats" json:"formats"`
 	CreatedAt      time.Time          `bson:"createdAt" json:"createdAt"`
 	UpdatedAt      time.Time          `bson:"updatedAt" json:"updatedAt"`
 }
@@ -28,10 +29,12 @@ type Format struct {
 
 type FileRepository interface {
 	Create(ctx context.Context, file *File) error
-	Get(ctx context.Context, organizationID primitive.ObjectID, name string) (*File, error)
-	Rename(ctx context.Context, organizationID primitive.ObjectID, oldName, newName string) error
-	Delete(ctx context.Context, organizationID primitive.ObjectID, name string) error
-	List(ctx context.Context, organizationID primitive.ObjectID) ([]*File, error)
+	Update(ctx context.Context, file *File) error
+	GetByID(ctx context.Context, id primitive.ObjectID) (*File, error)
+	GetByOrganizationIDAndName(ctx context.Context, organizationID primitive.ObjectID, name string) (*File, error)
+	GetByOrganizationID(ctx context.Context, organizationID primitive.ObjectID) ([]*File, error)
+	RenameByOrganizationIDAndName(ctx context.Context, organizationID primitive.ObjectID, oldName, newName string) error
+	DeleteByOrganizationIDAndName(ctx context.Context, organizationID primitive.ObjectID, name string) error
 }
 
 type FileURLFunc func(filename string) string

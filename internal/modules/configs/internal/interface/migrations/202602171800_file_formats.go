@@ -63,14 +63,12 @@ func init() {
 					continue
 				}
 
-				input, err := local.Get(oldie.ID.Hex())
+				_, src, err := local.Mount(oldie.ID.Hex())
 				if err != nil {
 					return fmt.Errorf("failed getting file %s from storage: %w", oldie.ID.Hex(), err)
 				}
 
-				defer input.Close()
-
-				width, height, quality, err := models.GetFileDimension(input, oldie.MimeType)
+				width, height, quality, err := models.GetFileDimensionByContentType(ctx, src, oldie.MimeType)
 				if err != nil {
 					return fmt.Errorf("failed getting dimensions for file %s: %w", oldie.ID.Hex(), err)
 				}

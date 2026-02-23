@@ -5,7 +5,9 @@ import (
 
 	"github.com/yaien/cultural/internal/infrastructure"
 	"github.com/yaien/cultural/internal/library/cache"
+	"github.com/yaien/cultural/internal/library/worker"
 	"github.com/yaien/cultural/internal/modules/configs/internal/application"
+	"github.com/yaien/cultural/internal/modules/configs/internal/interface/handlers"
 	_ "github.com/yaien/cultural/internal/modules/configs/internal/interface/migrations"
 	"github.com/yaien/cultural/internal/modules/configs/internal/interface/repositories"
 	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web"
@@ -18,7 +20,7 @@ type Module struct {
 }
 
 func (m *Module) Init(mono *infrastructure.Monolith) error {
-	m.App = application.New(application.Deps{
+	deps := application.Deps{
 		Configs:       repositories.NewConfigRepository(mono.MongoDB),
 		Invitations:   repositories.NewInvitationRepository(mono.MongoDB),
 		Organizations: repositories.NewOrganizationRepository(mono.MongoDB),
@@ -32,9 +34,16 @@ func (m *Module) Init(mono *infrastructure.Monolith) error {
 		Mail:          mono.Mail,
 		Storage:       mono.Storage,
 		Queue:         mono.Queue,
-	})
+	}
+
+	m.App = application.New(deps)
 
 	m.Web = web.Register(mono, m.App)
+
+	mono.Worker.Register(worker.H{
+		Name:    models.GenerateFormatsTaskName,
+		Handler: handlers.NewGenerateFileFormatHandler(deps.Files, deps.Storage),
+	})
 
 	mono.Router.Handle("/", m.Web.WithConfig(mono.WebRouter))
 

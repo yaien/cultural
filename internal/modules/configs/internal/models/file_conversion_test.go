@@ -1,58 +1,66 @@
 package models
 
 import (
-	"bytes"
 	"net/http"
 	"os"
 	"testing"
 )
 
-func TestConvertFile(t *testing.T) {
+func TestConvertImage(t *testing.T) {
 	tests := []struct {
-		name              string
-		infile            string
-		contentType       string
-		outputContentType string
-		variant           int
+		name      string
+		src       string
+		variants  []int
+		convert   ConvertFunc
+		dimension GetFileDimensionFunc
 	}{
-		{"big photo to 1280", "big_photo.jpg", "image/jpeg", "image/webp", 1280},
-		{"big photo to 640", "big_photo.jpg", "image/jpeg", "image/webp", 640},
-		{"big photo to 320", "big_photo.jpg", "image/jpeg", "image/webp", 320},
-		{"big video to 1080", "big_video.mp4", "video/mp4", "video/webm", 1080},
-		{"big video to 720", "big_video.mp4", "video/mp4", "video/webm", 720},
+		{"convert a big photo", "testdata/big_photo.jpg", []int{320, 640, 1280}, ConvertImage, GetImageDimension},
+		{"convert a big video", "testdata/big_video.mp4", []int{720, 1080}, ConvertVideo, GetVideoDimension},
 	}
-
-	dir := "testdata"
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
+			ctx := t.Context()
 
-			input, err := os.OpenInRoot(dir, test.infile)
+			outdir, err := os.MkdirTemp("", "")
 			if err != nil {
-				t.Fatalf("failed to open input file: %v", err)
+				return
 			}
 
-			defer input.Close()
+			defer os.RemoveAll(outdir)
 
-			var output bytes.Buffer
-
-			err = ConvertFile(input, &output, test.contentType, test.variant)
+			convertions, err := test.convert(ctx, test.src, outdir, test.variants)
 			if err != nil {
 				t.Fatalf("failed file convertion: %v", err)
 			}
 
-			detectedContentType := http.DetectContentType(output.Bytes())
-			if detectedContentType != test.outputContentType {
-				t.Fatalf("expected content type %s, got %s", test.outputContentType, detectedContentType)
+			if len(convertions) != len(test.variants) {
+				t.Fatalf("expected %d convertions, got %d", len(test.variants), len(convertions))
 			}
 
-			_, _, variant, err := GetFileDimension(&output, test.contentType)
-			if err != nil {
-				t.Fatalf("failed to get file dimension: %v", err)
-			}
+			for i, conversion := range convertions {
+				if conversion.Variant != test.variants[i] {
+					t.Fatalf("expected variant %d, got %d", test.variants[i], conversion.Variant)
+				}
 
-			if variant != test.variant {
-				t.Fatalf("expected quality %d, got %d", test.variant, variant)
+				data, err := os.ReadFile(conversion.Path)
+				if err != nil {
+					t.Fatalf("failed to read convertion file: %v", err)
+				}
+
+				detectedContentType := http.DetectContentType(data)
+				if detectedContentType != conversion.ContentType {
+					t.Fatalf("expected content type %s, got %s", conversion.ContentType, detectedContentType)
+				}
+
+				_, _, variant, err := test.dimension(ctx, conversion.Path)
+				if err != nil {
+					t.Fatalf("failed to get file dimension: %v", err)
+				}
+
+				if variant != conversion.Variant {
+					t.Fatalf("expected quality %d, got %d", conversion.Variant, variant)
+				}
 			}
 
 		})

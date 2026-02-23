@@ -1,7 +1,6 @@
 package models
 
 import (
-	"os"
 	"testing"
 )
 
@@ -12,38 +11,35 @@ func TestGetFileDimension(t *testing.T) {
 		contentType string
 		width       int
 		height      int
-		quality     int
+		variant     int
+		dimension   GetFileDimensionFunc
 	}{
 		{
 			name:        "big_photo",
-			file:        "big_photo.jpg",
+			file:        "testdata/big_photo.jpg",
 			contentType: "image/jpeg",
 			width:       3303,
 			height:      4954,
-			quality:     4954,
+			variant:     4954,
+			dimension:   GetImageDimension,
 		},
 		{
 			name:        "big_video",
-			file:        "big_video.mp4",
+			file:        "testdata/big_video.mp4",
 			contentType: "video/mp4",
 			width:       1920,
 			height:      1080,
-			quality:     1080,
+			variant:     1080,
+			dimension:   GetVideoDimension,
 		},
 	}
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			input, err := os.OpenInRoot("testdata", test.file)
+			ctx := t.Context()
+			width, height, quality, err := test.dimension(ctx, test.file)
 			if err != nil {
-				t.Fatalf("failed getting input file: %v", err)
-			}
-
-			defer input.Close()
-
-			width, height, quality, err := GetFileDimension(input, test.contentType)
-			if err != nil {
-				t.Fatalf("GetFileDimension returned an error: %v", err)
+				t.Fatalf("dimension returned an error: %v", err)
 			}
 			if width != test.width {
 				t.Errorf("Expected width %d, got %d", test.width, width)
@@ -51,8 +47,8 @@ func TestGetFileDimension(t *testing.T) {
 			if height != test.height {
 				t.Errorf("Expected height %d, got %d", test.height, height)
 			}
-			if quality != test.quality {
-				t.Errorf("Expected quality %d, got %d", test.quality, quality)
+			if quality != test.variant {
+				t.Errorf("Expected quality %d, got %d", test.variant, quality)
 			}
 		})
 	}

@@ -2,7 +2,6 @@ package models
 
 import (
 	"fmt"
-	"maps"
 	"slices"
 
 	"github.com/yaien/cultural/internal/library/worker"
@@ -17,28 +16,28 @@ func (f *File) GetFormat(v int) (format Format, err error) {
 		return
 	}
 
-	variants := slices.Collect(maps.Keys((f.Formats)))
-	slices.Sort(variants)
+	// Sort the formats by their variant (width) in ascending order
+	slices.SortFunc(f.Formats, func(a, b Format) int { return a.Variant - b.Variant })
 
 	switch {
 
 	// If the requested width is less than or equal to 0, or if there is only one format available, return the biggest format
-	case v <= 0 || len(variants) == 1:
-		format = f.Formats[variants[len(variants)-1]]
+	case v <= 0 || len(f.Formats) == 1:
+		format = f.Formats[len(f.Formats)-1]
 
 	// default case: find the near bigger or equal format based on the requested width
 	default:
-		for index, variant := range variants {
+		for index := range f.Formats {
 
 			// Find the first format that is smaller than or equal to the requested width
-			if v <= variant {
-				format = f.Formats[variant]
+			if v <= f.Formats[index].Variant {
+				format = f.Formats[index]
 				break
 			}
 
 			// If we reached the end of the formats and haven't found a suitable one, return the biggest format
-			if index == len(variants)-1 {
-				format = f.Formats[variant]
+			if index == len(f.Formats)-1 {
+				format = f.Formats[index]
 				break
 			}
 		}
@@ -53,6 +52,6 @@ const GenerateFormatsTaskName = "generate-formats"
 func (f *File) NewGenerateFormatsTask() worker.Task {
 	return worker.Task{
 		Name: GenerateFormatsTaskName,
-		Data: map[string]string{"id": f.ID.Hex()},
+		Data: map[string]any{"_id": f.ID},
 	}
 }

@@ -2,9 +2,10 @@ package models
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"image"
-	"io"
+	"os"
 	"os/exec"
 	"strconv"
 	"strings"
@@ -15,26 +16,31 @@ import (
 	_ "golang.org/x/image/webp"
 )
 
-func GetFileDimension(input io.Reader, contentType string) (width, height, quality int, err error) {
+type GetFileDimensionFunc func(ctx context.Context, src string) (width, height, variant int, err error)
+
+func GetFileDimensionByContentType(ctx context.Context, src, contentType string) (width, height, variant int, err error) {
 	switch {
-
-	case strings.HasPrefix(contentType, "image"):
-		return GetImageDimension(input)
-
-	case strings.HasPrefix(contentType, "video"):
-		return GetVideoDimension(input)
-
+	case strings.HasPrefix(contentType, "image/"):
+		return GetImageDimension(ctx, src)
+	case strings.HasPrefix(contentType, "video/"):
+		return GetVideoDimension(ctx, src)
 	default:
-		err = fmt.Errorf("%w: %s", ErrUnsupportedContentType, contentType)
+		err = fmt.Errorf("unsupported content type: %s: %w", contentType, ErrUnsupportedContentType)
 		return
 	}
 }
 
 // GetImageDimension decodes the image config to get dimensions without loading the entire image into memory.
-func GetImageDimension(input io.Reader) (width, height, variant int, err error) {
+func GetImageDimension(ctx context.Context, src string) (width, height, variant int, err error) {
+	reader, err := os.Open(src)
+	if err != nil {
+		err = fmt.Errorf("failed opening image: %w", err)
+		return
+	}
+	defer reader.Close()
 
 	var img image.Config
-	img, _, err = image.DecodeConfig(input)
+	img, _, err = image.DecodeConfig(reader)
 	if err != nil {
 		err = fmt.Errorf("failed decoding image: %w", err)
 		return
@@ -45,16 +51,14 @@ func GetImageDimension(input io.Reader) (width, height, variant int, err error) 
 }
 
 // GetVideoDimension uses ffprobe to get the dimensions of a video file without loading the entire video into memory.
-func GetVideoDimension(input io.Reader) (width, height, variant int, err error) {
+func GetVideoDimension(ctx context.Context, src string) (width, height, variant int, err error) {
 
-	cmd := exec.Command("ffprobe",
+	cmd := exec.CommandContext(ctx, "ffprobe",
 		"-v", "error",
 		"-select_streams", "v:0",
 		"-show_entries", "stream=width,height",
 		"-of", "csv=s=x:p=0",
-		"-i", "pipe:0")
-
-	cmd.Stdin = input
+		"-i", src)
 
 	var errp bytes.Buffer
 	cmd.Stderr = &errp

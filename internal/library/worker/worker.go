@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"runtime/debug"
 	"sync"
 	"time"
 )
@@ -15,7 +16,7 @@ type Worker struct {
 	stream   Stream
 	store    Store
 	mutex    sync.RWMutex
-	handlers map[string]Handler
+	handlers map[string]H
 	ctx      context.Context
 	cancel   context.CancelFunc
 	interval time.Duration
@@ -31,12 +32,12 @@ func New(store Store, stream Stream) *Worker {
 		store:    store,
 		ctx:      ctx,
 		cancel:   cancel,
-		handlers: make(map[string]Handler),
+		handlers: make(map[string]H),
 		interval: 10 * time.Minute,
 	}
 }
 
-func (w *Worker) Register(handler Handler) {
+func (w *Worker) Register(handler H) {
 	w.mutex.Lock()
 	defer w.mutex.Unlock()
 	w.handlers[handler.Name] = handler
@@ -129,7 +130,7 @@ func (w *Worker) work() {
 	}
 }
 
-func (w *Worker) execute(handler Handler, job Job) error {
+func (w *Worker) execute(handler H, job Job) error {
 	var execution Execution
 	execution.StartedAt = time.Now()
 
@@ -139,21 +140,42 @@ func (w *Worker) execute(handler Handler, job Job) error {
 		return fmt.Errorf("failed to update job status: %w", err)
 	}
 
+	slog.Debug("Starting job execution", "id", job.ID.Hex(), "name", job.Name)
+
 	err := w.handle(handler, job)
 	switch {
+
 	case err == nil:
 		job.Status = StatusCompleted
+
+		slog.Debug("Job executed successfully",
+			"id", job.ID.Hex(),
+			"name", job.Name,
+			"duration", time.Since(execution.StartedAt))
+
 	case errors.Is(err, ErrRetryable) && job.Retries < handler.MaxRetries:
 		job.Retries++
 		job.Status = StatusPending
 		execution.Error = err.Error()
+
+		slog.Warn("Job execution failed, will retry",
+			"id", job.ID.Hex(),
+			"retries", job.Retries,
+			"error", err,
+			"duration", time.Since(execution.StartedAt))
+
 	default:
 		job.Status = StatusFailed
 		execution.Error = err.Error()
+
+		slog.Error("Job execution failed",
+			"id", job.ID.Hex(),
+			"error", err,
+			"duration", time.Since(execution.StartedAt))
 	}
 
 	execution.FinishedAt = time.Now()
-	execution.FinishedIn = execution.FinishedAt.Sub(execution.StartedAt)
+	execution.FinishedIn = execution.FinishedAt.Sub(execution.StartedAt).String()
 
 	job.Executions = append(job.Executions, execution)
 	job.UpdatedAt = time.Now()
@@ -166,11 +188,12 @@ func (w *Worker) execute(handler Handler, job Job) error {
 
 }
 
-func (w *Worker) handle(handler Handler, job Job) (err error) {
+func (w *Worker) handle(handler H, job Job) (err error) {
 	defer func() {
 		if r := recover(); r != nil {
-			slog.Error("Panic recovered", "error", r)
-			err = fmt.Errorf("panic: %v", r)
+			stack := debug.Stack()
+			slog.Error("Panic recovered", "error", r, "stack", string(stack))
+			err = fmt.Errorf("panic: %v: %s", r, string(stack))
 		}
 	}()
 

@@ -52,15 +52,15 @@ func serve() *cobra.Command {
 					return
 				}
 				log.Println("Migrations checked successfully")
+				err = mono.Worker.Start()
+				if err != nil {
+					slog.Error("Failed to start worker", "error", err)
+					os.Exit(1)
+				}
+
+				log.Println("Worker started successfully")
+				mono.Worker.Wait()
 			}()
-
-			err = mono.Worker.Start()
-			if err != nil {
-				slog.Error("Failed to start worker", "error", err)
-				os.Exit(1)
-			}
-
-			log.Println("Worker started successfully")
 
 			err = http.ListenAndServe(mono.Config.Server.Addr, mono.Router)
 			if err != nil {

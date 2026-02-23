@@ -5,6 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log/slog"
+	"strings"
 	"time"
 
 	"github.com/yaien/cultural/internal/library/storage"
@@ -32,7 +34,7 @@ func NewUploadFileCommand(files models.FileRepository, st storage.Storage, q *wo
 }
 
 func (c *UploadFileCommand) UploadFile(ctx context.Context, req *UploadFileRequest) (*models.File, error) {
-	_, err := c.files.Get(ctx, req.OrganizationID, req.Name)
+	_, err := c.files.GetByOrganizationIDAndName(ctx, req.OrganizationID, req.Name)
 
 	var e *models.Error
 	switch {
@@ -45,39 +47,50 @@ func (c *UploadFileCommand) UploadFile(ctx context.Context, req *UploadFileReque
 
 	id := primitive.NewObjectID()
 
-	err = c.storage.Put(id.Hex(), req.Size, req.Data)
-	if err != nil {
+	if err = c.storage.Put(id.Hex(), req.Size, req.Data); err != nil {
 		return nil, fmt.Errorf("failed to upload file to storage: %w", err)
 	}
 
-	input, err := c.storage.Get(id.Hex())
+	dir, src, err := c.storage.Mount(id.Hex())
 	if err != nil {
-		return nil, fmt.Errorf("failed to retrieve file from storage: %w", err)
+		return nil, fmt.Errorf("failed to mount file: %w", err)
 	}
 
-	defer input.Close()
+	defer func() {
+		if err := c.storage.Unmount(dir); err != nil {
+			slog.Error("Failed to unmount file", "error", err)
+		}
+	}()
 
-	width, height, variant, err := models.GetFileDimension(input, req.ContentType)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get file dimensions: %w", err)
+	width, height, variant, err := models.GetFileDimensionByContentType(ctx, src, req.ContentType)
+	if err != nil && !errors.Is(err, models.ErrUnsupportedContentType) {
+		return nil, fmt.Errorf("failed to get file dimension: %w", err)
+	}
+
+	// Extract preset from content type (e.g., "image/jpeg" -> "image")
+	preset := strings.Split(req.ContentType, "/")[0]
+
+	// Remove file extension from name
+	name := req.Name
+	if idx := strings.LastIndex(name, "."); idx != -1 {
+		name = name[:idx]
 	}
 
 	file := &models.File{
 		ID:             id,
 		OrganizationID: req.OrganizationID,
-		Name:           req.Name,
+		Name:           name,
+		Preset:         preset,
 		CreatedAt:      time.Now(),
 		UpdatedAt:      time.Now(),
-		Formats: map[int]models.Format{
-			variant: {
-				ID:          id,
-				Width:       width,
-				Height:      height,
-				Variant:     variant,
-				Size:        req.Size,
-				ContentType: req.ContentType,
-			},
-		},
+		Formats: []models.Format{{
+			ID:          id,
+			Width:       width,
+			Height:      height,
+			Variant:     variant,
+			Size:        req.Size,
+			ContentType: req.ContentType,
+		}},
 	}
 
 	err = c.files.Create(ctx, file)
@@ -85,8 +98,10 @@ func (c *UploadFileCommand) UploadFile(ctx context.Context, req *UploadFileReque
 		return nil, fmt.Errorf("failed to create file record: %w", err)
 	}
 
-	if err = c.queue.Push(ctx, file.NewGenerateFormatsTask()); err != nil {
-		return nil, fmt.Errorf("failed to push compress-file job: %w", err)
+	if variant > 0 {
+		if err = c.queue.Push(ctx, file.NewGenerateFormatsTask()); err != nil {
+			return nil, fmt.Errorf("failed to push compress-file job: %w", err)
+		}
 	}
 
 	return file, nil

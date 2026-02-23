@@ -22,12 +22,12 @@ func NewDeleteFileCommand(files models.FileRepository, st storage.Storage) *Dele
 }
 
 func (c *DeleteFileCommand) DeleteFile(ctx context.Context, organizationID primitive.ObjectID, name string) error {
-	file, err := c.files.Get(ctx, organizationID, name)
+	file, err := c.files.GetByOrganizationIDAndName(ctx, organizationID, name)
 	if err != nil {
 		return fmt.Errorf("failed to get file from repository: %w", err)
 	}
 
-	err = c.files.Delete(ctx, organizationID, name)
+	err = c.files.DeleteByOrganizationIDAndName(ctx, organizationID, name)
 	if err != nil {
 		return fmt.Errorf("failed to delete file from repository: %w", err)
 	}

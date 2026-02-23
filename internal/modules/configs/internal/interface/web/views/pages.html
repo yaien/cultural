@@ -141,12 +141,12 @@
         </div>
 
         <!-- Fonts Page -->
-        <div x-show="on(states.font)" x-transition:enter.delay.75ms>
-          <div x-data="fonts({ draft })" @updated="render()">
+        <div x-show="on(states.font)" x-transition:enter.delay.75ms class="grow" @updated="render()">
+          <div x-data="fonts({ draft })" class="fonts">
             <template x-if="ready">
               <div>
                 <div x-show="on(states.initial)" x-transition:enter.delay.75ms>
-                  <div class="fonts">
+                  <div>
                     <div class="list">
                       <template x-for="(font, key) in draft.fonts || {}" :key="font.family">
                         <div class="font" @click="select(font, key, states.browsing)">
@@ -166,7 +166,7 @@
                   </div>
                 </div>
                 <div x-show="on(states.browsing)" x-transition:enter.delay.75ms>
-                  <div class="fonts">
+                  <div>
                     <div class="actions">
                       <button @click="set(states.initial)">Volver</button>
                     </div>
@@ -178,7 +178,7 @@
                         @input.debounce.500ms="search($event.target.value)"
                       />
                     </fieldset>
-                    <div class="list" @scroll.debounce.200ms="scroll($event)">
+                    <div class="list scrollable" @scroll.debounce.200ms="scroll($event)">
                       <template x-for="font in fonts" :key="font.family">
                         <div class="font" @click="select(font, selected.tag)">
                           <div class="preview" x-text="font.family" :style="style(font.family)"></div>
@@ -189,7 +189,7 @@
                 </div>
                 <div x-show="on(states.configuring)" x-transition:enter.delay.75ms>
                   <template x-if="selected.font">
-                    <div class="fonts configure">
+                    <div class="configure">
                       <div class="actions">
                         <button type="button" @click="set(states.browsing)" :disabled="loading">Volver</button>
                       </div>
@@ -216,8 +216,8 @@
         </div>
 
         <!-- Files Page -->
-        <div x-show="on(states.files)" x-transition:enter.delay.75ms class="grow">
-          <div x-data="files" class="files">
+        <div x-show="on(states.files)" x-transition:enter.delay.75ms class="grow files">
+          <div x-data="files" @updated="render({ reset: true, wait: 100 })">
             <!-- List files -->
             <div x-show="on(states.initial)" x-transition:enter.delay.75ms>
               <div class="actions">
@@ -228,10 +228,10 @@
                 <template x-for="file in files" :key="file.id">
                   <div class="item" @click="select(file)" @mouseenter="enter($event)" @mouseleave="leave($event)">
                     <div class="hover" :title="file.name"></div>
-                    <template x-if="file.contentType.startsWith('image')">
+                    <template x-if="file.preset == 'image'">
                       <img x-bind:src="filepath + file.name" :title="file.name" :alt="file.name" />
                     </template>
-                    <template x-if="file.contentType.startsWith('video')">
+                    <template x-if="file.preset == 'video'">
                       <video x-bind:src="filepath + file.name" :title="file.name" :alt="file.name" muted></video>
                     </template>
                   </div>
@@ -248,10 +248,10 @@
                   </div>
 
                   <div class="preview">
-                    <template x-if="selected.contentType.startsWith('image')">
+                    <template x-if="selected.preset == 'image'">
                       <img x-bind:src="filepath + selected.name" :title="selected.name" :alt="selected.name" />
                     </template>
-                    <template x-if="selected.contentType.startsWith('video')">
+                    <template x-if="selected.preset == 'video'">
                       <video
                         x-bind:src="filepath + selected.name"
                         :title="selected.name"
@@ -260,6 +260,28 @@
                       ></video>
                     </template>
                   </div>
+
+                  <table class="compact">
+                    <thead>
+                      <tr>
+                        <th>Variante</th>
+                        <th>Dimensiones</th>
+                        <th>Tamaño</th>
+                        <th>Tipo</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <template x-for="format in selected.formats" :key="format.variant">
+                        <tr>
+                          <td x-text="format.variant"></td>
+                          <td x-text="format.width + 'x' + format.height"></td>
+                          <td x-text="filesize(format.size)"></td>
+                          <td x-text="format.contentType"></td>
+                        </tr>
+                      </template>
+                    </tbody>
+                  </table>
+
                   <form @submit.prevent="update()">
                     <fieldset>
                       <legend>Nombre</legend>

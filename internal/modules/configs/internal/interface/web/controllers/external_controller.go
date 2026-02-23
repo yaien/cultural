@@ -48,5 +48,5 @@ func (c *ExternalController) GetFile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	WriteFile(w, res.Name, res.Type, res.Size, res.Data)
+	WriteFile(w, r, res)
 }

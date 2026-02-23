@@ -29,7 +29,7 @@ func NewQueue(store Store, stream Stream) *Queue {
 
 type Task struct {
 	Name string
-	Data map[string]string
+	Data map[string]any
 }
 
 func (q *Queue) Push(ctx context.Context, task Task) error {

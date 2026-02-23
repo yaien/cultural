@@ -2,129 +2,108 @@ package models
 
 import (
 	"bytes"
+	"context"
 	"errors"
 	"fmt"
-	"io"
 	"os"
 	"os/exec"
 	"path"
-	"strings"
 )
 
 var ErrUnsupportedContentType = errors.New("unsupported content type")
 
-func ConvertFile(input io.Reader, output io.Writer, contentType string, variant int) (err error) {
-	switch {
+type Conversion struct {
+	Variant     int
+	Path        string
+	ContentType string
+	Size        int64
+	Width       int
+	Height      int
+}
 
-	case strings.HasPrefix(contentType, "image"):
-		err = ConvertImage(input, output, variant)
+type ConvertFunc func(ctx context.Context, src, outdir string, variants []int) (conversions []Conversion, err error)
 
-	case strings.HasPrefix(contentType, "video"):
-		err = ConvertVideo(input, output, variant)
+func ConvertImage(ctx context.Context, src, outdir string, variants []int) (conversion []Conversion, err error) {
+	for _, variant := range variants {
 
-	default:
-		err = ErrUnsupportedContentType
+		outfile := path.Join(outdir, fmt.Sprintf("output_%d.webp", variant))
+
+		cmd := exec.CommandContext(ctx, "vips", "thumbnail", src, outfile+"[Q=75,strip]", fmt.Sprint(variant))
+
+		var stderr bytes.Buffer
+		cmd.Stderr = &stderr
+
+		if err := cmd.Run(); err != nil {
+			return nil, fmt.Errorf("vips command failed: %w, stderr: %s", err, stderr.String())
+		}
+
+		stat, err := os.Stat(outfile)
+		if err != nil {
+			return nil, fmt.Errorf("failed to stat output file: %w", err)
+		}
+
+		width, height, _, err := GetImageDimension(ctx, outfile)
+		if err != nil {
+			return nil, fmt.Errorf("failed getting image dimension: %w", err)
+		}
+
+		conversion = append(conversion, Conversion{
+			Variant:     variant,
+			Path:        outfile,
+			ContentType: "image/webp",
+			Size:        stat.Size(),
+			Width:       width,
+			Height:      height,
+		})
 	}
 
 	return
 }
 
-// ConvertImage converts an image file to a different format or quality. it relies on vips for the actual conversion,
-// and it is expected to be installed on the system.
-// The function takes the directory, input file name, output file name, content type, and quality as parameters.
-// It returns an error if the conversion fails.
-func ConvertImage(input io.Reader, output io.Writer, width int) (err error) {
-	tempdir, err := os.MkdirTemp("", "vips_")
-	if err != nil {
-		return fmt.Errorf("failed to create temporary directory: %w", err)
-	}
-
-	defer os.RemoveAll(tempdir)
-
-	in, err := os.CreateTemp(tempdir, "input.jpg")
-	if err != nil {
-		return fmt.Errorf("failed creating input file: %w", err)
-	}
-
-	_, err = io.Copy(in, input)
-	if err != nil {
-		return fmt.Errorf("failed to copy input data to temporary file: %w", err)
-	}
-
-	cmd := exec.Command("vips", "thumbnail", in.Name(), path.Join(tempdir, "output.webp")+"[Q=75,strip]", fmt.Sprint(width))
-	if err != nil {
-		return fmt.Errorf("failed to execute vips command: %w", err)
-	}
-
-	var stderr bytes.Buffer
-	cmd.Stderr = &stderr
-
-	if err := cmd.Run(); err != nil {
-		return fmt.Errorf("vips command failed: %w, stderr: %s", err, stderr.String())
-	}
-
-	out, err := os.OpenInRoot(tempdir, "output.webp")
-	if err != nil {
-		return fmt.Errorf("failed to open output file: %w", err)
-	}
-
-	_, err = io.Copy(output, out)
-	if err != nil {
-		return fmt.Errorf("failed to copy output data to output writer: %w", err)
-	}
-
-	return nil
-}
-
 // ConvertVideo converts a video file to a different format or quality. it relies on ffmpeg for the actual conversion,
-func ConvertVideo(input io.Reader, output io.Writer, variant int) (err error) {
-	tempdir, err := os.MkdirTemp("", "ffmpeg_")
-	if err != nil {
-		return fmt.Errorf("failed to create temporary directory: %w", err)
+func ConvertVideo(ctx context.Context, src, outdir string, variants []int) (conversions []Conversion, err error) {
+	for _, variant := range variants {
+
+		outfile := path.Join(outdir, fmt.Sprintf("output_%d.webm", variant))
+
+		cmd := exec.CommandContext(ctx, "ffmpeg",
+			"-i", src,
+			"-vf", fmt.Sprintf("scale=-2:%d", variant),
+			"-c:v", "libvpx-vp9",
+			"-b:v", "0",
+			"-crf", "32",
+			"-row-mt", "1",
+			"-deadline", "good",
+			"-c:a", "libopus",
+			"-f", "webm",
+			outfile,
+		)
+
+		var errp bytes.Buffer
+		cmd.Stderr = &errp
+		if err := cmd.Run(); err != nil {
+			return nil, fmt.Errorf("ffmpeg command failed: %w, stderr: %s", err, errp.String())
+		}
+
+		stat, err := os.Stat(outfile)
+		if err != nil {
+			return nil, fmt.Errorf("failed to stat output file: %w", err)
+		}
+
+		width, height, _, err := GetVideoDimension(ctx, outfile)
+		if err != nil {
+			return nil, fmt.Errorf("failed getting image dimension: %w", err)
+		}
+
+		conversions = append(conversions, Conversion{
+			Variant:     variant,
+			Path:        outfile,
+			ContentType: "video/webm",
+			Size:        stat.Size(),
+			Width:       width,
+			Height:      height,
+		})
 	}
 
-	defer os.RemoveAll(tempdir)
-
-	in, err := os.CreateTemp(tempdir, "input.mp4")
-	if err != nil {
-		return fmt.Errorf("failed creating input file: %w", err)
-	}
-
-	_, err = io.Copy(in, input)
-	if err != nil {
-		return fmt.Errorf("failed to copy input data to temporary file: %w", err)
-	}
-
-	cmd := exec.Command(
-		"ffmpeg",
-		"-i", in.Name(),
-		"-vf", fmt.Sprintf("scale=-2:%d", variant),
-		"-c:v", "libvpx-vp9",
-		"-b:v", "0",
-		"-crf", "32",
-		"-row-mt", "1",
-		"-deadline", "good",
-		"-c:a", "libopus",
-		"-f", "webm",
-		path.Join(tempdir, "output.webm"),
-	)
-
-	var errp bytes.Buffer
-	cmd.Stderr = &errp
-	if err := cmd.Run(); err != nil {
-		return fmt.Errorf("ffmpeg command failed: %w, stderr: %s", err, errp.String())
-	}
-
-	out, err := os.OpenInRoot(tempdir, "output.webm")
-	if err != nil {
-		return fmt.Errorf("failed to open output file: %w", err)
-	}
-
-	_, err = io.Copy(output, out)
-	if err != nil {
-		return fmt.Errorf("failed to copy output data to output writer: %w", err)
-	}
-
-	return nil
-
+	return conversions, nil
 }

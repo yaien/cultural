@@ -36,7 +36,7 @@ type GetFileResponse struct {
 }
 
 func (q *GetFileQuery) GetFile(ctx context.Context, req *GetFileRequest) (*GetFileResponse, error) {
-	file, err := q.files.Get(ctx, req.OrganizationID, req.Name)
+	file, err := q.files.GetByOrganizationIDAndName(ctx, req.OrganizationID, req.Name)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get file: %w", err)
 	}
