@@ -110,7 +110,7 @@ func (h *GenerateFileFormatHandler) Handle(ctx context.Context, data map[string]
 		file.Formats = slices.Delete(file.Formats, state.BiggestFormatIndex, state.BiggestFormatIndex+1)
 
 		if err := h.storage.Remove(state.BiggestFormat.ID.Hex()); err != nil {
-			return fmt.Errorf("failed removing original format: %w")
+			return fmt.Errorf("failed removing original format: %w", err)
 		}
 
 	}
