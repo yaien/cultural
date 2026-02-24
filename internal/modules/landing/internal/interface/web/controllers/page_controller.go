@@ -1,7 +1,9 @@
 package controllers
 
 import (
+	"fmt"
 	"io"
+	"log/slog"
 	"net/http"
 	"strconv"
 	"strings"
@@ -42,8 +44,12 @@ func (c *PageController) Index(w http.ResponseWriter, r *http.Request) {
 		Data()
 
 	w.Header().Set("Content-Type", "text/html")
-	parsed.Execute(w, data)
 
+	if err = parsed.Execute(w, data); err != nil {
+		slog.Error("Failed to execute index page template", "error", err)
+		http.Error(w, "Failed to render index page", http.StatusInternalServerError)
+		return
+	}
 }
 
 func (c *PageController) Page(w http.ResponseWriter, r *http.Request) {
@@ -75,7 +81,11 @@ func (c *PageController) Page(w http.ResponseWriter, r *http.Request) {
 		Data()
 
 	w.Header().Set("Content-Type", "text/html")
-	parsed.Execute(w, data)
+	if err := parsed.Execute(w, data); err != nil {
+		slog.Error("Failed to execute page template", "error", err)
+		http.Error(w, "Failed to render page", http.StatusInternalServerError)
+		return
+	}
 
 }
 
@@ -110,6 +120,31 @@ func (c *PageController) BaseStyles(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Failed to generate styles", http.StatusInternalServerError)
 		return
 	}
+}
+
+func (c *PageController) PageScripts(w http.ResponseWriter, r *http.Request) {
+	config := r.Context().Value(configs.ConfigContextKey).(*configs.Config)
+
+	path := r.PathValue("page")
+
+	if path == "index" || !strings.HasSuffix(path, ".js") {
+		http.NotFound(w, r)
+		return
+	}
+
+	path = strings.TrimSuffix(path, ".js")
+
+	page, ok := config.Pages[path]
+	if !ok {
+		http.NotFound(w, r)
+		return
+	}
+
+	script := fmt.Sprintf("(() => {\n%s\n})()", page.Script)
+
+	w.Header().Set("Content-Type", "application/javascript")
+
+	_, _ = w.Write([]byte(script))
 }
 
 func (c *PageController) Favicon(w http.ResponseWriter, r *http.Request) {

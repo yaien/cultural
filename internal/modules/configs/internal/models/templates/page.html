@@ -1,25 +1,31 @@
 <!doctype html>
 <html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#ffffff" />
-    <title>{{.Page.Title}}</title>
-    {{.FontLinks}}
-    <link rel="icon" type="image/png" href="/assets/landing/favicon.png?v={{.Version}}" />
-    <link rel="stylesheet" href="/assets/static/landing/base.css" />
-    <link rel="stylesheet" href="/assets/landing/styles.css" />
 
-    {{if .InlineStyles}}
-    <style type="text/css">
-      {{.Styles}}
-    </style>
-    {{else}}
-    <link rel="stylesheet" href="{{ printf `/assets/landing/styles/%s.css` .Page.Name }}" />
-    {{end}}
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-  </head>
-  <body>
-    {{block "body" .}}{{end}}
-  </body>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#ffffff" />
+  <title>{{.Page.Title}}</title>
+  {{.FontLinks}}
+  <link rel="icon" type="image/png" href="/assets/landing/favicon.png?v={{.Version}}" />
+  <link rel="stylesheet" href="/assets/static/landing/base.css" />
+  <link rel="stylesheet" href="/assets/landing/styles.css" />
+
+  {{if .InlineStyles}}
+  {{- .Styles}}
+  {{else}}
+  <link rel="stylesheet" href="{{ printf `/assets/landing/styles/%s.css` .Page.Name }}" />
+  {{end}}
+</head>
+
+<body>
+  {{block "body" .}}{{end}}
+
+  {{if .InlineScript}}
+  {{- .Script}}
+  {{else}}
+  <script src="{{ printf `/assets/landing/scripts/%s.js` .Page.Name }}"></script>
+  {{end}}
+</body>
+
 </html>

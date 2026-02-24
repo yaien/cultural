@@ -86,6 +86,8 @@ document.addEventListener("alpine:init", () => {
                 this.model = model;
             }
 
+
+
             const res = await fetch("/dashboard/api/draft", {
                 method: "PUT",
                 headers: { "content-type": "application/json" },
@@ -222,7 +224,7 @@ document.addEventListener("alpine:init", () => {
         },
     }));
 
-    Alpine.data("monaco", ({ draft, model, language }) => ({
+    Alpine.data("monaco", ({ draft, model, language, reset }) => ({
         draft: draft,
         model: model,
         language: language,
@@ -267,13 +269,13 @@ document.addEventListener("alpine:init", () => {
                 case "html":
                     this.model.value.body = content;
                     break;
-                case ("javascript", "typescript"):
+                case "javascript":
                     this.model.value.script = content;
                     break;
             }
 
             this.draft[this.model.map][this.model.key] = this.model.value;
-            this.$dispatch("update", { draft: this.draft, model: this.model, toast: false });
+            this.$dispatch("update", { draft: this.draft, model: this.model, toast: false, reset });
         },
 
         doc() {
@@ -282,7 +284,7 @@ document.addEventListener("alpine:init", () => {
                     return this.model.value.styles || "";
                 case "html":
                     return this.model.value.body || "";
-                case ("javascript", "typescript"):
+                case "javascript":
                     return this.model.value.script || "";
             }
         },

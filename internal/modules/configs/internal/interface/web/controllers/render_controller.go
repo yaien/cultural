@@ -70,6 +70,7 @@ func (c *RenderController) RenderPage(w http.ResponseWriter, input *RenderContro
 
 	data := models.NewPageData(page).
 		WithInlineStyles(true).
+		WithInlineScript(true).
 		WithColors(input.Colors).
 		WithFonts(input.Fonts).
 		WithFilePath("/assets/dynamic/files/").

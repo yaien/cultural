@@ -9,6 +9,7 @@ type Page struct {
 	Title  string        `bson:"title,omitempty" json:"title,omitempty"`
 	Name   string        `bson:"name,omitempty" json:"name,omitempty"`
 	Styles template.CSS  `bson:"styles,omitempty" json:"styles,omitempty"`
+	Script template.JS   `bson:"script,omitempty" json:"script,omitempty"`
 	Body   template.HTML `bson:"body" json:"body"`
 }
 
@@ -16,6 +17,7 @@ var PageTemplate = template.Must(template.New("page").Parse(read("templates/page
 
 type pageDataOptions struct {
 	InlineStyles bool
+	InlineScript bool
 	FilePath     string
 	Page         *Page
 	Fonts        map[string]*Font
@@ -29,6 +31,11 @@ func NewPageData(page *Page) *pageDataOptions {
 
 func (p *pageDataOptions) WithInlineStyles(inlineStyles bool) *pageDataOptions {
 	p.InlineStyles = inlineStyles
+	return p
+}
+
+func (p *pageDataOptions) WithInlineScript(inlineScript bool) *pageDataOptions {
+	p.InlineScript = inlineScript
 	return p
 }
 
@@ -54,6 +61,7 @@ func (p *pageDataOptions) WithVersion(version int64) *pageDataOptions {
 
 type pageData struct {
 	InlineStyles bool
+	InlineScript bool
 	FilePath     string
 	Page         *Page
 	Fonts        map[string]*Font
@@ -64,6 +72,7 @@ type pageData struct {
 func (p *pageDataOptions) Data() *pageData {
 	return &pageData{
 		InlineStyles: p.InlineStyles,
+		InlineScript: p.InlineScript,
 		FilePath:     p.FilePath,
 		Page:         p.Page,
 		Version:      p.Version,

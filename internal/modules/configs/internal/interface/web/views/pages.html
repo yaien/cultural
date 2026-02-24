@@ -304,24 +304,24 @@
           </div>
         </div>
 
-        <!-- Editor Page -->
+        <!-- HTML Editor Page -->
         <div x-show="on(states.editor)" x-transition:enter.delay.75ms>
           <template x-if="on(states.editor)">
             <div class="monaco" x-data="monaco({ draft, model, language: 'html' })"></div>
           </template>
         </div>
 
-        <!-- Styles Page -->
+        <!-- Styles Editor Page -->
         <div x-show="on(states.styles)" x-transition:enter.delay.75ms>
           <template x-if="on(states.styles)">
             <div class="monaco" x-data="monaco({ draft, model, language: 'css' })"></div>
           </template>
         </div>
 
-        <!-- Script Page -->
+        <!-- Script Editor Page -->
         <div x-show="on(states.script)" x-transition:enter.delay.75ms>
           <template x-if="on(states.script)">
-            <div class="monaco" x-data="monaco({ draft, model, language: 'javascript' })"></div>
+            <div class="monaco" x-data="monaco({ draft, model, language: 'javascript', reset: true })"></div>
           </template>
         </div>
 
