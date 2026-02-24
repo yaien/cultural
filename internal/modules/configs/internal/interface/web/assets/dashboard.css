@@ -41,6 +41,12 @@
     --dark-color-dark: oklch(from var(--dark-color) calc(l - 0.15) calc(c + 0.06) h);
 }
 
+*,
+*:before,
+*:after {
+    box-sizing: border-box;
+}
+
 /* Body Styles */
 body {
     font-family: var(--primary-font-family);
