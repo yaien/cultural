@@ -2,6 +2,7 @@ package models
 
 import (
 	"bytes"
+	"fmt"
 	"html/template"
 	"io"
 )
@@ -21,7 +22,7 @@ func WritePageBaseStyles(b io.Writer, cfg *Config) error {
 	})
 }
 
-func (c *pageData) Styles() (template.CSS, error) {
+func (c *pageData) Styles() (template.HTML, error) {
 	buff := &bytes.Buffer{}
 	data := &PageStyleTemplateData{
 		Fonts:  c.Fonts,
@@ -32,6 +33,7 @@ func (c *pageData) Styles() (template.CSS, error) {
 	if err := PageStyleTemplate.Execute(buff, data); err != nil {
 		return "", err
 	}
+	styles := fmt.Sprintf("<style type=%q>\n%s</style>", "text/css", buff.String())
 
-	return template.CSS(buff.String()), nil
+	return template.HTML(styles), nil
 }

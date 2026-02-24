@@ -1,9 +1,7 @@
-import { EditorView, basicSetup } from "codemirror";
-import { css } from "@codemirror/lang-css";
-import { html } from "@codemirror/lang-html";
-import { javascript } from "@codemirror/lang-javascript";
 import { readableColor } from "polished";
 import { filesize } from "filesize";
+
+require.config({ paths: { vs: "/assets/static/dashboard/dist/monaco" } });
 
 document.addEventListener("alpine:init", () => {
     Alpine.data("pages", ({ url, filepath }) => ({
@@ -23,7 +21,8 @@ document.addEventListener("alpine:init", () => {
             editor: 5,
             styles: 6,
             colors: 7,
-            publish: 8,
+            script: 8,
+            publish: 9,
         },
 
         async init() {
@@ -76,7 +75,7 @@ document.addEventListener("alpine:init", () => {
             this.$refs.iframe.contentDocument.documentElement.innerHTML = data.html;
         },
 
-        async update({ toast, draft, model } = { toast: true, draft: null, model: null }) {
+        async update({ toast, draft, model, wait, reset } = { toast: true, reset: false, wait: 0, draft: null, model: null }) {
             this.loading = true;
 
             if (draft) {
@@ -86,6 +85,8 @@ document.addEventListener("alpine:init", () => {
             if (model) {
                 this.model = model;
             }
+
+
 
             const res = await fetch("/dashboard/api/draft", {
                 method: "PUT",
@@ -110,7 +111,7 @@ document.addEventListener("alpine:init", () => {
 
             this.loading = false;
 
-            await this.render({ reset: false });
+            await this.render({ reset, wait });
         },
 
         set(state) {
@@ -223,68 +224,68 @@ document.addEventListener("alpine:init", () => {
         },
     }));
 
-    Alpine.data("mirror", ({ draft, model, mode }) => ({
+    Alpine.data("monaco", ({ draft, model, language, reset }) => ({
         draft: draft,
         model: model,
-        mode: mode,
+        language: language,
+
         init() {
-            const theme = EditorView.theme({
-                "&": {
-                    height: "80vh",
-                    "margin-bottom": "1rem",
-                },
-                "&.cm-focused": {
-                    outline: "none",
-                },
-            });
+            require(["vs/editor/editor.main"], () => {
 
-            const listener = EditorView.updateListener.of(({ docChanged, state }) => {
-                if (!docChanged) return;
-                const content = state.doc.toString();
-                this.dispach(content);
-            });
 
-            new EditorView({
-                doc: this.doc(),
-                extensions: [basicSetup, theme, this.extension(), listener],
-                parent: this.$el,
+                const container = document.querySelector("[data-editor]");
+                const observer = new ResizeObserver(() => {
+                    this.$el.style.height = container.clientHeight * 0.85 + "px";
+                })
+
+                observer.observe(container);
+
+
+                monaco.editor.setTheme("vs");
+
+                const editor = monaco.editor.create(this.$el, {
+                    value: this.doc(),
+                    language: this.language,
+                    minimap: { enabled: false },
+                    automaticLayout: true,
+                });
+
+                editor.getModel().onDidChangeContent(event => {
+                    const content = editor.getValue();
+                    if (content != this.doc()) {
+                        this.dispach(content);
+                    }
+                })
+
+
             });
         },
 
         dispach(content) {
-            switch (this.mode) {
+            switch (this.language) {
                 case "css":
                     this.model.value.styles = content;
                     break;
                 case "html":
                     this.model.value.body = content;
                     break;
-                case "ts":
+                case "javascript":
                     this.model.value.script = content;
                     break;
             }
 
             this.draft[this.model.map][this.model.key] = this.model.value;
-            this.$dispatch("update", { draft: this.draft, model: this.model, toast: false });
+            this.$dispatch("update", { draft: this.draft, model: this.model, toast: false, reset });
         },
 
         doc() {
-            switch (this.mode) {
+            switch (this.language) {
                 case "css":
                     return this.model.value.styles || "";
                 case "html":
                     return this.model.value.body || "";
-            }
-        },
-
-        extension() {
-            switch (this.mode) {
-                case "css":
-                    return css();
-                case "html":
-                    return html();
-                case "ts":
-                    return javascript({ typescript: true });
+                case "javascript":
+                    return this.model.value.script || "";
             }
         },
     }));
