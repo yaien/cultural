@@ -17,6 +17,7 @@ func Register(mono *infrastructure.Monolith, app *application.Application) *Web 
 			WithConfig: middlewares.NewWithConfig(app),
 			WithUser:   middlewares.NewWithUser(app, mono.SessionStore),
 			WithRole:   middlewares.NewWithRole(app),
+			WithCache:  middlewares.WithCache,
 		},
 	}
 

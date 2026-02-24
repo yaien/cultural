@@ -77,6 +77,6 @@ func dashboard(mono *infrastructure.Monolith, app *application.Application, md *
 
 	mono.WebRouter.HandleFunc("/dashboard/", md.WithUser(md.WithRole(router)))
 
-	mono.WebRouter.Handle("GET /assets/static/dashboard/", http.StripPrefix("/assets/static/dashboard/", http.FileServer(http.FS(assets.FS))))
+	mono.WebRouter.Handle("GET /assets/static/dashboard/", http.StripPrefix("/assets/static/dashboard/", md.WithCache(http.FileServer(http.FS(assets.FS)))))
 
 }

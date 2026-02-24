@@ -7,5 +7,5 @@ import "embed"
 //go:generate sh -c "curl -fsSL -z dist/coloris.min.js https://cdn.jsdelivr.net/gh/mdbassit/Coloris@latest/dist/coloris.min.js -o dist/coloris.min.js"
 //go:generate sh -c "curl -fsSL -z dist/coloris.min.css https://cdn.jsdelivr.net/gh/mdbassit/Coloris@latest/dist/coloris.min.css -o dist/coloris.min.css"
 
-//go:embed dist/*
+//go:embed dist/* dist/**/*
 var FS embed.FS

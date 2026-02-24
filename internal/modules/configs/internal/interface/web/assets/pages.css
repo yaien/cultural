@@ -74,15 +74,8 @@
     justify-content: space-around;
 }
 
-.cm-editor {
-    border: 1px solid var(--border-color);
-    border-radius: 0.5rem;
-}
 
-.cm-editor:focus {
-    outline: none;
-}
-
+/* Fonts */
 .fonts {
     height: 100%;
 }
@@ -135,6 +128,7 @@
     display: block;
 }
 
+/* Files */
 .files .grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
@@ -193,6 +187,14 @@
     height: 100%;
     object-fit: cover;
     position: absolute;
+}
+
+/* Monaco Editor */
+.monaco {
+    height: 100%;
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-color);
+    overflow: hidden;
 }
 
 /* Colors */

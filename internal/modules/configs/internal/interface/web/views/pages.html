@@ -8,6 +8,7 @@
 
 <!-- Scripts -->
 {{ define "scripts"}}
+<script src="/assets/static/dashboard/dist/monaco/loader.js"></script>
 <script src="/assets/static/dashboard/dist/coloris.min.js"></script>
 <script src="/assets/static/dashboard/dist/pages.min.js"></script>
 {{end}}
@@ -16,11 +17,11 @@
 {{ define "content" }}
 <div x-data="{{ printf `pages({ url: %q, filepath: '/assets/dynamic/files/' })` .Config.Url }}" style="height: 100%">
   <template x-if="ready">
-    <div class="container" @update="update($event.detail)">
+    <div class="container" @update.debounce="update($event.detail)">
       <div class="indicator" x-show="loading">
         <div class="spinner">{{template "spinner.svg"}}</div>
       </div>
-      <div class="editor">
+      <div class="editor" data-editor>
         <!-- Page Selector -->
         <div role="group">
           <button @click="set(states.initial)">{{template "home.svg"}}</button>
@@ -31,6 +32,7 @@
           <button @click="set(states.colors)" x-show="forWeb">{{template "palette.svg"}}</button>
           <button @click="set(states.editor)">{{template "html.svg"}}</button>
           <button @click="set(states.styles)" x-show="forWeb">{{template "css.svg"}}</button>
+          <button @click="set(states.script)" x-show="forWeb">{{template "js.svg"}}</button>
           <button @click="set(states.publish)">{{template "publish.svg"}}</button>
         </div>
 
@@ -72,13 +74,8 @@
               <div>
                 <fieldset>
                   <legend>Asunto</legend>
-                  <textarea
-                    name="subject"
-                    x-model="model.value.subject"
-                    required
-                    style="resize: none; height: 4em"
-                    cols="10"
-                  ></textarea>
+                  <textarea name="subject" x-model="model.value.subject" required style="resize: none; height: 4em"
+                    cols="10"></textarea>
                 </fieldset>
               </div>
             </template>
@@ -91,12 +88,8 @@
         <!-- Create Page -->
         <div x-show="on(states.create)" x-transition:enter.delay.75ms @submitted="set(states.initial)">
           <template x-if="on(states.create)">
-            <form
-              x-data="create({ draft, model })"
-              @submit.prevent="submit()"
-              x-show="on(states.create)"
-              x-transition:enter.delay.75ms
-            >
+            <form x-data="create({ draft, model })" @submit.prevent="submit()" x-show="on(states.create)"
+              x-transition:enter.delay.75ms>
               <fieldset role="group">
                 <legend>Tipo de Plantilla</legend>
                 <select name="map" x-model="form.map">
@@ -172,11 +165,8 @@
                     </div>
                     <fieldset role="group">
                       <legend>Fuentes</legend>
-                      <input
-                        type="text"
-                        placeholder="Buscar fuente"
-                        @input.debounce.500ms="search($event.target.value)"
-                      />
+                      <input type="text" placeholder="Buscar fuente"
+                        @input.debounce.500ms="search($event.target.value)" />
                     </fieldset>
                     <div class="list scrollable" @scroll.debounce.200ms="scroll($event)">
                       <template x-for="font in fonts" :key="font.family">
@@ -195,10 +185,8 @@
                       </div>
                       <h1 x-text="selected.font.family" :style="style(selected.font.family)"></h1>
                       <form @submit.prevent="add()">
-                        <small
-                          >Use "primary" para cambiar la fuente base de la página o "headings" para cambiar los
-                          encabezados</small
-                        >
+                        <small>Use "primary" para cambiar la fuente base de la página o "headings" para cambiar los
+                          encabezados</small>
                         <fieldset>
                           <legend>Tag</legend>
                           <input name="tag" x-model="selected.tag" required />
@@ -252,12 +240,8 @@
                       <img x-bind:src="filepath + selected.name" :title="selected.name" :alt="selected.name" />
                     </template>
                     <template x-if="selected.preset == 'video'">
-                      <video
-                        x-bind:src="filepath + selected.name"
-                        :title="selected.name"
-                        :alt="selected.name"
-                        controls
-                      ></video>
+                      <video x-bind:src="filepath + selected.name" :title="selected.name" :alt="selected.name"
+                        controls></video>
                     </template>
                   </div>
 
@@ -321,16 +305,23 @@
         </div>
 
         <!-- Editor Page -->
-        <div style="max-height: 500px" x-show="on(states.editor)" x-transition:enter.delay.75ms>
+        <div x-show="on(states.editor)" x-transition:enter.delay.75ms>
           <template x-if="on(states.editor)">
-            <div x-data="mirror({ draft, model, mode: 'html' })"></div>
+            <div class="monaco" x-data="monaco({ draft, model, language: 'html' })"></div>
           </template>
         </div>
 
         <!-- Styles Page -->
-        <div style="height: 80%" x-show="on(states.styles)" x-transition:enter.delay.75ms>
+        <div x-show="on(states.styles)" x-transition:enter.delay.75ms>
           <template x-if="on(states.styles)">
-            <div x-data="mirror({ draft, model, mode: 'css' })"></div>
+            <div class="monaco" x-data="monaco({ draft, model, language: 'css' })"></div>
+          </template>
+        </div>
+
+        <!-- Script Page -->
+        <div x-show="on(states.script)" x-transition:enter.delay.75ms>
+          <template x-if="on(states.script)">
+            <div class="monaco" x-data="monaco({ draft, model, language: 'javascript' })"></div>
           </template>
         </div>
 
