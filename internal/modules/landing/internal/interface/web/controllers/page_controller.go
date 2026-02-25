@@ -45,6 +45,7 @@ func (c *PageController) Index(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data := configs.NewPageData(page, layout).
+		WithAppTitle(config.Title).
 		WithFonts(config.Fonts).
 		WithFilePath("/assets/dynamic/files/").
 		Data()
@@ -88,6 +89,8 @@ func (c *PageController) Page(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data := configs.NewPageData(page, layout).
+		WithAppTitle(config.Title).
+		WithFonts(config.Fonts).
 		WithFilePath("/assets/dynamic/landing/").
 		Data()
 

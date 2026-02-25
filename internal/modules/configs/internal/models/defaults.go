@@ -28,7 +28,6 @@ var DefaultLayouts = map[string]*Page{
 
 var DefaultPages = map[string]*Page{
 	"index": {
-		Title:  "Inicio",
 		Name:   "index",
 		Styles: template.CSS(read("templates/index_page.css")),
 		Body:   template.HTML(read("templates/index_page.html")),
