@@ -39,7 +39,12 @@ func (c *PageController) Index(w http.ResponseWriter, r *http.Request) {
 
 	page := config.Pages["index"]
 
-	data := configs.NewPageData(page).
+	layout, ok := config.Layouts[page.Layout]
+	if !ok {
+		layout = configs.DefaultLayout
+	}
+
+	data := configs.NewPageData(page, layout).
 		WithFonts(config.Fonts).
 		WithFilePath("/assets/dynamic/files/").
 		Data()
@@ -77,7 +82,12 @@ func (c *PageController) Page(w http.ResponseWriter, r *http.Request) {
 
 	page := config.Pages[path]
 
-	data := configs.NewPageData(page).
+	layout, ok := config.Layouts[page.Layout]
+	if !ok {
+		layout = configs.DefaultLayout
+	}
+
+	data := configs.NewPageData(page, layout).
 		WithFilePath("/assets/dynamic/landing/").
 		Data()
 
@@ -95,7 +105,7 @@ func (c *PageController) PageStyles(w http.ResponseWriter, r *http.Request) {
 
 	path := r.PathValue("page")
 
-	if path == "index" || !strings.HasSuffix(path, ".css") {
+	if !strings.HasSuffix(path, ".css") {
 		http.NotFound(w, r)
 		return
 	}
@@ -110,6 +120,28 @@ func (c *PageController) PageStyles(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "text/css")
 	_, _ = w.Write([]byte(page.Styles))
+}
+
+func (c *PageController) LayoutStyles(w http.ResponseWriter, r *http.Request) {
+	config := r.Context().Value(configs.ConfigContextKey).(*configs.Config)
+
+	path := r.PathValue("layout")
+
+	if !strings.HasSuffix(path, ".css") {
+		http.NotFound(w, r)
+		return
+	}
+
+	path = strings.TrimSuffix(path, ".css")
+
+	layout, ok := config.Layouts[path]
+	if !ok {
+		http.NotFound(w, r)
+		return
+	}
+
+	w.Header().Set("Content-Type", "text/css")
+	_, _ = w.Write([]byte(layout.Styles))
 }
 
 func (c *PageController) BaseStyles(w http.ResponseWriter, r *http.Request) {
@@ -128,7 +160,7 @@ func (c *PageController) PageScripts(w http.ResponseWriter, r *http.Request) {
 
 	path := r.PathValue("page")
 
-	if path == "index" || !strings.HasSuffix(path, ".js") {
+	if !strings.HasSuffix(path, ".js") {
 		http.NotFound(w, r)
 		return
 	}
@@ -142,6 +174,31 @@ func (c *PageController) PageScripts(w http.ResponseWriter, r *http.Request) {
 	}
 
 	script := fmt.Sprintf("(() => {\n%s\n})()", page.Script)
+
+	w.Header().Set("Content-Type", "application/javascript")
+
+	_, _ = w.Write([]byte(script))
+}
+
+func (c *PageController) LayoutScripts(w http.ResponseWriter, r *http.Request) {
+	config := r.Context().Value(configs.ConfigContextKey).(*configs.Config)
+
+	path := r.PathValue("layout")
+
+	if !strings.HasSuffix(path, ".js") {
+		http.NotFound(w, r)
+		return
+	}
+
+	path = strings.TrimSuffix(path, ".js")
+
+	layout, ok := config.Layouts[path]
+	if !ok {
+		http.NotFound(w, r)
+		return
+	}
+
+	script := fmt.Sprintf("(() => {\n%s\n})()", layout.Script)
 
 	w.Header().Set("Content-Type", "application/javascript")
 

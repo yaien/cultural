@@ -6,4 +6,5 @@
     --{{$key}}-color: {{$color}};
     {{ end -}}
 }
-{{.Styles}}
+{{.LayoutStyles}}
+{{.PageStyles}}

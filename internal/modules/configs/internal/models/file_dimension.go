@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"image"
+	"log/slog"
 	"os"
 	"os/exec"
 	"strconv"
@@ -37,7 +38,11 @@ func GetImageDimension(ctx context.Context, src string) (width, height, variant 
 		err = fmt.Errorf("failed opening image: %w", err)
 		return
 	}
-	defer reader.Close()
+	defer func() {
+		if err := reader.Close(); err != nil {
+			slog.Warn("failed to close image file", "error", err)
+		}
+	}()
 
 	var img image.Config
 	img, _, err = image.DecodeConfig(reader)

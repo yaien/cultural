@@ -1,0 +1,6 @@
+<script type="text/javascript">
+{{.LayoutScript}}
+</script>
+<script type="text/javascript">
+{{.PageScript}}
+</script>

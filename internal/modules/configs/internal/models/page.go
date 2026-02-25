@@ -8,6 +8,7 @@ import (
 type Page struct {
 	Title  string        `bson:"title,omitempty" json:"title,omitempty"`
 	Name   string        `bson:"name,omitempty" json:"name,omitempty"`
+	Layout string        `bson:"layout,omitempty" json:"layout,omitempty"`
 	Styles template.CSS  `bson:"styles,omitempty" json:"styles,omitempty"`
 	Script template.JS   `bson:"script,omitempty" json:"script,omitempty"`
 	Body   template.HTML `bson:"body" json:"body"`
@@ -15,18 +16,21 @@ type Page struct {
 
 var PageTemplate = template.Must(template.New("page").Parse(read("templates/page.html")))
 
+var EmptyPage = &Page{}
+
 type pageDataOptions struct {
 	InlineStyles bool
 	InlineScript bool
 	FilePath     string
 	Page         *Page
+	Layout       *Page
 	Fonts        map[string]*Font
 	Colors       map[string]string
 	Version      int64
 }
 
-func NewPageData(page *Page) *pageDataOptions {
-	return &pageDataOptions{Page: page}
+func NewPageData(page *Page, layout *Page) *pageDataOptions {
+	return &pageDataOptions{Page: page, Layout: layout}
 }
 
 func (p *pageDataOptions) WithInlineStyles(inlineStyles bool) *pageDataOptions {
@@ -64,6 +68,7 @@ type pageData struct {
 	InlineScript bool
 	FilePath     string
 	Page         *Page
+	Layout       *Page
 	Fonts        map[string]*Font
 	Colors       map[string]string
 	Version      int64
@@ -75,6 +80,7 @@ func (p *pageDataOptions) Data() *pageData {
 		InlineScript: p.InlineScript,
 		FilePath:     p.FilePath,
 		Page:         p.Page,
+		Layout:       p.Layout,
 		Version:      p.Version,
 		Fonts:        p.Fonts,
 		Colors:       p.Colors,

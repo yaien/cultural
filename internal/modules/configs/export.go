@@ -17,3 +17,5 @@ const ConfigContextKey = models.ConfigContextKey
 var NewPageData = models.NewPageData
 var WritePageBaseStyles = models.WritePageBaseStyles
 var PageTemplate = models.PageTemplate
+var EmptyPage = models.EmptyPage
+var DefaultLayout = models.DefaultLayout

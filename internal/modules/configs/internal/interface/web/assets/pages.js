@@ -124,7 +124,7 @@ document.addEventListener("alpine:init", () => {
 
         get deleteable() {
             if (!this.model) return false;
-            return this.model.map == "layouts" || (this.model.map == "pages" && this.model.key != "index");
+            return (this.model.map == "layouts" && this.model.key != "default") || (this.model.map == "pages" && this.model.key != "index");
         },
         get forWeb() {
             if (!this.model) return false;
@@ -143,6 +143,9 @@ document.addEventListener("alpine:init", () => {
         },
         get pageIsIndex() {
             return this.model.map == "pages" && this.model.key == "index";
+        },
+        get layoutIsDefault() {
+            return this.model.map == "layouts" && this.model.key == "default";
         },
 
         submit() {
@@ -173,6 +176,13 @@ document.addEventListener("alpine:init", () => {
                     this.model.map = "emails";
                     this.model.key = "invitation";
                     this.model.value = this.draft.emails.invitation;
+                    this.$dispatch("model", this.model);
+                    break;
+
+                case "layouts":
+                    this.model.map = "layouts";
+                    this.model.key = "default";
+                    this.model.value = this.draft.layouts.default;
                     this.$dispatch("model", this.model);
                     break;
             }

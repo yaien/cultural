@@ -10,9 +10,10 @@ import (
 var PageStyleTemplate = template.Must(template.New("styles").Parse(read("templates/styles.txt")))
 
 type PageStyleTemplateData struct {
-	Fonts  map[string]*Font
-	Colors map[string]string
-	Styles template.CSS
+	Fonts        map[string]*Font
+	Colors       map[string]string
+	PageStyles   template.CSS
+	LayoutStyles template.CSS
 }
 
 func WritePageBaseStyles(b io.Writer, cfg *Config) error {
@@ -25,9 +26,10 @@ func WritePageBaseStyles(b io.Writer, cfg *Config) error {
 func (c *pageData) Styles() (template.HTML, error) {
 	buff := &bytes.Buffer{}
 	data := &PageStyleTemplateData{
-		Fonts:  c.Fonts,
-		Colors: c.Colors,
-		Styles: c.Page.Styles,
+		Fonts:        c.Fonts,
+		Colors:       c.Colors,
+		PageStyles:   c.Page.Styles,
+		LayoutStyles: c.Layout.Styles,
 	}
 
 	if err := PageStyleTemplate.Execute(buff, data); err != nil {

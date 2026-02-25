@@ -43,6 +43,7 @@
               <legend>Tipo de Plantilla</legend>
               <select name="map" @change="changeMap($event.target.value)">
                 <option value="pages" :selected="model.map === 'pages'">Sitio</option>
+                <option value="layouts" :selected="model.map === 'layouts'">Diseño</option>
                 <option value="emails" :selected="model.map === 'emails'">Correo</option>
               </select>
             </fieldset>
@@ -68,8 +69,30 @@
                   <legend>Url</legend>
                   <input name="url" :value="pageUrl" required disabled />
                 </fieldset>
+                <fieldset role="group">
+                  <legend>Diseño</legend>
+                  <select name="layout" x-model="model.value.layout">
+                    <template x-for="(value, key) in draft.layouts" :key="key">
+                      <option :value="key" :selected="model.value.layout === key" x-text="value.title"></option>
+                    </template>
+                  </select>
+                </fieldset>
               </div>
             </template>
+            <template x-if="model.map == 'layouts'">
+              <div>
+                <fieldset>
+                  <legend>Nombre</legend>
+                  <input name="name" x-model="model.value.name" required :disabled="layoutIsDefault" />
+                </fieldset>
+                <fieldset>
+                  <legend>Titulo</legend>
+                  <input name="title" x-model="model.value.title" required />
+                </fieldset>
+              </div>
+            </template>
+
+
             <template x-if="model.map == 'emails'">
               <div>
                 <fieldset>
@@ -94,25 +117,26 @@
                 <legend>Tipo de Plantilla</legend>
                 <select name="map" x-model="form.map">
                   <option value="pages" :selected="form.map === 'pages'">Sitio</option>
+                  <option value="layouts" :selected="form.map === 'layouts'">Diseño</option>
                 </select>
               </fieldset>
 
-              <template x-if="form.map == 'pages'">
-                <div>
-                  <fieldset>
-                    <legend>Nombre</legend>
-                    <input name="name" x-model="form.value.name" required />
-                  </fieldset>
-                  <fieldset>
-                    <legend>Titulo</legend>
-                    <input name="title" x-model="form.value.title" required />
-                  </fieldset>
+              <div>
+                <fieldset>
+                  <legend>Nombre</legend>
+                  <input name="name" x-model="form.value.name" required />
+                </fieldset>
+                <fieldset>
+                  <legend>Titulo</legend>
+                  <input name="title" x-model="form.value.title" required />
+                </fieldset>
+                <template x-if="form.map == 'pages'">
                   <fieldset role="grop">
                     <legend>Url</legend>
                     <input name="url" :value="url + '/' + (form.value.name || '')" disabled />
                   </fieldset>
-                </div>
-              </template>
+                </template>
+              </div>
               <div class="actions">
                 <button :disabled="disabled">Crear</button>
               </div>
