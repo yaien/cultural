@@ -3,6 +3,7 @@ package migrations
 import (
 	"context"
 	"fmt"
+	"log/slog"
 
 	"github.com/yaien/cultural/internal/infrastructure/migrations"
 	"github.com/yaien/cultural/internal/library/worker"
@@ -24,7 +25,11 @@ func init() {
 			if err != nil {
 				return fmt.Errorf("failed to find files without format: %w", err)
 			}
-			defer cursor.Close(ctx)
+			defer func() {
+				if err = cursor.Close(ctx); err != nil {
+					slog.Error("Failed to close cursor", "error", err)
+				}
+			}()
 
 			err = cursor.All(ctx, &files)
 			if err != nil {

@@ -16,6 +16,16 @@ func read(file string) string {
 	return string(content)
 }
 
+var DefaultLayout = &Page{
+	Name:  "default",
+	Title: "Diseño por defecto",
+	Body:  `{{template "page_body" .}}`,
+}
+
+var DefaultLayouts = map[string]*Page{
+	"default": DefaultLayout,
+}
+
 var DefaultPages = map[string]*Page{
 	"index": {
 		Title:  "Inicio",

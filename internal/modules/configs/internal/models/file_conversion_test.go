@@ -1,6 +1,7 @@
 package models
 
 import (
+	"log/slog"
 	"net/http"
 	"os"
 	"testing"
@@ -27,7 +28,11 @@ func TestConvertFiles(t *testing.T) {
 				return
 			}
 
-			defer os.RemoveAll(outdir)
+			defer func() {
+				if err := os.RemoveAll(outdir); err != nil {
+					slog.Warn("failed to remove temp directory", "error", err)
+				}
+			}()
 
 			convertions, err := test.convert(ctx, test.src, outdir, test.variants)
 			if err != nil {

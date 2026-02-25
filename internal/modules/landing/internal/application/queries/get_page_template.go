@@ -30,12 +30,17 @@ func (q *GetPageTemplateQuery) GetPageTemplate(config *configs.Config, pagename 
 		return nil, false, nil
 	}
 
+	layout, ok := config.Layouts[page.Layout]
+	if !ok {
+		layout = configs.DefaultLayout
+	}
+
 	base, err := configs.PageTemplate.Clone()
 	if err != nil {
 		return nil, false, fmt.Errorf("failed at cloning page template: %w", err)
 	}
 
-	parsed, err := base.Parse(fmt.Sprintf(`{{define "body"}}%s{{end}}`, page.Body))
+	parsed, err := base.Parse(fmt.Sprintf(`{{define "layout_body"}}%s{{end}}{{define "page_body"}}%s{{end}}`, layout.Body, page.Body))
 	if err != nil {
 		return nil, false, fmt.Errorf("failed at parsing page template body: %w", err)
 	}
