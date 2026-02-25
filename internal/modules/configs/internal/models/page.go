@@ -26,11 +26,17 @@ type pageDataOptions struct {
 	Layout       *Page
 	Fonts        map[string]*Font
 	Colors       map[string]string
+	AppTitle     string
 	Version      int64
 }
 
 func NewPageData(page *Page, layout *Page) *pageDataOptions {
 	return &pageDataOptions{Page: page, Layout: layout}
+}
+
+func (p *pageDataOptions) WithAppTitle(appTitle string) *pageDataOptions {
+	p.AppTitle = appTitle
+	return p
 }
 
 func (p *pageDataOptions) WithInlineStyles(inlineStyles bool) *pageDataOptions {
@@ -67,6 +73,7 @@ type pageData struct {
 	InlineStyles bool
 	InlineScript bool
 	FilePath     string
+	AppTitle     string
 	Page         *Page
 	Layout       *Page
 	Fonts        map[string]*Font
@@ -82,6 +89,7 @@ func (p *pageDataOptions) Data() *pageData {
 		Page:         p.Page,
 		Layout:       p.Layout,
 		Version:      p.Version,
+		AppTitle:     p.AppTitle,
 		Fonts:        p.Fonts,
 		Colors:       p.Colors,
 	}
@@ -92,4 +100,12 @@ func (p *pageData) FileURL(filename string, variant ...int) string {
 		return fmt.Sprintf("%s/%s?variant=%d", p.FilePath, filename, variant[0])
 	}
 	return p.FilePath + "/" + filename
+}
+
+func (p *pageData) Title() string {
+	if p.Page.Title != "" {
+		return p.Page.Title + " - " + p.AppTitle
+	}
+
+	return p.AppTitle
 }
