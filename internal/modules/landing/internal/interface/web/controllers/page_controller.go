@@ -40,6 +40,7 @@ func (c *PageController) Index(w http.ResponseWriter, r *http.Request) {
 	page := config.Pages["index"]
 
 	data := configs.NewPageData(page).
+		WithFonts(config.Fonts).
 		WithFilePath("/assets/dynamic/files/").
 		Data()
 

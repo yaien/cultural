@@ -307,14 +307,14 @@
         <!-- HTML Editor Page -->
         <div x-show="on(states.editor)" x-transition:enter.delay.75ms>
           <template x-if="on(states.editor)">
-            <div class="monaco" x-data="monaco({ draft, model, language: 'html' })"></div>
+            <div class="monaco" x-data="monaco({ draft, model, language: 'html', reset: true })"></div>
           </template>
         </div>
 
         <!-- Styles Editor Page -->
         <div x-show="on(states.styles)" x-transition:enter.delay.75ms>
           <template x-if="on(states.styles)">
-            <div class="monaco" x-data="monaco({ draft, model, language: 'css' })"></div>
+            <div class="monaco" x-data="monaco({ draft, model, language: 'css', reset: true })"></div>
           </template>
         </div>
 
