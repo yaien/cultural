@@ -3,8 +3,8 @@ package models
 import (
 	"bytes"
 	"fmt"
-	"html/template"
 	"io"
+	"text/template"
 )
 
 var PageStyleTemplate = template.Must(template.New("styles").Parse(read("templates/styles.txt")))
@@ -12,8 +12,8 @@ var PageStyleTemplate = template.Must(template.New("styles").Parse(read("templat
 type PageStyleTemplateData struct {
 	Fonts        map[string]*Font
 	Colors       map[string]string
-	PageStyles   template.CSS
-	LayoutStyles template.CSS
+	PageStyles   string
+	LayoutStyles string
 }
 
 func WritePageBaseStyles(b io.Writer, cfg *Config) error {
@@ -23,7 +23,7 @@ func WritePageBaseStyles(b io.Writer, cfg *Config) error {
 	})
 }
 
-func (c *pageData) Styles() (template.HTML, error) {
+func (c *pageData) Styles() (string, error) {
 	buff := &bytes.Buffer{}
 	data := &PageStyleTemplateData{
 		Fonts:        c.Fonts,
@@ -37,5 +37,5 @@ func (c *pageData) Styles() (template.HTML, error) {
 	}
 	styles := fmt.Sprintf("<style type=%q>\n%s</style>", "text/css", buff.String())
 
-	return template.HTML(styles), nil
+	return styles, nil
 }

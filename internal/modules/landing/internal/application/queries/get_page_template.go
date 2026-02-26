@@ -2,7 +2,7 @@ package queries
 
 import (
 	"fmt"
-	"html/template"
+	"text/template"
 
 	"github.com/yaien/cultural/internal/library/cache"
 	"github.com/yaien/cultural/internal/modules/configs"

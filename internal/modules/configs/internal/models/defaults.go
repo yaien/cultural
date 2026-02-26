@@ -2,7 +2,6 @@ package models
 
 import (
 	"embed"
-	"html/template"
 )
 
 //go:embed templates/*
@@ -29,8 +28,8 @@ var DefaultLayouts = map[string]*Page{
 var DefaultPages = map[string]*Page{
 	"index": {
 		Name:   "index",
-		Styles: template.CSS(read("templates/index_page.css")),
-		Body:   template.HTML(read("templates/index_page.html")),
+		Styles: read("templates/index_page.css"),
+		Body:   read("templates/index_page.html"),
 	},
 }
 

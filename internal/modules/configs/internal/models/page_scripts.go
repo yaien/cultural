@@ -3,20 +3,20 @@ package models
 import (
 	"bytes"
 	"fmt"
-	"html/template"
+	"text/template"
 )
 
 var PageScriptTemplate = template.Must(template.New("script").Parse(read("templates/scripts.txt")))
 
 type PageScriptTemplateData struct {
-	PageScript   template.JS
-	LayoutScript template.JS
+	PageScript   string
+	LayoutScript string
 }
 
-func (c *pageData) Script() (template.HTML, error) {
+func (c *pageData) Script() (string, error) {
 	data := &PageScriptTemplateData{
-		PageScript:   c.Page.Script,
-		LayoutScript: c.Layout.Script,
+		PageScript:   string(c.Page.Script),
+		LayoutScript: string(c.Layout.Script),
 	}
 
 	var buff bytes.Buffer
@@ -24,5 +24,5 @@ func (c *pageData) Script() (template.HTML, error) {
 		return "", fmt.Errorf("failed executing script template: %w", err)
 	}
 
-	return template.HTML(buff.String()), nil
+	return buff.String(), nil
 }

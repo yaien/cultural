@@ -2,9 +2,9 @@ package views
 
 import (
 	"embed"
-	"html/template"
 	"log/slog"
 	"net/http"
+	"text/template"
 )
 
 //go:embed *.html icons/*.svg

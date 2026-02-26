@@ -2,16 +2,16 @@ package models
 
 import (
 	"fmt"
-	"html/template"
+	"text/template"
 )
 
 type Page struct {
-	Title  string        `bson:"title,omitempty" json:"title,omitempty"`
-	Name   string        `bson:"name,omitempty" json:"name,omitempty"`
-	Layout string        `bson:"layout,omitempty" json:"layout,omitempty"`
-	Styles template.CSS  `bson:"styles,omitempty" json:"styles,omitempty"`
-	Script template.JS   `bson:"script,omitempty" json:"script,omitempty"`
-	Body   template.HTML `bson:"body" json:"body"`
+	Title  string `bson:"title,omitempty" json:"title,omitempty"`
+	Name   string `bson:"name,omitempty" json:"name,omitempty"`
+	Layout string `bson:"layout,omitempty" json:"layout,omitempty"`
+	Styles string `bson:"styles,omitempty" json:"styles,omitempty"`
+	Script string `bson:"script,omitempty" json:"script,omitempty"`
+	Body   string `bson:"body" json:"body"`
 }
 
 var PageTemplate = template.Must(template.New("page").Parse(read("templates/page.html")))

@@ -1,7 +1,7 @@
 package landing
 
 import (
-	"html/template"
+	"text/template"
 	"time"
 
 	"github.com/yaien/cultural/internal/infrastructure"

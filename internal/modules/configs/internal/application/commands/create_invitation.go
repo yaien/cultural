@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"html/template"
+	"text/template"
 	"time"
 
 	"github.com/yaien/cultural/internal/library/mail"
