@@ -13,7 +13,7 @@
 
 <!-- Content -->
 {{define "content"}}
-<div class="container" x-data="{{ printf `roles({ currentUserId: %q })` .User.ID.Hex }}">
+<div class="container" x-data="roles({ currentUserId: '{{.User.ID.Hex}}' })">
   <table>
     <thead>
       <tr>
@@ -32,11 +32,8 @@
           <td>
             <div role="group">
               <!-- -- <button class="warning">{{ template "edit.svg"}}</button> -->
-              <button
-                x-show="role.userId !== currentUserId && roles.length != 1"
-                class="danger"
-                @click="openDeleteModal(role)"
-              >
+              <button x-show="role.userId !== currentUserId && roles.length != 1" class="danger"
+                @click="openDeleteModal(role)">
                 {{ template "trash.svg"}}
               </button>
             </div>
