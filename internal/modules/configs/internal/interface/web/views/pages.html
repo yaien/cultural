@@ -15,7 +15,7 @@
 
 <!-- Content -->
 {{ define "content" }}
-<div x-data="{{ printf `pages({ url: %q, filepath: '/assets/dynamic/files/' })` .Config.Url }}" style="height: 100%">
+<div x-data="pages({ url: '{{.Config.Url}}', filepath: '/assets/dynamic/files/' })" style="height: 100%">
   <template x-if="ready">
     <div class="container" @update.debounce="update($event.detail)">
       <div class="indicator" x-show="loading">

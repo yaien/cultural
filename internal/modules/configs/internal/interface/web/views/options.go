@@ -2,7 +2,6 @@ package views
 
 import (
 	"fmt"
-	"html/template"
 	"net/http"
 
 	"github.com/yaien/cultural/internal/modules/configs/internal/models"
@@ -51,7 +50,7 @@ func newData(r *http.Request, opts ...option) *data {
 type Link struct {
 	Path   string
 	Name   string
-	Icon   template.HTML
+	Icon   string
 	Active bool
 }
 
@@ -64,7 +63,7 @@ func (d *data) Link(path, name, icon string) (*Link, error) {
 	return &Link{
 		Path:   path,
 		Name:   name,
-		Icon:   template.HTML(svg),
+		Icon:   string(svg),
 		Active: path == d.Path,
 	}, nil
 }

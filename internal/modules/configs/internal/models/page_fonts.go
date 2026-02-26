@@ -2,11 +2,10 @@ package models
 
 import (
 	"fmt"
-	"html/template"
 	"strings"
 )
 
-func (p *pageData) FontLinks() (template.HTML, error) {
+func (p *pageData) FontLinks() (string, error) {
 	setted := make(map[string]bool)
 	sb := strings.Builder{}
 	for _, font := range p.Fonts {
@@ -20,7 +19,7 @@ func (p *pageData) FontLinks() (template.HTML, error) {
 			fmt.Fprintf(&sb, `<link rel="stylesheet" href="%s"/>`, googleFontURL(font))
 		}
 	}
-	return template.HTML(sb.String()), nil
+	return sb.String(), nil
 }
 
 func googleFontURL(font *Font) string {
