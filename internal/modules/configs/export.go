@@ -7,15 +7,16 @@ import (
 )
 
 type CreateInvitationRequest = commands.CreateInvitationRequest
+
 type GetFileRequest = queries.GetFileRequest
 type GetFileResponse = queries.GetFileResponse
 
 type Config = models.Config
+type PageData = models.PageData
 
 const ConfigContextKey = models.ConfigContextKey
 
-var NewPageData = models.NewPageData
 var WritePageBaseStyles = models.WritePageBaseStyles
-var PageTemplate = models.PageTemplate
 var EmptyPage = models.EmptyPage
 var DefaultLayout = models.DefaultLayout
+var RenderPage = models.RenderPage

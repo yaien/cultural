@@ -41,11 +41,14 @@ func WriteJSONErr(w http.ResponseWriter, err error) {
 		w.WriteHeader(status)
 
 		err = json.NewEncoder(w).Encode(map[string]string{"error": e.Code, "message": e.Error()})
-		return
 	default:
 		slog.Error("Internal server error", "err", err.Error())
 		w.WriteHeader(http.StatusInternalServerError)
 		err = json.NewEncoder(w).Encode(map[string]string{"error": err.Error()})
+	}
+
+	if err != nil {
+		slog.Warn("Failed to write JSON error response", "err", err.Error())
 	}
 }
 
@@ -60,16 +63,24 @@ func WriteHTMLErr(w http.ResponseWriter, err error) {
 		}
 
 		w.WriteHeader(status)
-		fmt.Fprintf(w, "<h1>Error: %s</h1>", e.Code)
+		_, err = fmt.Fprintf(w, "<h1>Error: %s</h1>", e.Code)
 	default:
 		slog.Error("Internal server error", "err", err.Error())
 		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprintf(w, "<h1>Internal Server Error</h1>")
+		_, err = fmt.Fprintf(w, "<h1>Internal Server Error</h1>")
+	}
+
+	if err != nil {
+		slog.Warn("Failed to write HTML error response", "err", err.Error())
 	}
 }
 
 func WriteFile(w http.ResponseWriter, r *http.Request, res *queries.GetFileResponse) {
-	defer res.Data.Close()
+	defer func() {
+		if err := res.Data.Close(); err != nil {
+			slog.Warn("error closing file data", "err", err)
+		}
+	}()
 
 	w.Header().Set("Content-Type", res.ContentType)
 	w.Header().Set("Content-Length", fmt.Sprint(res.Size))

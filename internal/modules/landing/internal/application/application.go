@@ -1,8 +1,6 @@
 package application
 
 import (
-	"text/template"
-
 	"github.com/yaien/cultural/internal/library/cache"
 	"github.com/yaien/cultural/internal/modules/landing/internal/application/queries"
 )
@@ -12,7 +10,7 @@ type Application struct {
 }
 
 type Deps struct {
-	Cache *cache.Cache[*template.Template]
+	Cache *cache.Cache[string]
 }
 
 func New(deps Deps) *Application {

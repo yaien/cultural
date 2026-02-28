@@ -34,7 +34,7 @@ func (c *AuthController) Login(w http.ResponseWriter, r *http.Request) {
 
 	user, err := c.app.SyncUser(r.Context(), u)
 	if err != nil {
-		WriteHTMLErr(w, fmt.Errorf("Failed to sync user: %w", err))
+		WriteHTMLErr(w, fmt.Errorf("failed to sync user: %w", err))
 		return
 	}
 
@@ -60,7 +60,7 @@ func (c *AuthController) Login(w http.ResponseWriter, r *http.Request) {
 func (c *AuthController) Logout(w http.ResponseWriter, r *http.Request) {
 	err := gothic.Logout(w, r)
 	if err != nil {
-		WriteHTMLErr(w, fmt.Errorf("Failed to logout: %w", err))
+		WriteHTMLErr(w, fmt.Errorf("failed to logout: %w", err))
 		return
 	}
 
@@ -69,7 +69,7 @@ func (c *AuthController) Logout(w http.ResponseWriter, r *http.Request) {
 	session.Values = make(map[any]any)
 	err = session.Save(r, w)
 	if err != nil {
-		WriteHTMLErr(w, fmt.Errorf("Failed to clear session: %w", err))
+		WriteHTMLErr(w, fmt.Errorf("failed to clear session: %w", err))
 		return
 	}
 
@@ -79,13 +79,13 @@ func (c *AuthController) Logout(w http.ResponseWriter, r *http.Request) {
 func (c *AuthController) Callback(w http.ResponseWriter, r *http.Request) {
 	u, err := gothic.CompleteUserAuth(w, r)
 	if err != nil {
-		WriteHTMLErr(w, fmt.Errorf("Authentication failed: %w", err))
+		WriteHTMLErr(w, fmt.Errorf("authentication failed: %w", err))
 		return
 	}
 
 	user, err := c.app.SyncUser(r.Context(), u)
 	if err != nil {
-		WriteHTMLErr(w, fmt.Errorf("Failed to sync user: %w", err))
+		WriteHTMLErr(w, fmt.Errorf("failed to sync user: %w", err))
 		return
 	}
 
@@ -100,7 +100,7 @@ func (c *AuthController) Callback(w http.ResponseWriter, r *http.Request) {
 
 	err = session.Save(r, w)
 	if err != nil {
-		WriteHTMLErr(w, fmt.Errorf("Failed to save session: %w", err))
+		WriteHTMLErr(w, fmt.Errorf("failed to save session: %w", err))
 		return
 	}
 
