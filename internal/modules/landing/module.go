@@ -1,7 +1,6 @@
 package landing
 
 import (
-	"text/template"
 	"time"
 
 	"github.com/yaien/cultural/internal/infrastructure"
@@ -16,7 +15,7 @@ type Module struct {
 
 func (m *Module) Init(mono *infrastructure.Monolith) error {
 	m.App = application.New(application.Deps{
-		Cache: cache.New[*template.Template](30 * time.Minute),
+		Cache: cache.New[string](30 * time.Minute),
 	})
 
 	routes.Register(mono, m.App)

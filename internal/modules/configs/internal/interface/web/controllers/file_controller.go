@@ -3,7 +3,6 @@ package controllers
 import (
 	"encoding/json"
 	"fmt"
-	"log/slog"
 	"net/http"
 	"strconv"
 
@@ -24,16 +23,17 @@ func NewFileController(app *application.Application) *FileController {
 func (fc *FileController) Upload(w http.ResponseWriter, r *http.Request) {
 	config := r.Context().Value(models.ConfigContextKey).(*models.Config)
 
-	r.ParseMultipartForm(5 << 20) // 5 MB
-
-	data, handler, err := r.FormFile("file")
+	err := r.ParseMultipartForm(5 << 20) // 5 MB
 	if err != nil {
-		slog.Error("error retrieving the file", "err", err)
-		http.Error(w, "error retrieving the file", http.StatusBadRequest)
+		WriteJSONErr(w, &models.Error{Code: "invalid form data", Err: fmt.Errorf("failed to parse multipart form: %w", err)})
 		return
 	}
 
-	defer data.Close()
+	data, handler, err := r.FormFile("file")
+	if err != nil {
+		WriteJSONErr(w, &models.Error{Code: "invalid form data", Err: fmt.Errorf("error retrieving the file: %w", err)})
+		return
+	}
 
 	file, err := fc.app.UploadFile(r.Context(), &commands.UploadFileRequest{
 		Name:           handler.Filename,

@@ -36,9 +36,8 @@ func (c *InvitationController) Create(w http.ResponseWriter, r *http.Request) {
 
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(map[string]string{"error": "invalid request payload: " + err.Error()})
+		WriteJSONErr(w, models.DecodeError(err))
+		return
 	}
 
 	_, err = c.app.CreateInvitation(ctx, &commands.CreateInvitationRequest{
@@ -53,15 +52,11 @@ func (c *InvitationController) Create(w http.ResponseWriter, r *http.Request) {
 	})
 
 	if err != nil {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(map[string]string{"error": err.Error()})
+		WriteJSONErr(w, err)
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]string{"status": "invitation sent"})
-
+	WriteJSONSuccess(w)
 }
 
 func (c *InvitationController) Accept(w http.ResponseWriter, r *http.Request) {

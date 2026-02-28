@@ -3,7 +3,6 @@ package controllers
 import (
 	"fmt"
 	"io"
-	"log/slog"
 	"net/http"
 	"strconv"
 	"strings"
@@ -23,84 +22,25 @@ func NewPageController(app *application.Application) *PageController {
 	}
 }
 
-func (c *PageController) Index(w http.ResponseWriter, r *http.Request) {
-	config := r.Context().Value(configs.ConfigContextKey).(*configs.Config)
-
-	parsed, found, err := c.app.GetPageTemplate(config, "index")
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	if !found {
-		http.Error(w, "No index page configured", http.StatusInternalServerError)
-		return
-	}
-
-	page := config.Pages["index"]
-
-	layout, ok := config.Layouts[page.Layout]
-	if !ok {
-		layout = configs.DefaultLayout
-	}
-
-	data := configs.NewPageData(page, layout).
-		WithAppTitle(config.Title).
-		WithFonts(config.Fonts).
-		WithFilePath("/assets/dynamic/files/").
-		Data()
-
-	w.Header().Set("Content-Type", "text/html")
-
-	if err = parsed.Execute(w, data); err != nil {
-		slog.Error("Failed to execute index page template", "error", err)
-		http.Error(w, "Failed to render index page", http.StatusInternalServerError)
-		return
-	}
-}
-
 func (c *PageController) Page(w http.ResponseWriter, r *http.Request) {
 
 	config := r.Context().Value(configs.ConfigContextKey).(*configs.Config)
 
 	path := r.PathValue("page")
 
-	if path == "index" {
-		http.NotFound(w, r)
-		return
-	}
-
-	parsed, found, err := c.app.GetPageTemplate(config, path)
+	html, found, err := c.app.GetPageHTML(config, path)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	if !found {
-		http.Error(w, "No page template found", http.StatusInternalServerError)
+		http.Error(w, "No page template found", http.StatusNotFound)
 		return
 	}
-
-	page := config.Pages[path]
-
-	layout, ok := config.Layouts[page.Layout]
-	if !ok {
-		layout = configs.DefaultLayout
-	}
-
-	data := configs.NewPageData(page, layout).
-		WithAppTitle(config.Title).
-		WithFonts(config.Fonts).
-		WithFilePath("/assets/dynamic/landing/").
-		Data()
 
 	w.Header().Set("Content-Type", "text/html")
-	if err := parsed.Execute(w, data); err != nil {
-		slog.Error("Failed to execute page template", "error", err)
-		http.Error(w, "Failed to render page", http.StatusInternalServerError)
-		return
-	}
-
+	_, _ = w.Write([]byte(html))
 }
 
 func (c *PageController) PageStyles(w http.ResponseWriter, r *http.Request) {
@@ -215,7 +155,13 @@ func (c *PageController) Favicon(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	defer icon.Close()
+	defer func() {
+		err = icon.Close()
+		if err != nil {
+			http.Error(w, "Failed to close favicon", http.StatusInternalServerError)
+			return
+		}
+	}()
 
 	stat, err := icon.Stat()
 	if err != nil {
