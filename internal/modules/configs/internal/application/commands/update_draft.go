@@ -21,7 +21,7 @@ type UpdateDraftRequest struct {
 	ConfigID primitive.ObjectID
 	Fonts    map[string]*models.Font
 	Pages    map[string]*models.Page
-	Layouts  map[string]*models.Page
+	Layouts  map[string]*models.Layout
 	Emails   map[string]*models.Email
 	Colors   map[string]string
 }

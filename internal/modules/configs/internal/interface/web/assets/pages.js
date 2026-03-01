@@ -23,6 +23,7 @@ document.addEventListener("alpine:init", () => {
             colors: 7,
             script: 8,
             publish: 9,
+            opengraph: 10,
         },
 
         async init() {
@@ -130,6 +131,10 @@ document.addEventListener("alpine:init", () => {
             if (!this.model) return false;
             return this.model.map == "pages" || this.model.map == "layouts";
         },
+        get forPage() {
+            if (!this.model) return false;
+            return this.model.map == "pages";
+        },
     }));
 
     Alpine.data("basic", ({ draft, model }) => ({
@@ -232,6 +237,15 @@ document.addEventListener("alpine:init", () => {
             this.$dispatch("update", { draft: this.draft, model: this.model, toast: true });
             this.$dispatch("removed");
         },
+    }));
+
+    Alpine.data("opengraph", ({ draft, model }) => ({
+        draft: draft,
+        model: model,
+        submit() {
+            this.draft[this.model.map][this.model.key] = this.model.value;
+            this.$dispatch("update", { draft: this.draft, model: this.model, toast: true });
+        }
     }));
 
     Alpine.data("monaco", ({ draft, model, language, reset }) => ({

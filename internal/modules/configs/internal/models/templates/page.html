@@ -5,6 +5,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#ffffff" />
+  <meta name="description" content="{{.Page.Description}}" />
+  <meta name="og:title" content="{{.Page.OGTitle}}" />
+  <meta name="og:description" content="{{.Page.OGDescription}}" />
+  <meta name="og:image" content="{{.BaseFileURL .Page.OGImage}}" />
+  <meta name="og:type" content="{{.Page.OGType}}" />
+
   <title>{{.Title}}</title>
 
   {{.FontLinks}}

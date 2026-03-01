@@ -24,7 +24,7 @@ func init() {
 			}
 
 			for _, config := range configs {
-				config.Layouts = make(map[string]*models.Page)
+				config.Layouts = make(map[string]*models.Layout)
 				config.Layouts["default"] = models.DefaultLayout
 				for _, page := range config.Pages {
 					page.Layout = "default"
@@ -50,7 +50,7 @@ func init() {
 			}
 
 			for _, draft := range drafts {
-				draft.Layouts = make(map[string]*models.Page)
+				draft.Layouts = make(map[string]*models.Layout)
 				draft.Layouts["default"] = models.DefaultLayout
 				for _, page := range draft.Pages {
 					page.Layout = "default"
