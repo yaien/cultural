@@ -2,6 +2,7 @@ package queries
 
 import (
 	"fmt"
+	"path"
 
 	"github.com/yaien/cultural/internal/library/cache"
 	"github.com/yaien/cultural/internal/modules/configs"
@@ -43,13 +44,13 @@ func (q *GetPageTemplateQuery) GetPageHTML(config *configs.Config, pagename stri
 	}
 
 	html, err = configs.RenderPage(&configs.PageData{
-		Page:     page,
-		Layout:   layout,
-		AppTitle: config.Title,
-		Fonts:    config.Fonts,
-		Colors:   config.Colors,
-		BaseURL:  config.Url,
-		FilePath: "/assets/dynamic/files/",
+		Page:             page,
+		Layout:           layout,
+		AppTitle:         config.Title,
+		Fonts:            config.Fonts,
+		Colors:           config.Colors,
+		ExternalFilePath: path.Join(config.Url, "/assets/external/", config.OrganizationID.Hex()),
+		FilePath:         "/assets/dynamic/files/",
 	})
 
 	if err != nil {
