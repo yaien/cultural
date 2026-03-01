@@ -57,9 +57,15 @@ func (p *PageData) FileURL(filename string, variant ...int) string {
 
 func (p *PageData) ExternalFileURL(filename string, variant ...int) string {
 	if len(variant) > 0 {
-		return fmt.Sprintf("%s?variant=%d", path.Join(p.ExternalFilePath, filename), variant[0])
+		filename = fmt.Sprintf("%s?variant=%d", filename, variant[0])
 	}
-	return path.Join(p.ExternalFilePath, filename)
+
+	dash := ""
+	if !strings.HasSuffix(p.ExternalFilePath, "/") {
+		dash = "/"
+	}
+
+	return p.ExternalFilePath + dash + filename
 }
 
 // Title returns the full title of the page, combining the page title and app title.

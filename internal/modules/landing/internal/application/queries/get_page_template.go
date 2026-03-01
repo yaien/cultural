@@ -2,7 +2,6 @@ package queries
 
 import (
 	"fmt"
-	"path"
 
 	"github.com/yaien/cultural/internal/library/cache"
 	"github.com/yaien/cultural/internal/modules/configs"
@@ -49,7 +48,7 @@ func (q *GetPageTemplateQuery) GetPageHTML(config *configs.Config, pagename stri
 		AppTitle:         config.Title,
 		Fonts:            config.Fonts,
 		Colors:           config.Colors,
-		ExternalFilePath: path.Join(config.Url, "/assets/external/", config.OrganizationID.Hex()),
+		ExternalFilePath: config.Url + "/assets/external/" + config.OrganizationID.Hex(),
 		FilePath:         "/assets/dynamic/files/",
 	})
 
