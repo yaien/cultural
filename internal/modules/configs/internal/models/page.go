@@ -35,16 +35,16 @@ type Page struct {
 var EmptyPage = &Page{}
 
 type PageData struct {
-	InlineStyles bool
-	InlineScript bool
-	FilePath     string
-	BaseURL      string
-	AppTitle     string
-	Page         *Page
-	Layout       *Layout
-	Fonts        map[string]*Font
-	Colors       map[string]string
-	Version      int64
+	InlineStyles     bool
+	InlineScript     bool
+	FilePath         string
+	ExternalFilePath string
+	AppTitle         string
+	Page             *Page
+	Layout           *Layout
+	Fonts            map[string]*Font
+	Colors           map[string]string
+	Version          int64
 }
 
 // FileURL generates a URL for a given filename, optionally with a variant query parameter.
@@ -55,9 +55,11 @@ func (p *PageData) FileURL(filename string, variant ...int) string {
 	return path.Join(p.FilePath, filename)
 }
 
-// BaseFileURL generates the full URL for a given filename, combining the base URL and file path.
-func (p *PageData) BaseFileURL(filename string, variant ...int) string {
-	return path.Join(p.BaseURL, p.FileURL(filename, variant...))
+func (p *PageData) ExternalFileURL(filename string, variant ...int) string {
+	if len(variant) > 0 {
+		return fmt.Sprintf("%s?variant=%d", path.Join(p.ExternalFilePath, filename), variant[0])
+	}
+	return path.Join(p.ExternalFilePath, filename)
 }
 
 // Title returns the full title of the page, combining the page title and app title.
