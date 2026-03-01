@@ -48,6 +48,7 @@ func (q *GetPageTemplateQuery) GetPageHTML(config *configs.Config, pagename stri
 		AppTitle: config.Title,
 		Fonts:    config.Fonts,
 		Colors:   config.Colors,
+		BaseURL:  config.Url,
 		FilePath: "/assets/dynamic/files/",
 	})
 

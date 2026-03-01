@@ -26,6 +26,7 @@
         <div role="group">
           <button @click="set(states.initial)">{{template "home.svg"}}</button>
           <button @click="set(states.create)" x-show="forWeb">{{template "add.svg"}}</button>
+          <button @click="set(states.opengraph)" x-show="forPage">{{template "web_traffic.svg"}}</button>
           <button @click="set(states.delete)" x-show="deleteable">{{template "trash.svg"}}</button>
           <button @click="set(states.font)" x-show="forWeb">{{template "brand_family.svg"}}</button>
           <button @click="set(states.files)">{{template "image.svg"}}</button>
@@ -61,17 +62,25 @@
                   <legend>Nombre</legend>
                   <input name="name" x-model="model.value.name" required :disabled="pageIsIndex" />
                 </fieldset>
-                <fieldset>
-                  <legend>Titulo</legend>
-                  <input name="title" x-model="model.value.title" />
-                </fieldset>
                 <fieldset role="group">
                   <legend>Url</legend>
                   <input name="url" :value="pageUrl" required disabled />
                 </fieldset>
+                <fieldset>
+                  <legend>Titulo</legend>
+                  <input name="title" x-model="model.value.title" />
+                </fieldset>
+                <fieldset>
+                  <legend>Descripción</legend>
+                  <textarea name="description" x-model="model.value.description" style="resize: none; height: 4em"
+                    cols="10">
+                  </textarea>
+                </fieldset>
+
                 <fieldset role="group">
                   <legend>Diseño</legend>
                   <select name="layout" x-model="model.value.layout">
+                    <option value="" :selected="model.value.layout === ''">Ninguno</option>
                     <template x-for="(value, key) in draft.layouts" :key="key">
                       <option :value="key" :selected="model.value.layout === key" x-text="value.title"></option>
                     </template>
@@ -155,6 +164,41 @@
               </div>
             </div>
           </template>
+        </div>
+
+        <!-- Opengraph Page -->
+        <div x-show="on(states.opengraph)" x-data="opengraph({ draft, model })" x-transition:enter.delay.75ms
+          class="opengraph">
+          <form @submit.prevent="submit()" x-transition:enter.delay.75ms>
+            <div>
+              <fieldset>
+                <legend>Titulo Opengraph</legend>
+                <input name="title" x-model="model.value.ogTitle" required />
+              </fieldset>
+              <fieldset>
+                <legend>Descripción Opengraph</legend>
+                <textarea name="description" x-model="model.value.ogDescription" required
+                  style="resize: none; height: 4em" cols="10"></textarea>
+              </fieldset>
+              <fieldset>
+                <legend>Imagen Opengraph</legend>
+                <input name="image" x-model="model.value.ogImage" required />
+              </fieldset>
+              <fieldset>
+                <legend>Tipo Opengraph</legend>
+                <select name="type" x-model="model.value.ogType">
+                  <option value="" :selected="model.value.ogType === ''">Ninguno</option>
+                  <option value="website" :selected="model.value.ogType === 'website'">Sitio Web</option>
+                  <option value="article" :selected="model.value.ogType === 'article'">Artículo</option>
+                  <option value="profile" :selected="model.value.ogType === 'profile'">Perfil</option>
+                  <option value="product" :selected="model.value.ogType === 'product'">Producto</option>
+                </select>
+              </fieldset>
+            </div>
+            <div class="actions">
+              <button>Guardar</button>
+            </div>
+          </form>
         </div>
 
         <!-- Fonts Page -->

@@ -35,11 +35,11 @@ func (c *DraftController) Update(w http.ResponseWriter, r *http.Request) {
 	config := ctx.Value(models.ConfigContextKey).(*models.Config)
 
 	var input struct {
-		Fonts   map[string]*models.Font  `json:"fonts"`
-		Pages   map[string]*models.Page  `json:"pages"`
-		Layouts map[string]*models.Page  `json:"layouts"`
-		Emails  map[string]*models.Email `json:"emails"`
-		Colors  map[string]string        `json:"colors"`
+		Fonts   map[string]*models.Font   `json:"fonts"`
+		Pages   map[string]*models.Page   `json:"pages"`
+		Layouts map[string]*models.Layout `json:"layouts"`
+		Emails  map[string]*models.Email  `json:"emails"`
+		Colors  map[string]string         `json:"colors"`
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {

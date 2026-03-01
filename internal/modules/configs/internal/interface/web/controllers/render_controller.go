@@ -16,13 +16,13 @@ func NewRenderController() *RenderController {
 }
 
 type RenderControllerInput struct {
-	Map     string                   `json:"map"`
-	Key     string                   `json:"key"`
-	Layouts map[string]*models.Page  `bson:"layouts" json:"layouts"`
-	Fonts   map[string]*models.Font  `bson:"fonts" json:"fonts"`
-	Pages   map[string]*models.Page  `bson:"pages" json:"pages"`
-	Emails  map[string]*models.Email `bson:"emails" json:"emails"`
-	Colors  map[string]string        `bson:"colors" json:"colors"`
+	Map     string                    `json:"map"`
+	Key     string                    `json:"key"`
+	Layouts map[string]*models.Layout `bson:"layouts" json:"layouts"`
+	Fonts   map[string]*models.Font   `bson:"fonts" json:"fonts"`
+	Pages   map[string]*models.Page   `bson:"pages" json:"pages"`
+	Emails  map[string]*models.Email  `bson:"emails" json:"emails"`
+	Colors  map[string]string         `bson:"colors" json:"colors"`
 }
 
 func (c *RenderController) Render(w http.ResponseWriter, r *http.Request) {
@@ -34,7 +34,8 @@ func (c *RenderController) Render(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var page, layout *models.Page
+	var page *models.Page
+	var layout *models.Layout
 	var ok bool
 
 	switch input.Map {
@@ -79,7 +80,7 @@ func (c *RenderController) RenderEmail(w http.ResponseWriter, emails map[string]
 	WriteJSON(w, map[string]any{"html": email.Body})
 }
 
-func (c *RenderController) RenderPage(w http.ResponseWriter, page, layout *models.Page, fonts map[string]*models.Font, colors map[string]string) {
+func (c *RenderController) RenderPage(w http.ResponseWriter, page *models.Page, layout *models.Layout, fonts map[string]*models.Font, colors map[string]string) {
 	data := &models.PageData{
 		Page:         page,
 		Layout:       layout,
