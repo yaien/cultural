@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"encoding/gob"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -8,9 +9,15 @@ import (
 	"log/slog"
 	"net/http"
 
+	"github.com/gorilla/sessions"
 	"github.com/yaien/cultural/internal/modules/configs/internal/application/queries"
+	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/middlewares"
 	"github.com/yaien/cultural/internal/modules/configs/internal/models"
 )
+
+func init() {
+	gob.Register(Toast{})
+}
 
 func WriteJSON(w http.ResponseWriter, data any) {
 	w.Header().Set("Content-Type", "application/json")
@@ -104,4 +111,66 @@ func WriteFile(w http.ResponseWriter, r *http.Request, res *queries.GetFileRespo
 		slog.Warn("error downloading the file", "err", err)
 		return
 	}
+}
+
+type Toast struct {
+	Message string
+	Variant string
+	Trigger string
+}
+
+const ToastKey = "toast"
+
+// WriteSession adds the session to the request context and saves it in the response.
+func WriteToast(w http.ResponseWriter, r *http.Request, toast Toast) {
+	session, ok := r.Context().Value(middlewares.SessionContextKey).(*sessions.Session)
+	if !ok {
+		slog.Error("Failed to get session from context for toast message")
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	session.AddFlash(toast, ToastKey)
+	if err := session.Save(r, w); err != nil {
+		slog.Error("Failed to save session for toast message", "error", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	trigger := ToastKey
+	if toast.Trigger != "" {
+		trigger = toast.Trigger
+	}
+
+	w.Header().Set("HX-Trigger-After-Swap", trigger)
+	w.WriteHeader(http.StatusOK)
+}
+
+// GetToast retrieves a toast message from the session in the request context.
+func GetToast(w http.ResponseWriter, r *http.Request) (*Toast, bool, error) {
+	session, ok := r.Context().Value(middlewares.SessionContextKey).(*sessions.Session)
+	if !ok {
+		return nil, false, fmt.Errorf("failed to get session from context for toast message")
+	}
+
+	toasts := session.Flashes(ToastKey)
+	if len(toasts) == 0 {
+		return nil, false, nil
+	}
+
+	store := session.Store()
+	if store == nil {
+		return nil, false, fmt.Errorf("session store is nil when retrieving toast message")
+	}
+
+	if err := session.Save(r, w); err != nil {
+		return nil, false, fmt.Errorf("failed to save session after retrieving toast message: %w", err)
+	}
+
+	toast, ok := toasts[0].(Toast)
+	if !ok {
+		return nil, false, fmt.Errorf("invalid toast message type: %T", toasts[0])
+	}
+
+	return &toast, true, nil
 }

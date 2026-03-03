@@ -7,6 +7,7 @@ import (
 
 	"github.com/yaien/cultural/internal/modules/configs/internal/application"
 	"github.com/yaien/cultural/internal/modules/configs/internal/application/commands"
+	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/middlewares"
 	"github.com/yaien/cultural/internal/modules/configs/internal/models"
 )
 
@@ -20,7 +21,7 @@ func NewDraftController(app *application.Application) *DraftController {
 
 func (c *DraftController) Get(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	config := ctx.Value(models.ConfigContextKey).(*models.Config)
+	config := ctx.Value(middlewares.ConfigContextKey).(*models.Config)
 	draft, err := c.app.GetDraftByConfigID(ctx, config.ID)
 	if err != nil {
 		WriteJSONErr(w, fmt.Errorf("failed getting draft for config host %s: %w", config.Host, err))
@@ -32,7 +33,7 @@ func (c *DraftController) Get(w http.ResponseWriter, r *http.Request) {
 
 func (c *DraftController) Update(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	config := ctx.Value(models.ConfigContextKey).(*models.Config)
+	config := ctx.Value(middlewares.ConfigContextKey).(*models.Config)
 
 	var input struct {
 		Fonts   map[string]*models.Font   `json:"fonts"`
@@ -66,7 +67,7 @@ func (c *DraftController) Update(w http.ResponseWriter, r *http.Request) {
 
 func (c *DraftController) Commit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	config := ctx.Value(models.ConfigContextKey).(*models.Config)
+	config := ctx.Value(middlewares.ConfigContextKey).(*models.Config)
 
 	if err := c.app.CommitDraft(ctx, config); err != nil {
 		WriteJSONErr(w, fmt.Errorf("failed committing draft for config host %s: %w", config.Host, err))

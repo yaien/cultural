@@ -4,22 +4,30 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/middlewares"
 	"github.com/yaien/cultural/internal/modules/configs/internal/models"
 )
 
 type data struct {
-	Config *models.Config
-	User   *models.User
-	Role   *models.Role
-	Path   string
-	Meta   any
+	Config   *models.Config
+	User     *models.User
+	Role     *models.Role
+	Path     string
+	Data     any
+	Template string
 }
 
 type option func(*data)
 
-func Meta(meta any) option {
+func Data(dat any) option {
 	return func(d *data) {
-		d.Meta = meta
+		d.Data = dat
+	}
+}
+
+func Template(name string) option {
+	return func(d *data) {
+		d.Template = name
 	}
 }
 
@@ -28,15 +36,15 @@ func newData(r *http.Request, opts ...option) *data {
 
 	data.Path = r.URL.Path
 
-	if config, ok := r.Context().Value(models.ConfigContextKey).(*models.Config); ok {
+	if config, ok := r.Context().Value(middlewares.ConfigContextKey).(*models.Config); ok {
 		data.Config = config
 	}
 
-	if user, ok := r.Context().Value(models.UserContextKey).(*models.User); ok {
+	if user, ok := r.Context().Value(middlewares.UserContextKey).(*models.User); ok {
 		data.User = user
 	}
 
-	if role, ok := r.Context().Value(models.RoleContextKey).(*models.Role); ok {
+	if role, ok := r.Context().Value(middlewares.RoleContextKey).(*models.Role); ok {
 		data.Role = role
 	}
 

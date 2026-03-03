@@ -1,14 +1,12 @@
 package controllers
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
-	"time"
 
 	"github.com/yaien/cultural/internal/modules/configs/internal/application"
 	"github.com/yaien/cultural/internal/modules/configs/internal/application/commands"
-	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views"
+	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/middlewares"
 	"github.com/yaien/cultural/internal/modules/configs/internal/models"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -21,44 +19,6 @@ func NewInvitationController(app *application.Application) *InvitationController
 	return &InvitationController{app: app}
 }
 
-func (c *InvitationController) Create(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	config := ctx.Value(models.ConfigContextKey).(*models.Config)
-	user := ctx.Value(models.UserContextKey).(*models.User)
-
-	var req struct {
-		GroupID         *primitive.ObjectID `json:"groupId"`
-		Permissions     []string            `json:"permissions"`
-		Name            string              `json:"name"`
-		UserDisplayName string              `json:"userDisplayName"`
-		UserEmail       string              `json:"userEmail"`
-	}
-
-	err := json.NewDecoder(r.Body).Decode(&req)
-	if err != nil {
-		WriteJSONErr(w, models.DecodeError(err))
-		return
-	}
-
-	_, err = c.app.CreateInvitation(ctx, &commands.CreateInvitationRequest{
-		ExpiresAt:       time.Now().Add(24 * time.Hour),
-		OrganizationID:  config.OrganizationID,
-		CreatorID:       user.ID,
-		RoleGroupID:     req.GroupID,
-		RolePermissions: req.Permissions,
-		RoleName:        req.Name,
-		UserDisplayName: req.UserDisplayName,
-		UserEmail:       req.UserEmail,
-	})
-
-	if err != nil {
-		WriteJSONErr(w, err)
-		return
-	}
-
-	WriteJSONSuccess(w)
-}
-
 func (c *InvitationController) Accept(w http.ResponseWriter, r *http.Request) {
 	id, err := primitive.ObjectIDFromHex(r.PathValue("id"))
 	if err != nil {
@@ -66,8 +26,8 @@ func (c *InvitationController) Accept(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	config := r.Context().Value(models.ConfigContextKey).(*models.Config)
-	user := r.Context().Value(models.UserContextKey).(*models.User)
+	config := r.Context().Value(middlewares.ConfigContextKey).(*models.Config)
+	user := r.Context().Value(middlewares.UserContextKey).(*models.User)
 
 	err = c.app.AcceptInvitation(r.Context(), &commands.AcceptInvitationRequest{
 		InvitationID:   id,
@@ -83,6 +43,6 @@ func (c *InvitationController) Accept(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	views.Welcome(w, r)
+	http.Redirect(w, r, "/dashboard", http.StatusMovedPermanently)
 
 }

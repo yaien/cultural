@@ -7,10 +7,6 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-type key string
-
-const ConfigContextKey = key("config")
-
 type Config struct {
 	ID             primitive.ObjectID `bson:"_id,omitempty" json:"id"`
 	OrganizationID primitive.ObjectID `bson:"organizationId" json:"organizationId"`

@@ -8,8 +8,6 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-const UserContextKey = key("user")
-
 type User struct {
 	ID        primitive.ObjectID   `bson:"_id,omitempty" json:"id"`
 	Email     string               `bson:"email" json:"email"`

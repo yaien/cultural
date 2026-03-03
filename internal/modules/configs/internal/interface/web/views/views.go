@@ -22,7 +22,14 @@ func compile(patterns ...string) func(w http.ResponseWriter, r *http.Request, op
 	return func(w http.ResponseWriter, r *http.Request, options ...option) {
 		w.Header().Set("Content-Type", "text/html")
 		w.WriteHeader(http.StatusOK)
-		err := t.ExecuteTemplate(w, patterns[0], newData(r, options...))
+
+		template := patterns[0]
+		dta := newData(r, options...)
+		if dta.Template != "" {
+			template = dta.Template
+		}
+
+		err := t.ExecuteTemplate(w, template, dta)
 		if err != nil {
 			slog.Error("failed to render template", "error", err)
 		}

@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/yaien/cultural/internal/modules/configs/internal/application"
@@ -17,4 +18,23 @@ func NewDashboardController(app *application.Application) *DashboardController {
 
 func (c *DashboardController) Home(w http.ResponseWriter, r *http.Request) {
 	views.Home(w, r)
+}
+
+func (c *DashboardController) Toast(w http.ResponseWriter, r *http.Request) {
+	toast, exists, err := GetToast(w, r)
+	if err != nil {
+		WriteHTMLErr(w, fmt.Errorf("failed to get toast: %w", err))
+		return
+	}
+
+	if !exists {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	views.Home(w, r, views.Data(toast), views.Template("toast"))
+}
+
+func (c *DashboardController) Empty(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
 }

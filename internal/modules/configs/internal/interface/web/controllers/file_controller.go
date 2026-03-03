@@ -9,6 +9,7 @@ import (
 	"github.com/yaien/cultural/internal/modules/configs/internal/application"
 	"github.com/yaien/cultural/internal/modules/configs/internal/application/commands"
 	"github.com/yaien/cultural/internal/modules/configs/internal/application/queries"
+	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/middlewares"
 	"github.com/yaien/cultural/internal/modules/configs/internal/models"
 )
 
@@ -21,7 +22,7 @@ func NewFileController(app *application.Application) *FileController {
 }
 
 func (fc *FileController) Upload(w http.ResponseWriter, r *http.Request) {
-	config := r.Context().Value(models.ConfigContextKey).(*models.Config)
+	config := r.Context().Value(middlewares.ConfigContextKey).(*models.Config)
 
 	err := r.ParseMultipartForm(5 << 20) // 5 MB
 	if err != nil {
@@ -52,7 +53,7 @@ func (fc *FileController) Upload(w http.ResponseWriter, r *http.Request) {
 }
 
 func (fc *FileController) Delete(w http.ResponseWriter, r *http.Request) {
-	config := r.Context().Value(models.ConfigContextKey).(*models.Config)
+	config := r.Context().Value(middlewares.ConfigContextKey).(*models.Config)
 
 	filename := r.PathValue("filename")
 
@@ -66,7 +67,7 @@ func (fc *FileController) Delete(w http.ResponseWriter, r *http.Request) {
 }
 
 func (fc *FileController) List(w http.ResponseWriter, r *http.Request) {
-	config := r.Context().Value(models.ConfigContextKey).(*models.Config)
+	config := r.Context().Value(middlewares.ConfigContextKey).(*models.Config)
 	files, err := fc.app.GetFiles(r.Context(), config.OrganizationID)
 	if err != nil {
 		WriteJSONErr(w, fmt.Errorf("failed listing files: %w", err))
@@ -77,7 +78,7 @@ func (fc *FileController) List(w http.ResponseWriter, r *http.Request) {
 }
 
 func (fc *FileController) Download(w http.ResponseWriter, r *http.Request) {
-	config := r.Context().Value(models.ConfigContextKey).(*models.Config)
+	config := r.Context().Value(middlewares.ConfigContextKey).(*models.Config)
 
 	var err error
 	var req queries.GetFileRequest
@@ -103,7 +104,7 @@ func (fc *FileController) Download(w http.ResponseWriter, r *http.Request) {
 }
 
 func (fc *FileController) Rename(w http.ResponseWriter, r *http.Request) {
-	config := r.Context().Value(models.ConfigContextKey).(*models.Config)
+	config := r.Context().Value(middlewares.ConfigContextKey).(*models.Config)
 	filename := r.PathValue("filename")
 
 	var input struct {

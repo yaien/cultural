@@ -8,8 +8,9 @@ import (
 	"strings"
 
 	"github.com/yaien/cultural/internal/modules/configs/internal/application"
-	"github.com/yaien/cultural/internal/modules/configs/internal/models"
 )
+
+const ConfigContextKey = key("config")
 
 func NewWithConfig(app *application.Application) func(next http.Handler) http.HandlerFunc {
 	return func(next http.Handler) http.HandlerFunc {
@@ -51,7 +52,7 @@ func NewWithConfig(app *application.Application) func(next http.Handler) http.Ha
 				return
 			}
 
-			ctx := context.WithValue(r.Context(), models.ConfigContextKey, config)
+			ctx := context.WithValue(r.Context(), ConfigContextKey, config)
 			next.ServeHTTP(w, r.WithContext(ctx))
 		}
 	}

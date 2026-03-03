@@ -25,6 +25,10 @@ type DeleteRoleRequest struct {
 }
 
 func (c *DeleteRoleCommand) DeleteRole(ctx context.Context, req *DeleteRoleRequest) error {
+	if req.SessionRole == nil {
+		return fmt.Errorf("session role is required")
+	}
+
 	if req.SessionRole.ID == req.TargetRoleID {
 		return &models.Error{Code: "invalid_deletion", Err: fmt.Errorf("you cannot delete your own role")}
 	}

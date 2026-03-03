@@ -18,6 +18,8 @@ func dashboard(mono *infrastructure.Monolith, app *application.Application, md *
 		ctrl := controllers.NewDashboardController(app)
 		mono.WebRouter.Handle("GET /dashboard", md.WithUser(md.WithRole(http.HandlerFunc(ctrl.Home))))
 		router.Handle("GET /dashboard/", http.RedirectHandler("/dashboard", http.StatusPermanentRedirect))
+		router.HandleFunc("GET /dashboard/toast", ctrl.Toast)
+		router.HandleFunc("GET /dashboard/empty", md.WithCache(http.HandlerFunc(ctrl.Empty)))
 	}
 
 	{
@@ -58,16 +60,12 @@ func dashboard(mono *infrastructure.Monolith, app *application.Application, md *
 	}
 
 	{
-		ctrl := controllers.NewInvitationController(app)
-		router.HandleFunc("POST /dashboard/api/invitations", ctrl.Create)
-	}
-
-	{
-		ctrl := controllers.NewRolesController(app)
+		ctrl := controllers.NewRolesController(app, mono.SessionStore)
 		router.HandleFunc("GET /dashboard/roles", ctrl.Index)
-		router.HandleFunc("GET /dashboard/api/roles", ctrl.List)
-		router.HandleFunc("PUT /dashboard/api/roles/{id}", ctrl.Update)
-		router.HandleFunc("DELETE /dashboard/api/roles/{id}", ctrl.Delete)
+		router.HandleFunc("POST /dashboard/roles/modals/invitation", ctrl.CreateInvitation)
+		router.Handle("GET /dashboard/roles/modals/invitation", md.WithCache(http.HandlerFunc(ctrl.InvitationModal)))
+		router.Handle("GET /dashboard/roles/modals/deletion/{id}", md.WithCache(http.HandlerFunc(ctrl.DeleteModal)))
+		router.HandleFunc("DELETE /dashboard/roles/{id}", ctrl.Delete)
 	}
 
 	{
@@ -75,8 +73,7 @@ func dashboard(mono *infrastructure.Monolith, app *application.Application, md *
 		router.HandleFunc("GET /dashboard/products", ctrl.Index)
 	}
 
-	mono.WebRouter.HandleFunc("/dashboard/", md.WithUser(md.WithRole(router)))
-
+	mono.WebRouter.HandleFunc("/dashboard/", md.WithRole(router))
 	mono.WebRouter.Handle("GET /assets/static/dashboard/", http.StripPrefix("/assets/static/dashboard/", md.WithCache(http.FileServer(http.FS(assets.FS)))))
 
 }
