@@ -10,411 +10,483 @@
 {{ define "scripts"}}
 <script src="/assets/static/dashboard/dist/monaco/loader.js"></script>
 <script src="/assets/static/dashboard/dist/coloris.min.js"></script>
-<script src="/assets/static/dashboard/dist/pages.min.js"></script>
 {{end}}
 
 <!-- Content -->
 {{ define "content" }}
-<div x-data="pages({ url: '{{.Config.Url}}', filepath: '/assets/dynamic/files/' })" style="height: 100%">
-  <template x-if="ready">
-    <div class="container" @update.debounce="update($event.detail)">
-      <div class="indicator" x-show="loading">
-        <div class="spinner">{{template "spinner.svg"}}</div>
-      </div>
-      <div class="editor" data-editor>
-        <!-- Page Selector -->
-        <div role="group">
-          <button @click="set(states.initial)">{{template "home.svg"}}</button>
-          <button @click="set(states.create)" x-show="forWeb">{{template "add.svg"}}</button>
-          <button @click="set(states.opengraph)" x-show="forPage">{{template "web_traffic.svg"}}</button>
-          <button @click="set(states.delete)" x-show="deleteable">{{template "trash.svg"}}</button>
-          <button @click="set(states.font)" x-show="forWeb">{{template "brand_family.svg"}}</button>
-          <button @click="set(states.files)">{{template "image.svg"}}</button>
-          <button @click="set(states.colors)" x-show="forWeb">{{template "palette.svg"}}</button>
-          <button @click="set(states.editor)">{{template "html.svg"}}</button>
-          <button @click="set(states.styles)" x-show="forWeb">{{template "css.svg"}}</button>
-          <button @click="set(states.script)" x-show="forWeb">{{template "js.svg"}}</button>
-          <button @click="set(states.publish)">{{template "publish.svg"}}</button>
-        </div>
 
-        <!-- Select Site Page  -->
-        <div x-show="on(states.initial)" x-transition:enter.delay.75ms @model="render()">
-          <form x-data="basic({ draft, model })" @submit.prevent="submit()">
-            <fieldset role="group">
-              <legend>Tipo de Plantilla</legend>
-              <select name="map" @change="changeMap($event.target.value)">
-                <option value="pages" :selected="model.map === 'pages'">Sitio</option>
-                <option value="layouts" :selected="model.map === 'layouts'">Diseño</option>
-                <option value="emails" :selected="model.map === 'emails'">Correo</option>
-              </select>
-            </fieldset>
-            <fieldset>
-              <legend>Seleccionar Plantilla</legend>
-              <select name="page" @change="changeTemplate($event.target.value)">
-                <template x-for="(value, key) in draft[model.map]" :key="key">
-                  <option :value="key" :selected="key === model.key" x-text="key"></option>
-                </template>
-              </select>
-            </fieldset>
-            <template x-if="model.map == 'pages'">
-              <div>
-                <fieldset>
-                  <legend>Nombre</legend>
-                  <input name="name" x-model="model.value.name" required :disabled="pageIsIndex" />
-                </fieldset>
-                <fieldset role="group">
-                  <legend>Url</legend>
-                  <input name="url" :value="pageUrl" required disabled />
-                </fieldset>
-                <fieldset>
-                  <legend>Titulo</legend>
-                  <input name="title" x-model="model.value.title" />
-                </fieldset>
-                <fieldset>
-                  <legend>Descripción</legend>
-                  <textarea name="description" x-model="model.value.description" style="resize: none; height: 4em"
-                    cols="10">
-                  </textarea>
-                </fieldset>
-
-                <fieldset role="group">
-                  <legend>Diseño</legend>
-                  <select name="layout" x-model="model.value.layout">
-                    <option value="" :selected="model.value.layout === ''">Ninguno</option>
-                    <template x-for="(value, key) in draft.layouts" :key="key">
-                      <option :value="key" :selected="model.value.layout === key" x-text="value.title"></option>
-                    </template>
-                  </select>
-                </fieldset>
-              </div>
-            </template>
-            <template x-if="model.map == 'layouts'">
-              <div>
-                <fieldset>
-                  <legend>Nombre</legend>
-                  <input name="name" x-model="model.value.name" required :disabled="layoutIsDefault" />
-                </fieldset>
-                <fieldset>
-                  <legend>Titulo</legend>
-                  <input name="title" x-model="model.value.title" required />
-                </fieldset>
-              </div>
-            </template>
+<div class="container" id="container">
 
 
-            <template x-if="model.map == 'emails'">
-              <div>
-                <fieldset>
-                  <legend>Asunto</legend>
-                  <textarea name="subject" x-model="model.value.subject" required style="resize: none; height: 4em"
-                    cols="10"></textarea>
-                </fieldset>
-              </div>
-            </template>
-            <div class="actions">
-              <button type="submit" :disabled="loading">Guardar</button>
-            </div>
-          </form>
-        </div>
+  <div class="editor" data-editor>
+    {{ with .Data }}
 
-        <!-- Create Page -->
-        <div x-show="on(states.create)" x-transition:enter.delay.75ms @submitted="set(states.initial)">
-          <template x-if="on(states.create)">
-            <form x-data="create({ draft, model })" @submit.prevent="submit()" x-show="on(states.create)"
-              x-transition:enter.delay.75ms>
-              <fieldset role="group">
-                <legend>Tipo de Plantilla</legend>
-                <select name="map" x-model="form.map">
-                  <option value="pages" :selected="form.map === 'pages'">Sitio</option>
-                  <option value="layouts" :selected="form.map === 'layouts'">Diseño</option>
-                </select>
-              </fieldset>
+    <!-- Page Selector -->
+    <div role="tablist" hx-get="/dashboard/pages?type={{.SelectedType}}&key={{.SelectedKey}}"
+      hx-vals="js:{section: event.target.dataset.section }" hx-trigger="click target:button[data-section]"
+      hx-target="#tab-content" hx-push-url="true">
 
-              <div>
-                <fieldset>
-                  <legend>Nombre</legend>
-                  <input name="name" x-model="form.value.name" required />
-                </fieldset>
-                <fieldset>
-                  <legend>Titulo</legend>
-                  <input name="title" x-model="form.value.title" required />
-                </fieldset>
-                <template x-if="form.map == 'pages'">
-                  <fieldset role="grop">
-                    <legend>Url</legend>
-                    <input name="url" :value="url + '/' + (form.value.name || '')" disabled />
-                  </fieldset>
-                </template>
-              </div>
-              <div class="actions">
-                <button :disabled="disabled">Crear</button>
-              </div>
-            </form>
-          </template>
-        </div>
+      <!-- Initial Section -->
+      <button data-section="initial" role="tab" aria-selected="false" aria-controls="tab-content">
+        {{template "home.svg"}}
+      </button>
 
-        <!-- Delete Page -->
-        <div x-show="on(states.delete)" x-transition:enter.delay.75ms class="delete" @removed="set(states.initial)">
-          <template x-if="on(states.delete)">
-            <div x-data="remove({ draft, model })">
-              <p>¿Estás seguro de que deseas eliminar este sitio ?</p>
-              <div class="actions">
-                <button @click="set(states.initial)" :disabled="loading">Cancelar</button>
-                <button @click="remove()" class="danger" :disabled="loading">Eliminar</button>
-              </div>
-            </div>
-          </template>
-        </div>
+      <!-- Create Section -->
+      <button data-section="create" role="tab" aria-selected="false" aria-controls="tab-content">
+        {{template "add.svg"}}
+      </button>
 
-        <!-- Opengraph Page -->
-        <div x-show="on(states.opengraph)" x-data="opengraph({ draft, model })" x-transition:enter.delay.75ms
-          class="opengraph">
-          <form @submit.prevent="submit()" x-transition:enter.delay.75ms>
-            <div>
-              <fieldset>
-                <legend>Titulo Opengraph</legend>
-                <input name="title" x-model="model.value.ogTitle" required />
-              </fieldset>
-              <fieldset>
-                <legend>Descripción Opengraph</legend>
-                <textarea name="description" x-model="model.value.ogDescription" required
-                  style="resize: none; height: 4em" cols="10"></textarea>
-              </fieldset>
-              <fieldset>
-                <legend>Imagen Opengraph</legend>
-                <input name="image" x-model="model.value.ogImage" required />
-              </fieldset>
-              <fieldset>
-                <legend>Tipo Opengraph</legend>
-                <select name="type" x-model="model.value.ogType">
-                  <option value="" :selected="model.value.ogType === ''">Ninguno</option>
-                  <option value="website" :selected="model.value.ogType === 'website'">Sitio Web</option>
-                  <option value="article" :selected="model.value.ogType === 'article'">Artículo</option>
-                  <option value="profile" :selected="model.value.ogType === 'profile'">Perfil</option>
-                  <option value="product" :selected="model.value.ogType === 'product'">Producto</option>
-                </select>
-              </fieldset>
-            </div>
-            <div class="actions">
-              <button>Guardar</button>
-            </div>
-          </form>
-        </div>
+      <!-- Delete Section -->
+      {{if .SelectedIsDeleteable}}
+      <button data-section="delete" role="tab" aria-selected="false" aria-controls="tab-content">
+        {{template "trash.svg"}}
+      </button>
+      {{end}}
 
-        <!-- Fonts Page -->
-        <div x-show="on(states.font)" x-transition:enter.delay.75ms class="grow" @updated="render()">
-          <div x-data="fonts({ draft })" class="fonts">
-            <template x-if="ready">
-              <div>
-                <div x-show="on(states.initial)" x-transition:enter.delay.75ms>
-                  <div>
-                    <div class="list">
-                      <template x-for="(font, key) in draft.fonts || {}" :key="font.family">
-                        <div class="font" @click="select(font, key, states.browsing)">
-                          <div class="preview" x-text="font.family" :style="style(font.family)"></div>
-                          <span x-text="key"></span>
-                        </div>
-                      </template>
-                    </div>
-                    <p x-show="empty" style="text-align: center">
-                      Aún no hay fuentes configuradas.
-                      <br />
-                      Agrega una nueva fuente para comenzar
-                    </p>
-                    <div class="actions">
-                      <button @click="set(states.browsing)">Fuentes</button>
-                    </div>
-                  </div>
-                </div>
-                <div x-show="on(states.browsing)" x-transition:enter.delay.75ms>
-                  <div>
-                    <div class="actions">
-                      <button @click="set(states.initial)">Volver</button>
-                    </div>
-                    <fieldset role="group">
-                      <legend>Fuentes</legend>
-                      <input type="text" placeholder="Buscar fuente"
-                        @input.debounce.500ms="search($event.target.value)" />
-                    </fieldset>
-                    <div class="list scrollable" @scroll.debounce.200ms="scroll($event)">
-                      <template x-for="font in fonts" :key="font.family">
-                        <div class="font" @click="select(font, selected.tag)">
-                          <div class="preview" x-text="font.family" :style="style(font.family)"></div>
-                        </div>
-                      </template>
-                    </div>
-                  </div>
-                </div>
-                <div x-show="on(states.configuring)" x-transition:enter.delay.75ms>
-                  <template x-if="selected.font">
-                    <div class="configure">
-                      <div class="actions">
-                        <button type="button" @click="set(states.browsing)" :disabled="loading">Volver</button>
-                      </div>
-                      <h1 x-text="selected.font.family" :style="style(selected.font.family)"></h1>
-                      <form @submit.prevent="add()">
-                        <small>Use "primary" para cambiar la fuente base de la página o "headings" para cambiar los
-                          encabezados</small>
-                        <fieldset>
-                          <legend>Tag</legend>
-                          <input name="tag" x-model="selected.tag" required />
-                        </fieldset>
-                        <div class="actions">
-                          <button type="submit" :disabled="loading">Guardar</button>
-                        </div>
-                      </form>
-                    </div>
-                  </template>
-                </div>
-              </div>
-            </template>
-          </div>
-        </div>
+      <!-- Opengraph -->
+      {{if .SelectedIsAPage}}
+      <button data-section="opengraph" role="tab" aria-selected="false" aria-controls="tab-content">
+        {{template "web_traffic.svg"}}
+      </button>
+      {{end}}
 
-        <!-- Files Page -->
-        <div x-show="on(states.files)" x-transition:enter.delay.75ms class="grow files">
-          <div x-data="files" @updated="render({ reset: true, wait: 100 })">
-            <!-- List files -->
-            <div x-show="on(states.initial)" x-transition:enter.delay.75ms>
-              <div class="actions">
-                <input type="file" x-ref="input" hidden accept="image/*,video/*" multiple @change="upload($event)" />
-                <button @click="$refs.input.click()" class="clear">{{ template "add.svg" }}</button>
-              </div>
-              <div class="grid">
-                <template x-for="file in files" :key="file.id">
-                  <div class="item" @click="select(file)" @mouseenter="enter($event)" @mouseleave="leave($event)">
-                    <div class="hover" :title="file.name"></div>
-                    <template x-if="file.preset == 'image'">
-                      <img x-bind:src="filepath + file.name" :title="file.name" :alt="file.name" />
-                    </template>
-                    <template x-if="file.preset == 'video'">
-                      <video x-bind:src="filepath + file.name" :title="file.name" :alt="file.name" muted></video>
-                    </template>
-                  </div>
-                </template>
-              </div>
-            </div>
+      <!-- Image Section -->
+      <button data-section="files" role="tab" aria-selected="false" aria-controls="tab-content">
+        {{template "image.svg"}}
+      </button>
 
-            <!-- Edit File -->
-            <div x-show="on(states.edit)" x-transition:enter.delay.75ms>
-              <template x-if="selected">
-                <div class="edit">
-                  <div class="actions">
-                    <button type="button" @click="set(states.initial)">Volver</button>
-                  </div>
+      {{if .SelectedIsForWeb }}
+      <!-- Fonts Section -->
+      <button data-section="fonts" role="tab" aria-selected="false" aria-controls="tab-content">
+        {{template "brand_family.svg"}}
+      </button>
 
-                  <div class="preview">
-                    <template x-if="selected.preset == 'image'">
-                      <img x-bind:src="filepath + selected.name" :title="selected.name" :alt="selected.name" />
-                    </template>
-                    <template x-if="selected.preset == 'video'">
-                      <video x-bind:src="filepath + selected.name" :title="selected.name" :alt="selected.name"
-                        controls></video>
-                    </template>
-                  </div>
+      <!-- Colors Section -->
+      <button data-section="colors" role="tab" aria-selected="false" aria-controls="tab-content">
+        {{template "palette.svg"}}
+      </button>
 
-                  <table class="compact">
-                    <thead>
-                      <tr>
-                        <th>Variante</th>
-                        <th>Dimensiones</th>
-                        <th>Tamaño</th>
-                        <th>Tipo</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <template x-for="format in selected.formats" :key="format.variant">
-                        <tr>
-                          <td x-text="format.variant"></td>
-                          <td x-text="format.width + 'x' + format.height"></td>
-                          <td x-text="filesize(format.size)"></td>
-                          <td x-text="format.contentType"></td>
-                        </tr>
-                      </template>
-                    </tbody>
-                  </table>
+      <!-- Styles Section -->
+      <button data-section="styles" role="tab" aria-selected="false" aria-controls="tab-content">
+        {{template "css.svg"}}
+      </button>
 
-                  <form @submit.prevent="update()">
-                    <fieldset>
-                      <legend>Nombre</legend>
-                      <input name="name" x-model="data.name" required />
-                    </fieldset>
+      <!-- Script Section -->
+      <button data-section="script" role="tab" aria-selected="false" aria-controls="tab-content">
+        {{template "js.svg"}}
+      </button>
+      {{end }}
 
-                    <div class="actions around">
-                      <button type="button" class="danger" @click="drop()">Eliminar</button>
-                      <button type="submit" :disabled="loading">Guardar</button>
-                    </div>
-                  </form>
-                </div>
-              </template>
-            </div>
-          </div>
-        </div>
+      <!-- HTML Section -->
+      <button data-section="html" role="tab" aria-selected="false" aria-controls="tab-content">
+        {{template "html.svg"}}
+      </button>
 
-        <!-- Colors Page -->
-        <div x-show="on(states.colors)">
-          <div x-data="colors({ draft })" class="colors">
-            <template x-for="(color, key) in draft.colors || {}" :key="key">
-              <div class="color">
-                <div class="field" :style="{ 'background-color': color, 'color': readable(color) }">
-                  <input :value="key" @change="changeKey(key, $event.target.value)" />
-                  <input :value="color" data-coloris @input="changeColor(key, $event.target.value)" />
-                </div>
-                <small class="hint">
-                  {{ template "css.svg" }}
-                  <pre>var(--<span x-text="key"></span>-color)</pre>
-                </small>
-              </div>
-            </template>
-            <div class="actions">
-              <button @click="add()" class="clear">{{ template "add.svg" }}</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- HTML Editor Page -->
-        <div x-show="on(states.editor)" x-transition:enter.delay.75ms>
-          <template x-if="on(states.editor)">
-            <div class="monaco" x-data="monaco({ draft, model, language: 'html', reset: true })"></div>
-          </template>
-        </div>
-
-        <!-- Styles Editor Page -->
-        <div x-show="on(states.styles)" x-transition:enter.delay.75ms>
-          <template x-if="on(states.styles)">
-            <div class="monaco" x-data="monaco({ draft, model, language: 'css', reset: true })"></div>
-          </template>
-        </div>
-
-        <!-- Script Editor Page -->
-        <div x-show="on(states.script)" x-transition:enter.delay.75ms>
-          <template x-if="on(states.script)">
-            <div class="monaco" x-data="monaco({ draft, model, language: 'javascript', reset: true })"></div>
-          </template>
-        </div>
-
-        <!-- Publish Page -->
-        <div x-show="on(states.publish)" x-transition:enter.delay.75ms class="publish" @published="set(states.initial)">
-          <div x-data="publish">
-            <p>
-              ¿Estás seguro de que deseas publicar la configuración? <br />
-              Esta estará disponible para los usuarios finales
-            </p>
-            <div class="actions">
-              <button @click="set(states.initial)" :disabled="loading">Cancelar</button>
-              <button @click="publish()" class="warning" :disabled="loading">Publicar</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Preview Page -->
-      <div class="page" x-show="srcdoc" x-transition>
-        <div class="resizeable">
-          <iframe x-ref="iframe" :srcdoc="srcdoc"></iframe>
-        </div>
-      </div>
+      <!-- Publish Section -->
+      <button data-section="publish" role="tab" aria-selected="false" aria-controls="tab-content">
+        {{template "publish.svg"}}
+      </button>
     </div>
-  </template>
+    {{end }}
+
+    <div class="content" id="tab-content">
+      {{ template "tab_content" . }}
+    </div>
+  </div>
+
+  <!-- Preview Page -->
+  {{ template "preview" .}}
+</div>
+{{end}}
+
+<!-- Tab Content -->
+{{define "tab_content"}}
+{{with .Data}}
+{{if eq .Section "create"}}
+{{ template "create" $}}
+{{else if eq .Section "delete"}}
+{{ template "delete" $}}
+{{else if eq .Section "opengraph"}}
+{{ template "opengraph" $}}
+{{else if eq .Section "files"}}
+{{ template "files" $}}
+{{else if eq .Section "fonts"}}
+{{ template "fonts" $}}
+{{else if eq .Section "colors"}}
+{{ template "colors" $}}
+{{else if eq .Section "styles"}}
+{{ template "edit_styles" $}}
+{{else if eq .Section "script"}}
+{{ template "edit_script" $}}
+{{else if eq .Section "html"}}
+{{ template "edit_html" $}}
+{{else if eq .Section "publish"}}
+{{ template "publish" $}}
+{{else}}
+{{ template "initial" $}}
+{{end}}
+{{end}}
+{{end}}
+
+<!-- Site Preview -->
+{{define "preview"}}
+{{with .Data}}
+<div class="preview">
+  <div class="resizeable">
+    <iframe src="/dashboard/pages/preview?key={{.SelectedKey}}&type={{.SelectedType}}"></iframe>
+  </div>
+</div>
+{{end}}
+{{end}}
+
+<!-- Initials Select Site Page  -->
+{{define "initial"}}
+{{ with .Data}}
+<fieldset role="group">
+  <legend>Tipo de Plantilla</legend>
+  <select hx-get="/dashboard/pages" hx-trigger="change" hx-vals="js:{type: event.target.value}" hx-target="#container"
+    hx-swap="outerHTML" hx-push-url="true">
+    <option value="page" {{.SelectedAttr .SelectedIsAPage }}>Sitio</option>
+    <option value="layout" {{.SelectedAttr .SelectedIsALayout }}>Diseño</option>
+    <option value="email" {{.SelectedAttr .SelectedIsAnEmail }}>Correo</option>
+  </select>
+</fieldset>
+<fieldset>
+  <legend>Seleccionar Plantilla</legend>
+  <select hx-get="/dashboard/pages?type={{.SelectedType}}" hx-trigger="change" hx-vals="js:{key: event.target.value}"
+    hx-target=".container" hx-swap="outerHTML" hx-push-url="true">
+    {{range $key, $value := .SelectedTypeOptions}}
+    <option value="{{$key}}" {{$.Data.SelectedAttr $.Data.SelectedKey $key}}>{{$key}}</option>
+    {{end}}
+  </select>
+</fieldset>
+
+<form>
+  <!-- Page Form -->
+  {{if .SelectedIsAPage}}
+  <fieldset>
+    <legend>Nombre</legend>
+    <input name="name" required value="{{.Selected.Name}}" {{if .PageIsIndex}}disabled{{end}} />
+  </fieldset>
+  <fieldset role="group">
+    <legend>Url</legend>
+    <input name="url" value="{{.PageUrl}}" required {{if .PageIsIndex}}disabled{{end}} />
+  </fieldset>
+  <fieldset>
+    <legend>Titulo</legend>
+    <input name="title" value="{{.Selected.Title}}" />
+  </fieldset>
+  <fieldset>
+    <legend>Descripción</legend>
+    <textarea name="description" rows="4" autocomplete="off" style="resize: none" cols="10">
+          {{- .Selected.Description -}}
+        </textarea>
+  </fieldset>
+
+  <fieldset role="group">
+    <legend>Diseño</legend>
+    <select name="layout" autocomplete="off">
+      <option value="{{.SelectedAttr .Selected.Layout ``}}">Ninguno</option>
+      {{range $key, $value := .Draft.Layouts}}
+      <option value="{{$key}}" {{$.Data.SelectedAttr $.Data.Selected.Layout $key }}>{{$value.Title}}</option>
+      {{end}}
+    </select>
+  </fieldset>
+  {{end}}
+
+  <!-- Layout Form -->
+  {{ if .SelectedIsALayout}}
+  <fieldset>
+    <legend>Nombre</legend>
+    <input name="name" required />
+  </fieldset>
+  <fieldset>
+    <legend>Titulo</legend>
+    <input name="title" required />
+  </fieldset>
+  {{end}}
+
+  <!-- Email Form -->
+  {{ if .SelectedIsAnEmail}}
+  <fieldset>
+    <legend>Asunto</legend>
+    <textarea name="subject" required style="resize: none; height: 4em" cols="10"></textarea>
+  </fieldset>
+  {{end}}
+
+  <div class="actions">
+    <button type="submit" :disabled="loading">Guardar</button>
+  </div>
+</form>
+{{end}}
+{{end}}
+
+<!-- Create Tab -->
+{{define "create"}}
+<form>
+  <fieldset role="group">
+    <legend>Tipo de Plantilla</legend>
+    <select name="type">
+      <option value="pages">Sitio</option>
+      <option value="layouts">Diseño</option>
+    </select>
+  </fieldset>
+
+  <div>
+    <fieldset>
+      <legend>Nombre</legend>
+      <input name="name" required />
+    </fieldset>
+    <fieldset>
+      <legend>Titulo</legend>
+      <input name="title" required />
+    </fieldset>
+  </div>
+  <div class="actions">
+    <button>Crear</button>
+  </div>
+</form>
+{{end}}
+
+<!-- Delete Page -->
+{{define "delete"}}
+<div class="delete">
+  <p>¿Estás seguro de que deseas eliminar este sitio ?</p>
+  <div class="actions">
+    <button>Cancelar</button>
+    <button class="danger">Eliminar</button>
+  </div>
+</div>
+{{end}}
+
+<!-- Opengraph Page -->
+{{define "opengraph"}}
+{{with .Data}}
+<form>
+  <fieldset>
+    <legend>Titulo Opengraph</legend>
+    <input name="title" value="{{.Selected.OGTitle}}" required />
+  </fieldset>
+  <fieldset>
+    <legend>Descripción Opengraph</legend>
+    <textarea name="description" required style="resize: none; height: 4em" cols="10">
+    {{- .Selected.OGDescription -}}
+    </textarea>
+  </fieldset>
+  <fieldset>
+    <legend>Imagen Opengraph</legend>
+    <input name="image" value="{{.Selected.OGImage}}" required />
+  </fieldset>
+  <fieldset>
+    <legend>Tipo Opengraph</legend>
+    <select name="type">
+      <option value="" {{.SelectedAttr .Selected.OGType "" }}>Ninguno</option>
+      <option value="website" {{.SelectedAttr .Selected.OGType "website" }}>Sitio Web</option>
+      <option value="article" {{.SelectedAttr .Selected.OGType "article" }}>Artículo</option>
+      <option value="profile" {{.SelectedAttr .Selected.OGType "profile" }}>Perfil</option>
+      <option value="product" {{.SelectedAttr .Selected.OGType "product" }}>Producto</option>
+    </select>
+  </fieldset>
+  <div class="actions">
+    <button>Guardar</button>
+  </div>
+</form>
+{{end}}
+{{end}}
+
+
+
+<!-- Fonts Section -->
+{{define "fonts"}}
+<div class="fonts">
+  <div class="list">
+    {{ range $key, $font := .Data.Draft.Fonts }}
+    <div class="font">
+      <div class="preview">{{$font.Family}}</div>
+      <span>{{$key}}</span>
+    </div>
+    {{end}}
+  </div>
+  <p style="text-align: center">
+    Aún no hay fuentes configuradas.
+    <br />
+    Agrega una nueva fuente para comenzar
+  </p>
+  <div class="actions">
+    <button data-section="browse_fonts">Fuentes</button>
+  </div>
+</div>
+{{end}}
+
+<!-- Browse Fonts Page -->
+{{ define "browse_fonts"}}
+<div class="actions">
+  <button data-section="fonts">Volver</button>
+</div>
+<fieldset role="group">
+  <legend>Fuentes</legend>
+  <input type="text" placeholder="Buscar fuente" />
+</fieldset>
+<div class="list scrollable">
+  {{ range .Data.Fonts }}
+  <div class="font">
+    <div class="preview">{{.Family}}</div>
+  </div>
+  {{end}}
+</div>
+{{end}}
+
+<!-- Configuring font -->
+{{define "configure_font"}}
+<div class="configure">
+  <div class="actions">
+    <button data-section="browse_fonts">Volver</button>
+  </div>
+  <h1>{{.SelectedFont.Family}}</h1>
+  <form>
+    <small>
+      Use "primary" para cambiar la fuente base de la página o "headings" para cambiar los
+      encabezados
+    </small>
+    <fieldset>
+      <legend>Tag</legend>
+      <input name="tag" required />
+    </fieldset>
+    <div class="actions">
+      <button type="submit">Guardar</button>
+    </div>
+  </form>
+</div>
+{{end}}
+
+
+
+<!-- List Files -->
+{{define "files"}}
+<div class="grow files">
+  <div class="actions">
+    <input type="file" hidden accept="image/*,video/*" multiple />
+    <button class="clear">{{ template "add.svg" }}</button>
+  </div>
+  <div class="grid">
+    {{range .Data.Files }}
+    <div class="item">
+      <div class="hover" title="{{.Name}}"></div>
+      {{ if eq .Preset "image" }}
+      <img src="{{$.Data.FileURL .Name}}" title="{{.Name}}" alt="{{.Name}}" />
+      {{ end }}
+      {{ if eq .Preset "video" }}
+      <video src="{{$.Data.FileURL .Name}}" title="{{.Name}}" alt="{{.Name}}" muted></video>
+      {{ end }}
+    </div>
+    {{end}}
+  </div>
+</div>
+{{end}}
+
+<!-- Edit File -->
+{{define "edit_file"}}
+<div class="edit">
+  <div class="actions">
+    <button type="button" @click="set(states.initial)">Volver</button>
+  </div>
+
+  <div class="preview">
+    {{ with .Data.SelectedFile }}
+
+    {{if .Preset "image" }}
+    <img src="{{$.Data.FileURL .Name}}" title="{{.Name}}" alt="{{.Name}}" />
+    {{end}}
+
+    {{if eq .Preset "video" }}
+    <video src="{{$.Data.FileURL .Name}}" title="{{.Name}}" alt="{{.Name}}" controls></video>
+    {{end}}
+
+    {{end}}
+  </div>
+
+  <table class="compact">
+    <thead>
+      <tr>
+        <th>Variante</th>
+        <th>Dimensiones</th>
+        <th>Tamaño</th>
+        <th>Tipo</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{range .Data.SelectedFile.Formats}}
+      <tr>
+        <td>{{.Variant}}</td>
+        <td>{{.Width}}x{{.Height}}</td>
+        <td>{{.Size}}</td>
+        <td>{{.ContentType}}</td>
+      </tr>
+      {{end}}
+    </tbody>
+  </table>
+
+  <form @submit.prevent="update()">
+    <fieldset>
+      <legend>Nombre</legend>
+      <input name="name" x-model="data.name" required />
+    </fieldset>
+
+    <div class="actions around">
+      <button type="button" class="danger">Eliminar</button>
+      <button type="submit">Guardar</button>
+    </div>
+  </form>
+</div>
+
+{{end}}
+
+<!-- Colors Page -->
+{{define "colors"}}
+<div class="colors">
+  {{ range $key, $color := .Data.Draft.Colors }}
+  <div class="color">
+    <div class="field" style="background-color: color; color: white">
+      <input value="{{$key}}" />
+      <input value="{{$color}}" data-coloris />
+    </div>
+    <small class="hint">
+      {{ template "css.svg" }}
+      <pre>var(--<span>{{$key}}</span>-color)</pre>
+    </small>
+  </div>
+  {{ end }}
+  <div class="actions">
+    <button class="clear">{{ template "add.svg" }}</button>
+  </div>
+</div>
+{{end}}
+
+<!-- HTML Editor Page -->
+{{ define "edit_html" }}
+<div class="monaco"></div>
+{{end}}
+
+<!-- Styles Editor Page -->
+{{define "edit_styles" }}
+<div class="monaco"></div>
+{{end}}
+
+<!-- Script Editor Page -->
+{{define "edit_script" }}
+<div class="monaco"></div>
+{{end}}
+
+<!-- Publish Page -->
+{{define "publish"}}
+<div class="publish">
+  <p>
+    ¿Estás seguro de que deseas publicar la configuración? <br />
+    Esta estará disponible para los usuarios finales
+  </p>
+  <div class="actions">
+    <button>Cancelar</button>
+    <button class="warning">Publicar</button>
+  </div>
 </div>
 {{end}}

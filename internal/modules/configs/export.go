@@ -21,3 +21,6 @@ var WritePageBaseStyles = models.WritePageBaseStyles
 var EmptyPage = models.EmptyPage
 var DefaultLayout = models.DefaultLayout
 var RenderPage = models.RenderPage
+
+var FileURL = models.FileURL
+var NewExternalFileURLFunc = models.NewExternalFileURLFunc

@@ -55,6 +55,13 @@ type FileRepository interface {
 
 type FileURLFunc func(filename string, variant ...int) string
 
+func FileURL(filename string, variant ...int) string {
+	if len(variant) > 0 {
+		return fmt.Sprintf("/assets/dynamic/files/%s?variant=%d", filename, variant[0])
+	}
+	return fmt.Sprintf("/assets/dynamic/files/%s", filename)
+}
+
 // NewExternalFileURLFunc creates a FileURLFunc that generates URLs for files served from the server's external assets endpoint.
 func NewExternalFileURLFunc(serverURL string, organizationID primitive.ObjectID) FileURLFunc {
 	return func(filename string, variant ...int) string {

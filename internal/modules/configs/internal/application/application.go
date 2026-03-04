@@ -19,6 +19,7 @@ type Application struct {
 	*queries.GetFileQuery
 	*queries.GetFilesQuery
 	*queries.GetDraftByConfigIDQuery
+	*queries.GetPreviewQuery
 
 	*commands.CreateInvitationCommand
 	*commands.SyncUserCommand
@@ -58,6 +59,7 @@ func New(deps Deps) *Application {
 		queries.NewGetFileQuery(deps.Files, deps.Storage),
 		queries.NewGetFilesQuery(deps.Files),
 		queries.NewGetDraftByConfigIDQuery(deps.Drafts),
+		queries.NewGetPreviewQuery(deps.Drafts),
 
 		commands.NewCreateInvitationCommand(deps.Invitations, deps.Organizations, deps.Configs, deps.Roles, deps.Groups, deps.Mail),
 		commands.NewSyncUserCommand(deps.Users),

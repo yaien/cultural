@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	"path"
 	"strings"
 	"text/template"
 )
@@ -35,37 +34,24 @@ type Page struct {
 var EmptyPage = &Page{}
 
 type PageData struct {
-	InlineStyles     bool
-	InlineScript     bool
-	FilePath         string
-	ExternalFilePath string
-	AppTitle         string
-	Page             *Page
-	Layout           *Layout
-	Fonts            map[string]*Font
-	Colors           map[string]string
-	Version          int64
+	InlineStyles        bool
+	InlineScript        bool
+	FileURLFunc         FileURLFunc
+	ExternalFileURLFunc FileURLFunc
+	AppTitle            string
+	Page                *Page
+	Layout              *Layout
+	Fonts               map[string]*Font
+	Colors              map[string]string
+	Version             int64
 }
 
-// FileURL generates a URL for a given filename, optionally with a variant query parameter.
-func (p *PageData) FileURL(filename string, variant ...int) string {
-	if len(variant) > 0 {
-		return fmt.Sprintf("%s?variant=%d", filename, variant[0])
-	}
-	return path.Join(p.FilePath, filename)
+func (c *PageData) FileURL(name string, variant ...int) string {
+	return c.FileURLFunc(name, variant...)
 }
 
-func (p *PageData) ExternalFileURL(filename string, variant ...int) string {
-	if len(variant) > 0 {
-		filename = fmt.Sprintf("%s?variant=%d", filename, variant[0])
-	}
-
-	dash := ""
-	if !strings.HasSuffix(p.ExternalFilePath, "/") {
-		dash = "/"
-	}
-
-	return p.ExternalFilePath + dash + filename
+func (c *PageData) ExternalFileURL(name string, variant ...int) string {
+	return c.ExternalFileURLFunc(name, variant...)
 }
 
 // Title returns the full title of the page, combining the page title and app title.

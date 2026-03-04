@@ -23,25 +23,9 @@ func dashboard(mono *infrastructure.Monolith, app *application.Application, md *
 	}
 
 	{
-		ctrl := controllers.NewFontsController(app)
-		router.HandleFunc("GET /dashboard/api/fonts", ctrl.List)
-	}
-
-	{
-		ctrl := controllers.NewDraftController(app)
-		router.HandleFunc("GET /dashboard/api/draft", ctrl.Get)
-		router.HandleFunc("PUT /dashboard/api/draft", ctrl.Update)
-		router.HandleFunc("POST /dashboard/api/draft/commit", ctrl.Commit)
-	}
-
-	{
-		ctrl := controllers.NewRenderController()
-		router.HandleFunc("POST /dashboard/api/render", ctrl.Render)
-	}
-
-	{
 		ctrl := controllers.NewPagesController(app)
 		router.HandleFunc("GET /dashboard/pages", ctrl.Index)
+		router.HandleFunc("GET /dashboard/pages/preview", ctrl.Preview)
 	}
 
 	{

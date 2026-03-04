@@ -271,6 +271,10 @@ button {
   box-shadow: 0 2px 4px var(--shadow-color);
 }
 
+button * {
+  pointer-events: none;
+}
+
 button:hover {
   background-color: var(--primary-color-hover);
 }
@@ -378,7 +382,8 @@ button.clear:disabled {
 }
 
 /* Button Group Styles */
-div[role="group"] {
+div[role="group"],
+div[role="tablist"] {
   display: flex;
   justify-content: center;
   margin: 1rem auto;
@@ -387,7 +392,8 @@ div[role="group"] {
   border-radius: var(--border-radius);
 }
 
-div[role="group"] button {
+div[role="group"] button,
+div[role="tablist"] button {
   padding: 0.5rem;
   border: none;
   margin: 0;
@@ -395,12 +401,14 @@ div[role="group"] button {
   box-shadow: none;
 }
 
-div[role="group"] button:first-child {
+div[role="group"] button:first-child,
+div[role="tablist"] button:first-child {
   border-top-left-radius: var(--border-radius);
   border-bottom-left-radius: var(--border-radius);
 }
 
-div[role="group"] button:last-child {
+div[role="group"] button:last-child,
+div[role="tablist"] button:last-child {
   border-top-right-radius: var(--border-radius);
   border-bottom-right-radius: var(--border-radius);
 }
@@ -583,21 +591,16 @@ tbody tr.htmx-swapping {
 .spinner {
   transform-origin: center;
   animation: spin 1s linear infinite;
+  color: var(--primary-color);
   display: flex;
 }
 
-.indicator {
-  position: absolute;
-  top: var(--header-height) + 20px;
-  right: 20px;
-  color: var(--primary-color);
-  background-color: var(--primary-color-light);
-  border-radius: 100%;
-  box-shadow: 0 2px 4px var(--shadow-color);
-  padding: 0.25rem;
+.spinner.success {
+  color: var(--success-color-dark);
 }
 
-.indicator.success {
-  background-color: var(--success-color-light);
-  color: var(--success-color-dark);
+.indicator {
+  position: sticky;
+  top: var(--header-height) + 20px;
+  right: 20px;
 }
