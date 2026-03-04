@@ -10,6 +10,7 @@
 {{ define "scripts"}}
 <script src="/assets/static/dashboard/dist/monaco/loader.js"></script>
 <script src="/assets/static/dashboard/dist/coloris.min.js"></script>
+<script src="/assets/static/dashboard/dist/pages.min.js"></script>
 {{end}}
 
 <!-- Content -->
@@ -18,7 +19,7 @@
 <div class="container" id="container">
 
 
-  <div class="editor" data-editor>
+  <div class="editor" data-editor-container>
     {{ with .Data }}
 
     <!-- Page Selector -->
@@ -131,7 +132,7 @@
 <!-- Site Preview -->
 {{define "preview"}}
 {{with .Data}}
-<div class="preview">
+<div class="page">
   <div class="resizeable">
     <iframe src="/dashboard/pages/preview?key={{.SelectedKey}}&type={{.SelectedType}}"></iframe>
   </div>
@@ -179,8 +180,8 @@
   <fieldset>
     <legend>Descripción</legend>
     <textarea name="description" rows="4" autocomplete="off" style="resize: none" cols="10">
-          {{- .Selected.Description -}}
-        </textarea>
+      {{- .Selected.Description -}}
+    </textarea>
   </fieldset>
 
   <fieldset role="group">
@@ -298,24 +299,28 @@
 
 <!-- Fonts Section -->
 {{define "fonts"}}
+{{ with $fonts := .Data.Draft.Fonts }}
 <div class="fonts">
   <div class="list">
-    {{ range $key, $font := .Data.Draft.Fonts }}
+    {{ range $key, $font := $fonts }}
     <div class="font">
       <div class="preview">{{$font.Family}}</div>
       <span>{{$key}}</span>
     </div>
     {{end}}
   </div>
+  {{ if eq (len $fonts) 0 }}
   <p style="text-align: center">
     Aún no hay fuentes configuradas.
     <br />
     Agrega una nueva fuente para comenzar
   </p>
+  {{end}}
   <div class="actions">
     <button data-section="browse_fonts">Fuentes</button>
   </div>
 </div>
+{{end}}
 {{end}}
 
 <!-- Browse Fonts Page -->
@@ -446,9 +451,9 @@
 <div class="colors">
   {{ range $key, $color := .Data.Draft.Colors }}
   <div class="color">
-    <div class="field" style="background-color: color; color: white">
+    <div class="field" {{ printf `style="background-color: %s" ` $color}} data-readable-color="{{ $color }}">
       <input value="{{$key}}" />
-      <input value="{{$color}}" data-coloris />
+      <input value="{{$color}}" data-coloris data-readable-color="{{$color}}" />
     </div>
     <small class="hint">
       {{ template "css.svg" }}
@@ -464,17 +469,20 @@
 
 <!-- HTML Editor Page -->
 {{ define "edit_html" }}
-<div class="monaco"></div>
+<div class="monaco" data-editor="body" data-language="html" data-value="{{html .Data.Selected.Body}}">
+</div>
 {{end}}
 
 <!-- Styles Editor Page -->
 {{define "edit_styles" }}
-<div class="monaco"></div>
+<div class="monaco" data-editor="styles" data-language="css" data-value="{{html .Data.Selected.Styles}}">
+</div>
 {{end}}
 
 <!-- Script Editor Page -->
 {{define "edit_script" }}
-<div class="monaco"></div>
+<div class="monaco" data-editor="script" data-language="javascript" data-value="{{html .Data.Selected.Script}}">
+</div>
 {{end}}
 
 <!-- Publish Page -->

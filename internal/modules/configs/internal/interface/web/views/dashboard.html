@@ -1,96 +1,94 @@
 <!doctype html>
 <html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>{{block "title" .}}{{end}} - {{.Config.Title}}</title>
-    <link rel="icon" type="image/png" href="/assets/landing/favicon.png?v={{.Config.UpdatedAt.Unix}}" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
-      rel="stylesheet"
-    />
-    <link rel="stylesheet" href="/assets/static/dashboard/dist/dashboard.min.css" />
 
-    {{block "links" .}}{{end}}
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{block "title" .}}{{end}} - {{.Config.Title}}</title>
+  <link rel="icon" type="image/png" href="/assets/landing/favicon.png?v={{.Config.UpdatedAt.Unix}}" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="/assets/static/dashboard/dist/dashboard.min.css" />
 
-    <script src="/assets/static/dashboard/dist/htmx.min.js"></script>
-    <script src="/assets/static/dashboard/dist/dashboard.min.js"></script>
-  </head>
+  {{block "links" .}}{{end}}
 
-  <body x-data="dashboard" x-bind="bindings">
-    <header>
-      <div class="start">
-        <button class="toggle" @click="sidebar = !sidebar" aria-label="Toggle Menu">
-          <template x-if="!sidebar">{{template "menu.svg"}}</template>
-          <template x-if="sidebar">{{template "close.svg"}}</template>
-        </button>
-        <div class="title">
-          <h3>{{block "title" .}}{{end}}</h3>
-        </div>
+  <script src="/assets/static/dashboard/dist/htmx.min.js"></script>
+  <script src="/assets/static/dashboard/dist/dashboard.min.js"></script>
+</head>
+
+<body class="open">
+  <header>
+    <div class="start">
+      <button class="toggle" data-toggle="body" data-class="open">
+        {{template "menu.svg"}}
+      </button>
+      <div class="title">
+        <h3>{{block "title" .}}{{end}}</h3>
       </div>
-      <div class="end">
-        <div class="account">
-          <span>{{.Role.UserName}} ({{.Role.UserEmail}})</span>
-        </div>
+    </div>
+    <div class="end">
+      <div class="account">
+        <span>{{.Role.UserName}} ({{.Role.UserEmail}})</span>
       </div>
-    </header>
-    <aside>
+    </div>
+  </header>
+  <aside>
+    <nav>
+      <ul>
+        {{ define "link" }}
+        <li class="{{and .Active `active`}}" title="{{.Name}}">
+          <a href="{{.Path}}" hx-boost="true"> {{.Icon}} <span>{{.Name}}</span></a>
+        </li>
+        {{ end }}
+
+        <!-- Dashboard -->
+        {{ template "link" .Link "/dashboard" "Dashboard" "home.svg" }}
+
+        <!-- Sites -->
+        {{ template "link" .Link "/dashboard/pages" "Sitios" "website.svg" }}
+
+        <!-- Events -->
+        {{ template "link" .Link "/dashboard/events" "Eventos" "calendar.svg" }}
+
+        <!-- Products -->
+        {{ template "link" .Link "/dashboard/products" "Productos" "box.svg" }}
+
+        <!-- Roles -->
+        {{ template "link" .Link "/dashboard/roles" "Roles" "user_list.svg" }}
+      </ul>
+    </nav>
+    <div class="footer">
       <nav>
         <ul>
-          {{ define "link" }}
-          <li class="{{and .Active `active`}}" title="{{.Name}}">
-            <a href="{{.Path}}"> {{.Icon}} <span>{{.Name}}</span></a>
+          <li>
+            <a href="/auth/logout"> {{ template "logout.svg" }} <span> Cerrar Sesión </span> </a>
           </li>
-          {{ end }}
-
-          <!-- Dashboard -->
-          {{ template "link" .Link "/dashboard" "Dashboard" "home.svg" }}
-
-          <!-- Sites -->
-          {{ template "link" .Link "/dashboard/pages" "Sitios" "website.svg" }}
-
-          <!-- Events -->
-          {{ template "link" .Link "/dashboard/events" "Eventos" "calendar.svg" }}
-
-          <!-- Products -->
-          {{ template "link" .Link "/dashboard/products" "Productos" "box.svg" }}
-
-          <!-- Roles -->
-          {{ template "link" .Link "/dashboard/roles" "Roles" "user_list.svg" }}
         </ul>
       </nav>
-      <div class="footer">
-        <nav>
-          <ul>
-            <li>
-              <a href="/auth/logout"> {{ template "logout.svg" }} <span> Cerrar Sesión </span> </a>
-            </li>
-          </ul>
-        </nav>
-      </div>
-    </aside>
+    </div>
+  </aside>
 
-    <!-- Content Section -->
-    <main>
-      {{block "content" .}}{{end}}
-      <div class="toasts" hx-trigger="toast from:body" hx-get="/dashboard/toast">
-        {{define "toast"}}
-        <div
-          class="toast {{.Data.Variant}}"
-          hx-trigger="click from:.toast-close, load delay:5s"
-          hx-get="/dashboard/empty"
-          hx-swap="outerHTML swap:1s settle:1s"
-        >
-          <span>{{.Data.Message}}</span>
-          <button class="toast-close"></button>
-        </div>
-        {{end}}
-      </div>
-    </main>
+  <!-- Content Section -->
+  <main>
+    {{block "content" .}}{{end}}
+    <div class="toasts" hx-trigger="toast from:body" hx-get="/dashboard/toast">
 
-    <!-- Scripts Section -->
-    {{block "scripts" .}}{{end}}
-  </body>
+    </div>
+  </main>
+
+  <!-- Scripts Section -->
+  {{block "scripts" .}}{{end}}
+</body>
+
 </html>
+
+{{define "toast"}}
+<div class="toast {{.Data.Variant}}" hx-trigger="click from:.toast-close, load delay:5s" hx-get="/dashboard/empty"
+  hx-swap="outerHTML swap:1s settle:1s">
+  <span>{{.Data.Message}}</span>
+  <button class="toast-close"></button>
+</div>
+{{end}}
