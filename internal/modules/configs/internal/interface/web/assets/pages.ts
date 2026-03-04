@@ -59,10 +59,20 @@ function Monaco() {
   });
 }
 
+export function HoverPlay() {
+  document.querySelectorAll<HTMLElement>("[data-hover-play]").forEach((el) => {
+    const video = el.querySelector("video");
+    if (!video) return;
+    el.addEventListener("mouseenter", () => video.play());
+    el.addEventListener("mouseleave", () => video.pause());
+  });
+}
+
 export function init() {
   ColorPicker();
   ReadableColor();
   Monaco();
+  HoverPlay();
 }
 
 init();

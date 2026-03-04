@@ -375,7 +375,7 @@
   </div>
   <div class="grid">
     {{range .Data.Files }}
-    <div class="item">
+    <div class="item" data-hover-play>
       <div class="hover" title="{{.Name}}"></div>
       {{ if eq .Preset "image" }}
       <img src="{{$.Data.FileURL .Name}}" title="{{.Name}}" alt="{{.Name}}" />
