@@ -16,5 +16,5 @@ func NewProductsController(app *application.Application) *ProductsController {
 }
 
 func (c *ProductsController) Index(w http.ResponseWriter, r *http.Request) {
-	views.Products(w, r)
+	_ = views.Products().Render(r.Context(), w)
 }

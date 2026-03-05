@@ -1,10 +1,13 @@
 package controllers
 
 import (
+	"errors"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"time"
 
+	"github.com/a-h/templ"
 	"github.com/gorilla/sessions"
 	"github.com/yaien/cultural/internal/modules/configs/internal/application"
 	"github.com/yaien/cultural/internal/modules/configs/internal/application/commands"
@@ -32,20 +35,22 @@ func (c *RolesController) Index(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data := struct {
-		Roles []*models.Role
-	}{roles}
-
 	if r.Header.Get("HX-Request") == "true" {
-		views.Roles(w, r, views.Data(data), views.Template("content"))
+		_ = views.Roles(roles).Render(ctx, w)
 		return
 	}
 
-	views.Roles(w, r, views.Data(data))
+	_ = views.Dashboard(&views.DashboardData{
+		Title:   views.RolesPageTitle,
+		Path:    r.URL.Path,
+		Scripts: templ.NopComponent,
+		Content: views.Roles(roles),
+		Links:   views.RolesLinks(),
+	}).Render(ctx, w)
 }
 
 func (c *RolesController) InvitationModal(w http.ResponseWriter, r *http.Request) {
-	views.Roles(w, r, views.Template("invitation_modal"))
+	_ = views.RoleInvitationModal().Render(r.Context(), w)
 }
 
 func (c *RolesController) CreateInvitation(w http.ResponseWriter, r *http.Request) {
@@ -99,44 +104,44 @@ func (c *RolesController) DeleteModal(w http.ResponseWriter, r *http.Request) {
 	}
 	name := r.URL.Query().Get("name")
 
-	data := struct {
-		ID   primitive.ObjectID
-		Name string
-	}{id, name}
+	role := &models.Role{
+		ID:   id,
+		Name: name,
+	}
 
-	views.Roles(w, r, views.Data(data), views.Template("deletion_modal"))
+	_ = views.RoleDeletionModal(role).Render(r.Context(), w)
 
 }
 
 func (c *RolesController) Delete(w http.ResponseWriter, r *http.Request) {
-	/*
-		ctx := r.Context()
-		config := ctx.Value(middlewares.ConfigContextKey).(*models.Config)
-		role := ctx.Value(middlewares.RoleContextKey).(*models.Role)
 
-		id, err := primitive.ObjectIDFromHex(r.PathValue("id"))
-		if err != nil {
-			WriteJSONErr(w, models.DecodeError(fmt.Errorf("invalid role id: %w", err)))
+	ctx := r.Context()
+	config := ctx.Value(middlewares.ConfigContextKey).(*models.Config)
+	role := ctx.Value(middlewares.RoleContextKey).(*models.Role)
+
+	id, err := primitive.ObjectIDFromHex(r.PathValue("id"))
+	if err != nil {
+		WriteJSONErr(w, models.DecodeError(fmt.Errorf("invalid role id: %w", err)))
+		return
+	}
+
+	request := &commands.DeleteRoleRequest{
+		SessionRole:    role,
+		TargetRoleID:   id,
+		OrganizationID: config.OrganizationID,
+	}
+
+	if err := c.app.DeleteRole(ctx, request); err != nil {
+
+		if e, ok := errors.AsType[*models.Error](err); ok {
+			WriteToast(w, r, Toast{Message: e.Error(), Variant: "danger"})
 			return
 		}
 
-		request := &commands.DeleteRoleRequest{
-			SessionRole:    role,
-			TargetRoleID:   id,
-			OrganizationID: config.OrganizationID,
-		}
-
-		if err := c.app.DeleteRole(ctx, request); err != nil {
-
-			if e, ok := errors.AsType[*models.Error](err); ok {
-				WriteToast(w, r, Toast{Message: e.Error(), Variant: "danger"})
-				return
-			}
-
-			slog.Error("unexpected error deleting role", "error", err)
-			WriteToast(w, r, Toast{Message: "Error inesperado", Variant: "danger"})
-			return
-		}*/
+		slog.Error("unexpected error deleting role", "error", err)
+		WriteToast(w, r, Toast{Message: "Error inesperado", Variant: "danger"})
+		return
+	}
 
 	WriteToast(w, r, Toast{Message: "El rol ha sido eliminado correctamente", Variant: "success", Trigger: "toast, deleted-" + r.PathValue("id")})
 }

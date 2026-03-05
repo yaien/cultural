@@ -17,7 +17,7 @@ func NewDashboardController(app *application.Application) *DashboardController {
 }
 
 func (c *DashboardController) Home(w http.ResponseWriter, r *http.Request) {
-	views.Home(w, r)
+	_ = views.Home().Render(r.Context(), w)
 }
 
 func (c *DashboardController) Toast(w http.ResponseWriter, r *http.Request) {
@@ -32,7 +32,7 @@ func (c *DashboardController) Toast(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	views.Home(w, r, views.Data(toast), views.Template("toast"))
+	_ = views.Toast(toast.Message, toast.Variant).Render(r.Context(), w)
 }
 
 func (c *DashboardController) Empty(w http.ResponseWriter, r *http.Request) {

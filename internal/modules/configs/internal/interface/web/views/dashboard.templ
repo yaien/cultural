@@ -1,0 +1,116 @@
+package views
+
+import (
+	"fmt"
+	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/middlewares"
+	"github.com/yaien/cultural/internal/modules/configs/internal/models"
+	"strings"
+)
+
+templ Fonts() {
+	<link rel="preconnect" href="https://fonts.googleapis.com"/>
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+	<link
+		href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+		rel="stylesheet"
+	/>
+}
+
+templ Link(path, href, text string, icon templ.Component) {
+	<li class={ templ.KV("active", strings.HasPrefix(path, href)) } title={ text }>
+		<a href={ href } hx-boost="true">
+			@icon
+			<span>{ text }</span>
+		</a>
+	</li>
+}
+
+templ Toast(message string, variant string) {
+	<div
+		class={ "toast", variant }
+		hx-trigger="click from:.toast-close, load delay:5s"
+		hx-get="/dashboard/empty"
+		hx-swap="outerHTML swap:1s settle:1s"
+	>
+		<span>{ message }</span>
+		<button class="toast-close"></button>
+	</div>
+}
+
+templ ToastContainer() {
+	<div class="toasts" hx-trigger="toast from:body" hx-get="/dashboard/toast"></div>
+}
+
+type DashboardData struct {
+	Path    string
+	Title   string
+	Links   templ.Component
+	Scripts templ.Component
+	Content templ.Component
+}
+
+templ Dashboard(d *DashboardData) {
+	{{ config := ctx.Value(middlewares.ConfigContextKey).(*models.Config) }}
+	{{ role := ctx.Value(middlewares.RoleContextKey).(*models.Role) }}
+	<!DOCTYPE html>
+	<html lang="es">
+		<head>
+			<meta charset="UTF-8"/>
+			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+			<title>{ d.Title } - { config.Title }</title>
+			@Fonts()
+			<link rel="icon" type="image/png" href={ "/assets/landing/favicon.png?v" + fmt.Sprint(config.UpdatedAt.Unix()) }/>
+			<link rel="stylesheet" href="/assets/static/dashboard/dist/dashboard.min.css"/>
+			@d.Links
+			<script src="/assets/static/dashboard/dist/htmx.min.js"></script>
+			<script src="/assets/static/dashboard/dist/dashboard.min.js"></script>
+		</head>
+		<body>
+			<header>
+				<div class="start">
+					<button class="toggle" data-toggle="body" data-class="open">
+						@MenuIcon()
+					</button>
+					<div class="title">
+						<h3>{ d.Title }</h3>
+					</div>
+				</div>
+				<div class="end">
+					<div class="account">
+						<span>{ role.UserName } ({ role.UserEmail })</span>
+					</div>
+				</div>
+			</header>
+			<aside>
+				<nav>
+					<ul>
+						@Link(d.Path, "/dashboard", "Dashboard", HomeIcon())
+						@Link(d.Path, "/dashboard/pages", "Sitios", WebsiteIcon())
+						@Link(d.Path, "/dashboard/events", "Eventos", CalendarIcon())
+						@Link(d.Path, "/dashboard/products", "Productos", BoxIcon())
+						@Link(d.Path, "/dashboard/roles", "Roles", UserListIcon())
+					</ul>
+				</nav>
+				<div class="footer">
+					<nav>
+						<ul>
+							<li>
+								<a href="/auth/logout">
+									@LogoutIcon()
+									<span>Cerrar Sesión </span>
+								</a>
+							</li>
+						</ul>
+					</nav>
+				</div>
+			</aside>
+			<!-- Content Section -->
+			<main>
+				@d.Content
+				@ToastContainer()
+			</main>
+			<!-- Scripts Section -->
+			@d.Scripts
+		</body>
+	</html>
+}
