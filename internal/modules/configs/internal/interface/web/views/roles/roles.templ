@@ -1,8 +1,9 @@
-package views
+package roles
 
 import "fmt"
 import "github.com/yaien/cultural/internal/modules/configs/internal/models"
 import "github.com/yaien/cultural/internal/modules/configs/internal/interface/web/middlewares"
+import "github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views/icons"
 
 const RolesPageTitle = "Roles"
 
@@ -38,7 +39,7 @@ templ Roles(roles []*models.Role) {
 										hx-target=".container"
 										hx-disabled-elt="this"
 									>
-										@TrashIcon()
+										@icons.Trash()
 									</button>
 								}
 							</div>
@@ -55,7 +56,7 @@ templ Roles(roles []*models.Role) {
 				hx-target=".container"
 				hx-disabled-elt="this"
 			>
-				@AddIcon()
+				@icons.Add()
 			</button>
 		</div>
 	</div>

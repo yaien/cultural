@@ -1,8 +1,9 @@
-package views
+package dashboard
 
 import (
 	"fmt"
 	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/middlewares"
+	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views/icons"
 	"github.com/yaien/cultural/internal/modules/configs/internal/models"
 	"strings"
 )
@@ -18,7 +19,7 @@ templ Fonts() {
 
 templ Link(path, href, text string, icon templ.Component) {
 	<li class={ templ.KV("active", strings.HasPrefix(path, href)) } title={ text }>
-		<a href={ href } hx-boost="true">
+		<a href={ href }>
 			@icon
 			<span>{ text }</span>
 		</a>
@@ -69,7 +70,7 @@ templ Dashboard(d *DashboardData) {
 			<header>
 				<div class="start">
 					<button class="toggle" data-toggle="body" data-class="open">
-						@MenuIcon()
+						@icons.Menu()
 					</button>
 					<div class="title">
 						<h3>{ d.Title }</h3>
@@ -84,11 +85,11 @@ templ Dashboard(d *DashboardData) {
 			<aside>
 				<nav>
 					<ul>
-						@Link(d.Path, "/dashboard", "Dashboard", HomeIcon())
-						@Link(d.Path, "/dashboard/pages", "Sitios", WebsiteIcon())
-						@Link(d.Path, "/dashboard/events", "Eventos", CalendarIcon())
-						@Link(d.Path, "/dashboard/products", "Productos", BoxIcon())
-						@Link(d.Path, "/dashboard/roles", "Roles", UserListIcon())
+						@Link(d.Path, "/dashboard", "Dashboard", icons.Home())
+						@Link(d.Path, "/dashboard/pages", "Sitios", icons.Website())
+						@Link(d.Path, "/dashboard/events", "Eventos", icons.Calendar())
+						@Link(d.Path, "/dashboard/products", "Productos", icons.Box())
+						@Link(d.Path, "/dashboard/roles", "Roles", icons.UserList())
 					</ul>
 				</nav>
 				<div class="footer">
@@ -96,7 +97,7 @@ templ Dashboard(d *DashboardData) {
 						<ul>
 							<li>
 								<a href="/auth/logout">
-									@LogoutIcon()
+									@icons.Logout()
 									<span>Cerrar Sesión </span>
 								</a>
 							</li>

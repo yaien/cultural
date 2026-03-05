@@ -7,12 +7,12 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/a-h/templ"
 	"github.com/gorilla/sessions"
 	"github.com/yaien/cultural/internal/modules/configs/internal/application"
 	"github.com/yaien/cultural/internal/modules/configs/internal/application/commands"
 	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/middlewares"
-	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views"
+	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views/dashboard"
+	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views/roles"
 	"github.com/yaien/cultural/internal/modules/configs/internal/models"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -29,28 +29,27 @@ func NewRolesController(app *application.Application, store sessions.Store) *Rol
 func (c *RolesController) Index(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	config := ctx.Value(middlewares.ConfigContextKey).(*models.Config)
-	roles, err := c.app.GetRoles(ctx, config.OrganizationID)
+	items, err := c.app.GetRoles(ctx, config.OrganizationID)
 	if err != nil {
 		WriteHTMLErr(w, fmt.Errorf("failed getting roles: %w", err))
 		return
 	}
 
 	if r.Header.Get("HX-Request") == "true" {
-		_ = views.Roles(roles).Render(ctx, w)
+		_ = roles.Roles(items).Render(ctx, w)
 		return
 	}
 
-	_ = views.Dashboard(&views.DashboardData{
-		Title:   views.RolesPageTitle,
+	_ = dashboard.Dashboard(&dashboard.DashboardData{
+		Title:   roles.RolesPageTitle,
 		Path:    r.URL.Path,
-		Scripts: templ.NopComponent,
-		Content: views.Roles(roles),
-		Links:   views.RolesLinks(),
+		Content: roles.Roles(items),
+		Links:   roles.RolesLinks(),
 	}).Render(ctx, w)
 }
 
 func (c *RolesController) InvitationModal(w http.ResponseWriter, r *http.Request) {
-	_ = views.RoleInvitationModal().Render(r.Context(), w)
+	_ = roles.RoleInvitationModal().Render(r.Context(), w)
 }
 
 func (c *RolesController) CreateInvitation(w http.ResponseWriter, r *http.Request) {
@@ -109,7 +108,7 @@ func (c *RolesController) DeleteModal(w http.ResponseWriter, r *http.Request) {
 		Name: name,
 	}
 
-	_ = views.RoleDeletionModal(role).Render(r.Context(), w)
+	_ = roles.RoleDeletionModal(role).Render(r.Context(), w)
 
 }
 

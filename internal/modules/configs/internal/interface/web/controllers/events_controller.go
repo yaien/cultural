@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/yaien/cultural/internal/modules/configs/internal/application"
-	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views"
+	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views/events"
 )
 
 type EventsController struct {
@@ -18,5 +18,5 @@ func NewEventsController(app *application.Application) *EventsController {
 }
 
 func (c *EventsController) Index(w http.ResponseWriter, r *http.Request) {
-	_ = views.Events().Render(r.Context(), w)
+	_ = events.Events().Render(r.Context(), w)
 }

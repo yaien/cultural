@@ -1,10 +1,11 @@
-package views
+package pages
 
 import (
 	"context"
 	"fmt"
 
 	"github.com/yaien/cultural/internal/modules/configs/internal/application"
+	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views/icons"
 	"github.com/yaien/cultural/internal/modules/configs/internal/models"
 )
 
@@ -21,7 +22,7 @@ templ PagesScripts() {
 	<script src="/assets/static/dashboard/dist/pages.min.js"></script>
 }
 
-type PagesControllerStateData struct {
+type State struct {
 	Config             *models.Config
 	Draft              *models.Draft
 	Selected           any
@@ -35,7 +36,7 @@ type PagesControllerStateData struct {
 	Ctx                context.Context
 }
 
-func (c PagesControllerStateData) PageIsIndex() bool {
+func (c State) PageIsIndex() bool {
 	page, ok := c.Selected.(*models.Page)
 	if !ok {
 		return false
@@ -44,7 +45,7 @@ func (c PagesControllerStateData) PageIsIndex() bool {
 	return page.Name == "index"
 }
 
-func (c PagesControllerStateData) PageUrl() string {
+func (c State) PageUrl() string {
 	page, ok := c.Selected.(*models.Page)
 	if !ok {
 		return ""
@@ -57,7 +58,7 @@ func (c PagesControllerStateData) PageUrl() string {
 	return c.Config.Url + "/" + page.Name
 }
 
-func (c PagesControllerStateData) SelectedTypeOptions() any {
+func (c State) SelectedTypeOptions() any {
 	switch c.Selected.(type) {
 	case *models.Page:
 		return c.Draft.Pages
@@ -70,7 +71,7 @@ func (c PagesControllerStateData) SelectedTypeOptions() any {
 	}
 }
 
-func (c PagesControllerStateData) SelectedIsDeleteable() bool {
+func (c State) SelectedIsDeleteable() bool {
 	switch sel := c.Selected.(type) {
 	case *models.Page:
 		return sel.Name != "index"
@@ -81,7 +82,7 @@ func (c PagesControllerStateData) SelectedIsDeleteable() bool {
 	}
 }
 
-func (c PagesControllerStateData) SelectedIsForWeb() bool {
+func (c State) SelectedIsForWeb() bool {
 	switch c.Selected.(type) {
 	case *models.Page, *models.Layout:
 		return true
@@ -90,22 +91,22 @@ func (c PagesControllerStateData) SelectedIsForWeb() bool {
 	}
 }
 
-func (c PagesControllerStateData) SelectedIsAPage() bool {
+func (c State) SelectedIsAPage() bool {
 	_, ok := c.Selected.(*models.Page)
 	return ok
 }
 
-func (c PagesControllerStateData) SelectedIsALayout() bool {
+func (c State) SelectedIsALayout() bool {
 	_, ok := c.Selected.(*models.Layout)
 	return ok
 }
 
-func (c PagesControllerStateData) SelectedIsAnEmail() bool {
+func (c State) SelectedIsAnEmail() bool {
 	_, ok := c.Selected.(*models.Email)
 	return ok
 }
 
-func (c PagesControllerStateData) SelectedAttr(a any, b ...any) string {
+func (c State) SelectedAttr(a any, b ...any) string {
 	if len(b) == 0 {
 		if selected, _ := a.(bool); selected {
 			return "selected"
@@ -119,15 +120,15 @@ func (c PagesControllerStateData) SelectedAttr(a any, b ...any) string {
 	return ""
 }
 
-func (c PagesControllerStateData) Files() ([]*models.File, error) {
+func (c State) Files() ([]*models.File, error) {
 	return c.App.GetFiles(c.Ctx, c.Config.OrganizationID)
 }
 
-func (c PagesControllerStateData) FileURL(name string, variant ...int) string {
+func (c State) FileURL(name string, variant ...int) string {
 	return c.FileURLFunc(name, variant...)
 }
 
-func (c PagesControllerStateData) SelectedFile() (*models.File, error) {
+func (c State) SelectedFile() (*models.File, error) {
 	file, err := c.App.GetFile(c.Ctx, c.Config.OrganizationID, c.SelectedFileName)
 	if err != nil {
 		return nil, err
@@ -136,7 +137,7 @@ func (c PagesControllerStateData) SelectedFile() (*models.File, error) {
 	return file, nil
 }
 
-templ Pages(data *PagesControllerStateData) {
+templ Pages(data *State) {
 	<div
 		class="container"
 		id="container"
@@ -151,53 +152,53 @@ templ Pages(data *PagesControllerStateData) {
 			<div role="tablist">
 				<!-- Initial Section -->
 				<button data-section="initial" role="tab" aria-selected="false" aria-controls="tab-content">
-					@MenuIcon()
+					@icons.Menu()
 				</button>
 				<!-- Create Section -->
 				<button data-section="create" role="tab" aria-selected="false" aria-controls="tab-content">
-					@AddIcon()
+					@icons.Add()
 				</button>
 				<!-- Delete Section -->
 				if data.SelectedIsDeleteable() {
 					<button data-section="delete" role="tab" aria-selected="false" aria-controls="tab-content">
-						@TrashIcon()
+						@icons.Trash()
 					</button>
 				}
 				<!-- Opengraph -->
 				if data.SelectedIsAPage() {
 					<button data-section="opengraph" role="tab" aria-selected="false" aria-controls="tab-content">
-						@WebTrafficIcon()
+						@icons.WebTraffic()
 					</button>
 				}
 				<!-- Image Section -->
 				<button data-section="files" role="tab" aria-selected="false" aria-controls="tab-content">
-					@ImageIcon()
+					@icons.Image()
 				</button>
 				if data.SelectedIsForWeb() {
 					<!-- Fonts Section -->
 					<button data-section="fonts" role="tab" aria-selected="false" aria-controls="tab-content">
-						@BrandFamilyIcon()
+						@icons.BrandFamily()
 					</button>
 					<!-- Colors Section -->
 					<button data-section="colors" role="tab" aria-selected="false" aria-controls="tab-content">
-						@PaletteIcon()
+						@icons.Palette()
 					</button>
 					<!-- Styles Section -->
 					<button data-section="styles" role="tab" aria-selected="false" aria-controls="tab-content">
-						@CssIcon()
+						@icons.Css()
 					</button>
 					<!-- Script Section -->
 					<button data-section="script" role="tab" aria-selected="false" aria-controls="tab-content">
-						@JsIcon()
+						@icons.Js()
 					</button>
 				}
 				<!-- HTML Section -->
 				<button data-section="html" role="tab" aria-selected="false" aria-controls="tab-content">
-					@HtmlIcon()
+					@icons.Html()
 				</button>
 				<!-- Publish Section -->
 				<button data-section="publish" role="tab" aria-selected="false" aria-controls="tab-content">
-					@PublishIcon()
+					@icons.Publish()
 				</button>
 			</div>
 			<div class="content" id="tab-content" style="height: 100%;">
@@ -209,7 +210,7 @@ templ Pages(data *PagesControllerStateData) {
 	</div>
 }
 
-templ PagesTabContent(data *PagesControllerStateData) {
+templ PagesTabContent(data *State) {
 	@PagesInitial(data)
 }
 
@@ -221,7 +222,7 @@ templ PagesPreview() {
 	</div>
 }
 
-templ PagesInitial(data *PagesControllerStateData) {
+templ PagesInitial(data *State) {
 	<fieldset role="group">
 		<legend>Tipo de Plantilla</legend>
 		<select
@@ -316,7 +317,7 @@ templ PagesInitial(data *PagesControllerStateData) {
 	</form>
 }
 
-templ PagesCreate(data *PagesControllerStateData) {
+templ PagesCreate(data *State) {
 	<form>
 		<fieldset role="group">
 			<legend>Tipo de Plantilla</legend>
@@ -341,7 +342,7 @@ templ PagesCreate(data *PagesControllerStateData) {
 	</form>
 }
 
-templ PagesDelete(data *PagesControllerStateData) {
+templ PagesDelete(data *State) {
 	<div class="delete">
 		<p>¿Estás seguro de que deseas eliminar este sitio ?</p>
 		<div class="actions">
@@ -351,7 +352,7 @@ templ PagesDelete(data *PagesControllerStateData) {
 	</div>
 }
 
-templ PagesOpengraph(data *PagesControllerStateData) {
+templ PagesOpengraph(data *State) {
 	{{ page := data.Selected.(*models.Page) }}
 	<form>
 		<fieldset>
@@ -384,7 +385,7 @@ templ PagesOpengraph(data *PagesControllerStateData) {
 	</form>
 }
 
-templ PagesFonts(data *PagesControllerStateData) {
+templ PagesFonts(data *State) {
 	{{ fonts := data.Draft.Fonts }}
 	<div class="fonts">
 		<div class="list">
@@ -408,7 +409,7 @@ templ PagesFonts(data *PagesControllerStateData) {
 	</div>
 }
 
-templ PagesBrowseFonts(data *PagesControllerStateData) {
+templ PagesBrowseFonts(data *State) {
 	<div class="actions">
 		<button data-section="fonts">Volver</button>
 	</div>
@@ -423,7 +424,7 @@ templ PagesBrowseFonts(data *PagesControllerStateData) {
 	</div>
 }
 
-templ PagesConfigureFont(data *PagesControllerStateData) {
+templ PagesConfigureFont(data *State) {
 	<div class="configure">
 		<div class="actions">
 			<button data-section="browse_fonts">Volver</button>
@@ -445,7 +446,7 @@ templ PagesConfigureFont(data *PagesControllerStateData) {
 	</div>
 }
 
-templ PagesFiles(data *PagesControllerStateData) {
+templ PagesFiles(data *State) {
 	{{ files, err := data.Files() }}
 	if err != nil {
 		<p>Error al cargar los archivos</p>
@@ -454,7 +455,7 @@ templ PagesFiles(data *PagesControllerStateData) {
 			<div class="actions">
 				<input type="file" hidden accept="image/*,video/*" multiple/>
 				<button class="clear">
-					@AddIcon()
+					@icons.Add()
 				</button>
 			</div>
 			<div class="grid">
@@ -474,7 +475,7 @@ templ PagesFiles(data *PagesControllerStateData) {
 	}
 }
 
-templ PagesEditFile(data *PagesControllerStateData) {
+templ PagesEditFile(data *State) {
 	{{ file, err := data.SelectedFile() }}
 	if err != nil {
 		<p>Error al cargar el archivo</p>
@@ -527,7 +528,7 @@ templ PagesEditFile(data *PagesControllerStateData) {
 	}
 }
 
-templ PagesColors(data *PagesControllerStateData) {
+templ PagesColors(data *State) {
 	<div class="colors">
 		for key, color := range data.Draft.Colors {
 			<div class="color">
@@ -538,20 +539,20 @@ templ PagesColors(data *PagesControllerStateData) {
 					</div>
 				</x-readable-color>
 				<small class="hint">
-					@CssIcon()
+					@icons.Css()
 					<pre>var(--<span>{ key }</span>-color)</pre>
 				</small>
 			</div>
 		}
 		<div class="actions">
 			<button class="clear">
-				@AddIcon()
+				@icons.Add()
 			</button>
 		</div>
 	</div>
 }
 
-templ PagesEditHTML(data *PagesControllerStateData, editor, language string) {
+templ PagesEditHTML(data *State, editor, language string) {
 	{{
 		var source string
 		switch selected := data.Selected.(type) {
@@ -566,7 +567,7 @@ templ PagesEditHTML(data *PagesControllerStateData, editor, language string) {
 	<x-editor class="monaco" editor="body" language="html" value={ source }></x-editor>
 }
 
-templ PagesEditStyles(data *PagesControllerStateData) {
+templ PagesEditStyles(data *State) {
 	{{
 		var source string
 		switch selected := data.Selected.(type) {
@@ -579,7 +580,7 @@ templ PagesEditStyles(data *PagesControllerStateData) {
 	<x-editor class="monaco" editor="styles" language="css" value={ source }></x-editor>
 }
 
-templ PagesEditScript(data *PagesControllerStateData) {
+templ PagesEditScript(data *State) {
 	{{
 		var source string
 		switch selected := data.Selected.(type) {
@@ -595,7 +596,7 @@ templ PagesEditScript(data *PagesControllerStateData) {
 templ PagesPublish() {
 	<div class="publish">
 		<p>
-			¿Estás seguro de que deseas publicar la configuración? 
+			¿Estás seguro de que deseas publicar la configuración
 			<br/>
 			Esta estará disponible para los usuarios finales
 		</p>
