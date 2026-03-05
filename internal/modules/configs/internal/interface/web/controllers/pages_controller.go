@@ -31,6 +31,8 @@ func (c *PagesController) Index(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	query := r.URL.Query()
+
 	var state PagesControllerStateData
 	var ok bool
 
@@ -39,10 +41,11 @@ func (c *PagesController) Index(w http.ResponseWriter, r *http.Request) {
 	state.Config = config
 	state.FileURLFunc = models.FileURL
 	state.Draft = draft
-	state.Section = "initial"
-	state.SelectedType = r.URL.Query().Get("type")
-	state.SelectedKey = r.URL.Query().Get("key")
-	state.Section = r.URL.Query().Get("section")
+	state.SelectedType = query.Get("type")
+	state.SelectedKey = query.Get("key")
+	state.SelectedFileName = query.Get("file")
+	state.SelectedFontFamily = query.Get("font")
+	state.Section = query.Get("section")
 
 	switch state.SelectedType {
 	case "email":
@@ -101,15 +104,17 @@ func (c *PagesController) Preview(w http.ResponseWriter, r *http.Request) {
 }
 
 type PagesControllerStateData struct {
-	Config       *models.Config
-	Draft        *models.Draft
-	Selected     any
-	SelectedType string
-	SelectedKey  string
-	FileURLFunc  models.FileURLFunc
-	Section      string
-	app          *application.Application
-	ctx          context.Context
+	Config             *models.Config
+	Draft              *models.Draft
+	Selected           any
+	SelectedType       string
+	SelectedKey        string
+	SelectedFileName   string
+	SelectedFontFamily string
+	FileURLFunc        models.FileURLFunc
+	Section            string
+	app                *application.Application
+	ctx                context.Context
 }
 
 func (c PagesControllerStateData) PageIsIndex() bool {
@@ -202,4 +207,13 @@ func (c PagesControllerStateData) Files() ([]*models.File, error) {
 
 func (c PagesControllerStateData) FileURL(name string, variant ...int) string {
 	return c.FileURLFunc(name, variant...)
+}
+
+func (c PagesControllerStateData) SelectedFile() (*models.File, error) {
+	file, err := c.app.GetFile(c.ctx, c.Config.OrganizationID, c.SelectedFileName)
+	if err != nil {
+		return nil, err
+	}
+
+	return file, nil
 }

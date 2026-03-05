@@ -16,16 +16,16 @@
 <!-- Content -->
 {{ define "content" }}
 
-<div class="container" id="container">
+<div class="container" id="container" hx-get="/dashboard/pages?type={{.Data.SelectedType}}&key={{.Data.SelectedKey}}"
+  hx-vals="js:{section: event.target.dataset.section || '', file: event.target.dataset.file || '',  }"
+  hx-trigger="click target:[data-section]" hx-target="#tab-content" hx-push-url="true">
 
 
   <div class="editor" data-editor-container>
     {{ with .Data }}
 
     <!-- Page Selector -->
-    <div role="tablist" hx-get="/dashboard/pages?type={{.SelectedType}}&key={{.SelectedKey}}"
-      hx-vals="js:{section: event.target.dataset.section }" hx-trigger="click target:button[data-section]"
-      hx-target="#tab-content" hx-push-url="true">
+    <div role="tablist">
 
       <!-- Initial Section -->
       <button data-section="initial" role="tab" aria-selected="false" aria-controls="tab-content">
@@ -90,7 +90,7 @@
     </div>
     {{end }}
 
-    <div class="content" id="tab-content">
+    <div class="content" id="tab-content" style="height: 100%;">
       {{ template "tab_content" . }}
     </div>
   </div>
@@ -111,8 +111,14 @@
 {{ template "opengraph" $}}
 {{else if eq .Section "files"}}
 {{ template "files" $}}
+{{ else if eq .Section "edit_file"}}
+{{ template "edit_file" $}}
 {{else if eq .Section "fonts"}}
 {{ template "fonts" $}}
+{{else if eq .Section "browse_fonts"}}
+{{ template "browse_fonts" $}}
+{{else if eq .Section "configure_font"}}
+{{ template "configure_font" $}}
 {{else if eq .Section "colors"}}
 {{ template "colors" $}}
 {{else if eq .Section "styles"}}
@@ -303,7 +309,7 @@
 <div class="fonts">
   <div class="list">
     {{ range $key, $font := $fonts }}
-    <div class="font">
+    <div class="font" data-section="configure_font" data-font="{{$font.Family}}" title="{{$font.Family}}">
       <div class="preview">{{$font.Family}}</div>
       <span>{{$key}}</span>
     </div>
@@ -343,11 +349,12 @@
 
 <!-- Configuring font -->
 {{define "configure_font"}}
+{{with .Data.SelectedFont}}
 <div class="configure">
   <div class="actions">
     <button data-section="browse_fonts">Volver</button>
   </div>
-  <h1>{{.SelectedFont.Family}}</h1>
+  <h1>{{.Family}}</h1>
   <form>
     <small>
       Use "primary" para cambiar la fuente base de la página o "headings" para cambiar los
@@ -363,6 +370,7 @@
   </form>
 </div>
 {{end}}
+{{end}}
 
 
 
@@ -376,7 +384,7 @@
   <div class="grid">
     {{range .Data.Files }}
     <div class="item" data-hover-play>
-      <div class="hover" title="{{.Name}}"></div>
+      <div class="hover" title="{{.Name}}" data-section="edit_file" data-file="{{.Name}}"></div>
       {{ if eq .Preset "image" }}
       <img src="{{$.Data.FileURL .Name}}" title="{{.Name}}" alt="{{.Name}}" />
       {{ end }}
@@ -391,59 +399,61 @@
 
 <!-- Edit File -->
 {{define "edit_file"}}
-<div class="edit">
-  <div class="actions">
-    <button type="button" @click="set(states.initial)">Volver</button>
-  </div>
 
-  <div class="preview">
-    {{ with .Data.SelectedFile }}
-
-    {{if .Preset "image" }}
-    <img src="{{$.Data.FileURL .Name}}" title="{{.Name}}" alt="{{.Name}}" />
-    {{end}}
-
-    {{if eq .Preset "video" }}
-    <video src="{{$.Data.FileURL .Name}}" title="{{.Name}}" alt="{{.Name}}" controls></video>
-    {{end}}
-
-    {{end}}
-  </div>
-
-  <table class="compact">
-    <thead>
-      <tr>
-        <th>Variante</th>
-        <th>Dimensiones</th>
-        <th>Tamaño</th>
-        <th>Tipo</th>
-      </tr>
-    </thead>
-    <tbody>
-      {{range .Data.SelectedFile.Formats}}
-      <tr>
-        <td>{{.Variant}}</td>
-        <td>{{.Width}}x{{.Height}}</td>
-        <td>{{.Size}}</td>
-        <td>{{.ContentType}}</td>
-      </tr>
-      {{end}}
-    </tbody>
-  </table>
-
-  <form @submit.prevent="update()">
-    <fieldset>
-      <legend>Nombre</legend>
-      <input name="name" x-model="data.name" required />
-    </fieldset>
-
-    <div class="actions around">
-      <button type="button" class="danger">Eliminar</button>
-      <button type="submit">Guardar</button>
+{{with .Data.SelectedFile}}
+<div class="grow files">
+  <div class="edit">
+    <div class="actions">
+      <button type="button" @click="set(states.initial)" data-section="files">Volver</button>
     </div>
-  </form>
-</div>
 
+    <div class="preview">
+
+      {{if eq .Preset "image" }}
+      <img src="{{$.Data.FileURL .Name}}" title="{{.Name}}" alt="{{.Name}}" />
+      {{end}}
+
+      {{if eq .Preset "video" }}
+      <video src="{{$.Data.FileURL .Name}}" title="{{.Name}}" alt="{{.Name}}" controls></video>
+      {{end}}
+
+    </div>
+
+    <table class="compact">
+      <thead>
+        <tr>
+          <th>Variante</th>
+          <th>Dimensiones</th>
+          <th>Tamaño</th>
+          <th>Tipo</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{range .Formats}}
+        <tr>
+          <td>{{.Variant}}</td>
+          <td>{{.Width}}x{{.Height}}</td>
+          <td>{{.Size}}</td>
+          <td>{{.ContentType}}</td>
+        </tr>
+        {{end}}
+      </tbody>
+    </table>
+
+    <form>
+      <fieldset>
+        <legend>Nombre</legend>
+        <input name="name" value="{{.Name}}" required />
+      </fieldset>
+
+      <div class="actions around">
+        <button type="button" class="danger">Eliminar</button>
+        <button type="submit">Guardar</button>
+      </div>
+    </form>
+  </div>
+</div>
+{{end}}
 {{end}}
 
 <!-- Colors Page -->
@@ -451,10 +461,12 @@
 <div class="colors">
   {{ range $key, $color := .Data.Draft.Colors }}
   <div class="color">
-    <div class="field" {{ printf `style="background-color: %s" ` $color}} data-readable-color="{{ $color }}">
-      <input value="{{$key}}" />
-      <input value="{{$color}}" data-coloris data-readable-color="{{$color}}" />
-    </div>
+    <x-readable-color color="{{$color}}">
+      <div class="field" {{ printf `style="background-color: %s" ` $color}}>
+        <input value="{{$key}}" />
+        <input value="{{$color}}" data-coloris />
+      </div>
+    </x-readable-color>
     <small class="hint">
       {{ template "css.svg" }}
       <pre>var(--<span>{{$key}}</span>-color)</pre>
@@ -469,19 +481,20 @@
 
 <!-- HTML Editor Page -->
 {{ define "edit_html" }}
-<div class="monaco" data-editor="body" data-language="html" data-value="{{html .Data.Selected.Body}}">
-</div>
+<x-editor class="monaco" editor="body" language="html" value="{{html .Data.Selected.Body}}">
+</x-editor>
 {{end}}
 
 <!-- Styles Editor Page -->
 {{define "edit_styles" }}
-<div class="monaco" data-editor="styles" data-language="css" data-value="{{html .Data.Selected.Styles}}">
-</div>
+<x-editor class="monaco" editor="styles" language="css" value="{{html .Data.Selected.Styles}}">
+</x-editor>
 {{end}}
 
 <!-- Script Editor Page -->
 {{define "edit_script" }}
-<div class="monaco" data-editor="script" data-language="javascript" data-value="{{html .Data.Selected.Script}}">
+<x-editor class="monaco" editor="script" language="javascript" value="{{html .Data.Selected.Script}}">
+</x-editor>
 </div>
 {{end}}
 

@@ -9,8 +9,8 @@ import (
 
 type CreateInvitationRequest = commands.CreateInvitationRequest
 
-type GetFileRequest = queries.GetFileRequest
-type GetFileResponse = queries.GetFileResponse
+type GetFileRequest = queries.GetFileDataRequest
+type GetFileResponse = queries.GetFileDataResponse
 
 type Config = models.Config
 type PageData = models.PageData

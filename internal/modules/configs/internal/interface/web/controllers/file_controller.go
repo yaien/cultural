@@ -81,7 +81,7 @@ func (fc *FileController) Download(w http.ResponseWriter, r *http.Request) {
 	config := r.Context().Value(middlewares.ConfigContextKey).(*models.Config)
 
 	var err error
-	var req queries.GetFileRequest
+	var req queries.GetFileDataRequest
 
 	req.Name = r.PathValue("filename")
 	req.OrganizationID = config.OrganizationID
@@ -93,7 +93,7 @@ func (fc *FileController) Download(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	res, err := fc.app.GetFile(r.Context(), &req)
+	res, err := fc.app.GetFileData(r.Context(), &req)
 	if err != nil {
 		WriteJSONErr(w, fmt.Errorf("failed getting file: %w", err))
 		return

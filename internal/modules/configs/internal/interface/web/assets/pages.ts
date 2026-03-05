@@ -7,56 +7,70 @@ declare var Coloris: any;
 
 // Coloris Docs  https://github.com/mdbassit/Coloris/blob/main/README.md#customizing-the-color-picker
 function ColorPicker() {
-  Coloris({ formatToggle: true, alpha: false });
+  Coloris({ formatToggle: true, alpha: false, clearButton: true });
 }
 
-function ReadableColor() {
-  document.querySelectorAll<HTMLElement>("[data-readable-color]").forEach((el) => {
-    const color = el.dataset.readableColor;
+class ReadableColor extends HTMLElement {
+  connectedCallback() {
+    const color = this.getAttribute("color");
     if (color) {
-      el.style.color = readableColor(color);
+      this.style.color = readableColor(color);
     }
-  });
-}
 
-function Monaco() {
-  const container = document.querySelector<HTMLElement>("[data-editor-container]");
-  if (!container) {
-    console.error("No container [data-editor-container] found for Monaco Editor");
-    return;
+    this.infect(this.childNodes);
   }
 
-  require.config({ paths: { vs: "/assets/static/dashboard/dist/monaco" } });
+  infect(nodes: NodeListOf<ChildNode>) {
+    nodes.forEach((node) => {
+      if (node.nodeType === Node.ELEMENT_NODE) {
+        const element = node as HTMLElement;
+        element.style.color = this.style.color;
+        this.infect(element.childNodes);
+      }
+    });
+  }
+}
 
-  const install = (el: HTMLElement) => {
+class Editor extends HTMLElement {
+  mount: HTMLDivElement;
+
+  constructor() {
+    super();
+    this.mount = document.createElement("div");
+  }
+
+  connectedCallback() {
+    this.style.display = "block";
+    this.style.height = "100%";
+    this.style.width = "100%";
+
+    this.appendChild(this.mount);
     const observer = new ResizeObserver(() => {
-      el.style.height = container.clientHeight * 0.85 + "px";
+      this.mount.style.height = this.clientHeight * 0.99 + "px";
     });
 
-    observer.observe(container);
+    observer.observe(this);
 
-    const editor = monaco.editor.create(el, {
-      value: el.dataset.value || "",
-      language: el.dataset.language || "html",
-      minimap: { enabled: false },
-      automaticLayout: true,
+    require.config({ paths: { vs: "/assets/static/dashboard/dist/monaco" } });
+
+    require(["vs/editor/editor.main"], () => {
+      const editor = monaco.editor.create(this.mount, {
+        value: this.getAttribute("value") || "",
+        language: this.getAttribute("language") || "html",
+        minimap: { enabled: false },
+        automaticLayout: true,
+      });
+
+      editor.onDidChangeModelContent(() => {
+        const detail = {
+          value: editor.getValue(),
+          language: editor.getModel()?.getLanguageId(),
+          editor: this.getAttribute("editor"),
+        };
+        this.dispatchEvent(new CustomEvent("input", { detail, bubbles: true }));
+      });
     });
-
-    editor.onDidChangeModelContent(() => {
-      const detail = {
-        value: editor.getValue(),
-        language: editor.getModel()?.getLanguageId(),
-        editor: el.dataset.editor,
-      };
-      el.dispatchEvent(new CustomEvent("editor-change", { detail }));
-
-      console.debug("Editor content changed", detail);
-    });
-  };
-
-  require(["vs/editor/editor.main"], () => {
-    document.querySelectorAll<HTMLElement>("[data-editor]").forEach(install);
-  });
+  }
 }
 
 export function HoverPlay() {
@@ -69,9 +83,9 @@ export function HoverPlay() {
 }
 
 export function init() {
+  customElements.get("x-readable-color") || customElements.define("x-readable-color", ReadableColor);
+  customElements.get("x-editor") || customElements.define("x-editor", Editor);
   ColorPicker();
-  ReadableColor();
-  Monaco();
   HoverPlay();
 }
 

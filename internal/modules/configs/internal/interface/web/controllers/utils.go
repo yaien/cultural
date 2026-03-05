@@ -82,7 +82,7 @@ func WriteHTMLErr(w http.ResponseWriter, err error) {
 	}
 }
 
-func WriteFile(w http.ResponseWriter, r *http.Request, res *queries.GetFileResponse) {
+func WriteFile(w http.ResponseWriter, r *http.Request, res *queries.GetFileDataResponse) {
 	defer func() {
 		if err := res.Data.Close(); err != nil {
 			slog.Warn("error closing file data", "err", err)
