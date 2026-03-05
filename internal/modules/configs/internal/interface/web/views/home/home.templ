@@ -1,5 +1,9 @@
 package home
 
+import "github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views/dashboard"
+
 templ Home() {
-	<h1>Home</h1>
+	@dashboard.Page(&dashboard.Meta{Title: "Home"}) {
+		<h1>Home</h1>
+	}
 }

@@ -1,0 +1,32 @@
+package pages
+
+import "github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views/icons"
+
+templ Files(state *State) {
+	{{ files, err := state.Files() }}
+	if err != nil {
+		<p>Error al cargar los archivos</p>
+	} else {
+		<div class="grow files">
+			<div class="actions">
+				<input type="file" hidden accept="image/*,video/*" multiple/>
+				<button class="clear">
+					@icons.Add()
+				</button>
+			</div>
+			<div class="grid">
+				for _, file := range files {
+					<div class="item" data-hover-play>
+						<div class="hover" title={ file.Name } data-section="edit_file" data-file={ file.Name }></div>
+						switch file.Preset {
+							case "image":
+								<img src={ state.FileURL(file.Name) } title={ file.Name } alt={ file.Name }/>
+							case "video":
+								<video src={ state.FileURL(file.Name) } title={ file.Name } alt={ file.Name } muted></video>
+						}
+					</div>
+				}
+			</div>
+		</div>
+	}
+}

@@ -1,0 +1,18 @@
+package pages
+
+import "github.com/yaien/cultural/internal/modules/configs/internal/models"
+
+templ EditHTML(data *State, editor, language string) {
+	{{
+		var source string
+		switch selected := data.Selected.(type) {
+		case *models.Page:
+			source = selected.Body
+		case *models.Layout:
+			source = selected.Body
+		case *models.Email:
+			source = selected.Body
+		}
+	}}
+	<x-editor class="monaco" editor="body" language="html" value={ source }></x-editor>
+}

@@ -3,6 +3,7 @@ module github.com/yaien/cultural
 go 1.26
 
 require (
+	github.com/a-h/templ v0.3.1001
 	github.com/gorilla/sessions v1.4.0
 	github.com/markbates/goth v1.82.0
 	github.com/redis/go-redis/v9 v9.18.0
@@ -16,7 +17,6 @@ require (
 	cloud.google.com/go/compute/metadata v0.9.0 // indirect
 	dario.cat/mergo v1.0.2 // indirect
 	github.com/a-h/parse v0.0.0-20250122154542-74294addb73e // indirect
-	github.com/a-h/templ v0.3.1001 // indirect
 	github.com/air-verse/air v1.63.0 // indirect
 	github.com/andybalholm/brotli v1.1.0 // indirect
 	github.com/bep/godartsass/v2 v2.5.0 // indirect

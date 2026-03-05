@@ -1,0 +1,26 @@
+package roles
+
+import "github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views/dashboard"
+
+templ Create() {
+	@dashboard.Modal("Invitar Usuario") {
+		<form
+			hx-post={ templ.URL("/dashboard/roles/create") }
+			hx-target=".modal"
+			hx-swap="outerHTML swap:250ms"
+			hx-disable-elt="find button"
+		>
+			<fieldset>
+				<legend>Nombre</legend>
+				<input name="name" required/>
+			</fieldset>
+			<fieldset>
+				<legend>Correo</legend>
+				<input name="email" type="email" required/>
+			</fieldset>
+			<div class="actions">
+				<button>Invitar</button>
+			</div>
+		</form>
+	}
+}

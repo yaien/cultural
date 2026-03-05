@@ -1,0 +1,26 @@
+package pages
+
+
+templ Fonts(data *State) {
+	{{ fonts := data.Draft.Fonts }}
+	<div class="fonts">
+		<div class="list">
+			for key, font := range fonts {
+				<div class="font" data-section="configure_font" data-font={ font.Family } title={ font.Family }>
+					<div class="preview">{ font.Family }</div>
+					<span>{ key }</span>
+				</div>
+			}
+		</div>
+		if len(fonts) == 0 {
+			<p style="text-align: center">
+				Aún no hay fuentes configuradas.
+				<br/>
+				Agrega una nueva fuente para comenzar
+			</p>
+		}
+		<div class="actions">
+			<button data-section="browse_fonts">Fuentes</button>
+		</div>
+	</div>
+}

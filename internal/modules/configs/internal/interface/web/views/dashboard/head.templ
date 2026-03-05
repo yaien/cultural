@@ -1,0 +1,27 @@
+package dashboard
+
+import (
+	"fmt"
+	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/middlewares"
+	"github.com/yaien/cultural/internal/modules/configs/internal/models"
+)
+
+templ Head(n *Meta) {
+	{{ config := ctx.Value(middlewares.ConfigContextKey).(*models.Config) }}
+	<meta charset="UTF-8"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+	<title>{ n.Title } - { config.Title }</title>
+	<link rel="icon" type="image/png" href={ "/assets/landing/favicon.png?v" + fmt.Sprint(config.UpdatedAt.Unix()) }/>
+	<link rel="preconnect" href="https://fonts.googleapis.com"/>
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+	<link
+		href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+		rel="stylesheet"
+	/>
+	if n.Links != nil {
+		@n.Links
+	}
+	<link rel="stylesheet" href="/assets/static/dashboard/dist/dashboard.min.css"/>
+	<script src="/assets/static/dashboard/dist/htmx.min.js"></script>
+	<script src="/assets/static/dashboard/dist/dashboard.min.js"></script>
+}

@@ -1,0 +1,16 @@
+package pages 
+
+import "github.com/yaien/cultural/internal/modules/configs/internal/models"
+
+templ PagesEditScript(data *State) {
+	{{
+		var source string
+		switch selected := data.Selected.(type) {
+		case *models.Page:
+			source = selected.Script
+		case *models.Layout:
+			source = selected.Script
+		}
+	}}
+	<x-editor class="monaco" editor="script" language="javascript" value={ source }></x-editor>
+}

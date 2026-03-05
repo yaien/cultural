@@ -1,0 +1,17 @@
+package dashboard
+
+templ Toast(message string, variant string) {
+	<div
+		class={ "toast", variant }
+		hx-trigger="click from:.toast-close, load delay:5s"
+		hx-get="/dashboard/empty"
+		hx-swap="outerHTML swap:1s settle:1s"
+	>
+		<span>{ message }</span>
+		<button class="toast-close"></button>
+	</div>
+}
+
+templ ToastContainer() {
+	<div class="toasts" hx-trigger="toast from:body" hx-get="/dashboard/toast"></div>
+}

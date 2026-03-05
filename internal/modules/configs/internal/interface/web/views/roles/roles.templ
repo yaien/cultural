@@ -1,129 +1,13 @@
 package roles
 
-import "fmt"
-import "github.com/yaien/cultural/internal/modules/configs/internal/models"
-import "github.com/yaien/cultural/internal/modules/configs/internal/interface/web/middlewares"
-import "github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views/icons"
+import "github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views/dashboard"
 
-const RolesPageTitle = "Roles"
-
-templ RolesLinks() {
+templ links() {
 	<link rel="stylesheet" href="/assets/static/dashboard/dist/roles.min.css"/>
 }
 
-templ Roles(roles []*models.Role) {
-	{{ current := ctx.Value(middlewares.RoleContextKey).(*models.Role) }}
-	<div class="container">
-		<table>
-			<thead>
-				<tr>
-					<th>Usuario</th>
-					<th>Correo</th>
-					<th>Rol</th>
-					<th>Acciones</th>
-				</tr>
-			</thead>
-			<tbody>
-				for _, role := range roles {
-					<tr hx-get="/dashboard/empty" hx-trigger="deleted-{role.ID.Hex} from:body" hx-swap="outerHTML swap:250ms">
-						<td>{ role.UserName }</td>
-						<td>{ role.UserEmail }</td>
-						<td class="capitalize">{ role.Name }</td>
-						<td>
-							<div role="group">
-								if role.ID.Hex() != current.ID.Hex() {
-									<button
-										class="danger"
-										hx-get={ templ.URL(fmt.Sprintf("/dashboard/roles/modals/deletion/%s?name=%s", role.ID.Hex(), role.UserName)) }
-										hx-swap="beforeend 250ms"
-										hx-target=".container"
-										hx-disabled-elt="this"
-									>
-										@icons.Trash()
-									</button>
-								}
-							</div>
-						</td>
-					</tr>
-				}
-			</tbody>
-		</table>
-		<div class="actions">
-			<button
-				class="primary clear"
-				hx-get={ templ.URL("/dashboard/roles/modals/invitation") }
-				hx-swap="beforeend swap:250ms"
-				hx-target=".container"
-				hx-disabled-elt="this"
-			>
-				@icons.Add()
-			</button>
-		</div>
-	</div>
-}
-
-templ RoleInvitationModal() {
-	<div
-		class="modal open"
-		hx-trigger="click target:.modal, click from:.modal-close, keyup[key == 'Escape'] from:window"
-		hx-get={ templ.URL("/dashboard/empty") }
-		hx-swap="outerHTML swap:250ms"
-	>
-		<div class="modal-content">
-			<div class="modal-header">
-				<h2 class="modal-title">Invitar usuario</h2>
-				<button class="modal-close"></button>
-			</div>
-			<div class="modal-body">
-				<form
-					hx-post={ templ.URL("/dashboard/roles/modals/invitation") }
-					hx-target=".modal"
-					hx-swap="outerHTML swap:250ms"
-					hx-disable-elt="find button"
-				>
-					<fieldset>
-						<legend>Nombre</legend>
-						<input name="name" required/>
-					</fieldset>
-					<fieldset>
-						<legend>Correo</legend>
-						<input name="email" type="email" required/>
-					</fieldset>
-					<div class="actions">
-						<button>Invitar</button>
-					</div>
-				</form>
-			</div>
-		</div>
-	</div>
-}
-
-templ RoleDeletionModal(role *models.Role) {
-	<div
-		class="modal open"
-		hx-trigger="click target:.modal, click from:.modal-close, click from:.cancel, keyup[key == 'Escape'] from:window"
-		hx-get={ templ.URL("/dashboard/empty") }
-		hx-swap="outerHTML swap:250ms"
-	>
-		<div class="modal-content">
-			<div class="modal-header">
-				<h2 class="modal-title">Eliminar usuario</h2>
-				<button class="modal-close"></button>
-			</div>
-			<div class="modal-body">
-				<form
-					hx-delete={ templ.URL(fmt.Sprintf("/dashboard/roles/%s", role.ID.Hex())) }
-					hx-target=".modal"
-					hx-swap="outerHTML swap:250ms"
-					hx-disabled-elt=".actions button"
-				>
-					<p>¿Estás seguro de que deseas eliminar a <b>{ role.UserName }</b>?</p>
-					<div class="actions">
-						<button class="secondary cancel">Cancelar</button>
-						<button class="danger">Eliminar</button>
-					</div>
-				</form>
-			</div>
-		</div>
-	</div>
+templ Page(state *State) {
+	@dashboard.Page(&dashboard.Meta{Title: "Roles", Scope: "roles", Links: links()}) {
+		@Content(state)
+	}
 }

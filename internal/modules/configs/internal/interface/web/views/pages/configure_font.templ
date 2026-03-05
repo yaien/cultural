@@ -1,0 +1,23 @@
+package pages
+
+templ ConfigureFont(data *State) {
+	<div class="configure">
+		<div class="actions">
+			<button data-section="browse_fonts">Volver</button>
+		</div>
+		<h1>Family</h1>
+		<form>
+			<small>
+				Use "primary" para cambiar la fuente base de la página o "headings" para cambiar los
+				encabezados
+			</small>
+			<fieldset>
+				<legend>Tag</legend>
+				<input name="tag" required/>
+			</fieldset>
+			<div class="actions">
+				<button type="submit">Guardar</button>
+			</div>
+		</form>
+	</div>
+}

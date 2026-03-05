@@ -1,0 +1,27 @@
+package pages
+
+import "github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views/icons"
+
+templ PagesColors(state *State) {
+	<div class="colors">
+		for key, color := range state.Draft.Colors {
+			<div class="color">
+				<x-readable-color color={ color }>
+					<div class="field" style={ "background-color: " + color }>
+						<input value={ key }/>
+						<input value={ color } data-coloris/>
+					</div>
+				</x-readable-color>
+				<small class="hint">
+					@icons.Css()
+					<pre>var(--<span>{ key }</span>-color)</pre>
+				</small>
+			</div>
+		}
+		<div class="actions">
+			<button class="clear">
+				@icons.Add()
+			</button>
+		</div>
+	</div>
+}

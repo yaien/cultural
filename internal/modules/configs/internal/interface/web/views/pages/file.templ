@@ -1,0 +1,63 @@
+package pages
+
+import "github.com/yaien/cultural/internal/modules/configs/internal/models"
+
+templ File(state *State) {
+	if file, err := state.File(state.SelectedFileName); err == nil {
+		@FileFound(state, file)
+	} else {
+		@FileNotFound()
+	}
+}
+
+templ FileFound(state *State, file *models.File) {
+	<div class="grow files">
+		<div class="edit">
+			<div class="actions">
+				<button type="button" @click="set(states.initial)" data-section="files">Volver</button>
+			</div>
+			<div class="preview">
+				switch file.Preset {
+					case "image":
+						<img src={ state.FileURL(file.Name) } title={ file.Name } alt={ file.Name }/>
+					case "video":
+						<video src={ state.FileURL(file.Name) } title={ file.Name } alt={ file.Name } controls></video>
+				}
+			</div>
+			<table class="compact">
+				<thead>
+					<tr>
+						<th>Variante</th>
+						<th>Dimensiones</th>
+						<th>Tamaño</th>
+						<th>Tipo</th>
+					</tr>
+				</thead>
+				<tbody>
+					for _, format := range file.Formats {
+						<tr>
+							<td>{ format.Variant }</td>
+							<td>{ format.Width }x{ format.Height }</td>
+							<td>{ format.Size }</td>
+							<td>{ format.ContentType }</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+			<form>
+				<fieldset>
+					<legend>Nombre</legend>
+					<input name="name" value={ file.Name } required/>
+				</fieldset>
+				<div class="actions around">
+					<button type="button" class="danger">Eliminar</button>
+					<button type="submit">Guardar</button>
+				</div>
+			</form>
+		</div>
+	</div>
+}
+
+templ FileNotFound() {
+	<p>Error al cargar el archivo</p>
+}

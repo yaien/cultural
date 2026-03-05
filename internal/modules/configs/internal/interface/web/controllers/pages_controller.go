@@ -7,7 +7,6 @@ import (
 	"github.com/yaien/cultural/internal/modules/configs/internal/application"
 	"github.com/yaien/cultural/internal/modules/configs/internal/application/queries"
 	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/middlewares"
-	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views/dashboard"
 	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views/pages"
 	"github.com/yaien/cultural/internal/modules/configs/internal/models"
 )
@@ -36,10 +35,8 @@ func (c *PagesController) Index(w http.ResponseWriter, r *http.Request) {
 	var state pages.State
 	var ok bool
 
-	state.App = c.app
-	state.Ctx = ctx
 	state.Config = config
-	state.FileURLFunc = models.FileURL
+	state.FileURL = models.FileURL
 	state.Draft = draft
 	state.SelectedType = query.Get("type")
 	state.SelectedKey = query.Get("key")
@@ -72,18 +69,12 @@ func (c *PagesController) Index(w http.ResponseWriter, r *http.Request) {
 
 	switch r.Header.Get("HX-Target") {
 	case "tab-content":
-		_ = pages.PagesTabContent(&state).Render(ctx, w)
+		_ = pages.Section(&state).Render(ctx, w)
 		return
 	case "container":
-		_ = pages.Pages(&state).Render(ctx, w)
+		_ = pages.Content(&state).Render(ctx, w)
 	default:
-		_ = dashboard.Dashboard(&dashboard.DashboardData{
-			Path:    r.URL.Path,
-			Title:   pages.PagesPageTitle,
-			Links:   pages.PagesLinks(),
-			Scripts: pages.PagesScripts(),
-			Content: pages.Pages(&state),
-		}).Render(ctx, w)
+		_ = pages.Page(&state).Render(ctx, w)
 	}
 
 }

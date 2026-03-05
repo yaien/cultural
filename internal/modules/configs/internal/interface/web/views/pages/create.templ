@@ -1,0 +1,26 @@
+package pages
+
+templ Create(state *State) {
+	<form>
+		<fieldset role="group">
+			<legend>Tipo de Plantilla</legend>
+			<select name="type">
+				<option value="pages">Sitio</option>
+				<option value="layouts">Diseño</option>
+			</select>
+		</fieldset>
+		<div>
+			<fieldset>
+				<legend>Nombre</legend>
+				<input name="name" required/>
+			</fieldset>
+			<fieldset>
+				<legend>Titulo</legend>
+				<input name="title" required/>
+			</fieldset>
+		</div>
+		<div class="actions">
+			<button>Crear</button>
+		</div>
+	</form>
+}

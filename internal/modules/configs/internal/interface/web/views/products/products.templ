@@ -1,5 +1,9 @@
 package products
 
+import "github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views/dashboard"
+
 templ Products() {
-	<h1>Products</h1>
+	@dashboard.Page(&dashboard.Meta{Title: "Productos"}) {
+		<h1>Productos</h1>
+	}
 }

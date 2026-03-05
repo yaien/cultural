@@ -1,0 +1,16 @@
+package pages
+
+templ BrowseFonts(state *State) {
+	<div class="actions">
+		<button data-section="fonts">Volver</button>
+	</div>
+	<fieldset role="group">
+		<legend>Fuentes</legend>
+		<input type="text" placeholder="Buscar fuente"/>
+	</fieldset>
+	<div class="list scrollable">
+		<div class="font">
+			<div class="preview">"Family"</div>
+		</div>
+	</div>
+}

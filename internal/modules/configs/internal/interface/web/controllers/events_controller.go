@@ -18,5 +18,5 @@ func NewEventsController(app *application.Application) *EventsController {
 }
 
 func (c *EventsController) Index(w http.ResponseWriter, r *http.Request) {
-	_ = events.Events().Render(r.Context(), w)
+	_ = events.Page().Render(r.Context(), w)
 }

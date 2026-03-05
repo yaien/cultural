@@ -8,5 +8,6 @@ type Middlewares struct {
 	WithConfig Middleware
 	WithUser   Middleware
 	WithRole   Middleware
+	WithPath   Middleware
 	WithCache  Middleware
 }

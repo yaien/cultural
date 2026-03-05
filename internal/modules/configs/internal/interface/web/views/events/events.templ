@@ -1,5 +1,9 @@
 package events
 
-templ Events() {
-	<h1>Events</h1>
+import "github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views/dashboard"
+
+templ Page() {
+	@dashboard.Page(&dashboard.Meta{Title: "Eventos"}) {
+		<h1>Events</h1>
+	}
 }
