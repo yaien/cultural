@@ -24,8 +24,9 @@ func NewWithConfig(app *application.Application) func(next http.Handler) http.Ha
 			if scheme == "" {
 				if r.TLS != nil {
 					scheme = "https"
+				} else {
+					scheme = "http"
 				}
-				scheme = "http"
 			}
 
 			slog.Debug(
