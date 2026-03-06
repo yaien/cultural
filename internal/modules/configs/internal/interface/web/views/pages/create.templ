@@ -1,12 +1,12 @@
 package pages
 
 templ Create(state *State) {
-	<form>
+	<form hx-post={ Path } hx-target={ "#" + ContentID } hx-swap="outerHTML">
 		<fieldset role="group">
 			<legend>Tipo de Plantilla</legend>
 			<select name="type">
-				<option value="pages">Sitio</option>
-				<option value="layouts">Diseño</option>
+				<option value={ SelectedTypePage }>Sitio</option>
+				<option value={ SelectedTypeLayout }>Diseño</option>
 			</select>
 		</fieldset>
 		<div>

@@ -1,21 +1,22 @@
 package pages
 
 import (
+	"github.com/yaien/cultural/internal/modules/configs/internal/application/commands"
 	"github.com/yaien/cultural/internal/modules/configs/internal/models"
 )
 
-type SelectedType string
+type SelectedType = commands.DraftModelType
 
 const (
-	SelectedTypePage   SelectedType = "page"
-	SelectedTypeLayout SelectedType = "layout"
-	SelectedTypeEmail  SelectedType = "email"
+	SelectedTypePage   = commands.DraftPageModelType
+	SelectedTypeLayout = commands.DraftLayoutModelType
+	SelectedTypeEmail  = commands.DraftEmailModelType
 )
 
 const (
-	DefaultPageName   = "index"
-	DefaultLayoutName = "default"
-	DefaultEmailName  = "invitation"
+	DefaultPageName   = models.DefaultPageName
+	DefaultLayoutName = models.DefaultLayoutName
+	DefaultEmailName  = models.DefaultEmailName
 )
 
 type State struct {

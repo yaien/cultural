@@ -15,26 +15,32 @@ func read(file string) string {
 	return string(content)
 }
 
+const (
+	DefaultPageName   = "index"
+	DefaultLayoutName = "default"
+	DefaultEmailName  = "invitation"
+)
+
 var DefaultLayout = &Layout{
-	Name:  "default",
+	Name:  DefaultLayoutName,
 	Title: "Diseño por defecto",
 	Body:  `{{template "page_body" .}}`,
 }
 
 var DefaultLayouts = map[string]*Layout{
-	"default": DefaultLayout,
+	DefaultLayoutName: DefaultLayout,
 }
 
 var DefaultPages = map[string]*Page{
-	"index": {
-		Name:   "index",
+	DefaultPageName: {
+		Name:   DefaultPageName,
 		Styles: read("templates/index_page.css"),
 		Body:   read("templates/index_page.html"),
 	},
 }
 
 var DefaultEmails = map[string]*Email{
-	"invitation": {
+	DefaultEmailName: {
 		Subject: read("templates/invitation_email_subject.txt"),
 		Body:    read("templates/invitation_email_body.html"),
 	},

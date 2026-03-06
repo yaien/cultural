@@ -5,8 +5,8 @@ import (
 	"net/http"
 
 	"github.com/a-h/templ"
-	"github.com/gorilla/schema"
 	"github.com/yaien/cultural/internal/modules/configs/internal/application"
+	"github.com/yaien/cultural/internal/modules/configs/internal/application/commands"
 	"github.com/yaien/cultural/internal/modules/configs/internal/application/queries"
 	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/middlewares"
 	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views/dashboard"
@@ -120,88 +120,114 @@ func (c *PagesController) Preview(w http.ResponseWriter, r *http.Request) {
 	_, _ = w.Write([]byte(html))
 }
 
-type UpdateInput struct {
-	Type        pages.SelectedType `schema:"type"`
-	Key         string             `schema:"key"`
-	Name        string             `schema:"name"`
-	Title       string             `schema:"title"`
-	Description string             `schema:"description"`
-	Layout      string             `schema:"layout"`
-	Subject     string             `schema:"subject"`
-}
-
-var decoder = schema.NewDecoder()
-
 func (c *PagesController) UpdateBasic(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
 
 	config := ctx.Value(middlewares.ConfigContextKey).(*models.Config)
 
-	draft, err := c.app.GetDraftByConfigID(ctx, config.ID)
-	if err != nil {
-		WriteHTMLErr(w, fmt.Errorf("failed getting draft: %w", err))
+	if err := r.ParseForm(); err != nil {
+		WriteHTMLErr(w, fmt.Errorf("failed parsing form: %w", err))
 		return
 	}
+
+	req := commands.UpdateDraftBasicRequest{
+		ConfigID:    config.ID,
+		Type:        commands.DraftModelType(r.PostForm.Get("type")),
+		Key:         r.PostForm.Get("key"),
+		Name:        r.PostForm.Get("name"),
+		Title:       r.PostForm.Get("title"),
+		Description: r.PostForm.Get("description"),
+		Layout:      r.PostForm.Get("layout"),
+		Subject:     r.PostForm.Get("subject"),
+	}
+
+	if err := c.app.UpdateDraftBasic(ctx, req); err != nil {
+		WriteHTMLErr(w, fmt.Errorf("failed updating basic info: %w", err))
+		return
+	}
+
+	templ.Join(
+		pages.Preview(req.Key, req.Type, true),
+		dashboard.Toast("Cambios guardados correctamente", dashboard.Primary),
+	).Render(ctx, w)
+
+}
+
+func (c *PagesController) Create(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	config := ctx.Value(middlewares.ConfigContextKey).(*models.Config)
 
 	if err := r.ParseForm(); err != nil {
 		WriteHTMLErr(w, fmt.Errorf("failed parsing form: %w", err))
 		return
 	}
 
-	var input UpdateInput
-	if err := decoder.Decode(&input, r.PostForm); err != nil {
-		WriteHTMLErr(w, fmt.Errorf("failed decoding form: %w", err))
+	req := commands.CreateDraftModelRequest{
+		ConfigID: config.ID,
+		Type:     commands.DraftModelType(r.PostForm.Get("type")),
+		Name:     r.PostForm.Get("name"),
+		Title:    r.PostForm.Get("title"),
+	}
+
+	res, err := c.app.CreateDraftModel(ctx, req)
+	if err != nil {
+		WriteHTMLErr(w, fmt.Errorf("failed creating model: %w", err))
 		return
 	}
 
-	switch input.Type {
-	case pages.SelectedTypeEmail:
-		email, ok := draft.Emails[input.Key]
-		if !ok {
-			WriteHTMLErr(w, fmt.Errorf("email not found"))
-			return
-		}
-
-		email.Subject = input.Subject
-	case pages.SelectedTypeLayout:
-		layout, ok := draft.Layouts[input.Key]
-		if !ok {
-			WriteHTMLErr(w, fmt.Errorf("layout not found"))
-			return
-		}
-
-		layout.Name = input.Name
-		layout.Title = input.Title
-
-	case pages.SelectedTypePage:
-		page, ok := draft.Pages[input.Key]
-		if !ok {
-			WriteHTMLErr(w, fmt.Errorf("page not found"))
-			return
-		}
-
-		if input.Key != pages.DefaultPageName {
-			page.Name = input.Name
-		}
-
-		page.Title = input.Title
-		page.Description = input.Description
-		page.Layout = input.Layout
-
-	default:
-		WriteHTMLErr(w, fmt.Errorf("invalid type %s", input.Type))
-
+	state := &pages.State{
+		Config:       config,
+		Draft:        res.Draft,
+		SelectedType: req.Type,
+		SelectedKey:  req.Name,
+		Selected:     res.Model,
 	}
 
-	if err := c.app.UpdateDraft(ctx, draft); err != nil {
-		WriteHTMLErr(w, fmt.Errorf("failed updating draft: %w", err))
-		return
-	}
+	w.Header().Set("HX-Push-URL", fmt.Sprintf("%s?type=%s&key=%s&section=?", pages.Path, req.Type, req.Name))
 
 	templ.Join(
-		pages.Preview(input.Key, input.Type, true),
-		dashboard.Toast("Cambios guardados correctamente", dashboard.Primary),
+		pages.Content(state),
+		dashboard.Toast("Creado correctamente", dashboard.Primary),
+	).Render(ctx, w)
+
+}
+
+func (c *PagesController) Delete(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	config := ctx.Value(middlewares.ConfigContextKey).(*models.Config)
+
+	if err := r.ParseForm(); err != nil {
+		WriteHTMLErr(w, fmt.Errorf("failed parsing form: %w", err))
+		return
+	}
+
+	req := commands.DeleteDraftModelRequest{
+		ConfigID: config.ID,
+		Type:     commands.DraftModelType(r.Form.Get("type")),
+		Key:      r.Form.Get("key"),
+	}
+
+	res, err := c.app.DeleteDraftModel(ctx, req)
+	if err != nil {
+		WriteHTMLErr(w, fmt.Errorf("failed deleting model: %w", err))
+		return
+	}
+
+	state := &pages.State{
+		Config:       config,
+		Draft:        res.Draft,
+		SelectedType: req.Type,
+		SelectedKey:  res.DefaultModelName,
+		Selected:     res.DefaultModel,
+	}
+
+	w.Header().Set("HX-Push-URL", fmt.Sprintf("%s?type=%s&key=%s&section=?", pages.Path, req.Type, res.DefaultModelName))
+
+	templ.Join(
+		pages.Content(state),
+		dashboard.Toast("Eliminado correctamente", dashboard.Primary),
 	).Render(ctx, w)
 
 }

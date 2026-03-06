@@ -1,11 +1,15 @@
 package pages
 
-templ Delete(data *State) {
+import "fmt"
+
+templ Delete(state *State) {
 	<div class="delete">
 		<p>¿Estás seguro de que deseas eliminar este sitio ?</p>
-		<div class="actions">
-			<button>Cancelar</button>
-			<button class="danger">Eliminar</button>
+		<div class="actions" hx-vals={ fmt.Sprintf(`{"key": %q, "type": %q}`, state.SelectedKey, state.SelectedType) }>
+			<button hx-get={ Path } hx-target={ "#" + EditorID } hx-swap="outerHTML" hx-push-url="true">Cancelar</button>
+			<button class="danger" hx-delete={ Path } hx-target={ "#" + ContentID } hx-swap="outerHTML">
+				Eliminar
+			</button>
 		</div>
 	</div>
 }
