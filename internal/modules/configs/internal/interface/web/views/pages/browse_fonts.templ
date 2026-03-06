@@ -19,11 +19,19 @@ templ BrowseFonts(state *State) {
 		</div>
 		<fieldset role="group">
 			<legend>Fuentes</legend>
-			<input type="text" placeholder="Buscar fuente"/>
+			<input
+				type="search"
+				name="family"
+				placeholder="Buscar fuente"
+				hx-trigger="input changed delay:500ms"
+				hx-get={ fmt.Sprintf("/dashboard/fonts?limit=%d&offset=%d", limit, 0) }
+				hx-target="x-scrollable"
+				hx-indicator=".fonts"
+			/>
 		</fieldset>
 		<div class="list">
 			<x-scrollable scale="0.95">
-				@FontList(fonts, limit, limit)
+				@FontList(fonts, "", limit, limit)
 			</x-scrollable>
 		</div>
 		<div class="spinner htmx-indicator">
@@ -32,12 +40,12 @@ templ BrowseFonts(state *State) {
 	</div>
 }
 
-templ FontList(fonts []*models.Font, limit int64, offset int64) {
+templ FontList(fonts []*models.Font, family string, limit int64, offset int64) {
 	for index, font := range fonts {
 		<div
 			class="font"
 			if index == len(fonts) -1 {
-				hx-get={ fmt.Sprintf("/dashboard/fonts?limit=%d&offset=%d", limit, offset) }
+				hx-get={ fmt.Sprintf("/dashboard/fonts?limit=%d&offset=%d&family=%s", limit, offset, family) }
 				hx-trigger="intersect once"
 				hx-swap="afterend"
 				hx-indicator=".fonts"
