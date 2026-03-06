@@ -3,9 +3,14 @@ package pages
 import "fmt"
 
 const (
-	SectionID = "section"
-	ContentID = "content"
-	Path      = "/dashboard/pages"
+	SectionID         = "section"
+	ContentID         = "content"
+	Path              = "/dashboard/pages"
+	SectionQuery      = "section"
+	SelectedTypeQuery = "type"
+	SelectedKeyQuery  = "key"
+	FileQuery         = "file"
+	FontQuery         = "font"
 )
 
 templ Content(state *State) {
@@ -15,7 +20,7 @@ templ Content(state *State) {
 		hx-push-url="true"
 	>
 		<div class="editor">
-			<div role="group">
+			<div role="group" hx-vals={ fmt.Sprintf("{ %q: %q, %q: %q }", SelectedTypeQuery, state.SelectedType, SelectedKeyQuery, state.SelectedKey) }>
 				for _, section := range Sections {
 					if !section.Tab {
 						{{ continue }}
@@ -30,7 +35,8 @@ templ Content(state *State) {
 						{{ continue }}
 					}
 					<button
-						hx-get={ fmt.Sprintf("%s?section=%s&type=%s&key=%s", Path, section.Name, state.SelectedType, state.SelectedKey) }
+						hx-get={ Path }
+						hx-vals={ fmt.Sprintf("{ %q: %q }", SectionQuery, section.Name) }
 						hx-target={ "#" + SectionID }
 						hx-swap="innerHTML"
 						class={ templ.KV("active", state.Section == section.Name) }

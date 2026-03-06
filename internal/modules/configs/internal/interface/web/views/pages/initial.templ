@@ -5,7 +5,7 @@ import "github.com/yaien/cultural/internal/modules/configs/internal/models"
 templ Initial(state *State) {
 	<fieldset role="group">
 		<legend>Tipo de Plantilla</legend>
-		<select name="type" autocomplete="off" hx-get={ Path } hx-target={ "#" + ContentID } hx-swap="outerHTML" hx-push-url="true">
+		<select name={ SelectedTypeQuery } autocomplete="off" hx-get={ Path } hx-target={ "#" + ContentID } hx-swap="outerHTML" hx-push-url="true">
 			<option value={ SelectedTypePage } selected?={ state.SelectedType == SelectedTypePage }>Sitio</option>
 			<option value={ SelectedTypeLayout } selected?={ state.SelectedType == SelectedTypeLayout }>Diseño</option>
 			<option value={ SelectedTypeEmail } selected?={ state.SelectedType == SelectedTypeEmail }>Correo</option>
@@ -13,7 +13,7 @@ templ Initial(state *State) {
 	</fieldset>
 	<fieldset>
 		<legend>Seleccionar Plantilla</legend>
-		<select name="key" hx-get={ Path } hx-target={ "#" + ContentID } hx-swap="outerHTML" hx-push-url="true">
+		<select name={ SelectedKeyQuery } hx-get={ Path } hx-target={ "#" + ContentID } hx-swap="outerHTML" hx-push-url="true">
 			switch state.Selected.(type) {
 				case *models.Page:
 					for key := range state.Draft.Pages {

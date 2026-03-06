@@ -37,11 +37,11 @@ func (c *PagesController) Index(w http.ResponseWriter, r *http.Request) {
 	state := &pages.State{
 		Config:             config,
 		Draft:              draft,
-		SelectedType:       pages.SelectedType(query.Get("type")),
-		SelectedKey:        query.Get("key"),
-		SelectedFileName:   query.Get("file"),
-		SelectedFontFamily: query.Get("font"),
-		Section:            query.Get("section"),
+		SelectedType:       pages.SelectedType(query.Get(pages.SelectedTypeQuery)),
+		SelectedKey:        query.Get(pages.SelectedKeyQuery),
+		SelectedFileName:   query.Get(pages.FileQuery),
+		SelectedFontFamily: query.Get(pages.FontQuery),
+		Section:            query.Get(pages.SectionQuery),
 		FileURL:            models.FileURL,
 		Files: func() ([]*models.File, error) {
 			return c.app.GetFiles(ctx, config.OrganizationID)
@@ -76,7 +76,7 @@ func (c *PagesController) Index(w http.ResponseWriter, r *http.Request) {
 		}
 	default:
 		state.SelectedType = pages.SelectedTypePage
-		state.SelectedKey = r.URL.Query().Get("key")
+		state.SelectedKey = r.URL.Query().Get(pages.SelectedKeyQuery)
 		state.Selected, ok = draft.Pages[state.SelectedKey]
 		if !ok {
 			state.Selected = draft.Pages[pages.DefaultPageName]
@@ -103,8 +103,8 @@ func (c *PagesController) Preview(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query()
 
 	html, err := c.app.GetPreview(ctx, &queries.GetPreviewRequest{
-		Key:    query.Get("key"),
-		Type:   query.Get("type"),
+		Key:    query.Get(pages.SelectedKeyQuery),
+		Type:   query.Get(pages.SelectedTypeQuery),
 		Config: config,
 	})
 
