@@ -32,17 +32,34 @@ func (c *PagesController) Index(w http.ResponseWriter, r *http.Request) {
 
 	query := r.URL.Query()
 
-	var state pages.State
 	var ok bool
 
-	state.Config = config
-	state.FileURL = models.FileURL
-	state.Draft = draft
-	state.SelectedType = pages.SelectedType(query.Get("type"))
-	state.SelectedKey = query.Get("key")
-	state.SelectedFileName = query.Get("file")
-	state.SelectedFontFamily = query.Get("font")
-	state.Section = query.Get("section")
+	state := &pages.State{
+		Config:             config,
+		Draft:              draft,
+		SelectedType:       pages.SelectedType(query.Get("type")),
+		SelectedKey:        query.Get("key"),
+		SelectedFileName:   query.Get("file"),
+		SelectedFontFamily: query.Get("font"),
+		Section:            query.Get("section"),
+		FileURL:            models.FileURL,
+		Files: func() ([]*models.File, error) {
+			return c.app.GetFiles(ctx, config.OrganizationID)
+		},
+		File: func(name string) (*models.File, error) {
+			return c.app.GetFile(ctx, config.OrganizationID, name)
+		},
+		Fonts: func(family string, limit, offset int64) ([]*models.Font, error) {
+			return c.app.GetFonts(ctx, &models.FindFontOptions{
+				Family: family,
+				Limit:  limit,
+				Offset: int64(offset),
+			})
+		},
+		Font: func(family string) (*models.Font, error) {
+			return c.app.GetFont(ctx, family)
+		},
+	}
 
 	switch state.SelectedType {
 	case pages.SelectedTypeEmail:
@@ -69,12 +86,12 @@ func (c *PagesController) Index(w http.ResponseWriter, r *http.Request) {
 
 	switch r.Header.Get("HX-Target") {
 	case pages.SectionID:
-		_ = pages.Section(&state).Render(ctx, w)
+		_ = pages.Section(state).Render(ctx, w)
 		return
 	case pages.ContentID:
-		_ = pages.Content(&state).Render(ctx, w)
+		_ = pages.Content(state).Render(ctx, w)
 	default:
-		_ = pages.Page(&state).Render(ctx, w)
+		_ = pages.Page(state).Render(ctx, w)
 	}
 
 }

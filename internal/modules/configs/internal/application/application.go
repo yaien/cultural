@@ -16,6 +16,7 @@ type Application struct {
 	*queries.GetRoleQuery
 	*queries.GetRolesQuery
 	*queries.GetFontsQuery
+	*queries.GetFontQuery
 	*queries.GetFileDataQuery
 	*queries.GetFileQuery
 	*queries.GetFilesQuery
@@ -57,6 +58,7 @@ func New(deps Deps) *Application {
 		queries.NewGetRoleQuery(deps.Roles),
 		queries.NewGetRolesQuery(deps.Roles),
 		queries.NewGetFontsQuery(deps.Fonts),
+		queries.NewGetFontQuery(deps.Fonts),
 		queries.NewGetFileDataQuery(deps.Files, deps.Storage),
 		queries.NewGetFileQuery(deps.Files),
 		queries.NewGetFilesQuery(deps.Files),

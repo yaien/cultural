@@ -30,11 +30,13 @@ type State struct {
 	File               FileFunc
 	Files              FilesFunc
 	Font               FontFunc
+	Fonts              FontsFunc
 	Section            string
 }
 
 type FileFunc func(filename string) (*models.File, error)
 type FontFunc func(fontFamily string) (*models.Font, error)
+type FontsFunc func(family string, limit, offset int64) ([]*models.Font, error)
 type FilesFunc func() ([]*models.File, error)
 type FileURLFunc models.FileURLFunc
 

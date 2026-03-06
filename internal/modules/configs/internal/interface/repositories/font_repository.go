@@ -20,6 +20,19 @@ func NewFontRepository(db *mongo.Database) *FontRepository {
 	return &FontRepository{db}
 }
 
+func (r *FontRepository) GetByFamily(ctx context.Context, family string) (*models.Font, error) {
+	collection := r.db.Collection("fonts")
+
+	var font models.Font
+
+	err := collection.FindOne(ctx, bson.M{"family": family}).Decode(&font)
+	if err != nil {
+		return nil, translate(err)
+	}
+
+	return &font, nil
+}
+
 func (r *FontRepository) Find(ctx context.Context, opts *models.FindFontOptions) ([]*models.Font, error) {
 	collection := r.db.Collection("fonts")
 	filter := bson.M{}
