@@ -6,30 +6,27 @@ import (
 	"github.com/yaien/cultural/internal/modules/configs/internal/models"
 )
 
-templ Fonts() {
-}
-
-type Meta struct {
-	Scope string
-	Title string
-}
-
-templ Page(d *Meta) {
+templ Page(title string) {
 	{{ role := ctx.Value(middlewares.RoleContextKey).(*models.Role) }}
 	{{ path := ctx.Value(middlewares.PathContextKey).(string) }}
 	<!DOCTYPE html>
 	<html lang="es">
 		<head>
-			@Head(d)
+			@Head(title)
 		</head>
-		<body scope={ d.Scope }>
+		<body>
 			<header>
 				<div class="start">
-					<button class="toggle" data-toggle="body" data-class="open">
-						@icons.Menu()
-					</button>
+					<x-toggler target="body" toggle="open">
+						<button class="toggle">
+							@icons.Menu()
+						</button>
+						<button slot="toggled" class="toggle">
+							@icons.Close()
+						</button>
+					</x-toggler>
 					<div class="title">
-						<h3>{ d.Title }</h3>
+						<h3>{ title }</h3>
 					</div>
 				</div>
 				<div class="end">
@@ -63,7 +60,6 @@ templ Page(d *Meta) {
 			</aside>
 			<main>
 				{ children... }
-				<div id="toasts" hx-trigger="toast from:body" hx-get="/dashboard/toast"></div>
 			</main>
 		</body>
 	</html>

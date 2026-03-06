@@ -1,13 +1,27 @@
-function NavToggler() {
-  document.querySelectorAll<HTMLElement>("[data-toggle]").forEach((el) => {
-    el.addEventListener("click", () => {
-      document.querySelector(el.dataset.toggle ?? "body")?.classList.toggle(el.dataset.class ?? "open");
-    });
-  });
+class XToggler extends HTMLElement {
+    private untoggled = "<slot></slot>";
+    private toggled = "<slot name='toggled'></slot>";
+
+    connectedCallback() {
+        const target = this.getAttribute("target");
+        if (!target) {
+            return;
+        }
+
+        const el = document.querySelector(target);
+        if (!el) {
+            return;
+        }
+
+        const token = this.getAttribute("toggle") || "";
+        const root = this.attachShadow({ mode: "open" });
+        root.innerHTML = this.untoggled;
+
+        this.addEventListener("click", () => {
+            const toggled = el.classList.toggle(token);
+            root.innerHTML = toggled ? this.toggled : this.untoggled;
+        });
+    }
 }
 
-export function init() {
-  NavToggler();
-}
-
-init();
+customElements.define("x-toggler", XToggler);

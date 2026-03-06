@@ -6,11 +6,11 @@ import (
 	"github.com/yaien/cultural/internal/modules/configs/internal/models"
 )
 
-templ Head(n *Meta) {
+templ Head(title string) {
 	{{ config := ctx.Value(middlewares.ConfigContextKey).(*models.Config) }}
 	<meta charset="UTF-8"/>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-	<title>{ n.Title } - { config.Title }</title>
+	<title>{ title } - { config.Title }</title>
 	<link rel="icon" type="image/png" href={ "/assets/landing/favicon.png?v" + fmt.Sprint(config.UpdatedAt.Unix()) }/>
 	<link rel="preconnect" href="https://fonts.googleapis.com"/>
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>

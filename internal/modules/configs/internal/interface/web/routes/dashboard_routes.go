@@ -18,7 +18,6 @@ func dashboard(mono *infrastructure.Monolith, app *application.Application, md *
 		ctrl := controllers.NewDashboardController(app)
 		mono.WebRouter.Handle("GET /dashboard", md.WithPath(md.WithRole(http.HandlerFunc(ctrl.Home))))
 		router.Handle("GET /dashboard/", http.RedirectHandler("/dashboard", http.StatusPermanentRedirect))
-		router.HandleFunc("GET /dashboard/toast", ctrl.Toast)
 		router.HandleFunc("GET /dashboard/empty", md.WithCache(http.HandlerFunc(ctrl.Empty)))
 	}
 

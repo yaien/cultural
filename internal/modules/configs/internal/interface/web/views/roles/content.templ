@@ -7,7 +7,7 @@ import "github.com/yaien/cultural/internal/modules/configs/internal/interface/we
 
 templ Content(state *State) {
 	{{ current := ctx.Value(middlewares.RoleContextKey).(*models.Role) }}
-	<div class="container">
+	<div class="container" data-scope="roles">
 		<table>
 			<thead>
 				<tr>
@@ -19,17 +19,17 @@ templ Content(state *State) {
 			</thead>
 			<tbody>
 				for _, role := range state.Roles {
-					<tr hx-get="/dashboard/empty" hx-trigger={ fmt.Sprintf("deleted-%s from:body", role.ID.Hex()) } hx-swap="outerHTML swap:250ms">
+					<tr id={ role.ID.Hex() }>
 						<td>{ role.UserName }</td>
 						<td>{ role.UserEmail }</td>
 						<td class="capitalize">{ role.Name }</td>
 						<td>
 							<div role="group" class="clear">
-								if role.ID.Hex() == current.ID.Hex() {
+								if role.ID.Hex() != current.ID.Hex() {
 									<button
 										class="danger clear"
-										hx-get={ templ.URL(fmt.Sprintf("/dashboard/roles/modals/delete/%s?name=%s", role.ID.Hex(), role.UserName)) }
-										hx-swap="beforeend 250ms"
+										hx-get={ templ.URL(fmt.Sprintf("/dashboard/roles/delete/%s?name=%s", role.ID.Hex(), role.UserName)) }
+										hx-swap="beforeend"
 										hx-target=".container"
 										hx-disabled-elt="this"
 									>
@@ -46,7 +46,7 @@ templ Content(state *State) {
 			<button
 				class="primary clear"
 				hx-get={ templ.URL("/dashboard/roles/create") }
-				hx-swap="beforeend swap:250ms"
+				hx-swap="beforeend"
 				hx-target=".container"
 				hx-disabled-elt="this"
 			>

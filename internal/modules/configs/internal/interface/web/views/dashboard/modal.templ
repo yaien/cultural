@@ -5,7 +5,7 @@ templ Modal(title string) {
 		class="modal open"
 		hx-trigger="click target:.modal, click from:.modal-close, keyup[key == 'Escape'] from:window"
 		hx-get={ templ.URL("/dashboard/empty") }
-		hx-swap="outerHTML swap:250ms"
+		hx-swap="outerHTML swap:100ms"
 	>
 		<div class="modal-content">
 			<div class="modal-header">

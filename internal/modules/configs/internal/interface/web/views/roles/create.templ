@@ -5,7 +5,7 @@ import "github.com/yaien/cultural/internal/modules/configs/internal/interface/we
 templ Create() {
 	@dashboard.Modal("Invitar Usuario") {
 		<form
-			hx-post={ templ.URL("/dashboard/roles/create") }
+			hx-post={ templ.URL("/dashboard/roles") }
 			hx-target=".modal"
 			hx-swap="outerHTML swap:250ms"
 			hx-disable-elt="find button"

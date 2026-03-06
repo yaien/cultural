@@ -38,40 +38,40 @@ func (c *PagesController) Index(w http.ResponseWriter, r *http.Request) {
 	state.Config = config
 	state.FileURL = models.FileURL
 	state.Draft = draft
-	state.SelectedType = query.Get("type")
+	state.SelectedType = pages.SelectedType(query.Get("type"))
 	state.SelectedKey = query.Get("key")
 	state.SelectedFileName = query.Get("file")
 	state.SelectedFontFamily = query.Get("font")
 	state.Section = query.Get("section")
 
 	switch state.SelectedType {
-	case "email":
+	case pages.SelectedTypeEmail:
 		state.Selected, ok = draft.Emails[state.SelectedKey]
 		if !ok {
-			state.Selected = draft.Emails["invitation"]
-			state.SelectedKey = "invitation"
+			state.Selected = draft.Emails[pages.DefaultEmailName]
+			state.SelectedKey = pages.DefaultEmailName
 		}
-	case "layout":
+	case pages.SelectedTypeLayout:
 		state.Selected, ok = draft.Layouts[state.SelectedKey]
 		if !ok {
-			state.Selected = draft.Layouts["default"]
-			state.SelectedKey = "default"
+			state.Selected = draft.Layouts[pages.DefaultLayoutName]
+			state.SelectedKey = pages.DefaultLayoutName
 		}
 	default:
-		state.SelectedType = "page"
+		state.SelectedType = pages.SelectedTypePage
 		state.SelectedKey = r.URL.Query().Get("key")
 		state.Selected, ok = draft.Pages[state.SelectedKey]
 		if !ok {
-			state.Selected = draft.Pages["index"]
-			state.SelectedKey = "index"
+			state.Selected = draft.Pages[pages.DefaultPageName]
+			state.SelectedKey = pages.DefaultPageName
 		}
 	}
 
 	switch r.Header.Get("HX-Target") {
-	case "tab-content":
+	case pages.SectionID:
 		_ = pages.Section(&state).Render(ctx, w)
 		return
-	case "container":
+	case pages.ContentID:
 		_ = pages.Content(&state).Render(ctx, w)
 	default:
 		_ = pages.Page(&state).Render(ctx, w)

@@ -1,78 +1,53 @@
 package pages
 
 import "fmt"
-import "github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views/icons"
-import "github.com/yaien/cultural/internal/modules/configs/internal/models"
 
-templ Content(data *State) {
+const (
+	SectionID = "section"
+	ContentID = "content"
+	Path      = "/dashboard/pages"
+)
+
+templ Content(state *State) {
 	<div
-		class="container"
-		id="container"
-		hx-get={ templ.URL(fmt.Sprintf("/dashboard/pages?type=%s&key=%s", data.SelectedType, data.SelectedKey)) }
-		hx-vals="js:{section: event.target.dataset.section || '', file: event.target.dataset.file || '',  }"
-		hx-trigger="click target:[data-section]"
-		hx-target="#tab-content"
+		id={ ContentID }
+		data-scope="pages"
 		hx-push-url="true"
 	>
-		<div class="editor" data-editor-container>
-			<!-- Page Selector -->
+		<div class="editor">
 			<div role="group">
-				<!-- Initial Section -->
-				<button data-section="initial" role="tab" aria-selected="false" aria-controls="tab-content">
-					@icons.Home()
-				</button>
-				<!-- Create Section -->
-				<button data-section="create" role="tab" aria-selected="false" aria-controls="tab-content">
-					@icons.Add()
-				</button>
-				<!-- Delete Section -->
-				if data.SelectedIsDeleteable() {
-					<button data-section="delete" role="tab" aria-selected="false" aria-controls="tab-content">
-						@icons.Trash()
+				for _, section := range Sections {
+					if !section.Tab {
+						{{ continue }}
+					}
+					if section.Page && state.NotPage() {
+						{{ continue }}
+					}
+					if section.Web && state.NotWeb() {
+						{{ continue }}
+					}
+					if section.Delete && state.NotDeleteable() {
+						{{ continue }}
+					}
+					<button
+						hx-get={ fmt.Sprintf("%s?section=%s&type=%s&key=%s", Path, section.Name, state.SelectedType, state.SelectedKey) }
+						hx-target={ "#" + SectionID }
+						hx-swap="innerHTML"
+						class={ templ.KV("active", state.Section == section.Name) }
+					>
+						if section.Icon != nil {
+							@section.Icon
+						} else {
+							{ section.Name }
+						}
 					</button>
 				}
-				<!-- Opengraph -->
-				if _, ok := data.Selected.(*models.Page); ok {
-					<button data-section="opengraph" role="tab" aria-selected="false" aria-controls="tab-content">
-						@icons.WebTraffic()
-					</button>
-				}
-				<!-- Image Section -->
-				<button data-section="files" role="tab" aria-selected="false" aria-controls="tab-content">
-					@icons.Image()
-				</button>
-				if data.SelectedIsForWeb() {
-					<!-- Fonts Section -->
-					<button data-section="fonts" role="tab" aria-selected="false" aria-controls="tab-content">
-						@icons.BrandFamily()
-					</button>
-					<!-- Colors Section -->
-					<button data-section="colors" role="tab" aria-selected="false" aria-controls="tab-content">
-						@icons.Palette()
-					</button>
-					<!-- Styles Section -->
-					<button data-section="styles" role="tab" aria-selected="false" aria-controls="tab-content">
-						@icons.Css()
-					</button>
-					<!-- Script Section -->
-					<button data-section="script" role="tab" aria-selected="false" aria-controls="tab-content">
-						@icons.Js()
-					</button>
-				}
-				<!-- HTML Section -->
-				<button data-section="html" role="tab" aria-selected="false" aria-controls="tab-content">
-					@icons.Html()
-				</button>
-				<!-- Publish Section -->
-				<button data-section="publish" role="tab" aria-selected="false" aria-controls="tab-content">
-					@icons.Publish()
-				</button>
 			</div>
-			<div class="content" id="tab-content" style="height: 100%;">
-				@Section(data)
+			<div id={ SectionID } style="height: 100%;">
+				@Section(state)
 			</div>
 		</div>
 		<!-- Preview Page -->
-		@Preview()
+		@Preview(state)
 	</div>
 }

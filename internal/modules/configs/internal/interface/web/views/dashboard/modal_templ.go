@@ -42,7 +42,7 @@ func Modal(title string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\" hx-swap=\"outerHTML swap:250ms\"><div class=\"modal-content\"><div class=\"modal-header\"><h2 class=\"modal-title\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\" hx-swap=\"outerHTML swap:100ms\"><div class=\"modal-content\"><div class=\"modal-header\"><h2 class=\"modal-title\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

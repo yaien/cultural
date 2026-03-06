@@ -7,10 +7,12 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/a-h/templ"
 	"github.com/gorilla/sessions"
 	"github.com/yaien/cultural/internal/modules/configs/internal/application"
 	"github.com/yaien/cultural/internal/modules/configs/internal/application/commands"
 	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/middlewares"
+	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views/dashboard"
 	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views/roles"
 	"github.com/yaien/cultural/internal/modules/configs/internal/models"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -35,11 +37,6 @@ func (c *RolesController) Index(w http.ResponseWriter, r *http.Request) {
 	state.Roles, err = c.app.GetRoles(ctx, config.OrganizationID)
 	if err != nil {
 		WriteHTMLErr(w, fmt.Errorf("failed getting roles: %w", err))
-		return
-	}
-
-	if r.Header.Get("HX-Request") == "true" {
-		_ = roles.Content(&state).Render(ctx, w)
 		return
 	}
 
@@ -86,10 +83,7 @@ func (c *RolesController) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	WriteToast(w, r, Toast{
-		Message: fmt.Sprintf("La invitación ha sido enviada correctamente a %s", input.Email),
-		Variant: "success",
-	})
+	dashboard.Toast("Invitación enviada correctamente", "success").Render(ctx, w)
 
 }
 
@@ -100,11 +94,12 @@ func (c *RolesController) ShowDelete(w http.ResponseWriter, r *http.Request) {
 		WriteJSONErr(w, models.DecodeError(fmt.Errorf("invalid role id: %w", err)))
 		return
 	}
+
 	name := r.URL.Query().Get("name")
 
 	role := &models.Role{
-		ID:   id,
-		Name: name,
+		ID:       id,
+		UserName: name,
 	}
 
 	_ = roles.Delete(role).Render(r.Context(), w)
@@ -132,14 +127,18 @@ func (c *RolesController) Delete(w http.ResponseWriter, r *http.Request) {
 	if err := c.app.DeleteRole(ctx, request); err != nil {
 
 		if e, ok := errors.AsType[*models.Error](err); ok {
-			WriteToast(w, r, Toast{Message: e.Error(), Variant: "danger"})
+			dashboard.Toast(e.Error(), dashboard.Danger).Render(ctx, w)
 			return
 		}
 
 		slog.Error("unexpected error deleting role", "error", err)
-		WriteToast(w, r, Toast{Message: "Error inesperado", Variant: "danger"})
+		dashboard.Toast("Error inesperado", dashboard.Danger).Render(ctx, w)
 		return
 	}
 
-	WriteToast(w, r, Toast{Message: "El rol ha sido eliminado correctamente", Variant: "success", Trigger: "toast, deleted-" + r.PathValue("id")})
+	templ.Join(
+		roles.DeleteRow(id),
+		dashboard.Toast("El rol ha sido eliminado correctamente", "success"),
+	).Render(ctx, w)
+
 }

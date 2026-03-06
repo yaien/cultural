@@ -4,11 +4,25 @@ import (
 	"github.com/yaien/cultural/internal/modules/configs/internal/models"
 )
 
+type SelectedType string
+
+const (
+	SelectedTypePage   SelectedType = "page"
+	SelectedTypeLayout SelectedType = "layout"
+	SelectedTypeEmail  SelectedType = "email"
+)
+
+const (
+	DefaultPageName   = "index"
+	DefaultLayoutName = "default"
+	DefaultEmailName  = "invitation"
+)
+
 type State struct {
 	Config             *models.Config
 	Draft              *models.Draft
 	Selected           any
-	SelectedType       string
+	SelectedType       SelectedType
 	SelectedKey        string
 	SelectedFileName   string
 	SelectedFontFamily string
@@ -24,13 +38,13 @@ type FontFunc func(fontFamily string) (*models.Font, error)
 type FilesFunc func() ([]*models.File, error)
 type FileURLFunc models.FileURLFunc
 
-func (c *State) PageIsIndex() bool {
+func (c *State) PageIsDefault() bool {
 	page, ok := c.Selected.(*models.Page)
 	if !ok {
 		return false
 	}
 
-	return page.Name == "index"
+	return page.Name == DefaultPageName
 }
 
 func (c *State) PageUrl() string {
@@ -39,29 +53,29 @@ func (c *State) PageUrl() string {
 		return ""
 	}
 
-	if page.Name == "index" {
+	if page.Name == DefaultPageName {
 		return c.Config.Url
 	}
 
 	return c.Config.Url + "/" + page.Name
 }
 
-func (c *State) SelectedIsDeleteable() bool {
-	switch sel := c.Selected.(type) {
-	case *models.Page:
-		return sel.Name != "index"
-	case *models.Layout:
-		return sel.Name != "default"
+func (c *State) NotDeleteable() bool {
+	switch c.SelectedType {
+	case SelectedTypePage:
+		return c.SelectedKey == DefaultPageName
+	case SelectedTypeLayout:
+		return c.SelectedKey == DefaultLayoutName
 	default:
-		return false
+		return true
 	}
+
 }
 
-func (c *State) SelectedIsForWeb() bool {
-	switch c.Selected.(type) {
-	case *models.Page, *models.Layout:
-		return true
-	default:
-		return false
-	}
+func (c *State) NotWeb() bool {
+	return c.SelectedType == SelectedTypeEmail
+}
+
+func (c *State) NotPage() bool {
+	return c.SelectedType != SelectedTypePage
 }

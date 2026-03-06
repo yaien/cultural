@@ -1,10 +1,10 @@
-@scope (body[scope="roles"]) {
-  .actions {
-    margin: auto;
-    text-align: center;
-  }
+@scope ([data-scope="roles"]) {
+    .actions {
+        margin: auto;
+        text-align: center;
+    }
 
-  .capitalize {
-    text-transform: capitalize;
-  }
+    .capitalize {
+        text-transform: capitalize;
+    }
 }

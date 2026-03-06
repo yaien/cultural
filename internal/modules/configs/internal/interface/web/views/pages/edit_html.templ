@@ -2,7 +2,7 @@ package pages
 
 import "github.com/yaien/cultural/internal/modules/configs/internal/models"
 
-templ EditHTML(data *State, editor, language string) {
+templ EditHTML(data *State) {
 	{{
 		var source string
 		switch selected := data.Selected.(type) {

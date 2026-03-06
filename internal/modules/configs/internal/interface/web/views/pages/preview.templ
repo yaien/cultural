@@ -1,10 +1,11 @@
 package pages
 
+import "fmt"
 
-templ Preview() {
+templ Preview(state *State) {
 	<div class="page">
 		<div class="resizeable">
-			<iframe src="/dashboard/pages/preview?key={{.SelectedKey}}&type={{.SelectedType}}"></iframe>
+			<iframe src={ fmt.Sprintf("/dashboard/pages/preview?key=%s&type=%s", state.SelectedKey, state.SelectedType) }></iframe>
 		</div>
 	</div>
 }

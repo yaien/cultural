@@ -1,8 +1,8 @@
-package pages 
+package pages
 
 import "github.com/yaien/cultural/internal/modules/configs/internal/models"
 
-templ PagesEditScript(data *State) {
+templ EditScript(data *State) {
 	{{
 		var source string
 		switch selected := data.Selected.(type) {

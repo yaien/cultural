@@ -3,7 +3,7 @@ package home
 import "github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views/dashboard"
 
 templ Home() {
-	@dashboard.Page(&dashboard.Meta{Title: "Home"}) {
+	@dashboard.Page("Dashboard") {
 		<h1>Home</h1>
 	}
 }
