@@ -1,16 +1,53 @@
 package pages
 
+import (
+	"fmt"
+	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views/icons"
+	"github.com/yaien/cultural/internal/modules/configs/internal/models"
+)
+
 templ BrowseFonts(state *State) {
-	<div class="actions">
-		<button data-section="fonts">Volver</button>
-	</div>
-	<fieldset role="group">
-		<legend>Fuentes</legend>
-		<input type="text" placeholder="Buscar fuente"/>
-	</fieldset>
-	<div class="list scrollable">
-		<div class="font">
-			<div class="preview">"Family"</div>
+	{{ limit := int64(15) }}
+	{{ fonts, err := state.Fonts("", limit, 0) }}
+	if err != nil {
+		<div class="error">Error al cargar las fuentes: { err.Error() }</div>
+		{{ return }}
+	}
+	<div class="fonts">
+		<div class="actions">
+			<button data-section="fonts">Volver</button>
+		</div>
+		<fieldset role="group">
+			<legend>Fuentes</legend>
+			<input type="text" placeholder="Buscar fuente"/>
+		</fieldset>
+		<div class="list">
+			<x-scrollable scale="0.95">
+				@FontList(fonts, limit, limit)
+			</x-scrollable>
+		</div>
+		<div class="spinner htmx-indicator">
+			@icons.Spinner()
 		</div>
 	</div>
+}
+
+templ FontList(fonts []*models.Font, limit int64, offset int64) {
+	for index, font := range fonts {
+		<div
+			class="font"
+			if index == len(fonts) -1 {
+				hx-get={ fmt.Sprintf("/dashboard/fonts?limit=%d&offset=%d", limit, offset) }
+				hx-trigger="intersect once"
+				hx-swap="afterend"
+				hx-indicator=".fonts"
+			}
+		>
+			<div class="preview">
+				<x-font family={ font.Family } url={ font.Files["regular"] }>
+					{ font.Family }
+				</x-font>
+			</div>
+		</div>
+	}
 }

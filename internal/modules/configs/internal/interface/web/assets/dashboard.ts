@@ -7,6 +7,7 @@ import "./elements/x-color-picker";
 import "./elements/x-file-size";
 import "./elements/x-file-input";
 import "./elements/x-scrollable";
+import "./elements/x-font";
 
 import "./styles/dashboard.css";
 import "./styles/pages.css";

@@ -1,13 +1,18 @@
 package pages
 
+import "fmt"
 
-templ Fonts(data *State) {
-	{{ fonts := data.Draft.Fonts }}
-	<div class="fonts">
+templ Fonts(state *State) {
+	{{ fonts := state.Draft.Fonts }}
+	<div class="fonts" hx-vals={ state.HxSelectedVals() }>
 		<div class="list">
 			for key, font := range fonts {
 				<div class="font" data-section="configure_font" data-font={ font.Family } title={ font.Family }>
-					<div class="preview">{ font.Family }</div>
+					<div class="preview">
+						<x-font family={ font.Family } url={ font.Files["regular"] }>
+							{ font.Family }
+						</x-font>
+					</div>
 					<span>{ key }</span>
 				</div>
 			}
@@ -20,7 +25,9 @@ templ Fonts(data *State) {
 			</p>
 		}
 		<div class="actions">
-			<button data-section="browse_fonts">Fuentes</button>
+			<button hx-get={ Path } hx-target={ "#" + EditorID } hx-swap="outerHTML" hx-push-url="true" hx-vals={ fmt.Sprintf("{%q:%q}", SectionQuery, BrowseFontsSection) }>
+				Fuentes
+			</button>
 		</div>
 	</div>
 }

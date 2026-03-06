@@ -40,6 +40,11 @@ func dashboard(mono *infrastructure.Monolith, app *application.Application, md *
 	}
 
 	{
+		ctrl := controllers.NewFontsController(app)
+		router.HandleFunc("GET /dashboard/fonts", ctrl.List)
+	}
+
+	{
 		ctrl := controllers.NewEventsController(app)
 		router.HandleFunc("GET /dashboard/events", ctrl.Index)
 	}
