@@ -30,7 +30,9 @@ templ Initial(state *State) {
 			}
 		</select>
 	</fieldset>
-	<form>
+	<form hx-patch="/dashboard/pages/basic" hx-swap="none">
+		<input type="hidden" name={ SelectedTypeQuery } value={ state.SelectedType }/>
+		<input type="hidden" name={ SelectedKeyQuery } value={ state.SelectedKey }/>
 		switch selected := state.Selected.(type) {
 			case *models.Page:
 				<fieldset>
@@ -39,7 +41,7 @@ templ Initial(state *State) {
 				</fieldset>
 				<fieldset role="group">
 					<legend>Url</legend>
-					<input name="url" value={ state.PageUrl() } required disabled?={ state.PageIsDefault() }/>
+					<input name="url" value={ state.PageUrl() } required disabled/>
 				</fieldset>
 				<fieldset>
 					<legend>Titulo</legend>
@@ -54,7 +56,7 @@ templ Initial(state *State) {
 				<fieldset role="group">
 					<legend>Diseño</legend>
 					<select name="layout" autocomplete="off">
-						<option>Ninguno</option>
+						<option value="">Ninguno</option>
 						for key, layout := range state.Draft.Layouts {
 							<option value={ key } selected?={ selected.Layout == key }>{ layout.Title }</option>
 						}
@@ -78,7 +80,7 @@ templ Initial(state *State) {
 				</fieldset>
 		}
 		<div class="actions">
-			<button type="submit" :disabled="loading">Guardar</button>
+			<button type="submit">Guardar</button>
 		</div>
 	</form>
 }

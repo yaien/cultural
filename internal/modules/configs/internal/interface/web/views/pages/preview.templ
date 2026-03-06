@@ -2,10 +2,16 @@ package pages
 
 import "fmt"
 
-templ Preview(state *State) {
-	<div class="page">
+templ Preview(key string, typ SelectedType, swap bool) {
+	<div
+		class="page"
+		id="preview"
+		if swap {
+			hx-swap-oob="true"
+		}
+	>
 		<div class="resizeable">
-			<iframe src={ fmt.Sprintf("/dashboard/pages/preview?key=%s&type=%s", state.SelectedKey, state.SelectedType) }></iframe>
+			<iframe src={ fmt.Sprintf("/dashboard/pages/preview?key=%s&type=%s", key, typ) }></iframe>
 		</div>
 	</div>
 }

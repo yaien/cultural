@@ -4,9 +4,12 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/a-h/templ"
+	"github.com/gorilla/schema"
 	"github.com/yaien/cultural/internal/modules/configs/internal/application"
 	"github.com/yaien/cultural/internal/modules/configs/internal/application/queries"
 	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/middlewares"
+	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views/dashboard"
 	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views/pages"
 	"github.com/yaien/cultural/internal/modules/configs/internal/models"
 )
@@ -85,8 +88,8 @@ func (c *PagesController) Index(w http.ResponseWriter, r *http.Request) {
 	}
 
 	switch r.Header.Get("HX-Target") {
-	case pages.SectionID:
-		_ = pages.Section(state).Render(ctx, w)
+	case pages.EditorID:
+		_ = pages.Editor(state).Render(ctx, w)
 		return
 	case pages.ContentID:
 		_ = pages.Content(state).Render(ctx, w)
@@ -115,4 +118,90 @@ func (c *PagesController) Preview(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "text/html")
 	_, _ = w.Write([]byte(html))
+}
+
+type UpdateInput struct {
+	Type        pages.SelectedType `schema:"type"`
+	Key         string             `schema:"key"`
+	Name        string             `schema:"name"`
+	Title       string             `schema:"title"`
+	Description string             `schema:"description"`
+	Layout      string             `schema:"layout"`
+	Subject     string             `schema:"subject"`
+}
+
+var decoder = schema.NewDecoder()
+
+func (c *PagesController) UpdateBasic(w http.ResponseWriter, r *http.Request) {
+
+	ctx := r.Context()
+
+	config := ctx.Value(middlewares.ConfigContextKey).(*models.Config)
+
+	draft, err := c.app.GetDraftByConfigID(ctx, config.ID)
+	if err != nil {
+		WriteHTMLErr(w, fmt.Errorf("failed getting draft: %w", err))
+		return
+	}
+
+	if err := r.ParseForm(); err != nil {
+		WriteHTMLErr(w, fmt.Errorf("failed parsing form: %w", err))
+		return
+	}
+
+	var input UpdateInput
+	if err := decoder.Decode(&input, r.PostForm); err != nil {
+		WriteHTMLErr(w, fmt.Errorf("failed decoding form: %w", err))
+		return
+	}
+
+	switch input.Type {
+	case pages.SelectedTypeEmail:
+		email, ok := draft.Emails[input.Key]
+		if !ok {
+			WriteHTMLErr(w, fmt.Errorf("email not found"))
+			return
+		}
+
+		email.Subject = input.Subject
+	case pages.SelectedTypeLayout:
+		layout, ok := draft.Layouts[input.Key]
+		if !ok {
+			WriteHTMLErr(w, fmt.Errorf("layout not found"))
+			return
+		}
+
+		layout.Name = input.Name
+		layout.Title = input.Title
+
+	case pages.SelectedTypePage:
+		page, ok := draft.Pages[input.Key]
+		if !ok {
+			WriteHTMLErr(w, fmt.Errorf("page not found"))
+			return
+		}
+
+		if input.Key != pages.DefaultPageName {
+			page.Name = input.Name
+		}
+
+		page.Title = input.Title
+		page.Description = input.Description
+		page.Layout = input.Layout
+
+	default:
+		WriteHTMLErr(w, fmt.Errorf("invalid type %s", input.Type))
+
+	}
+
+	if err := c.app.UpdateDraft(ctx, draft); err != nil {
+		WriteHTMLErr(w, fmt.Errorf("failed updating draft: %w", err))
+		return
+	}
+
+	templ.Join(
+		pages.Preview(input.Key, input.Type, true),
+		dashboard.Toast("Cambios guardados correctamente", dashboard.Primary),
+	).Render(ctx, w)
+
 }

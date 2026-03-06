@@ -4,6 +4,7 @@ go 1.26
 
 require (
 	github.com/a-h/templ v0.3.1001
+	github.com/gorilla/schema v1.4.1
 	github.com/gorilla/sessions v1.4.0
 	github.com/markbates/goth v1.82.0
 	github.com/redis/go-redis/v9 v9.18.0
