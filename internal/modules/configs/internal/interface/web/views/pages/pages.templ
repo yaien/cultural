@@ -2,19 +2,8 @@ package pages
 
 import "github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views/dashboard"
 
-templ links() {
-	<link rel="stylesheet" href="/assets/static/dashboard/dist/pages.min.css"/>
-	<link rel="stylesheet" href="/assets/static/dashboard/dist/coloris.min.css"/>
-}
-
-templ scripts() {
-	<script src="/assets/static/dashboard/dist/monaco/loader.js"></script>
-	<script src="/assets/static/dashboard/dist/coloris.min.js"></script>
-	<script src="/assets/static/dashboard/dist/pages.min.js"></script>
-}
-
 templ Page(data *State) {
-	@dashboard.Page(&dashboard.Meta{Title: "Sitios", Scope: "pages", Links: links(), Scripts: scripts()}) {
+	@dashboard.Page(&dashboard.Meta{Title: "Sitios", Scope: "pages"}) {
 		@Content(data)
 	}
 }

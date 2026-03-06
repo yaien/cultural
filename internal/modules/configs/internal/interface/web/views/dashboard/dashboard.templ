@@ -10,10 +10,8 @@ templ Fonts() {
 }
 
 type Meta struct {
-	Scope   string
-	Title   string
-	Links   templ.Component
-	Scripts templ.Component
+	Scope string
+	Title string
 }
 
 templ Page(d *Meta) {
@@ -67,9 +65,6 @@ templ Page(d *Meta) {
 				{ children... }
 				<div id="toasts" hx-trigger="toast from:body" hx-get="/dashboard/toast"></div>
 			</main>
-			if d.Scripts != nil {
-				@d.Scripts
-			}
 		</body>
 	</html>
 }

@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../roles.css"],
-  "sourcesContent": ["@scope (body[scope=\"roles\"]) {\n  .actions {\n    margin: auto;\n    text-align: center;\n  }\n\n  .capitalize {\n    text-transform: capitalize;\n  }\n}\n"],
-  "mappings": "AAAA,OAAO,CAAC,IAAI,CAAC,KAAK,CAAC,UACjB,CAAC,QADH,OAEY,KACR,WAAY,MACd,CAEA,CAAC,WACC,eAAgB,UAClB,CACF",
-  "names": []
-}

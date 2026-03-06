@@ -2,12 +2,8 @@ package roles
 
 import "github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views/dashboard"
 
-templ links() {
-	<link rel="stylesheet" href="/assets/static/dashboard/dist/roles.min.css"/>
-}
-
 templ Page(state *State) {
-	@dashboard.Page(&dashboard.Meta{Title: "Roles", Scope: "roles", Links: links()}) {
+	@dashboard.Page(&dashboard.Meta{Title: "Roles", Scope: "roles"}) {
 		@Content(state)
 	}
 }
