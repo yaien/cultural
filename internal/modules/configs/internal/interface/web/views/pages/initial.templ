@@ -48,8 +48,22 @@ templ Initial(state *State) {
 					<input name="title" value={ selected.Title }/>
 				</fieldset>
 				<fieldset>
+					<legend>Imagen</legend>
+					<input name="og_image" value={ selected.OGImage } required/>
+				</fieldset>
+				<fieldset>
+					<legend>Tipo</legend>
+					<select name="og_type">
+						<option value="" selected={ selected.OGType == "" }>Ninguno</option>
+						<option value="website" selected={ selected.OGType == "website" }>Sitio Web</option>
+						<option value="article" selected={ selected.OGType == "article" }>Artículo</option>
+						<option value="profile" selected={ selected.OGType == "profile" }>Perfil</option>
+						<option value="product" selected={ selected.OGType == "product" }>Producto</option>
+					</select>
+				</fieldset>
+				<fieldset>
 					<legend>Descripción</legend>
-					<textarea name="description" class="no-resize" rows="4" autocomplete="off" cols="10">
+					<textarea name="description" class="no-resize" rows="2" autocomplete="off" cols="10">
 						{ selected.Description }
 					</textarea>
 				</fieldset>

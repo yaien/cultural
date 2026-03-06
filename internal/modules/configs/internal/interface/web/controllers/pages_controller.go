@@ -140,6 +140,8 @@ func (c *PagesController) UpdateBasic(w http.ResponseWriter, r *http.Request) {
 		Description: r.PostForm.Get("description"),
 		Layout:      r.PostForm.Get("layout"),
 		Subject:     r.PostForm.Get("subject"),
+		OGImage:     r.PostForm.Get("og_image"),
+		OGType:      r.PostForm.Get("og_type"),
 	}
 
 	if err := c.app.UpdateDraftBasic(ctx, req); err != nil {

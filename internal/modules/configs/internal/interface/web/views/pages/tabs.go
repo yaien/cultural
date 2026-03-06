@@ -21,7 +21,6 @@ const (
 	InitialSection       = "initial"
 	CreateSection        = "create"
 	DeleteSection        = "delete"
-	OpengraphSection     = "opengraph"
 	FilesSection         = "files"
 	FileSection          = "file"
 	FontsSection         = "fonts"
@@ -38,7 +37,6 @@ var Sections = []SectionDefinition{
 	{Name: InitialSection, Component: Initial, Tab: true, Icon: icons.Home()},
 	{Name: CreateSection, Component: Create, Tab: true, Web: true, Icon: icons.Add()},
 	{Name: DeleteSection, Component: Delete, Tab: true, Delete: true, Icon: icons.Trash()},
-	{Name: OpengraphSection, Component: Opengraph, Tab: true, Page: true, Icon: icons.WebTraffic()},
 	{Name: FilesSection, Component: Files, Tab: true, Icon: icons.Files()},
 	{Name: FileSection, Component: File},
 	{Name: FontsSection, Component: Fonts, Tab: true, Icon: icons.BrandFamily()},

@@ -33,6 +33,8 @@ type UpdateDraftBasicRequest struct {
 	Title       string
 	Description string
 	Layout      string
+	OGImage     string
+	OGType      string
 	Subject     string
 }
 
@@ -73,6 +75,8 @@ func (c *UpdateDraftBasicCommand) UpdateDraftBasic(ctx context.Context, req Upda
 		page.Title = req.Title
 		page.Description = req.Description
 		page.Layout = req.Layout
+		page.OGImage = req.OGImage
+		page.OGType = req.OGType
 
 	default:
 		return &models.Error{Code: "invalid_type", Err: fmt.Errorf("invalid type")}

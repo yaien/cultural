@@ -18,17 +18,15 @@ type Layout struct {
 }
 
 type Page struct {
-	Title         string `bson:"title,omitempty" json:"title,omitempty"`
-	Description   string `bson:"description,omitempty" json:"description,omitempty"`
-	Name          string `bson:"name,omitempty" json:"name,omitempty"`
-	Layout        string `bson:"layout,omitempty" json:"layout,omitempty"`
-	Styles        string `bson:"styles,omitempty" json:"styles,omitempty"`
-	Script        string `bson:"script,omitempty" json:"script,omitempty"`
-	Body          string `bson:"body" json:"body"`
-	OGTitle       string `bson:"ogTitle,omitempty" json:"ogTitle,omitempty"`
-	OGDescription string `bson:"ogDescription,omitempty" json:"ogDescription,omitempty"`
-	OGImage       string `bson:"ogImage,omitempty" json:"ogImage,omitempty"`
-	OGType        string `bson:"ogType,omitempty" json:"ogType,omitempty"`
+	Title       string `bson:"title,omitempty" json:"title,omitempty"`
+	Description string `bson:"description,omitempty" json:"description,omitempty"`
+	Name        string `bson:"name,omitempty" json:"name,omitempty"`
+	Layout      string `bson:"layout,omitempty" json:"layout,omitempty"`
+	Styles      string `bson:"styles,omitempty" json:"styles,omitempty"`
+	Script      string `bson:"script,omitempty" json:"script,omitempty"`
+	Body        string `bson:"body" json:"body"`
+	OGImage     string `bson:"ogImage,omitempty" json:"ogImage,omitempty"`
+	OGType      string `bson:"ogType,omitempty" json:"ogType,omitempty"`
 }
 
 var EmptyPage = &Page{}
