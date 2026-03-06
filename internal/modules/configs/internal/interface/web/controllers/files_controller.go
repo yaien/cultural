@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -69,28 +68,17 @@ func (fc *FilesController) Upload(w http.ResponseWriter, r *http.Request) {
 }
 
 func (fc *FilesController) Delete(w http.ResponseWriter, r *http.Request) {
-	config := r.Context().Value(middlewares.ConfigContextKey).(*models.Config)
-
+	ctx := r.Context()
+	config := ctx.Value(middlewares.ConfigContextKey).(*models.Config)
 	filename := r.PathValue("filename")
 
-	err := fc.app.DeleteFile(r.Context(), config.OrganizationID, filename)
-	if err != nil {
-		WriteJSONErr(w, err)
+	if err := fc.app.DeleteFile(ctx, config.OrganizationID, filename); err != nil {
+		WriteHTMLErr(w, err)
 		return
 	}
 
-	w.WriteHeader(http.StatusNoContent)
-}
-
-func (fc *FilesController) List(w http.ResponseWriter, r *http.Request) {
-	config := r.Context().Value(middlewares.ConfigContextKey).(*models.Config)
-	files, err := fc.app.GetFiles(r.Context(), config.OrganizationID)
-	if err != nil {
-		WriteJSONErr(w, fmt.Errorf("failed listing files: %w", err))
-		return
-	}
-
-	WriteJSON(w, files)
+	w.Header().Set("HX-Trigger", "deleted")
+	dashboard.Toast("Archivo eliminado correctamente", dashboard.Primary).Render(ctx, w)
 }
 
 func (fc *FilesController) Download(w http.ResponseWriter, r *http.Request) {
@@ -120,24 +108,22 @@ func (fc *FilesController) Download(w http.ResponseWriter, r *http.Request) {
 }
 
 func (fc *FilesController) Rename(w http.ResponseWriter, r *http.Request) {
-	config := r.Context().Value(middlewares.ConfigContextKey).(*models.Config)
+	ctx := r.Context()
+	config := ctx.Value(middlewares.ConfigContextKey).(*models.Config)
 	filename := r.PathValue("filename")
 
-	var input struct {
-		NewName string `json:"newName"`
+	if err := r.ParseForm(); err != nil {
+		WriteHTMLErr(w, models.DecodeError(err))
 	}
 
-	err := json.NewDecoder(r.Body).Decode(&input)
-	if err != nil {
-		WriteJSONErr(w, models.DecodeError(err))
+	newName := r.PostFormValue("name")
+
+	if err := fc.app.RenameFile(ctx, config.OrganizationID, filename, newName); err != nil {
+		WriteHTMLErr(w, fmt.Errorf("failed renaming file: %w", err))
 		return
 	}
 
-	err = fc.app.RenameFile(r.Context(), config.OrganizationID, filename, input.NewName)
-	if err != nil {
-		WriteJSONErr(w, fmt.Errorf("failed renaming file: %w", err))
-		return
-	}
+	w.Header().Set("HX-Trigger", "renamed")
+	dashboard.Toast("Archivo renombrado correctamente", dashboard.Primary).Render(ctx, w)
 
-	WriteJSONSuccess(w)
 }

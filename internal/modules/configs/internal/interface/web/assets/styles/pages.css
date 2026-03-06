@@ -168,6 +168,7 @@
         overflow: hidden;
         box-shadow: 1px 1px 5px var(--shadow-color);
         cursor: pointer;
+        background-color: var(--dark-color);
     }
 
     .files .grid .item .hover {
@@ -193,6 +194,7 @@
     }
 
     .files .edit .preview {
+        background-color: var(--dark-color);
         border-radius: var(--border-radius);
         overflow: hidden;
         box-shadow: 1px 1px 5px var(--shadow-color);

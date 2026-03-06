@@ -13,11 +13,12 @@ templ File(state *State) {
 			<div class="actions">
 				<button
 					type="button"
+					hx-trigger="click, deleted from:body, renamed from:body"
 					hx-get={ Path }
 					hx-vals={ fmt.Sprintf("{ %q: %q }", SectionQuery, FilesSection) }
 					hx-target={ "#" + EditorID }
 					hx-swap="outerHTML"
-					hx-push-url="true"
+					hx-replace-url="true"
 				>
 					Volver
 				</button>
@@ -52,13 +53,13 @@ templ File(state *State) {
 					}
 				</tbody>
 			</table>
-			<form>
+			<form hx-patch={ "/dashboard/files/" + file.Name } hx-swap="none" hx-vals={ fmt.Sprintf("{ %q: %q }", SectionQuery, state.Section) }>
 				<fieldset>
 					<legend>Nombre</legend>
 					<input name="name" value={ file.Name } required/>
 				</fieldset>
 				<div class="actions around">
-					<button type="button" class="danger">Eliminar</button>
+					<button type="button" hx-delete={ "/dashboard/files/" + file.Name } hx-swap="none" class="danger">Eliminar</button>
 					<button type="submit">Guardar</button>
 				</div>
 			</form>
