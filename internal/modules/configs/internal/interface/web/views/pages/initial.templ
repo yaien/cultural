@@ -30,9 +30,7 @@ templ Initial(state *State) {
 			}
 		</select>
 	</fieldset>
-	<form hx-patch="/dashboard/pages/basic" hx-swap="none">
-		<input type="hidden" name={ SelectedTypeQuery } value={ state.SelectedType }/>
-		<input type="hidden" name={ SelectedKeyQuery } value={ state.SelectedKey }/>
+	<form hx-patch="/dashboard/pages/basic" hx-swap="none" hx-vals={ state.HxSelectedVals() }>
 		switch selected := state.Selected.(type) {
 			case *models.Page:
 				<fieldset>

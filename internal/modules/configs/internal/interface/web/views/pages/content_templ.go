@@ -114,9 +114,9 @@ func Editor(state *State) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var5 string
-		templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("{ %q: %q, %q: %q }", SelectedTypeQuery, state.SelectedType, SelectedKeyQuery, state.SelectedKey))
+		templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(state.HxSelectedVals())
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/content.templ`, Line: 25, Col: 139}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/content.templ`, Line: 25, Col: 52}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 		if templ_7745c5c3_Err != nil {

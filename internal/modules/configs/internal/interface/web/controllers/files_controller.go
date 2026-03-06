@@ -6,23 +6,25 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/a-h/templ"
 	"github.com/yaien/cultural/internal/modules/configs/internal/application"
 	"github.com/yaien/cultural/internal/modules/configs/internal/application/commands"
 	"github.com/yaien/cultural/internal/modules/configs/internal/application/queries"
 	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/middlewares"
+	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views/dashboard"
+	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views/pages"
 	"github.com/yaien/cultural/internal/modules/configs/internal/models"
 )
 
-type FileController struct {
+type FilesController struct {
 	app *application.Application
 }
 
-func NewFileController(app *application.Application) *FileController {
-	return &FileController{app: app}
+func NewFilesController(app *application.Application) *FilesController {
+	return &FilesController{app: app}
 }
 
-func (fc *FileController) Upload(w http.ResponseWriter, r *http.Request) {
-	config := r.Context().Value(middlewares.ConfigContextKey).(*models.Config)
+func (fc *FilesController) Upload(w http.ResponseWriter, r *http.Request) {
 
 	err := r.ParseMultipartForm(5 << 20) // 5 MB
 	if err != nil {
@@ -30,29 +32,43 @@ func (fc *FileController) Upload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data, handler, err := r.FormFile("file")
-	if err != nil {
-		WriteJSONErr(w, &models.Error{Code: "invalid form data", Err: fmt.Errorf("error retrieving the file: %w", err)})
-		return
+	ctx := r.Context()
+	config := ctx.Value(middlewares.ConfigContextKey).(*models.Config)
+
+	var files []*models.File
+
+	for _, handler := range r.MultipartForm.File["files"] {
+		data, err := handler.Open()
+		if err != nil {
+			WriteHTMLErr(w, fmt.Errorf("failed opening file: %w", err))
+			return
+		}
+
+		defer data.Close()
+
+		file, err := fc.app.UploadFile(ctx, &commands.UploadFileRequest{
+			Name:           handler.Filename,
+			Size:           handler.Size,
+			ContentType:    handler.Header.Get("Content-Type"),
+			OrganizationID: config.OrganizationID,
+			Data:           data,
+		})
+
+		files = append(files, file)
+
+		if err != nil {
+			WriteHTMLErr(w, fmt.Errorf("failed uploading file: %w", err))
+		}
 	}
 
-	file, err := fc.app.UploadFile(r.Context(), &commands.UploadFileRequest{
-		Name:           handler.Filename,
-		Size:           handler.Size,
-		ContentType:    handler.Header.Get("Content-Type"),
-		OrganizationID: config.OrganizationID,
-		Data:           data,
-	})
+	templ.Join(
+		pages.FileGrid(files, models.FileURL),
+		dashboard.Toast("Archivos subido correctamente", dashboard.Primary),
+	).Render(ctx, w)
 
-	if err != nil {
-		WriteJSONErr(w, err)
-		return
-	}
-
-	WriteJSON(w, file)
 }
 
-func (fc *FileController) Delete(w http.ResponseWriter, r *http.Request) {
+func (fc *FilesController) Delete(w http.ResponseWriter, r *http.Request) {
 	config := r.Context().Value(middlewares.ConfigContextKey).(*models.Config)
 
 	filename := r.PathValue("filename")
@@ -66,7 +82,7 @@ func (fc *FileController) Delete(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
-func (fc *FileController) List(w http.ResponseWriter, r *http.Request) {
+func (fc *FilesController) List(w http.ResponseWriter, r *http.Request) {
 	config := r.Context().Value(middlewares.ConfigContextKey).(*models.Config)
 	files, err := fc.app.GetFiles(r.Context(), config.OrganizationID)
 	if err != nil {
@@ -77,7 +93,7 @@ func (fc *FileController) List(w http.ResponseWriter, r *http.Request) {
 	WriteJSON(w, files)
 }
 
-func (fc *FileController) Download(w http.ResponseWriter, r *http.Request) {
+func (fc *FilesController) Download(w http.ResponseWriter, r *http.Request) {
 	config := r.Context().Value(middlewares.ConfigContextKey).(*models.Config)
 
 	var err error
@@ -103,7 +119,7 @@ func (fc *FileController) Download(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func (fc *FileController) Rename(w http.ResponseWriter, r *http.Request) {
+func (fc *FilesController) Rename(w http.ResponseWriter, r *http.Request) {
 	config := r.Context().Value(middlewares.ConfigContextKey).(*models.Config)
 	filename := r.PathValue("filename")
 

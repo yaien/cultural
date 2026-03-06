@@ -1,6 +1,8 @@
 package pages
 
 import (
+	"fmt"
+
 	"github.com/yaien/cultural/internal/modules/configs/internal/application/commands"
 	"github.com/yaien/cultural/internal/modules/configs/internal/models"
 )
@@ -81,4 +83,8 @@ func (c *State) NotWeb() bool {
 
 func (c *State) NotPage() bool {
 	return c.SelectedType != SelectedTypePage
+}
+
+func (c *State) HxSelectedVals() string {
+	return fmt.Sprintf("{%q: %q, %q: %q}", SelectedTypeQuery, c.SelectedType, SelectedKeyQuery, c.SelectedKey)
 }

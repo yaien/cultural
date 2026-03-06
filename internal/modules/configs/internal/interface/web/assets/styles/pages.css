@@ -56,11 +56,6 @@
         flex-direction: column;
     }
 
-    .grow {
-        flex-grow: 1;
-        max-height: 80%;
-    }
-
     .status {
         display: flex;
         align-items: center;
@@ -135,14 +130,35 @@
     }
 
     /* Files */
+    .files {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+
     .files .grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
         gap: 1rem;
-        max-height: 70%;
         overflow: auto;
         scroll-behavior: smooth;
-        margin-bottom: 2rem;
+        padding: 0rem 1rem;
+    }
+
+    .files .actions {
+        padding-bottom: 0;
+    }
+
+    .files form.htmx-request button {
+        display: none;
+    }
+
+    .files .htmx-indicator {
+        display: none;
+    }
+
+    .files form.htmx-request .htmx-indicator {
+        display: flex;
     }
 
     .files .grid .item {
@@ -193,6 +209,10 @@
         height: 100%;
         object-fit: cover;
         position: absolute;
+    }
+
+    .files table {
+        margin-bottom: 1rem;
     }
 
     /* Monaco Editor */

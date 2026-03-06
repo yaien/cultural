@@ -421,12 +421,20 @@ div[role="group"] button:last-child {
 
 /* Table Styles */
 table {
+    border-collapse: collapse;
     width: 100%;
+}
+
+tr {
+    border-bottom: 1px solid var(--border-color);
+}
+
+tr:last-child {
+    border-bottom: none;
 }
 
 th,
 td {
-    border-bottom: 1px solid var(--border-color);
     padding: 1rem 0.5rem;
     text-align: center;
     color: var(--dark-color);
@@ -598,6 +606,8 @@ tbody tr.htmx-swapping {
     animation: spin 1s linear infinite;
     color: var(--primary-color);
     display: flex;
+    width: fit-content;
+    margin: auto;
 }
 
 .spinner.success {
@@ -608,4 +618,21 @@ tbody tr.htmx-swapping {
     position: sticky;
     top: var(--header-height) + 20px;
     right: 20px;
+}
+
+/* Proggress Bar Styles */
+.progress-bar {
+    height: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    box-shadow: 0 2px 4px var(--shadow-color);
+    overflow: hidden;
+    background-color: var(--primary-color-light);
+    margin: 0rem 2rem 1rem 2rem;
+}
+
+.progress-bar-value {
+    background: var(--primary-color);
+    height: 100%;
+    transition: width var(--transition-duration) ease;
 }

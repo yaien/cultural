@@ -1,32 +1,55 @@
 package pages
 
+import "fmt"
 import "github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views/icons"
+import "github.com/yaien/cultural/internal/modules/configs/internal/models"
+import "slices"
 
 templ Files(state *State) {
 	{{ files, err := state.Files() }}
 	if err != nil {
 		<p>Error al cargar los archivos</p>
-	} else {
-		<div class="grow files">
-			<div class="actions">
-				<input type="file" hidden accept="image/*,video/*" multiple/>
-				<button class="clear">
-					@icons.Add()
-				</button>
+		{{ return }}
+	}
+	<div class="grow files">
+		<div class="actions">
+			<form
+				hx-trigger="change changed"
+				hx-post="/dashboard/files"
+				hx-target="#files"
+				hx-swap="afterbegin"
+				hx-encoding="multipart/form-data"
+			>
+				<x-file-input name="files" accept="image/*,video/*" multiple>
+					<button type="button" class="clear">
+						@icons.Add()
+					</button>
+				</x-file-input>
+				<div class="progress">
+					<div class="progress-value"></div>
+				</div>
+			</form>
+		</div>
+		<x-scrollable scale="0.929">
+			<div id="files" class="grid" hx-vals={ state.HxSelectedVals() }>
+				@FileGrid(files, state.FileURL)
 			</div>
-			<div class="grid">
-				for _, file := range files {
-					<div class="item" data-hover-play>
-						<div class="hover" title={ file.Name } data-section="edit_file" data-file={ file.Name }></div>
-						switch file.Preset {
-							case "image":
-								<img src={ state.FileURL(file.Name) } title={ file.Name } alt={ file.Name }/>
-							case "video":
-								<video src={ state.FileURL(file.Name) } title={ file.Name } alt={ file.Name } muted></video>
-						}
-					</div>
+		</x-scrollable>
+	</div>
+}
+
+templ FileGrid(files []*models.File, url FileURLFunc) {
+	for _, file := range slices.Backward(files) {
+		<div class="item" hx-vals={ fmt.Sprintf("{ %q: %q, %q: %q }", FileQuery, file.Name, SectionQuery, FileSection) }>
+			<x-hover-play>
+				<div class="hover" title={ file.Name } hx-get={ Path } hx-target={ "#" + EditorID } hx-swap="outerHTML" hx-push-url="true"></div>
+				switch file.Preset {
+					case "image":
+						<img src={ url(file.Name) } title={ file.Name } alt={ file.Name }/>
+					case "video":
+						<video src={ url(file.Name) } title={ file.Name } alt={ file.Name } muted></video>
 				}
-			</div>
+			</x-hover-play>
 		</div>
 	}
 }

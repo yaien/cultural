@@ -1,20 +1,26 @@
 package pages
 
-import "github.com/yaien/cultural/internal/modules/configs/internal/models"
+import "fmt"
 
 templ File(state *State) {
-	if file, err := state.File(state.SelectedFileName); err == nil {
-		@FileFound(state, file)
-	} else {
-		@FileNotFound()
+	{{ file, err := state.File(state.SelectedFileName) }}
+	if err != nil {
+		<p>Error al cargar el archivo</p>
+		{{ return }}
 	}
-}
-
-templ FileFound(state *State, file *models.File) {
-	<div class="grow files">
+	<div class="grow files" hx-vals={ state.HxSelectedVals() }>
 		<div class="edit">
 			<div class="actions">
-				<button type="button" @click="set(states.initial)" data-section="files">Volver</button>
+				<button
+					type="button"
+					hx-get={ Path }
+					hx-vals={ fmt.Sprintf("{ %q: %q }", SectionQuery, FilesSection) }
+					hx-target={ "#" + EditorID }
+					hx-swap="outerHTML"
+					hx-push-url="true"
+				>
+					Volver
+				</button>
 			</div>
 			<div class="preview">
 				switch file.Preset {
@@ -38,7 +44,9 @@ templ FileFound(state *State, file *models.File) {
 						<tr>
 							<td>{ format.Variant }</td>
 							<td>{ format.Width }x{ format.Height }</td>
-							<td>{ format.Size }</td>
+							<td>
+								<x-file-size size={ format.Size }></x-file-size>
+							</td>
 							<td>{ format.ContentType }</td>
 						</tr>
 					}
@@ -56,8 +64,4 @@ templ FileFound(state *State, file *models.File) {
 			</form>
 		</div>
 	</div>
-}
-
-templ FileNotFound() {
-	<p>Error al cargar el archivo</p>
 }
