@@ -105,14 +105,8 @@
         overflow: hidden;
     }
 
-    .fonts .list {
-        height: 80%;
-    }
-
     .fonts .scrollable {
-        height: 53vh;
-        overflow: auto;
-        scroll-behavior: smooth;
+        height: 80%;
     }
 
     .fonts .configure {

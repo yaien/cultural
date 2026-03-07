@@ -7,7 +7,15 @@ templ Fonts(state *State) {
 	<div class="fonts" hx-vals={ state.HxSelectedVals() }>
 		<div class="list">
 			for key, font := range fonts {
-				<div class="font" data-section="configure_font" data-font={ font.Family } title={ font.Family }>
+				<div
+					class="font"
+					title={ font.Family }
+					hx-get={ Path }
+					hx-target={ "#" + EditorID }
+					hx-swap="outerHTML"
+					hx-push-url="true"
+					hx-vals={ fmt.Sprintf("{%q:%q,%q:%q}", SectionQuery, BrowseFontsSection, FontKeyQuery, key) }
+				>
 					<div class="preview">
 						<x-font family={ font.Family } url={ font.Files["regular"] }>
 							{ font.Family }

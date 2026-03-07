@@ -39,7 +39,7 @@ var Sections = []SectionDefinition{
 	{Name: DeleteSection, Component: Delete, Tab: true, Delete: true, Icon: icons.Trash()},
 	{Name: FilesSection, Component: Files, Tab: true, Icon: icons.Files()},
 	{Name: FileSection, Component: File},
-	{Name: FontsSection, Component: Fonts, Tab: true, Icon: icons.BrandFamily()},
+	{Name: FontsSection, Component: Fonts, Tab: true, Web: true, Icon: icons.BrandFamily()},
 	{Name: BrowseFontsSection, Component: BrowseFonts},
 	{Name: ConfigureFontSection, Component: ConfigureFont},
 	{Name: ColorsSection, Component: Colors, Tab: true, Web: true, Icon: icons.Palette()},

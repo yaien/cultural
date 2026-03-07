@@ -5,6 +5,9 @@ import (
 	"strconv"
 
 	"github.com/yaien/cultural/internal/modules/configs/internal/application"
+	"github.com/yaien/cultural/internal/modules/configs/internal/application/commands"
+	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/middlewares"
+	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views/dashboard"
 	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views/pages"
 	"github.com/yaien/cultural/internal/modules/configs/internal/models"
 )
@@ -46,5 +49,30 @@ func (c *FontsController) List(w http.ResponseWriter, r *http.Request) {
 	}
 
 	pages.FontList(fonts, family, limit, offset+limit).Render(r.Context(), w)
+
+}
+
+func (c *FontsController) Update(w http.ResponseWriter, r *http.Request) {
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "Failed to parse form data", http.StatusBadRequest)
+		return
+	}
+
+	ctx := r.Context()
+	config := ctx.Value(middlewares.ConfigContextKey).(*models.Config)
+
+	req := commands.UpdateDraftFontRequest{
+		ConfigID: config.ID,
+		Family:   r.PostForm.Get("family"),
+		Tag:      r.PostForm.Get("tag"),
+	}
+
+	if err := c.app.UpdateDraftFont(ctx, req); err != nil {
+		WriteHTMLErr(w, err)
+	}
+
+	w.Header().Set("HX-Trigger", "updated")
+
+	dashboard.Toast("Fuente actualizada correctamente", dashboard.Primary).Render(ctx, w)
 
 }

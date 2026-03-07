@@ -42,6 +42,7 @@ func dashboard(mono *infrastructure.Monolith, app *application.Application, md *
 	{
 		ctrl := controllers.NewFontsController(app)
 		router.HandleFunc("GET /dashboard/fonts", ctrl.List)
+		router.HandleFunc("POST /dashboard/fonts", ctrl.Update)
 	}
 
 	{

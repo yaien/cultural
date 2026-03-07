@@ -44,6 +44,7 @@ func (c *PagesController) Index(w http.ResponseWriter, r *http.Request) {
 		SelectedKey:        query.Get(pages.SelectedKeyQuery),
 		SelectedFileName:   query.Get(pages.FileQuery),
 		SelectedFontFamily: query.Get(pages.FontQuery),
+		SelectedFontKey:    query.Get(pages.FontKeyQuery),
 		Section:            query.Get(pages.SectionQuery),
 		FileURL:            models.FileURL,
 		Files: func() ([]*models.File, error) {

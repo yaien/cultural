@@ -32,6 +32,7 @@ type Application struct {
 	*commands.RenameFileCommand
 	*commands.DeleteFileCommand
 	*commands.UpdateDraftBasicCommand
+	*commands.UpdateDraftFontCommand
 	*commands.CreateDraftModelCommand
 	*commands.DeleteDraftModelCommand
 
@@ -77,6 +78,7 @@ func New(deps Deps) *Application {
 		commands.NewRenameFileCommand(deps.Files),
 		commands.NewDeleteFileCommand(deps.Files, deps.Storage),
 		commands.NewUpdateDraftBasicCommand(deps.Drafts),
+		commands.NewUpdateDraftFontCommand(deps.Drafts, deps.Fonts),
 		commands.NewCreateDraftModelCommand(deps.Drafts),
 		commands.NewDeleteDraftModelCommand(deps.Drafts),
 		commands.NewCommitDraftCommand(deps.Configs, deps.Drafts, deps.Cache),

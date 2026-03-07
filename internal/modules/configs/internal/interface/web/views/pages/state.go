@@ -29,6 +29,7 @@ type State struct {
 	SelectedKey        string
 	SelectedFileName   string
 	SelectedFontFamily string
+	SelectedFontKey    string
 	FileURL            FileURLFunc
 	File               FileFunc
 	Files              FilesFunc

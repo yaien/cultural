@@ -13,9 +13,17 @@ templ BrowseFonts(state *State) {
 		<div class="error">Error al cargar las fuentes: { err.Error() }</div>
 		{{ return }}
 	}
-	<div class="fonts">
+	<div class="fonts" hx-vals={ state.HxSelectedVals() }>
 		<div class="actions">
-			<button data-section="fonts">Volver</button>
+			<button
+				hx-get={ Path }
+				hx-target={ "#" + EditorID }
+				hx-vals={ fmt.Sprintf("{ %q: %q}", SectionQuery, FontsSection) }
+				hx-swap="outerHTML"
+				hx-push-url="true"
+			>
+				Volver
+			</button>
 		</div>
 		<fieldset role="group">
 			<legend>Fuentes</legend>
@@ -29,7 +37,7 @@ templ BrowseFonts(state *State) {
 				hx-indicator=".fonts"
 			/>
 		</fieldset>
-		<div class="list">
+		<div class="scrollable" hx-vals={ fmt.Sprintf("{%q:%q, %q:%q}", SectionQuery, ConfigureFontSection, FontKeyQuery, state.SelectedFontKey) }>
 			<x-scrollable scale="0.95">
 				@FontList(fonts, "", limit, limit)
 			</x-scrollable>
@@ -41,15 +49,14 @@ templ BrowseFonts(state *State) {
 }
 
 templ FontList(fonts []*models.Font, family string, limit int64, offset int64) {
-	for index, font := range fonts {
+	for _, font := range fonts {
 		<div
 			class="font"
-			if index == len(fonts) -1 {
-				hx-get={ fmt.Sprintf("/dashboard/fonts?limit=%d&offset=%d&family=%s", limit, offset, family) }
-				hx-trigger="intersect once"
-				hx-swap="afterend"
-				hx-indicator=".fonts"
-			}
+			hx-get={ Path }
+			hx-target={ "#" + EditorID }
+			hx-swap="outerHTML"
+			hx-vals={ fmt.Sprintf("{ %q: %q }", FontQuery, font.Family) }
+			hx-push-url="true"
 		>
 			<div class="preview">
 				<x-font family={ font.Family } url={ font.Files["regular"] }>
@@ -58,4 +65,10 @@ templ FontList(fonts []*models.Font, family string, limit int64, offset int64) {
 			</div>
 		</div>
 	}
+	<div
+		hx-get={ fmt.Sprintf("/dashboard/fonts?limit=%d&offset=%d&family=%s", limit, offset, family) }
+		hx-trigger="intersect once"
+		hx-swap="afterend"
+		hx-indicator=".fonts"
+	></div>
 }
