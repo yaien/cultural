@@ -17,18 +17,37 @@
     <link rel="icon" type="image/png" href="/assets/landing/favicon.png?v={{.Version}}" />
     <link rel="stylesheet" href="/assets/static/landing/base.css" />
 
-    {{if .InlineStyles}} {{- .Styles}} {{else -}}
+    {{if .InlineStyles}}
+    <!-- -->
+    {{- .Styles}}
+    <!-- -->
+    {{else -}}
     <link rel="stylesheet" href="/assets/landing/styles.css" />
     <link rel="stylesheet" href="{{ printf `/assets/landing/styles/pages/%s.css` .Page.Name }}" />
     <link rel="stylesheet" href="{{ printf `/assets/landing/styles/layouts/%s.css` .Page.Layout }}" />
     {{end}}
+
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.8/dist/htmx.min.js"></script>
+    <!-- -->
+    {{if .InlineScript}}
+    <!-- -->
+    {{- .Script}}
+    <!-- -->
+    {{else}}
+    <script defer src="{{ printf `/assets/landing/scripts/pages/%s.js` .Page.Name }}"></script>
+    <script defer src="{{ printf `/assets/landing/scripts/layouts/%s.js` .Page.Layout }}"></script>
+    {{end}}
   </head>
 
   <body>
-    {{block "layout_body" .}} {{ template "page_body" .}} {{end}} {{define "page_body"}} {{end}} {{if .InlineScript}}
-    {{- .Script}} {{else}}
-    <script src="{{ printf `/assets/landing/scripts/pages/%s.js` .Page.Name }}"></script>
-    <script src="{{ printf `/assets/landing/scripts/layouts/%s.js` .Page.Layout }}"></script>
+    {{block "layout_body" .}}
+    <!-- -->
+    {{ template "page_body" .}}
+    <!-- -->
     {{end}}
+    <!-- -->
+
+    {{define "page_body"}} {{end}}
   </body>
 </html>
