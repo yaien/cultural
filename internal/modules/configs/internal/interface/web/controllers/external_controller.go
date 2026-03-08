@@ -22,7 +22,7 @@ func NewExternalController(app *application.Application) *ExternalController {
 }
 
 func (c *ExternalController) GetFile(w http.ResponseWriter, r *http.Request) {
-	var req queries.GetFileRequest
+	var req queries.GetFileDataRequest
 	var err error
 
 	req.OrganizationID, err = primitive.ObjectIDFromHex(r.PathValue("organization_id"))
@@ -42,7 +42,7 @@ func (c *ExternalController) GetFile(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
 
-	res, err := c.app.GetFile(ctx, &req)
+	res, err := c.app.GetFileData(ctx, &req)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

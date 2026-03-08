@@ -48,7 +48,6 @@ type CreateInvitationRequest struct {
 	RoleName        string
 	UserDisplayName string
 	UserEmail       string
-	FileURL         models.FileURLFunc
 }
 
 type invitationEmailData struct {

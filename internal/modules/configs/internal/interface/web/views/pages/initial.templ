@@ -1,0 +1,98 @@
+package pages
+
+import "github.com/yaien/cultural/internal/modules/configs/internal/models"
+
+templ Initial(state *State) {
+	<fieldset role="group">
+		<legend>Tipo de Plantilla</legend>
+		<select name={ SelectedTypeQuery } autocomplete="off" hx-get={ Path } hx-target={ "#" + ContentID } hx-swap="outerHTML" hx-push-url="true">
+			<option value={ SelectedTypePage } selected?={ state.SelectedType == SelectedTypePage }>Sitio</option>
+			<option value={ SelectedTypeLayout } selected?={ state.SelectedType == SelectedTypeLayout }>Diseño</option>
+			<option value={ SelectedTypeEmail } selected?={ state.SelectedType == SelectedTypeEmail }>Correo</option>
+		</select>
+	</fieldset>
+	<fieldset>
+		<legend>Seleccionar Plantilla</legend>
+		<select name={ SelectedKeyQuery } hx-get={ Path } hx-target={ "#" + ContentID } hx-swap="outerHTML" hx-push-url="true">
+			switch state.Selected.(type) {
+				case *models.Page:
+					for key := range state.Draft.Pages {
+						<option value={ key } selected?={ state.SelectedKey == key }>{ key }</option>
+					}
+				case *models.Layout:
+					for key := range state.Draft.Layouts {
+						<option value={ key } selected?={ state.SelectedKey == key }>{ key }</option>
+					}
+				case *models.Email:
+					for key := range state.Draft.Emails {
+						<option value={ key } selected?={ state.SelectedKey == key }>{ key }</option>
+					}
+			}
+		</select>
+	</fieldset>
+	<form hx-patch="/dashboard/pages/basic" hx-swap="none" hx-vals={ state.HxSelectedVals() }>
+		switch selected := state.Selected.(type) {
+			case *models.Page:
+				<fieldset>
+					<legend>Nombre</legend>
+					<input name="name" required value={ selected.Name } disabled?={ state.PageIsDefault() }/>
+				</fieldset>
+				<fieldset role="group">
+					<legend>Url</legend>
+					<input name="url" value={ state.PageUrl() } required disabled/>
+				</fieldset>
+				<fieldset>
+					<legend>Titulo</legend>
+					<input name="title" value={ selected.Title }/>
+				</fieldset>
+				<fieldset>
+					<legend>Imagen</legend>
+					<input name="og_image" value={ selected.OGImage } required/>
+				</fieldset>
+				<fieldset>
+					<legend>Tipo</legend>
+					<select name="og_type">
+						<option value="" selected={ selected.OGType == "" }>Ninguno</option>
+						<option value="website" selected={ selected.OGType == "website" }>Sitio Web</option>
+						<option value="article" selected={ selected.OGType == "article" }>Artículo</option>
+						<option value="profile" selected={ selected.OGType == "profile" }>Perfil</option>
+						<option value="product" selected={ selected.OGType == "product" }>Producto</option>
+					</select>
+				</fieldset>
+				<fieldset>
+					<legend>Descripción</legend>
+					<textarea name="description" class="no-resize" rows="2" autocomplete="off" cols="10">
+						{ selected.Description }
+					</textarea>
+				</fieldset>
+				<fieldset role="group">
+					<legend>Diseño</legend>
+					<select name="layout" autocomplete="off">
+						<option value="">Ninguno</option>
+						for key, layout := range state.Draft.Layouts {
+							<option value={ key } selected?={ selected.Layout == key }>{ layout.Title }</option>
+						}
+					</select>
+				</fieldset>
+			case *models.Layout:
+				<fieldset>
+					<legend>Nombre</legend>
+					<input name="name" required value={ selected.Name }/>
+				</fieldset>
+				<fieldset>
+					<legend>Titulo</legend>
+					<input name="title" required value={ selected.Title }/>
+				</fieldset>
+			case *models.Email:
+				<fieldset>
+					<legend>Asunto</legend>
+					<textarea name="subject" class="no-resize" required cols="10">
+						{ selected.Subject }
+					</textarea>
+				</fieldset>
+		}
+		<div class="actions">
+			<button type="submit">Guardar</button>
+		</div>
+	</form>
+}

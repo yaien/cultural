@@ -1,0 +1,20 @@
+package dashboard
+
+templ Modal(title string) {
+	<div
+		class="modal open"
+		hx-trigger="click target:.modal, click from:.modal-close, keyup[key == 'Escape'] from:window"
+		hx-get={ templ.URL("/dashboard/empty") }
+		hx-swap="outerHTML swap:100ms"
+	>
+		<div class="modal-content">
+			<div class="modal-header">
+				<h2 class="modal-title">{ title }</h2>
+				<button class="modal-close"></button>
+			</div>
+			<div class="modal-body">
+				{ children... }
+			</div>
+		</div>
+	</div>
+}

@@ -7,8 +7,6 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-const RoleContextKey = key("role")
-
 type Permissions []string
 
 type Role struct {

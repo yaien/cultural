@@ -7,12 +7,7 @@ import (
 	"github.com/gorilla/sessions"
 	"github.com/markbates/goth/gothic"
 	"github.com/yaien/cultural/internal/modules/configs/internal/application"
-)
-
-const (
-	SessionName = "session"
-	UserIDKey   = "user_id"
-	RedirectKey = "redirect"
+	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/middlewares"
 )
 
 type AuthController struct {
@@ -38,11 +33,11 @@ func (c *AuthController) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	session, _ := c.store.Get(r, SessionName)
-	session.Values[UserIDKey] = user.ID.Hex()
+	session, _ := c.store.Get(r, middlewares.SessionKey)
+	session.Values[middlewares.UserIDKey] = user.ID.Hex()
 
 	redirect := "/"
-	next := session.Flashes(RedirectKey)
+	next := session.Flashes(middlewares.RedirectKey)
 	if len(next) > 0 && next[0].(string) != "" {
 		redirect = next[0].(string)
 	}
@@ -64,7 +59,7 @@ func (c *AuthController) Logout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	session, _ := c.store.Get(r, SessionName)
+	session, _ := c.store.Get(r, middlewares.SessionKey)
 	session.Options.MaxAge = -1
 	session.Values = make(map[any]any)
 	err = session.Save(r, w)
@@ -89,11 +84,11 @@ func (c *AuthController) Callback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	session, _ := c.store.Get(r, SessionName)
-	session.Values[UserIDKey] = user.ID.Hex()
+	session, _ := c.store.Get(r, middlewares.SessionKey)
+	session.Values[middlewares.UserIDKey] = user.ID.Hex()
 
 	redirect := "/dashboard"
-	next := session.Flashes(RedirectKey)
+	next := session.Flashes(middlewares.RedirectKey)
 	if len(next) > 0 && next[0].(string) != "" {
 		redirect = next[0].(string)
 	}

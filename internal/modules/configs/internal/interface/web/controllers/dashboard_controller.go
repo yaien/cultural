@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/yaien/cultural/internal/modules/configs/internal/application"
-	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views"
+	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views/home"
 )
 
 type DashboardController struct {
@@ -16,5 +16,9 @@ func NewDashboardController(app *application.Application) *DashboardController {
 }
 
 func (c *DashboardController) Home(w http.ResponseWriter, r *http.Request) {
-	views.Home(w, r)
+	_ = home.Home().Render(r.Context(), w)
+}
+
+func (c *DashboardController) Empty(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
 }

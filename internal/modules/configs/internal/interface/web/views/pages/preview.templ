@@ -1,0 +1,11 @@
+package pages
+
+import "fmt"
+
+templ Preview(key string, typ SelectedType, swap bool) {
+	<div class="page" id="preview" x-data={ fmt.Sprintf("preview('/dashboard/pages/preview?key=%s&type=%s')", key, typ) } @render.window="render()">
+		<div class="resizeable">
+			<iframe x-ref="iframe" :srcdoc="srcdoc"></iframe>
+		</div>
+	</div>
+}

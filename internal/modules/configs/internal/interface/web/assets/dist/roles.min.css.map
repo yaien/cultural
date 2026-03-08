@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../roles.css"],
-  "sourcesContent": [".actions {\n  margin: auto;\n  text-align: center;\n}\n\n.capitalize {\n  text-transform: capitalize;\n}\n"],
-  "mappings": "AAAA,CAAC,QAAD,OACU,KACR,WAAY,MACd,CAEA,CAAC,WACC,eAAgB,UAClB",
-  "names": []
-}

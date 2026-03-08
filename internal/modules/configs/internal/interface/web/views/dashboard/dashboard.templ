@@ -1,0 +1,66 @@
+package dashboard
+
+import (
+	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/middlewares"
+	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views/icons"
+	"github.com/yaien/cultural/internal/modules/configs/internal/models"
+)
+
+templ Page(title string) {
+	{{ role := ctx.Value(middlewares.RoleContextKey).(*models.Role) }}
+	{{ path := ctx.Value(middlewares.PathContextKey).(string) }}
+	<!DOCTYPE html>
+	<html lang="es">
+		<head>
+			@Head(title)
+		</head>
+		<body x-data="{ open: false }" :class="{ open }">
+			<header>
+				<div class="start">
+					<button class="toggle" @click="open = !open">
+						<template x-if="!open">
+							@icons.Menu()
+						</template>
+						<template x-if="open">
+							@icons.Close()
+						</template>
+					</button>
+					<div class="title">
+						<h3>{ title }</h3>
+					</div>
+				</div>
+				<div class="end">
+					<div class="account">
+						<span>{ role.UserName } ({ role.UserEmail })</span>
+					</div>
+				</div>
+			</header>
+			<aside>
+				<nav>
+					<ul>
+						@Link(path, "/dashboard", "Dashboard", icons.Home())
+						@Link(path, "/dashboard/pages", "Sitios", icons.Website())
+						@Link(path, "/dashboard/events", "Eventos", icons.Calendar())
+						@Link(path, "/dashboard/products", "Productos", icons.Box())
+						@Link(path, "/dashboard/roles", "Roles", icons.UserList())
+					</ul>
+				</nav>
+				<div class="footer">
+					<nav>
+						<ul>
+							<li>
+								<a href="/auth/logout">
+									@icons.Logout()
+									<span>Cerrar Sesión </span>
+								</a>
+							</li>
+						</ul>
+					</nav>
+				</div>
+			</aside>
+			<main>
+				{ children... }
+			</main>
+		</body>
+	</html>
+}

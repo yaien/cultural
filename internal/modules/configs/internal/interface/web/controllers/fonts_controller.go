@@ -1,11 +1,13 @@
 package controllers
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
 
 	"github.com/yaien/cultural/internal/modules/configs/internal/application"
+	"github.com/yaien/cultural/internal/modules/configs/internal/application/commands"
+	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/middlewares"
+	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views/pages"
 	"github.com/yaien/cultural/internal/modules/configs/internal/models"
 )
 
@@ -14,30 +16,61 @@ type FontsController struct {
 }
 
 func NewFontsController(app *application.Application) *FontsController {
-	return &FontsController{app}
+	return &FontsController{app: app}
 }
 
 func (c *FontsController) List(w http.ResponseWriter, r *http.Request) {
-	options := &models.FindFontOptions{}
 
-	options.Family = r.URL.Query().Get("family")
+	query := r.URL.Query()
+	family := query.Get("family")
 
-	limit, err := strconv.Atoi(r.URL.Query().Get("limit"))
-	if err == nil {
-		options.Limit = int64(limit)
-	}
-
-	offset, err := strconv.Atoi(r.URL.Query().Get("offset"))
-	if err == nil {
-		options.Offset = int64(offset)
-	}
-
-	fonts, err := c.app.GetFonts(r.Context(), options)
+	limit, err := strconv.ParseInt(query.Get("limit"), 10, 64)
 	if err != nil {
-		WriteJSONErr(w, fmt.Errorf("failed getting fonts: %w", err))
+		http.Error(w, "Invalid limit parameter", http.StatusBadRequest)
 		return
 	}
 
-	WriteJSON(w, fonts)
+	offset, err := strconv.ParseInt(query.Get("offset"), 10, 64)
+	if err != nil {
+		http.Error(w, "Invalid offset parameter", http.StatusBadRequest)
+		return
+	}
+
+	fonts, err := c.app.GetFonts(r.Context(), &models.FindFontOptions{
+		Family: family,
+		Limit:  limit,
+		Offset: offset,
+	})
+
+	if err != nil {
+		http.Error(w, "Failed to retrieve fonts", http.StatusInternalServerError)
+		return
+	}
+
+	pages.FontList(fonts, family, limit, offset+limit).Render(r.Context(), w)
+
+}
+
+func (c *FontsController) Update(w http.ResponseWriter, r *http.Request) {
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "Failed to parse form data", http.StatusBadRequest)
+		return
+	}
+
+	ctx := r.Context()
+	config := ctx.Value(middlewares.ConfigContextKey).(*models.Config)
+
+	req := commands.UpdateDraftFontRequest{
+		ConfigID: config.ID,
+		Family:   r.PostForm.Get("family"),
+		Tag:      r.PostForm.Get("tag"),
+	}
+
+	if err := c.app.UpdateDraftFont(ctx, req); err != nil {
+		WriteHTMLErr(w, err)
+	}
+
+	w.Header().Set("HX-Trigger", "updated, render")
+	w.WriteHeader(http.StatusOK)
 
 }

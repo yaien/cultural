@@ -1,0 +1,52 @@
+package pages
+
+import "fmt"
+
+templ ConfigureFont(state *State) {
+	{{ font, err := state.Font(state.SelectedFontFamily) }}
+	if err != nil {
+		<p>Error al cargar fuente: { err.Error() }</p>
+		{{ return }}
+	}
+	<div class="fonts" hx-vals={ state.HxSelectedVals() }>
+		<div
+			class="configure"
+			hx-trigger="updated from:body"
+			hx-get={ Path }
+			hx-target={ "#" + ContentID }
+			hx-swap="outerHTML"
+			hx-vals={ fmt.Sprintf("{ %q: %q }", SectionQuery, FontsSection) }
+			hx-replace-url="true"
+		>
+			<div class="actions">
+				<button
+					hx-trigger="click, updated from:body"
+					hx-get={ Path }
+					hx-target={ "#" + EditorID }
+					hx-swap="outerHTML"
+					hx-vals={ fmt.Sprintf("{ %q: %q, %q: %q }", SectionQuery, BrowseFontsSection, FontQuery, font.Family) }
+					hx-push-url="true"
+				>
+					Volver
+				</button>
+			</div>
+			<h1 class="preview" x-data={ fmt.Sprintf("font({ family: %q, url: %q })", font.Family, font.Files["regular"]) } :style="style">
+				{ font.Family }
+			</h1>
+			<form hx-post="/dashboard/fonts" hx-swap="none">
+				<small>
+					Use "primary" para cambiar la fuente base de la página o "headings" para cambiar los
+					encabezados
+				</small>
+				<fieldset>
+					<legend>Tag</legend>
+					<input name="tag" autocomplete="off" required value={ state.SelectedFontKey }/>
+				</fieldset>
+				<input type="hidden" name="family" value={ font.Family }/>
+				<div class="actions">
+					<button type="submit">Guardar</button>
+				</div>
+			</form>
+		</div>
+	</div>
+}

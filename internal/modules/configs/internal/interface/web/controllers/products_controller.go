@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/yaien/cultural/internal/modules/configs/internal/application"
-	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views"
+	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views/products"
 )
 
 type ProductsController struct {
@@ -16,5 +16,5 @@ func NewProductsController(app *application.Application) *ProductsController {
 }
 
 func (c *ProductsController) Index(w http.ResponseWriter, r *http.Request) {
-	views.Products(w, r)
+	_ = products.Products().Render(r.Context(), w)
 }

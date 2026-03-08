@@ -25,12 +25,16 @@ type DeleteRoleRequest struct {
 }
 
 func (c *DeleteRoleCommand) DeleteRole(ctx context.Context, req *DeleteRoleRequest) error {
+	if req.SessionRole == nil {
+		return fmt.Errorf("session role is required")
+	}
+
 	if req.SessionRole.ID == req.TargetRoleID {
-		return &models.Error{Code: "invalid_deletion", Err: fmt.Errorf("you cannot delete your own role")}
+		return &models.Error{Code: "invalid_deletion", Err: fmt.Errorf("no puedes borrar tu propio rol")}
 	}
 
 	if !req.SessionRole.Permissions.Has("delete-role") {
-		return &models.Error{Code: "permission_denied", Err: fmt.Errorf("you do not have permission to delete roles")}
+		return &models.Error{Code: "permission_denied", Err: fmt.Errorf("no tienes permiso para eliminar roles")}
 	}
 
 	count, err := c.roles.CountAdminsByOrganizationID(ctx, req.OrganizationID)
@@ -39,7 +43,7 @@ func (c *DeleteRoleCommand) DeleteRole(ctx context.Context, req *DeleteRoleReque
 	}
 
 	if count == 1 {
-		return &models.Error{Code: "last_admin_deletion", Err: fmt.Errorf("cannot delete the last admin role in the organization")}
+		return &models.Error{Code: "last_admin_deletion", Err: fmt.Errorf("no puedes eliminar el último rol de administrador")}
 	}
 
 	role, err := c.roles.GetByIDAndOrganizationID(ctx, req.TargetRoleID, req.OrganizationID)

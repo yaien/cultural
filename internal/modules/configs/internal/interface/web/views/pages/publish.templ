@@ -1,0 +1,14 @@
+package pages
+
+templ Publish(state *State) {
+	<div class="publish">
+		<p>
+			¿Estás seguro de que deseas publicar la configuración
+			<br/>
+			Esta estará disponible para los usuarios finales
+		</p>
+		<div class="actions">
+			<button class="warning" hx-post="/dashboard/draft/commit" hx-swap="none">Publicar</button>
+		</div>
+	</div>
+}

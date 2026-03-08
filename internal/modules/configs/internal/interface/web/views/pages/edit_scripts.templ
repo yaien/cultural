@@ -1,0 +1,32 @@
+package pages
+
+import (
+	"fmt"
+	"github.com/yaien/cultural/internal/modules/configs/internal/application/commands"
+	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views/icons"
+	"github.com/yaien/cultural/internal/modules/configs/internal/models"
+)
+
+templ EditScript(state *State) {
+	{{
+		var source string
+		switch selected := state.Selected.(type) {
+		case *models.Page:
+			source = selected.Script
+		case *models.Layout:
+			source = selected.Script
+		}
+	}}
+	<div
+		class="monaco"
+		x-data={ fmt.Sprintf("monaco({ language: %q, source: %q })", "javascript", source) }
+		hx-patch="/dashboard/pages/source"
+		hx-trigger="input throttle:100ms"
+		hx-vals={ fmt.Sprintf("js:{ modelType: %q, key: %q, sourceType: %q, source: event.detail.value }", state.SelectedType, state.SelectedKey, commands.DraftScriptType) }
+		hx-swap="none"
+	>
+		<div class="spinner" x-show="loading">
+			@icons.Spinner()
+		</div>
+	</div>
+}

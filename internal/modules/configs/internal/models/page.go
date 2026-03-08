@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	"path"
 	"strings"
 	"text/template"
 )
@@ -19,53 +18,38 @@ type Layout struct {
 }
 
 type Page struct {
-	Title         string `bson:"title,omitempty" json:"title,omitempty"`
-	Description   string `bson:"description,omitempty" json:"description,omitempty"`
-	Name          string `bson:"name,omitempty" json:"name,omitempty"`
-	Layout        string `bson:"layout,omitempty" json:"layout,omitempty"`
-	Styles        string `bson:"styles,omitempty" json:"styles,omitempty"`
-	Script        string `bson:"script,omitempty" json:"script,omitempty"`
-	Body          string `bson:"body" json:"body"`
-	OGTitle       string `bson:"ogTitle,omitempty" json:"ogTitle,omitempty"`
-	OGDescription string `bson:"ogDescription,omitempty" json:"ogDescription,omitempty"`
-	OGImage       string `bson:"ogImage,omitempty" json:"ogImage,omitempty"`
-	OGType        string `bson:"ogType,omitempty" json:"ogType,omitempty"`
+	Title       string `bson:"title,omitempty" json:"title,omitempty"`
+	Description string `bson:"description,omitempty" json:"description,omitempty"`
+	Name        string `bson:"name,omitempty" json:"name,omitempty"`
+	Layout      string `bson:"layout,omitempty" json:"layout,omitempty"`
+	Styles      string `bson:"styles,omitempty" json:"styles,omitempty"`
+	Script      string `bson:"script,omitempty" json:"script,omitempty"`
+	Body        string `bson:"body" json:"body"`
+	OGImage     string `bson:"ogImage,omitempty" json:"ogImage,omitempty"`
+	OGType      string `bson:"ogType,omitempty" json:"ogType,omitempty"`
 }
 
 var EmptyPage = &Page{}
 
 type PageData struct {
-	InlineStyles     bool
-	InlineScript     bool
-	FilePath         string
-	ExternalFilePath string
-	AppTitle         string
-	Page             *Page
-	Layout           *Layout
-	Fonts            map[string]*Font
-	Colors           map[string]string
-	Version          int64
+	InlineStyles        bool
+	InlineScript        bool
+	FileURLFunc         FileURLFunc
+	ExternalFileURLFunc FileURLFunc
+	AppTitle            string
+	Page                *Page
+	Layout              *Layout
+	Fonts               Fonts
+	Colors              Colors
+	Version             int64
 }
 
-// FileURL generates a URL for a given filename, optionally with a variant query parameter.
-func (p *PageData) FileURL(filename string, variant ...int) string {
-	if len(variant) > 0 {
-		return fmt.Sprintf("%s?variant=%d", filename, variant[0])
-	}
-	return path.Join(p.FilePath, filename)
+func (c *PageData) FileURL(name string, variant ...int) string {
+	return c.FileURLFunc(name, variant...)
 }
 
-func (p *PageData) ExternalFileURL(filename string, variant ...int) string {
-	if len(variant) > 0 {
-		filename = fmt.Sprintf("%s?variant=%d", filename, variant[0])
-	}
-
-	dash := ""
-	if !strings.HasSuffix(p.ExternalFilePath, "/") {
-		dash = "/"
-	}
-
-	return p.ExternalFilePath + dash + filename
+func (c *PageData) ExternalFileURL(name string, variant ...int) string {
+	return c.ExternalFileURLFunc(name, variant...)
 }
 
 // Title returns the full title of the page, combining the page title and app title.
@@ -79,7 +63,7 @@ func (p *PageData) Title() string {
 
 type pageStyleTemplateData struct {
 	Fonts        map[string]*Font
-	Colors       map[string]string
+	Colors       Colors
 	PageStyles   string
 	LayoutStyles string
 }

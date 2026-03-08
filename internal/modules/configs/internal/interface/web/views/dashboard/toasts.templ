@@ -1,0 +1,23 @@
+package dashboard
+
+type Variant string
+
+const (
+	Primary = Variant("primary")
+	Success = Variant("success")
+	Danger  = Variant("danger")
+)
+
+templ Toast(message string, variant Variant) {
+	<div hx-swap-oob="beforeend:body">
+		<div
+			class={ "toast", string(variant) }
+			hx-trigger="click, load delay:5s"
+			hx-get="/dashboard/empty"
+			hx-swap="outerHTML swap:100ms"
+		>
+			<span>{ message }</span>
+			<button class="toast-close"></button>
+		</div>
+	</div>
+}

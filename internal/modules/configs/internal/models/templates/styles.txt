@@ -2,8 +2,8 @@
     {{ range $key, $font := .Fonts -}}
     --{{$key}}-font-family: "{{$font.Family}}", sans-serif;
     {{ end -}}
-    {{ range $key, $color := .Colors -}}
-    --{{$key}}-color: {{$color}};
+    {{ range .Colors -}}
+    --{{.Tag}}-color: {{.Value}};
     {{ end -}}
 }
 {{.LayoutStyles}}

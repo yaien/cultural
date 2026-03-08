@@ -28,4 +28,5 @@ type FindFontOptions struct {
 
 type FontRepository interface {
 	Find(ctx context.Context, opts *FindFontOptions) ([]*Font, error)
+	GetByFamily(ctx context.Context, family string) (*Font, error)
 }

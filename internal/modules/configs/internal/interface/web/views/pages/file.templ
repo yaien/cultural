@@ -1,0 +1,66 @@
+package pages
+
+import "fmt"
+
+templ File(state *State) {
+	{{ file, err := state.File(state.SelectedFileName) }}
+	if err != nil {
+		<p>Error al cargar el archivo</p>
+		{{ return }}
+	}
+	<div class="grow files" hx-vals={ state.HxSelectedVals() }>
+		<div class="edit">
+			<div class="actions">
+				<button
+					type="button"
+					hx-trigger="click, deleted from:body, renamed from:body"
+					hx-get={ Path }
+					hx-vals={ fmt.Sprintf("{ %q: %q }", SectionQuery, FilesSection) }
+					hx-target={ "#" + EditorID }
+					hx-swap="outerHTML"
+					hx-replace-url="true"
+				>
+					Volver
+				</button>
+			</div>
+			<div class="preview">
+				switch file.Preset {
+					case "image":
+						<img src={ state.FileURL(file.Name) } title={ file.Name } alt={ file.Name }/>
+					case "video":
+						<video src={ state.FileURL(file.Name) } title={ file.Name } alt={ file.Name } controls></video>
+				}
+			</div>
+			<table class="compact">
+				<thead>
+					<tr>
+						<th>Variante</th>
+						<th>Dimensiones</th>
+						<th>Tamaño</th>
+						<th>Tipo</th>
+					</tr>
+				</thead>
+				<tbody>
+					for _, format := range file.Formats {
+						<tr>
+							<td>{ format.Variant }</td>
+							<td>{ format.Width }x{ format.Height }</td>
+							<td x-data={ fmt.Sprintf("filesize(%d)", format.Size) } x-text="size"></td>
+							<td>{ format.ContentType }</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+			<form hx-patch={ "/dashboard/files/" + file.Name } hx-swap="none" hx-vals={ fmt.Sprintf("{ %q: %q }", SectionQuery, state.Section) }>
+				<fieldset>
+					<legend>Nombre</legend>
+					<input name="name" value={ file.Name } required/>
+				</fieldset>
+				<div class="actions around">
+					<button type="button" hx-delete={ "/dashboard/files/" + file.Name } hx-swap="none" class="danger">Eliminar</button>
+					<button type="submit">Guardar</button>
+				</div>
+			</form>
+		</div>
+	</div>
+}

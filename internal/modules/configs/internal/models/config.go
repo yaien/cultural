@@ -7,10 +7,6 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-type key string
-
-const ConfigContextKey = key("config")
-
 type Config struct {
 	ID             primitive.ObjectID `bson:"_id,omitempty" json:"id"`
 	OrganizationID primitive.ObjectID `bson:"organizationId" json:"organizationId"`
@@ -20,11 +16,11 @@ type Config struct {
 	Title          string             `bson:"title" json:"title"`
 	Url            string             `bson:"url" json:"url"`
 	Email          string             `bson:"email" json:"email"`
-	Fonts          map[string]*Font   `bson:"fonts" json:"fonts"`
-	Pages          map[string]*Page   `bson:"pages" json:"pages"`
-	Layouts        map[string]*Layout `bson:"layouts" json:"layouts"`
-	Emails         map[string]*Email  `bson:"emails" json:"emails"`
-	Colors         map[string]string  `bson:"colors" json:"colors"`
+	Fonts          Fonts              `bson:"fonts" json:"fonts"`
+	Pages          Pages              `bson:"pages" json:"pages"`
+	Layouts        Layouts            `bson:"layouts" json:"layouts"`
+	Emails         Emails             `bson:"emails" json:"emails"`
+	Colors         Colors             `bson:"colors" json:"colors"`
 }
 
 type ConfigRepository interface {

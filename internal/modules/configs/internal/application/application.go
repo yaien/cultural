@@ -16,9 +16,12 @@ type Application struct {
 	*queries.GetRoleQuery
 	*queries.GetRolesQuery
 	*queries.GetFontsQuery
+	*queries.GetFontQuery
+	*queries.GetFileDataQuery
 	*queries.GetFileQuery
 	*queries.GetFilesQuery
 	*queries.GetDraftByConfigIDQuery
+	*queries.GetPreviewQuery
 
 	*commands.CreateInvitationCommand
 	*commands.SyncUserCommand
@@ -28,7 +31,15 @@ type Application struct {
 	*commands.UploadFileCommand
 	*commands.RenameFileCommand
 	*commands.DeleteFileCommand
-	*commands.UpdateDraftCommand
+	*commands.UpdateDraftBasicCommand
+	*commands.UpdateDraftSourceCommand
+	*commands.UpdateDraftFontCommand
+	*commands.UpdateDraftColorCommand
+	*commands.CreateDraftColorCommand
+	*commands.DeleteDraftColorCommand
+	*commands.CreateDraftModelCommand
+	*commands.DeleteDraftModelCommand
+
 	*commands.CommitDraftCommand
 }
 
@@ -55,9 +66,12 @@ func New(deps Deps) *Application {
 		queries.NewGetRoleQuery(deps.Roles),
 		queries.NewGetRolesQuery(deps.Roles),
 		queries.NewGetFontsQuery(deps.Fonts),
-		queries.NewGetFileQuery(deps.Files, deps.Storage),
+		queries.NewGetFontQuery(deps.Fonts),
+		queries.NewGetFileDataQuery(deps.Files, deps.Storage),
+		queries.NewGetFileQuery(deps.Files),
 		queries.NewGetFilesQuery(deps.Files),
 		queries.NewGetDraftByConfigIDQuery(deps.Drafts),
+		queries.NewGetPreviewQuery(deps.Drafts),
 
 		commands.NewCreateInvitationCommand(deps.Invitations, deps.Organizations, deps.Configs, deps.Roles, deps.Groups, deps.Mail),
 		commands.NewSyncUserCommand(deps.Users),
@@ -67,7 +81,14 @@ func New(deps Deps) *Application {
 		commands.NewUploadFileCommand(deps.Files, deps.Storage, deps.Queue),
 		commands.NewRenameFileCommand(deps.Files),
 		commands.NewDeleteFileCommand(deps.Files, deps.Storage),
-		commands.NewUpdateDraftCommand(deps.Drafts),
+		commands.NewUpdateDraftBasicCommand(deps.Drafts),
+		commands.NewUpdateDraftSourceCommand(deps.Drafts),
+		commands.NewUpdateDraftFontCommand(deps.Drafts, deps.Fonts),
+		commands.NewUpdateDraftColorCommand(deps.Drafts),
+		commands.NewCreateDraftColorCommand(deps.Drafts),
+		commands.NewDeleteDraftColorCommand(deps.Drafts),
+		commands.NewCreateDraftModelCommand(deps.Drafts),
+		commands.NewDeleteDraftModelCommand(deps.Drafts),
 		commands.NewCommitDraftCommand(deps.Configs, deps.Drafts, deps.Cache),
 	}
 }

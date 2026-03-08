@@ -1,0 +1,63 @@
+package pages
+
+import "fmt"
+
+const (
+	EditorID          = "editor"
+	ContentID         = "content"
+	Path              = "/dashboard/pages"
+	SectionQuery      = "section"
+	SelectedTypeQuery = "type"
+	SelectedKeyQuery  = "key"
+	FileQuery         = "file"
+	FontQuery         = "font"
+	FontKeyQuery      = "fontkey"
+)
+
+templ Content(state *State) {
+	<div id={ ContentID } data-scope="pages">
+		@Editor(state)
+		@Preview(state.SelectedKey, state.SelectedType, false)
+	</div>
+}
+
+templ Editor(state *State) {
+	<div id={ EditorID } class="editor">
+		<div role="group" hx-vals={ state.HxSelectedVals() }>
+			for _, section := range Sections {
+				if !section.Tab {
+					{{ continue }}
+				}
+				if section.Page && state.NotPage() {
+					{{ continue }}
+				}
+				if section.Web && state.NotWeb() {
+					{{ continue }}
+				}
+				if section.Delete && state.NotDeleteable() {
+					{{ continue }}
+				}
+				{{ active := state.Section == section.Name }}
+				<button
+					if !active {
+						hx-get={ Path }
+						hx-vals={ fmt.Sprintf("{ %q: %q }", SectionQuery, section.Name) }
+						hx-target={ "#" + EditorID }
+						hx-swap="outerHTML"
+						hx-push-url="true"
+					}
+					class={ templ.KV("active", active) }
+				>
+					if section.Icon != nil {
+						@section.Icon
+					} else {
+						{ section.Name }
+					}
+				</button>
+			}
+		</div>
+		<div style="height: 100%; overflow: hidden;">
+			@Section(state)
+		</div>
+	</div>
+}

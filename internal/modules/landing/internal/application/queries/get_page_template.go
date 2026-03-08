@@ -43,13 +43,13 @@ func (q *GetPageTemplateQuery) GetPageHTML(config *configs.Config, pagename stri
 	}
 
 	html, err = configs.RenderPage(&configs.PageData{
-		Page:             page,
-		Layout:           layout,
-		AppTitle:         config.Title,
-		Fonts:            config.Fonts,
-		Colors:           config.Colors,
-		ExternalFilePath: config.Url + "/assets/external/" + config.OrganizationID.Hex(),
-		FilePath:         "/assets/dynamic/files/",
+		Page:                page,
+		Layout:              layout,
+		AppTitle:            config.Title,
+		Fonts:               config.Fonts,
+		Colors:              config.Colors,
+		ExternalFileURLFunc: configs.NewExternalFileURLFunc(config.Url, config.OrganizationID),
+		FileURLFunc:         configs.FileURL,
 	})
 
 	if err != nil {
