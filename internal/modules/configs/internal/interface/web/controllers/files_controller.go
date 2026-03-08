@@ -98,7 +98,6 @@ func (fc *FilesController) Download(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Set("HX-Trigger", "render")
 	WriteFile(w, r, res)
 
 }

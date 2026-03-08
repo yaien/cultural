@@ -65,8 +65,6 @@ func (c *ColorsController) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	pages.Color(&models.Color{ID: id, Tag: req.Tag, Value: req.Value}).Render(ctx, w)
-
 	w.Header().Set("HX-Trigger", "render")
 	w.WriteHeader(http.StatusOK)
 }

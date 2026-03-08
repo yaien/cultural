@@ -22,7 +22,6 @@ Alpine.data("monaco", ({ language, source = "" }: { language: string; source: st
 
         editor.onDidChangeModelContent(() => {
             const value = editor.getValue();
-            console.log(value);
             this.$dispatch("input", { value });
         });
 

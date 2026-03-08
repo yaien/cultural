@@ -150,10 +150,8 @@ func (c *PagesController) UpdateBasic(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	templ.Join(
-		pages.Preview(req.Key, req.Type, true),
-		dashboard.Toast("Cambios guardados correctamente", dashboard.Primary),
-	).Render(ctx, w)
+	w.Header().Set("HX-trigger", "render")
+	dashboard.Toast("Cambios guardados correctamente", dashboard.Primary).Render(ctx, w)
 
 }
 
@@ -180,6 +178,7 @@ func (c *PagesController) UpdateSource(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	w.Header().Set("HX-trigger", "render")
 	pages.Preview(req.Key, req.ModelType, true).Render(ctx, w)
 
 }

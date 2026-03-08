@@ -7,7 +7,6 @@ import (
 	"github.com/yaien/cultural/internal/modules/configs/internal/application"
 	"github.com/yaien/cultural/internal/modules/configs/internal/application/commands"
 	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/middlewares"
-	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views/dashboard"
 	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views/pages"
 	"github.com/yaien/cultural/internal/modules/configs/internal/models"
 )
@@ -71,7 +70,7 @@ func (c *FontsController) Update(w http.ResponseWriter, r *http.Request) {
 		WriteHTMLErr(w, err)
 	}
 
-	w.Header().Set("HX-Trigger", "updated")
-	dashboard.Toast("Fuente actualizada correctamente", dashboard.Primary).Render(ctx, w)
+	w.Header().Set("HX-Trigger", "updated, render")
+	w.WriteHeader(http.StatusOK)
 
 }
