@@ -1,7 +1,5 @@
 package pages
 
-
-
 templ Publish(state *State) {
 	<div class="publish">
 		<p>
@@ -10,8 +8,7 @@ templ Publish(state *State) {
 			Esta estará disponible para los usuarios finales
 		</p>
 		<div class="actions">
-			<button>Cancelar</button>
-			<button class="warning">Publicar</button>
+			<button class="warning" hx-post="/dashboard/draft/commit" hx-swap="none">Publicar</button>
 		</div>
 	</div>
 }

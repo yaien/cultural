@@ -39,8 +39,8 @@ type PageData struct {
 	AppTitle            string
 	Page                *Page
 	Layout              *Layout
-	Fonts               map[string]*Font
-	Colors              map[string]string
+	Fonts               Fonts
+	Colors              Colors
 	Version             int64
 }
 
@@ -63,7 +63,7 @@ func (p *PageData) Title() string {
 
 type pageStyleTemplateData struct {
 	Fonts        map[string]*Font
-	Colors       map[string]string
+	Colors       Colors
 	PageStyles   string
 	LayoutStyles string
 }

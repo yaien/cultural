@@ -1,34 +1,31 @@
 {
-  "name": "cultural",
-  "version": "1.0.0",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/yaien/cultural.git"
-  },
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/yaien/cultural/issues"
-  },
-  "homepage": "https://github.com/yaien/cultural#readme",
-  "description": "",
-  "devDependencies": {
-    "esbuild": "^0.25.12"
-  },
-  "dependencies": {
-    "@codemirror/lang-css": "^6.3.1",
-    "@codemirror/lang-html": "^6.4.11",
-    "@codemirror/lang-javascript": "^6.2.4",
-    "@types/alpinejs": "^3.13.11",
-    "alpinejs": "^3.15.1",
-    "codemirror": "^6.0.2",
-    "filesize": "^11.0.13",
-    "htmx.org": "^2.0.8",
-    "monaco-editor": "^0.55.1",
-    "polished": "^4.3.1"
-  }
+    "name": "cultural",
+    "version": "1.0.0",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/yaien/cultural.git"
+    },
+    "author": "",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/yaien/cultural/issues"
+    },
+    "homepage": "https://github.com/yaien/cultural#readme",
+    "description": "",
+    "devDependencies": {
+        "esbuild": "^0.25.12"
+    },
+    "dependencies": {
+        "@melloware/coloris": "^0.25.0",
+        "@monaco-editor/loader": "^1.7.0",
+        "filesize": "^11.0.13",
+        "htmx.org": "^2.0.8",
+        "lit": "^3.3.2",
+        "monaco-editor": "^0.55.1",
+        "polished": "^4.3.1"
+    }
 }

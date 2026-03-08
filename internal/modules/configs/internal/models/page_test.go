@@ -13,13 +13,13 @@ func TestPageBaseStyles(t *testing.T) {
 	var b bytes.Buffer
 
 	err := WritePageBaseStyles(&b, &Config{
-		Fonts: map[string]*Font{
+		Fonts: Fonts{
 			"primary":  {Family: "Inter"},
 			"headings": {Family: "Montserrat"},
 		},
-		Colors: map[string]string{
-			"primary":   "#1a73e8",
-			"secondary": "#e8f0fe",
+		Colors: Colors{
+			{Tag: "primary", Value: "#1a73e8"},
+			{Tag: "secondary", Value: "#e8f0fe"},
 		},
 	})
 

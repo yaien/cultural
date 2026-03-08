@@ -89,3 +89,7 @@ func (c *State) NotPage() bool {
 func (c *State) HxSelectedVals() string {
 	return fmt.Sprintf("{%q: %q, %q: %q}", SelectedTypeQuery, c.SelectedType, SelectedKeyQuery, c.SelectedKey)
 }
+
+func (c *State) HxSelectedSectionVals() string {
+	return fmt.Sprintf("{%q: %q, %q: %q, %q: %q}", SelectedTypeQuery, c.SelectedType, SelectedKeyQuery, c.SelectedKey, SectionQuery, c.Section)
+}

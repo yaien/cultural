@@ -1,16 +1,33 @@
 package pages
 
-import "github.com/yaien/cultural/internal/modules/configs/internal/models"
+import (
+	"fmt"
+	"github.com/yaien/cultural/internal/modules/configs/internal/application/commands"
+	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views/icons"
+	"github.com/yaien/cultural/internal/modules/configs/internal/models"
+)
 
-templ EditStyles(data *State) {
+templ EditStyles(state *State) {
 	{{
 		var source string
-		switch selected := data.Selected.(type) {
+		switch selected := state.Selected.(type) {
 		case *models.Page:
 			source = selected.Styles
 		case *models.Layout:
 			source = selected.Styles
 		}
 	}}
-	<x-editor class="monaco" editor="styles" language="css" value={ source }></x-editor>
+	<x-code-editor
+		class="monaco"
+		language="css"
+		value={ source }
+		hx-patch="/dashboard/pages/source"
+		hx-trigger="change throttle:100ms"
+		hx-vals={ fmt.Sprintf("js:{ modelType: %q, key: %q, sourceType: %q, source: event.detail.value }", state.SelectedType, state.SelectedKey, commands.DraftStylesType) }
+		hx-swap="none"
+	>
+		<div class="spinner">
+			@icons.Spinner()
+		</div>
+	</x-code-editor>
 }

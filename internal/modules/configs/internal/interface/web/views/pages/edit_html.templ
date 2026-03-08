@@ -1,11 +1,14 @@
 package pages
 
 import "github.com/yaien/cultural/internal/modules/configs/internal/models"
+import "github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views/icons"
+import "fmt"
+import "github.com/yaien/cultural/internal/modules/configs/internal/application/commands"
 
-templ EditHTML(data *State) {
+templ EditHTML(state *State) {
 	{{
 		var source string
-		switch selected := data.Selected.(type) {
+		switch selected := state.Selected.(type) {
 		case *models.Page:
 			source = selected.Body
 		case *models.Layout:
@@ -14,5 +17,17 @@ templ EditHTML(data *State) {
 			source = selected.Body
 		}
 	}}
-	<x-editor class="monaco" editor="body" language="html" value={ source }></x-editor>
+	<x-code-editor
+		class="monaco"
+		language="html"
+		value={ source }
+		hx-patch="/dashboard/pages/source"
+		hx-trigger="change throttle:100ms"
+		hx-vals={ fmt.Sprintf("js:{ modelType: %q, key: %q, sourceType: %q, source: event.detail.value }", state.SelectedType, state.SelectedKey, commands.DraftBodyType) }
+		hx-swap="none"
+	>
+		<div class="spinner">
+			@icons.Spinner()
+		</div>
+	</x-code-editor>
 }

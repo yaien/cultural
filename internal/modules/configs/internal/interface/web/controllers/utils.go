@@ -8,9 +8,12 @@ import (
 	"log/slog"
 	"net/http"
 
+	"github.com/gorilla/schema"
 	"github.com/yaien/cultural/internal/modules/configs/internal/application/queries"
 	"github.com/yaien/cultural/internal/modules/configs/internal/models"
 )
+
+var decoder = schema.NewDecoder()
 
 func WriteJSON(w http.ResponseWriter, data any) {
 	w.Header().Set("Content-Type", "application/json")
@@ -63,7 +66,7 @@ func WriteHTMLErr(w http.ResponseWriter, err error) {
 		}
 
 		w.WriteHeader(status)
-		_, err = fmt.Fprintf(w, "<h1>Error: %s</h1>", e.Code)
+		_, err = fmt.Fprintf(w, "<h1>Error: %s - %s</h1>", e.Code, e.Error())
 	default:
 		slog.Error("Internal server error", "err", err.Error())
 		w.WriteHeader(http.StatusInternalServerError)

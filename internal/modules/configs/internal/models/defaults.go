@@ -2,6 +2,8 @@ package models
 
 import (
 	"embed"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 //go:embed templates/*
@@ -46,10 +48,10 @@ var DefaultEmails = map[string]*Email{
 	},
 }
 
-var DefaultColors = map[string]string{
-	"primary":    "#330136",
-	"secondary":  "#FFFFFF",
-	"accent":     "#FF6F61",
-	"background": "#F5F5F5",
-	"text":       "#333333",
+var DefaultColors = Colors{
+	{ID: primitive.NewObjectID(), Tag: "primary", Value: "#330136"},
+	{ID: primitive.NewObjectID(), Tag: "secondary", Value: "#FFFFFF"},
+	{ID: primitive.NewObjectID(), Tag: "accent", Value: "#FF6F61"},
+	{ID: primitive.NewObjectID(), Tag: "background", Value: "#F5F5F5"},
+	{ID: primitive.NewObjectID(), Tag: "text", Value: "#333333"},
 }

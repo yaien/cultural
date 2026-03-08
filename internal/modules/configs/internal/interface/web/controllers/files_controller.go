@@ -5,12 +5,10 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/a-h/templ"
 	"github.com/yaien/cultural/internal/modules/configs/internal/application"
 	"github.com/yaien/cultural/internal/modules/configs/internal/application/commands"
 	"github.com/yaien/cultural/internal/modules/configs/internal/application/queries"
 	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/middlewares"
-	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views/dashboard"
 	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views/pages"
 	"github.com/yaien/cultural/internal/modules/configs/internal/models"
 )
@@ -59,11 +57,8 @@ func (fc *FilesController) Upload(w http.ResponseWriter, r *http.Request) {
 			WriteHTMLErr(w, fmt.Errorf("failed uploading file: %w", err))
 		}
 	}
-
-	templ.Join(
-		pages.FileGrid(files, models.FileURL),
-		dashboard.Toast("Archivos subido correctamente", dashboard.Primary),
-	).Render(ctx, w)
+	w.Header().Set("HX-Trigger", "render")
+	pages.FileGrid(files, models.FileURL).Render(ctx, w)
 
 }
 
@@ -77,8 +72,8 @@ func (fc *FilesController) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Set("HX-Trigger", "deleted")
-	dashboard.Toast("Archivo eliminado correctamente", dashboard.Primary).Render(ctx, w)
+	w.Header().Set("HX-Trigger", "deleted, render")
+	w.WriteHeader(http.StatusOK)
 }
 
 func (fc *FilesController) Download(w http.ResponseWriter, r *http.Request) {
@@ -103,6 +98,7 @@ func (fc *FilesController) Download(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	w.Header().Set("HX-Trigger", "render")
 	WriteFile(w, r, res)
 
 }
@@ -123,7 +119,6 @@ func (fc *FilesController) Rename(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Set("HX-Trigger", "renamed")
-	dashboard.Toast("Archivo renombrado correctamente", dashboard.Primary).Render(ctx, w)
-
+	w.Header().Set("HX-Trigger", "renamed, render")
+	w.WriteHeader(http.StatusOK)
 }

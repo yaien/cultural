@@ -1,27 +1,45 @@
 package pages
 
 import "github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views/icons"
+import "github.com/yaien/cultural/internal/modules/configs/internal/models"
 
 templ Colors(state *State) {
 	<div class="colors">
-		for key, color := range state.Draft.Colors {
-			<div class="color">
-				<x-readable-color color={ color }>
-					<div class="field" style={ "background-color: " + color }>
-						<input value={ key }/>
-						<input value={ color } data-coloris/>
-					</div>
-				</x-readable-color>
-				<small class="hint">
-					@icons.Css()
-					<pre>var(--<span>{ key }</span>-color)</pre>
-				</small>
-			</div>
-		}
+		<div id="colors">
+			for _, color := range state.Draft.Colors {
+				@Color(color)
+			}
+		</div>
 		<div class="actions">
-			<button class="clear">
+			<button class="clear" hx-post="/dashboard/colors" hx-target="#colors" hx-swap="beforeend">
 				@icons.Add()
 			</button>
 		</div>
+	</div>
+}
+
+templ Color(color *models.Color) {
+	<div class="color">
+		<form
+			hx-put={ "/dashboard/colors/" + color.ID.Hex() }
+			hx-trigger="input throttle:100ms"
+			hx-target="next"
+			hx-swap="outerHTML"
+			hx-select=".hint"
+		>
+			<x-color-picker class="field" color={ color.Value }>
+				<input name="tag" autocomplete="off" value={ color.Tag } required/>
+				<input name="value" autocomplete="off" value={ color.Value } data-coloris required/>
+			</x-color-picker>
+		</form>
+		<small class="hint">
+			<div class="css">
+				@icons.Css()
+				<pre>var(--<span>{ color.Tag }</span>-color)</pre>
+			</div>
+			<button class="clear danger" type="button" hx-delete={ "/dashboard/colors/" + color.ID.Hex() } hx-target="closest .color" hx-swap="outerHTML">
+				@icons.Trash()
+			</button>
+		</small>
 	</div>
 }

@@ -72,7 +72,6 @@ func (c *FontsController) Update(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("HX-Trigger", "updated")
-
 	dashboard.Toast("Fuente actualizada correctamente", dashboard.Primary).Render(ctx, w)
 
 }

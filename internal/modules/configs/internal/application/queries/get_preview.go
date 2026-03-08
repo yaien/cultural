@@ -62,7 +62,7 @@ func (q *GetPreviewQuery) GetPreview(ctx context.Context, req *GetPreviewRequest
 	}
 }
 
-func (q *GetPreviewQuery) renderPage(page *models.Page, layout *models.Layout, fonts map[string]*models.Font, colors map[string]string, config *models.Config) (html string, err error) {
+func (q *GetPreviewQuery) renderPage(page *models.Page, layout *models.Layout, fonts models.Fonts, colors models.Colors, config *models.Config) (html string, err error) {
 	data := &models.PageData{
 		Page:                page,
 		Layout:              layout,

@@ -157,6 +157,33 @@ func (c *PagesController) UpdateBasic(w http.ResponseWriter, r *http.Request) {
 
 }
 
+func (c *PagesController) UpdateSource(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	config := ctx.Value(middlewares.ConfigContextKey).(*models.Config)
+
+	if err := r.ParseForm(); err != nil {
+		WriteHTMLErr(w, fmt.Errorf("failed parsing form: %w", err))
+		return
+	}
+
+	req := commands.UpdateDraftSourceRequest{
+		ConfigID:   config.ID,
+		ModelType:  commands.DraftModelType(r.PostForm.Get("modelType")),
+		Key:        r.PostForm.Get("key"),
+		SourceType: commands.DraftSourceType(r.PostForm.Get("sourceType")),
+		Source:     r.PostForm.Get("source"),
+	}
+
+	if err := c.app.UpdateDraftSource(ctx, &req); err != nil {
+		WriteHTMLErr(w, fmt.Errorf("failed updating source: %w", err))
+		return
+	}
+
+	pages.Preview(req.Key, req.ModelType, true).Render(ctx, w)
+
+}
+
 func (c *PagesController) Create(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
@@ -233,4 +260,21 @@ func (c *PagesController) Delete(w http.ResponseWriter, r *http.Request) {
 		dashboard.Toast("Eliminado correctamente", dashboard.Primary),
 	).Render(ctx, w)
 
+}
+
+func (c *PagesController) CommitDraft(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	config := ctx.Value(middlewares.ConfigContextKey).(*models.Config)
+
+	if err := r.ParseForm(); err != nil {
+		WriteHTMLErr(w, fmt.Errorf("failed parsing form: %w", err))
+		return
+	}
+
+	if err := c.app.CommitDraft(ctx, config); err != nil {
+		WriteHTMLErr(w, fmt.Errorf("failed committing draft: %w", err))
+		return
+	}
+
+	dashboard.Toast("La configuración ha sido publicada correctamente", dashboard.Success).Render(ctx, w)
 }

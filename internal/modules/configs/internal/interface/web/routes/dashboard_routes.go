@@ -26,8 +26,10 @@ func dashboard(mono *infrastructure.Monolith, app *application.Application, md *
 		router.HandleFunc("GET /dashboard/pages", ctrl.Index)
 		router.HandleFunc("GET /dashboard/pages/preview", ctrl.Preview)
 		router.HandleFunc("PATCH /dashboard/pages/basic", ctrl.UpdateBasic)
+		router.HandleFunc("PATCH /dashboard/pages/source", ctrl.UpdateSource)
 		router.HandleFunc("POST /dashboard/pages", ctrl.Create)
 		router.HandleFunc("DELETE /dashboard/pages", ctrl.Delete)
+		router.HandleFunc("POST /dashboard/draft/commit", ctrl.CommitDraft)
 	}
 
 	{
@@ -43,6 +45,13 @@ func dashboard(mono *infrastructure.Monolith, app *application.Application, md *
 		ctrl := controllers.NewFontsController(app)
 		router.HandleFunc("GET /dashboard/fonts", ctrl.List)
 		router.HandleFunc("POST /dashboard/fonts", ctrl.Update)
+	}
+
+	{
+		ctrl := controllers.NewColorsController(app)
+		router.HandleFunc("POST /dashboard/colors", ctrl.Create)
+		router.HandleFunc("PUT /dashboard/colors/{id}", ctrl.Update)
+		router.HandleFunc("DELETE /dashboard/colors/{id}", ctrl.Delete)
 	}
 
 	{
