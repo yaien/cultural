@@ -1,32 +1,31 @@
 import loader from "@monaco-editor/loader";
+import Alpine from "alpinejs";
 import type Monaco from "monaco-editor";
 
-class XCodeEditor extends HTMLElement {
-  async connectedCallback() {
-    const language = this.getAttribute("language") || "javascript";
-    const value = this.getAttribute("value") || "";
-    const monaco = (await loader.init()) as typeof Monaco;
+Alpine.data("monaco", ({ language, source = "" }: { language: string; source: string }) => ({
+    loading: true,
+    height: "300px",
+    async init() {
+        this.height = this.$root ? `${this.$root.clientHeight * 0.5}px` : "300px";
 
-    this.innerHTML = "";
-    this.style.height = this.parentElement ? `${this.parentElement.clientHeight * 0.99}px` : "300px";
-    this.style.width = "100%";
-    this.style.display = "block";
+        const monaco = (await loader.init()) as typeof Monaco;
+        const editor = monaco.editor.create(this.$root, {
+            value: source,
+            language,
+            automaticLayout: true,
+            minimap: { enabled: false },
+            lineNumbersMinChars: 1,
+            scrollbar: {
+                vertical: "hidden",
+            },
+        });
 
-    const editor = monaco.editor.create(this, {
-      value,
-      language,
-      automaticLayout: true,
-      minimap: { enabled: false },
-      lineNumbersMinChars: 1,
-      scrollbar: {
-        vertical: "hidden",
-      },
-    });
-    editor.onDidChangeModelContent(() => {
-      const value = editor.getValue();
-      this.dispatchEvent(new CustomEvent("change", { detail: { value } }));
-    });
-  }
-}
+        editor.onDidChangeModelContent(() => {
+            const value = editor.getValue();
+            console.log(value);
+            this.$dispatch("input", { value });
+        });
 
-customElements.define("x-code-editor", XCodeEditor);
+        this.loading = false;
+    },
+}));

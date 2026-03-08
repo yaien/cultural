@@ -12,22 +12,24 @@ templ Files(state *State) {
 		{{ return }}
 	}
 	<div class="grow files">
-		<div class="actions">
+		<div class="actions" x-data="progress">
 			<form
 				hx-trigger="change changed"
 				hx-post="/dashboard/files"
 				hx-target="#files"
 				hx-swap="afterbegin"
 				hx-encoding="multipart/form-data"
+				@htmx:xhr:progress="progress($event)"
 			>
-				<x-file-input name="files" accept="image/*,video/*" multiple>
-					<button type="button" class="clear">
-						@icons.Add()
-					</button>
-				</x-file-input>
-				<div class="progress">
-					<div class="progress-value"></div>
-				</div>
+				<input type="file" x-ref="input" hidden name="files" accept="image/*,video/*" multiple/>
+				<button type="button" @click="$refs.input.click()" class="clear">
+					@icons.Add()
+				</button>
+				<template x-if="loading">
+					<div class="progress-bar">
+						<div class="progress-bar-value" :style="{ width: percent + '%' }"></div>
+					</div>
+				</template>
 			</form>
 		</div>
 		<x-scrollable scale="0.929">

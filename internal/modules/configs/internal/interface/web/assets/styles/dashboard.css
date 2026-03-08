@@ -635,4 +635,5 @@ tbody tr.htmx-swapping {
     background: var(--primary-color);
     height: 100%;
     transition: width var(--transition-duration) ease;
+    border-radius: var(--border-radius);
 }

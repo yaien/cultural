@@ -1,14 +1,14 @@
 import "htmx.org";
 
-import "./elements/x-toggler";
-import "./elements/x-hover-play";
 import "./elements/x-color-picker";
 import "./elements/x-file-size";
 import "./elements/x-file-input";
-import "./elements/x-scrollable";
 import "./elements/x-font";
 import "./elements/x-code-editor";
 
 import "./styles/dashboard.css";
 import "./styles/pages.css";
 import "./styles/roles.css";
+
+import Alpine from "alpinejs";
+Alpine.start();

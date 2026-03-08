@@ -45,9 +45,7 @@ templ File(state *State) {
 						<tr>
 							<td>{ format.Variant }</td>
 							<td>{ format.Width }x{ format.Height }</td>
-							<td>
-								<x-file-size size={ format.Size }></x-file-size>
-							</td>
+							<td x-data={ fmt.Sprintf("filesize(%d)", format.Size) } x-text="size"></td>
 							<td>{ format.ContentType }</td>
 						</tr>
 					}

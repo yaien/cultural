@@ -16,10 +16,8 @@ templ Fonts(state *State) {
 					hx-push-url="true"
 					hx-vals={ fmt.Sprintf("{%q:%q,%q:%q}", SectionQuery, BrowseFontsSection, FontKeyQuery, key) }
 				>
-					<div class="preview">
-						<x-font family={ font.Family } url={ font.Files["regular"] }>
-							{ font.Family }
-						</x-font>
+					<div class="preview" x-data={ fmt.Sprintf("font({ family: %q, url: %q })", font.Family, font.Files["regular"]) } :style="style">
+						{ font.Family }
 					</div>
 					<span>{ key }</span>
 				</div>

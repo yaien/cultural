@@ -30,11 +30,9 @@ templ ConfigureFont(state *State) {
 					Volver
 				</button>
 			</div>
-			<x-font family={ font.Family } url={ font.Files["regular"] } style="">
-				<h1>
-					{ font.Family }
-				</h1>
-			</x-font>
+			<h1 class="preview" x-data={ fmt.Sprintf("font({ family: %q, url: %q })", font.Family, font.Files["regular"]) } :style="style">
+				{ font.Family }
+			</h1>
 			<form hx-post="/dashboard/fonts" hx-swap="none">
 				<small>
 					Use "primary" para cambiar la fuente base de la página o "headings" para cambiar los
@@ -42,7 +40,7 @@ templ ConfigureFont(state *State) {
 				</small>
 				<fieldset>
 					<legend>Tag</legend>
-					<input name="tag" required value={ state.SelectedFontKey }/>
+					<input name="tag" autocomplete="off" required value={ state.SelectedFontKey }/>
 				</fieldset>
 				<input type="hidden" name="family" value={ font.Family }/>
 				<div class="actions">

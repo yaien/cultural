@@ -33,14 +33,12 @@ templ BrowseFonts(state *State) {
 				placeholder="Buscar fuente"
 				hx-trigger="input changed delay:500ms"
 				hx-get={ fmt.Sprintf("/dashboard/fonts?limit=%d&offset=%d", limit, 0) }
-				hx-target="x-scrollable"
+				hx-target=".scrollable"
 				hx-indicator=".fonts"
 			/>
 		</fieldset>
 		<div class="scrollable" hx-vals={ fmt.Sprintf("{%q:%q, %q:%q}", SectionQuery, ConfigureFontSection, FontKeyQuery, state.SelectedFontKey) }>
-			<x-scrollable scale="0.95">
-				@FontList(fonts, "", limit, limit)
-			</x-scrollable>
+			@FontList(fonts, "", limit, limit)
 		</div>
 		<div class="spinner htmx-indicator">
 			@icons.Spinner()
@@ -49,26 +47,31 @@ templ BrowseFonts(state *State) {
 }
 
 templ FontList(fonts []*models.Font, family string, limit int64, offset int64) {
-	for _, font := range fonts {
+	for index, font := range fonts {
 		<div
 			class="font"
-			hx-get={ Path }
-			hx-target={ "#" + EditorID }
-			hx-swap="outerHTML"
-			hx-vals={ fmt.Sprintf("{ %q: %q }", FontQuery, font.Family) }
-			hx-push-url="true"
+			if index == len(fonts) - 1 {
+				hx-get={ fmt.Sprintf("/dashboard/fonts?limit=%d&offset=%d&family=%s", limit, offset, family) }
+				hx-trigger="intersect once "
+				hx-swap="afterend"
+				hx-indicator=".fonts"
+			}
 		>
-			<div class="preview">
-				<x-font family={ font.Family } url={ font.Files["regular"] }>
+			<div
+				hx-get={ Path }
+				hx-target={ "#" + EditorID }
+				hx-swap="outerHTML"
+				hx-vals={ fmt.Sprintf("{ %q: %q }", FontQuery, font.Family) }
+				hx-push-url="true"
+			>
+				<div
+					class="preview"
+					x-data={ fmt.Sprintf("font({ family: %q, url: %q })", font.Family, font.Files["regular"]) }
+					:style="style"
+				>
 					{ font.Family }
-				</x-font>
+				</div>
 			</div>
 		</div>
 	}
-	<div
-		hx-get={ fmt.Sprintf("/dashboard/fonts?limit=%d&offset=%d&family=%s", limit, offset, family) }
-		hx-trigger="intersect once"
-		hx-swap="afterend"
-		hx-indicator=".fonts"
-	></div>
 }

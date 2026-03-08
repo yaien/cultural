@@ -14,17 +14,17 @@ templ Page(title string) {
 		<head>
 			@Head(title)
 		</head>
-		<body>
+		<body x-data="{ open: false }" :class="{ open }">
 			<header>
 				<div class="start">
-					<x-toggler target="body" toggle="open">
-						<button class="toggle">
+					<button class="toggle" @click="open = !open">
+						<template x-if="!open">
 							@icons.Menu()
-						</button>
-						<button slot="toggled" class="toggle">
+						</template>
+						<template x-if="open">
 							@icons.Close()
-						</button>
-					</x-toggler>
+						</template>
+					</button>
 					<div class="title">
 						<h3>{ title }</h3>
 					</div>

@@ -1,11 +1,6 @@
 import { filesize } from "filesize";
+import Alpine from "alpinejs";
 
-class XFileSize extends HTMLElement {
-    connectedCallback() {
-        const size = this.getAttribute("size");
-        if (!size) return;
-        this.innerHTML = filesize(size);
-    }
-}
-
-customElements.define("x-file-size", XFileSize);
+Alpine.data("filesize", (size: string) => ({
+    size: filesize(size),
+}));
