@@ -27,7 +27,6 @@
     <link rel="stylesheet" href="{{ printf `/assets/landing/styles/layouts/%s.css` .Page.Layout }}" />
     {{end}}
 
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.8/dist/htmx.min.js"></script>
     <!-- -->
     {{if .InlineScript}}
@@ -38,6 +37,8 @@
     <script defer src="{{ printf `/assets/landing/scripts/pages/%s.js` .Page.Name }}"></script>
     <script defer src="{{ printf `/assets/landing/scripts/layouts/%s.js` .Page.Layout }}"></script>
     {{end}}
+
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
   </head>
 
   <body>
