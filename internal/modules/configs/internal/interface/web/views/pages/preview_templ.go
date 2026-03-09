@@ -44,7 +44,7 @@ func Preview(key string, typ SelectedType, swap bool) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\" @render.window=\"render()\"><div class=\"resizeable\"><iframe x-ref=\"iframe\" :srcdoc=\"srcdoc\"></iframe></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\" @render.window.debounce.1s=\"render()\"><div class=\"resizeable\"><iframe x-ref=\"iframe\" :srcdoc=\"srcdoc\"></iframe></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
