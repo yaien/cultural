@@ -15,12 +15,7 @@ Alpine.data("preview", (src: string) => ({
     async render() {
         this.loading = true;
         const res = await fetch(this.src);
-        const iframe = this.$refs.iframe as HTMLIFrameElement;
-        if (iframe && iframe.contentDocument) {
-            const doc = iframe.contentDocument.open();
-            doc.write(await res.text());
-            doc.close();
-        }
+        this.srcdoc = await res.text();
         this.loading = false;
     },
 }));
