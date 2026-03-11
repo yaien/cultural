@@ -10,13 +10,14 @@ import (
 )
 
 type Config struct {
-	MongoDB MongoDBConfig
-	Server  ServerConfig
-	Init    InitConfig
-	Session SessionConfig
-	Google  GoogleConfig
-	Storage StorageConfig
-	Mail    MailConfig
+	MongoDB   MongoDBConfig
+	Server    ServerConfig
+	Init      InitConfig
+	Session   SessionConfig
+	Google    GoogleConfig
+	Instagram InstagramConfig
+	Storage   StorageConfig
+	Mail      MailConfig
 }
 
 type MongoDBConfig struct {
@@ -45,6 +46,11 @@ type GoogleConfig struct {
 	ClientID     string
 	ClientSecret string
 	APIKey       string
+}
+
+type InstagramConfig struct {
+	ClientID     string
+	ClientSecret string
 }
 
 type InitConfig struct {
@@ -106,6 +112,10 @@ func LoadConfig() *Config {
 			ClientID:     viper.GetString("GOOGLE_CLIENT_ID"),
 			ClientSecret: viper.GetString("GOOGLE_CLIENT_SECRET"),
 			APIKey:       viper.GetString("GOOGLE_API_KEY"),
+		},
+		Instagram: InstagramConfig{
+			ClientID:     viper.GetString("INSTAGRAM_CLIENT_ID"),
+			ClientSecret: viper.GetString("INSTAGRAM_CLIENT_SECRET"),
 		},
 		Storage: StorageConfig{
 			Provider: viper.GetString("STORAGE_PROVIDER"),

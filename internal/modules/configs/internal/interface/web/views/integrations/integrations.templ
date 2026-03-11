@@ -1,0 +1,44 @@
+package integrations
+
+import "github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views/dashboard"
+import "github.com/yaien/cultural/internal/modules/configs/internal/interface/integration"
+import "github.com/yaien/cultural/internal/modules/configs/internal/models"
+
+templ Page() {
+	@dashboard.Page("Integraciones") {
+		<div class="container single" data-scope="integrations">
+			<div class="list">
+				for _, integration := range integration.Definitions {
+					<a class="list-item" href={ "/dashboard/integrations/" + integration.Path } hx-boost="true">
+						<img class="list-image" src={ "/assets/static/dashboard/images/" + integration.Image } alt={ integration.Name }/>
+						<div class="list-content">
+							<h3 class="list-title">{ integration.Name }</h3>
+							<p class="list-text">{ integration.Description }</p>
+						</div>
+					</a>
+				}
+			</div>
+		</div>
+	}
+}
+
+templ Header(integration *integration.Definition) {
+	<div class="list-item">
+		<img class="list-image" src={ "/assets/static/dashboard/images/" + integration.Image } alt={ integration.Name }/>
+		<div class="list-content">
+			<h3 class="list-title">{ integration.Name }</h3>
+			<p class="list-text">{ integration.Description }</p>
+		</div>
+	</div>
+}
+
+templ Integration(definition *integration.Definition, intgr *models.Integration) {
+	@dashboard.Page(definition.Name) {
+		<div class="container single" data-scope="integrations">
+			@Header(definition)
+			<div class="content">
+				@definition.PageSection(intgr)
+			</div>
+		</div>
+	}
+}

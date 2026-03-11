@@ -70,6 +70,14 @@ func dashboard(mono *infrastructure.Monolith, app *application.Application, md *
 	}
 
 	{
+		ctrl := controllers.NewIntegrationController(app)
+		router.HandleFunc("GET /dashboard/integrations", ctrl.Index)
+		router.HandleFunc("GET /dashboard/integrations/{integration}", ctrl.Integration)
+		router.HandleFunc("GET /dashboard/integrations/{provider}/oauth/connect", ctrl.OauthConnect)
+		router.HandleFunc("GET /dashboard/integrations/{provider}/oauth/callback", ctrl.OauthCallback)
+	}
+
+	{
 		ctrl := controllers.NewProductsController(app)
 		router.HandleFunc("GET /dashboard/products", ctrl.Index)
 	}

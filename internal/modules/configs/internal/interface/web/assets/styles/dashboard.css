@@ -419,6 +419,11 @@ div[role="group"] button:last-child {
     padding: 1rem;
 }
 
+.container.single {
+    max-width: min(600px, 90%);
+    margin: auto;
+}
+
 /* Table Styles */
 table {
     border-collapse: collapse;
