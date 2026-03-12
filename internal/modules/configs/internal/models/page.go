@@ -41,10 +41,12 @@ type PageData struct {
 	Layout              *Layout
 	Fonts               Fonts
 	Colors              Colors
+	Funcs               template.FuncMap
 	Version             int64
 }
 
 func (c *PageData) FileURL(name string, variant ...int) string {
+
 	return c.FileURLFunc(name, variant...)
 }
 
@@ -230,7 +232,7 @@ func RenderPage(data *PageData) (string, error) {
 		return "", fmt.Errorf("layout data is nil")
 	}
 
-	parsed, err := base.Parse(fmt.Sprintf(`{{define "layout_body"}}%s{{end}}{{define "page_body"}}%s{{end}}`, data.Layout.Body, data.Page.Body))
+	parsed, err := base.Funcs(data.Funcs).Parse(fmt.Sprintf(`{{define "layout_body"}}%s{{end}}{{define "page_body"}}%s{{end}}`, data.Layout.Body, data.Page.Body))
 	if err != nil {
 		return "", fmt.Errorf("failed parsing template: %w", err)
 	}

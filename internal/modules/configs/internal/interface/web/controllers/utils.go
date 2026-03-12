@@ -8,12 +8,9 @@ import (
 	"log/slog"
 	"net/http"
 
-	"github.com/gorilla/schema"
 	"github.com/yaien/cultural/internal/modules/configs/internal/application/queries"
 	"github.com/yaien/cultural/internal/modules/configs/internal/models"
 )
-
-var decoder = schema.NewDecoder()
 
 func WriteJSON(w http.ResponseWriter, data any) {
 	w.Header().Set("Content-Type", "application/json")

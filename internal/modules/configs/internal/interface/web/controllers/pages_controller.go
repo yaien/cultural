@@ -151,7 +151,7 @@ func (c *PagesController) UpdateBasic(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("HX-trigger", "render")
-	dashboard.Toast("Cambios guardados correctamente", dashboard.Primary).Render(ctx, w)
+	_ = dashboard.Toast("Cambios guardados correctamente", dashboard.Primary).Render(ctx, w)
 
 }
 
@@ -179,7 +179,7 @@ func (c *PagesController) UpdateSource(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("HX-trigger", "render")
-	pages.Preview(req.Key, req.ModelType, true).Render(ctx, w)
+	_ = pages.Preview(req.Key, req.ModelType, true).Render(ctx, w)
 
 }
 
@@ -216,7 +216,7 @@ func (c *PagesController) Create(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("HX-Push-URL", fmt.Sprintf("%s?type=%s&key=%s&section=?", pages.Path, req.Type, req.Name))
 
-	templ.Join(
+	_ = templ.Join(
 		pages.Content(state),
 		dashboard.Toast("Creado correctamente", dashboard.Primary),
 	).Render(ctx, w)
@@ -254,7 +254,7 @@ func (c *PagesController) Delete(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("HX-Push-URL", fmt.Sprintf("%s?type=%s&key=%s&section=?", pages.Path, req.Type, res.DefaultModelName))
 
-	templ.Join(
+	_ = templ.Join(
 		pages.Content(state),
 		dashboard.Toast("Eliminado correctamente", dashboard.Primary),
 	).Render(ctx, w)
@@ -275,5 +275,5 @@ func (c *PagesController) CommitDraft(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	dashboard.Toast("La configuración ha sido publicada correctamente", dashboard.Success).Render(ctx, w)
+	_ = dashboard.Toast("La configuración ha sido publicada correctamente", dashboard.Success).Render(ctx, w)
 }

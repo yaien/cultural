@@ -5,6 +5,7 @@ import (
 
 	"github.com/yaien/cultural/internal/modules/configs/internal/models"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -28,9 +29,9 @@ func (i *IntegrationRepository[T]) Update(ctx context.Context, integration *mode
 	return err
 }
 
-func (i *IntegrationRepository[T]) Get(ctx context.Context, options models.GetIntegrationOptions) (*models.Integration[T], error) {
+func (i *IntegrationRepository[T]) GetByOrganizationIDAndName(ctx context.Context, organizationID primitive.ObjectID, name string) (*models.Integration[T], error) {
 	var integration models.Integration[T]
-	err := i.collection.FindOne(ctx, bson.M{"organizationId": options.OrganizationID, "name": options.Name}).Decode(&integration)
+	err := i.collection.FindOne(ctx, bson.M{"organizationId": organizationID, "name": name}).Decode(&integration)
 	if err != nil {
 		return nil, translate(err)
 	}

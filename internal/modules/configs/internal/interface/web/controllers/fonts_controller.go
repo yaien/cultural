@@ -47,7 +47,7 @@ func (c *FontsController) List(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	pages.FontList(fonts, family, limit, offset+limit).Render(r.Context(), w)
+	_ = pages.FontList(fonts, family, limit, offset+limit).Render(r.Context(), w)
 
 }
 

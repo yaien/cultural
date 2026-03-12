@@ -36,13 +36,6 @@ templ Detail(definitions []models.IntegrationDefinition, def models.IntegrationD
 
 templ Modal(def models.IntegrationDefinition, page templ.Component) {
 	@dashboard.Modal(def.Title(), templ.Attributes{"hx-push-url": "/dashboard/integrations"}) {
-		<div class="list-item">
-			<img class="list-image" src={ "/assets/static/dashboard/images/" + def.Image() } alt={ def.Name() }/>
-			<div class="list-content">
-				<h3 class="list-title">{ def.Title() }</h3>
-				<p class="list-text">{ def.Description() }</p>
-			</div>
-		</div>
 		@page
 	}
 }

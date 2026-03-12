@@ -46,4 +46,11 @@
         max-width: 70px;
         max-height: 70px;
     }
+
+    .actions {
+        display: flex;
+        gap: 0.5rem;
+        justify-content: center;
+        margin: 1rem;
+    }
 }

@@ -2,6 +2,7 @@ package models
 
 import (
 	"context"
+	"text/template"
 	"time"
 
 	"github.com/a-h/templ"
@@ -25,7 +26,7 @@ type GetIntegrationOptions struct {
 type IntegrationRepository[T any] interface {
 	Create(ctx context.Context, i *Integration[T]) error
 	Update(ctx context.Context, i *Integration[T]) error
-	Get(ctx context.Context, options GetIntegrationOptions) (*Integration[T], error)
+	GetByOrganizationIDAndName(ctx context.Context, organizationID primitive.ObjectID, name string) (*Integration[T], error)
 }
 
 type IntegrationDefinition interface {
@@ -39,6 +40,10 @@ type IntegrationDefinition interface {
 type IntegrationOAuth interface {
 	OAuthCodeURL(ctx context.Context, config *Config) (url string, err error)
 	OAuthExchange(ctx context.Context, config *Config, code string) error
+}
+
+type IntegrationTemplateFuncMap interface {
+	TemplateFuncMap(ctx context.Context, config *Config) template.FuncMap
 }
 
 type IntegrationRegistry struct {

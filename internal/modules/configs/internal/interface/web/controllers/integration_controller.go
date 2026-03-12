@@ -20,7 +20,7 @@ func NewIntegrationController(app *application.Application, registry *models.Int
 }
 
 func (c *IntegrationController) Index(w http.ResponseWriter, r *http.Request) {
-	integrations.Page(c.registry.All()).Render(r.Context(), w)
+	_ = integrations.Page(c.registry.All()).Render(r.Context(), w)
 }
 
 func (c *IntegrationController) Integration(w http.ResponseWriter, r *http.Request) {
