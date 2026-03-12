@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
-	"time"
 
 	"golang.org/x/oauth2"
 )
@@ -137,12 +136,12 @@ type Child struct {
 }
 
 type Post struct {
-	ID        string    `json:"id" bson:"id"`
-	Caption   string    `json:"caption" bson:"caption"`
-	MediaURL  string    `json:"media_url" bson:"mediaUrl"`
-	Timestamp time.Time `json:"timestamp" bson:"timestamp"`
-	MediaType string    `json:"media_type" bson:"mediaType"`
-	Permalink string    `json:"permalink" bson:"permalink"`
+	ID        string `json:"id" bson:"id"`
+	Caption   string `json:"caption" bson:"caption"`
+	MediaURL  string `json:"media_url" bson:"mediaUrl"`
+	Timestamp string `json:"timestamp" bson:"timestamp"`
+	MediaType string `json:"media_type" bson:"mediaType"`
+	Permalink string `json:"permalink" bson:"permalink"`
 	Children  *struct {
 		Data []Child `json:"data" bson:"data"`
 	} `json:"children,omitempty" bson:"children,omitempty"`
