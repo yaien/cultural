@@ -8,30 +8,28 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-var _ models.IntegrationRepository = (*IntegrationRepository)(nil)
+var _ models.IntegrationRepository[any] = (*IntegrationRepository[any])(nil)
 
-type IntegrationRepository struct {
+type IntegrationRepository[T any] struct {
 	collection *mongo.Collection
 }
 
-func NewIntegrationRepository(db *mongo.Database) *IntegrationRepository {
-	return &IntegrationRepository{db.Collection("integrations")}
+func NewIntegrationRepository[T any](db *mongo.Database) *IntegrationRepository[T] {
+	return &IntegrationRepository[T]{db.Collection("integrations")}
 }
 
-func (i *IntegrationRepository) Create(ctx context.Context, integration *models.Integration) error {
+func (i *IntegrationRepository[T]) Create(ctx context.Context, integration *models.Integration[T]) error {
 	_, err := i.collection.InsertOne(ctx, integration)
 	return err
 }
 
-func (i *IntegrationRepository) Update(ctx context.Context, integration *models.Integration) error {
+func (i *IntegrationRepository[T]) Update(ctx context.Context, integration *models.Integration[T]) error {
 	_, err := i.collection.UpdateOne(ctx, bson.M{"_id": integration.ID}, bson.M{"$set": integration})
 	return err
 }
 
-func (i *IntegrationRepository) Get(ctx context.Context, options models.GetIntegrationOptions) (*models.Integration, error) {
-	var integration models.Integration
-	integration.Data = options.Data
-
+func (i *IntegrationRepository[T]) Get(ctx context.Context, options models.GetIntegrationOptions) (*models.Integration[T], error) {
+	var integration models.Integration[T]
 	err := i.collection.FindOne(ctx, bson.M{"organizationId": options.OrganizationID, "name": options.Name}).Decode(&integration)
 	if err != nil {
 		return nil, translate(err)

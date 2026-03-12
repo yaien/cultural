@@ -1,11 +1,14 @@
 package dashboard
 
-templ Modal(title string) {
+templ Modal(title string, attrs ...templ.Attributes) {
 	<div
 		class="modal open"
 		hx-trigger="click target:.modal, click from:.modal-close, keyup[key == 'Escape'] from:window"
 		hx-get={ templ.URL("/dashboard/empty") }
 		hx-swap="outerHTML swap:100ms"
+		if len(attrs) > 0 {
+			{ attrs[0]... }
+		}
 	>
 		<div class="modal-content">
 			<div class="modal-header">

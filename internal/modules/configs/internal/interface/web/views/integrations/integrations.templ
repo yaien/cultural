@@ -1,44 +1,48 @@
 package integrations
 
 import "github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views/dashboard"
-import "github.com/yaien/cultural/internal/modules/configs/internal/interface/integration"
 import "github.com/yaien/cultural/internal/modules/configs/internal/models"
 
-templ Page() {
+templ Page(definitions []models.IntegrationDefinition) {
 	@dashboard.Page("Integraciones") {
-		<div class="container single" data-scope="integrations">
+		<div class="container single" data-scope="integrations" id="container">
 			<div class="list">
-				for _, integration := range integration.Definitions {
-					<a class="list-item" href={ "/dashboard/integrations/" + integration.Path } hx-boost="true">
-						<img class="list-image" src={ "/assets/static/dashboard/images/" + integration.Image } alt={ integration.Name }/>
+				for _, def := range definitions {
+					<div
+						class="list-item"
+						hx-get={ "/dashboard/integrations/" + def.Name() }
+						hx-target="#container"
+						hx-swap="beforeend"
+						hx-push-url="true"
+					>
+						<img class="list-image" src={ "/assets/static/dashboard/images/" + def.Image() } alt={ def.Name() }/>
 						<div class="list-content">
-							<h3 class="list-title">{ integration.Name }</h3>
-							<p class="list-text">{ integration.Description }</p>
+							<h3 class="list-title">{ def.Title() }</h3>
+							<p class="list-text">{ def.Description() }</p>
 						</div>
-					</a>
+					</div>
 				}
 			</div>
+			{ children... }
 		</div>
 	}
 }
 
-templ Header(integration *integration.Definition) {
-	<div class="list-item">
-		<img class="list-image" src={ "/assets/static/dashboard/images/" + integration.Image } alt={ integration.Name }/>
-		<div class="list-content">
-			<h3 class="list-title">{ integration.Name }</h3>
-			<p class="list-text">{ integration.Description }</p>
-		</div>
-	</div>
+templ Detail(definitions []models.IntegrationDefinition, def models.IntegrationDefinition, page templ.Component) {
+	@Page(definitions) {
+		@Modal(def, page)
+	}
 }
 
-templ Integration(definition *integration.Definition, intgr *models.Integration) {
-	@dashboard.Page(definition.Name) {
-		<div class="container single" data-scope="integrations">
-			@Header(definition)
-			<div class="content">
-				@definition.PageSection(intgr)
+templ Modal(def models.IntegrationDefinition, page templ.Component) {
+	@dashboard.Modal(def.Title(), templ.Attributes{"hx-push-url": "/dashboard/integrations"}) {
+		<div class="list-item">
+			<img class="list-image" src={ "/assets/static/dashboard/images/" + def.Image() } alt={ def.Name() }/>
+			<div class="list-content">
+				<h3 class="list-title">{ def.Title() }</h3>
+				<p class="list-text">{ def.Description() }</p>
 			</div>
 		</div>
+		@page
 	}
 }

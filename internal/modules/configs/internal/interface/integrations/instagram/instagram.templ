@@ -1,8 +1,8 @@
-package integration
+package instagram
 
 import "github.com/yaien/cultural/internal/modules/configs/internal/models"
 
-templ InstagramPage(integration *models.Integration) {
+templ Page(i *models.Integration[Data]) {
 	<div class="content">
 		<a href="/dashboard/integrations/instagram/oauth/connect">
 			Connect Instagram

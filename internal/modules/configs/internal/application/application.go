@@ -22,7 +22,6 @@ type Application struct {
 	*queries.GetFilesQuery
 	*queries.GetDraftByConfigIDQuery
 	*queries.GetPreviewQuery
-	*queries.GetIntegrationQuery
 
 	*commands.CreateInvitationCommand
 	*commands.SyncUserCommand
@@ -41,7 +40,6 @@ type Application struct {
 	*commands.CreateDraftModelCommand
 	*commands.DeleteDraftModelCommand
 	*commands.CommitDraftCommand
-	*commands.SaveIntegrationCommand
 }
 
 type Deps struct {
@@ -54,7 +52,6 @@ type Deps struct {
 	Fonts         models.FontRepository
 	Files         models.FileRepository
 	Drafts        models.DraftRepository
-	Integrations  models.IntegrationRepository
 	Cache         *cache.Cache[*models.Config]
 	Queue         *worker.Queue
 	Mail          mail.Mail
@@ -74,7 +71,6 @@ func New(deps Deps) *Application {
 		queries.NewGetFilesQuery(deps.Files),
 		queries.NewGetDraftByConfigIDQuery(deps.Drafts),
 		queries.NewGetPreviewQuery(deps.Drafts),
-		queries.NewGetIntegrationQuery(deps.Integrations),
 
 		commands.NewCreateInvitationCommand(deps.Invitations, deps.Organizations, deps.Configs, deps.Roles, deps.Groups, deps.Mail),
 		commands.NewSyncUserCommand(deps.Users),
@@ -93,6 +89,5 @@ func New(deps Deps) *Application {
 		commands.NewCreateDraftModelCommand(deps.Drafts),
 		commands.NewDeleteDraftModelCommand(deps.Drafts),
 		commands.NewCommitDraftCommand(deps.Configs, deps.Drafts, deps.Cache),
-		commands.NewSaveIntegrationCommand(deps.Integrations),
 	}
 }

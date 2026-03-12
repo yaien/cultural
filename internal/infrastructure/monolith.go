@@ -12,7 +12,6 @@ import (
 	"github.com/markbates/goth"
 	"github.com/markbates/goth/gothic"
 	"github.com/markbates/goth/providers/google"
-	"github.com/markbates/goth/providers/instagram"
 	"github.com/yaien/cultural/internal/library/mail"
 	"github.com/yaien/cultural/internal/library/storage"
 	"github.com/yaien/cultural/internal/library/worker"
@@ -21,16 +20,17 @@ import (
 )
 
 type Monolith struct {
-	Config       *Config
-	MongoDB      *mongo.Database
-	MongoClient  *mongo.Client
-	Router       *http.ServeMux
-	WebRouter    *http.ServeMux
-	SessionStore sessions.Store
-	Mail         mail.Mail
-	Storage      storage.Storage
-	Queue        *worker.Queue
-	Worker       *worker.Worker
+	Config          *Config
+	MongoDB         *mongo.Database
+	MongoClient     *mongo.Client
+	Router          *http.ServeMux
+	WebRouter       *http.ServeMux
+	DashboardRouter *http.ServeMux
+	SessionStore    sessions.Store
+	Mail            mail.Mail
+	Storage         storage.Storage
+	Queue           *worker.Queue
+	Worker          *worker.Worker
 }
 
 func NewMonolith() *Monolith {
@@ -46,6 +46,7 @@ func NewMonolith() *Monolith {
 	m.Storage = setupStorage(config)
 	m.Router = http.NewServeMux()
 	m.WebRouter = http.NewServeMux()
+	m.DashboardRouter = http.NewServeMux()
 
 	stream := worker.NewMemoryStream()
 	store := worker.NewMongoStore(m.MongoDB, "")
@@ -68,7 +69,6 @@ func setupOauthProviders(config *Config) {
 
 	goth.UseProviders(
 		google.New(config.Google.ClientID, config.Google.ClientSecret, config.Server.URL+"/auth/google/callback", "email", "profile"),
-		instagram.New(config.Instagram.ClientID, config.Instagram.ClientSecret, config.Server.URL+"/dashboard/integrations/instagram/callback", "user_profile", "user_media"),
 	)
 }
 

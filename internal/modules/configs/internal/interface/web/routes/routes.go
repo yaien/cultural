@@ -4,11 +4,12 @@ import (
 	"github.com/yaien/cultural/internal/infrastructure"
 	"github.com/yaien/cultural/internal/modules/configs/internal/application"
 	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/middlewares"
+	"github.com/yaien/cultural/internal/modules/configs/internal/models"
 )
 
-func Register(mono *infrastructure.Monolith, app *application.Application, md *middlewares.Middlewares) {
+func Register(mono *infrastructure.Monolith, app *application.Application, md *middlewares.Middlewares, reg *models.IntegrationRegistry) {
 	auth(mono, app)
 	external(mono, app)
 	invitations(mono, app, md)
-	dashboard(mono, app, md)
+	dashboard(mono, app, md, reg)
 }

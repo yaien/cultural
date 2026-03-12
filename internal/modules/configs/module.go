@@ -9,6 +9,7 @@ import (
 	"github.com/yaien/cultural/internal/modules/configs/internal/application"
 	"github.com/yaien/cultural/internal/modules/configs/internal/interface/handlers"
 	_ "github.com/yaien/cultural/internal/modules/configs/internal/interface/migrations"
+
 	"github.com/yaien/cultural/internal/modules/configs/internal/interface/repositories"
 	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web"
 	"github.com/yaien/cultural/internal/modules/configs/internal/models"
@@ -30,7 +31,6 @@ func (m *Module) Init(mono *infrastructure.Monolith) error {
 		Fonts:         repositories.NewFontRepository(mono.MongoDB),
 		Files:         repositories.NewFileRepository(mono.MongoDB),
 		Drafts:        repositories.NewDraftRepository(mono.MongoDB),
-		Integrations:  repositories.NewIntegrationRepository(mono.MongoDB),
 		Cache:         cache.New[*models.Config](time.Hour),
 		Mail:          mono.Mail,
 		Storage:       mono.Storage,

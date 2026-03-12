@@ -26,8 +26,11 @@ type MongoDBConfig struct {
 }
 
 type ServerConfig struct {
-	Addr string
-	URL  string
+	Addr     string
+	URL      string
+	TLS      bool
+	KeyFile  string
+	CertFile string
 }
 
 type SessionConfig struct {
@@ -83,8 +86,11 @@ type MailtrapMailConfig struct {
 func LoadConfig() *Config {
 	return &Config{
 		Server: ServerConfig{
-			Addr: viper.GetString("SERVER_ADDR"),
-			URL:  viper.GetString("SERVER_URL"),
+			Addr:     viper.GetString("SERVER_ADDR"),
+			URL:      viper.GetString("SERVER_URL"),
+			TLS:      viper.GetBool("SERVER_TLS"),
+			CertFile: viper.GetString("SERVER_CERT_FILE"),
+			KeyFile:  viper.GetString("SERVER_KEY_FILE"),
 		},
 		Init: InitConfig{
 			Host:  viper.GetString("INIT_HOST"),

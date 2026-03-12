@@ -62,10 +62,26 @@ func serve() *cobra.Command {
 				mono.Worker.Wait()
 			}()
 
+			if mono.Config.Server.TLS {
+				err = http.ListenAndServeTLS(
+					mono.Config.Server.Addr,
+					mono.Config.Server.CertFile,
+					mono.Config.Server.KeyFile,
+					mono.Router,
+				)
+
+				if err != nil {
+					log.Fatal("Failed to start server:", err)
+				}
+
+				return
+			}
+
 			err = http.ListenAndServe(mono.Config.Server.Addr, mono.Router)
 			if err != nil {
 				log.Fatal("Failed to start server:", err)
 			}
+
 		},
 	}
 
