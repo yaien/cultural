@@ -39,7 +39,6 @@ type Application struct {
 	*commands.DeleteDraftColorCommand
 	*commands.CreateDraftModelCommand
 	*commands.DeleteDraftModelCommand
-
 	*commands.CommitDraftCommand
 }
 
@@ -55,6 +54,7 @@ type Deps struct {
 	Drafts        models.DraftRepository
 	Cache         *cache.Cache[*models.Config]
 	Queue         *worker.Queue
+	Registry      *models.IntegrationRegistry
 	Mail          mail.Mail
 	Storage       storage.Storage
 }
@@ -71,7 +71,7 @@ func New(deps Deps) *Application {
 		queries.NewGetFileQuery(deps.Files),
 		queries.NewGetFilesQuery(deps.Files),
 		queries.NewGetDraftByConfigIDQuery(deps.Drafts),
-		queries.NewGetPreviewQuery(deps.Drafts),
+		queries.NewGetPreviewQuery(deps.Drafts, deps.Registry),
 
 		commands.NewCreateInvitationCommand(deps.Invitations, deps.Organizations, deps.Configs, deps.Roles, deps.Groups, deps.Mail),
 		commands.NewSyncUserCommand(deps.Users),

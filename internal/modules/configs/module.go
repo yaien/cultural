@@ -8,18 +8,25 @@ import (
 	"github.com/yaien/cultural/internal/library/worker"
 	"github.com/yaien/cultural/internal/modules/configs/internal/application"
 	"github.com/yaien/cultural/internal/modules/configs/internal/interface/handlers"
+	"github.com/yaien/cultural/internal/modules/configs/internal/interface/integrations/instagram"
 	_ "github.com/yaien/cultural/internal/modules/configs/internal/interface/migrations"
+
 	"github.com/yaien/cultural/internal/modules/configs/internal/interface/repositories"
 	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web"
 	"github.com/yaien/cultural/internal/modules/configs/internal/models"
 )
 
 type Module struct {
-	App *application.Application
-	Web *web.Web
+	App      *application.Application
+	Web      *web.Web
+	Registry *models.IntegrationRegistry
 }
 
 func (m *Module) Init(mono *infrastructure.Monolith) error {
+	m.Registry = models.NewIntegrationRegistry(
+		instagram.Mew(mono.MongoDB),
+	)
+
 	deps := application.Deps{
 		Configs:       repositories.NewConfigRepository(mono.MongoDB),
 		Invitations:   repositories.NewInvitationRepository(mono.MongoDB),
@@ -30,6 +37,7 @@ func (m *Module) Init(mono *infrastructure.Monolith) error {
 		Fonts:         repositories.NewFontRepository(mono.MongoDB),
 		Files:         repositories.NewFileRepository(mono.MongoDB),
 		Drafts:        repositories.NewDraftRepository(mono.MongoDB),
+		Registry:      m.Registry,
 		Cache:         cache.New[*models.Config](time.Hour),
 		Mail:          mono.Mail,
 		Storage:       mono.Storage,
@@ -38,12 +46,18 @@ func (m *Module) Init(mono *infrastructure.Monolith) error {
 
 	m.App = application.New(deps)
 
-	m.Web = web.Register(mono, m.App)
+	m.Web = web.Register(mono, m.App, m.Registry)
 
 	mono.Worker.Register(worker.H{
 		Name:    models.GenerateFormatsTaskName,
 		Handler: handlers.NewGenerateFileFormatHandler(deps.Files, deps.Storage),
 	})
+
+	for _, integration := range m.Registry.All() {
+		if background, ok := integration.(models.IntegrationBackground); ok {
+			background.RegisterBackgroundProcess(mono.Cron, mono.Queue, mono.Worker)
+		}
+	}
 
 	mono.Router.Handle("/", m.Web.WithConfig(mono.WebRouter))
 

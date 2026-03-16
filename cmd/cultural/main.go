@@ -51,7 +51,12 @@ func serve() *cobra.Command {
 					slog.Error("Failed running migrations", "error", err)
 					return
 				}
+
 				log.Println("Migrations checked successfully")
+
+				mono.Cron.Start()
+				log.Println("Cron started successfully")
+
 				err = mono.Worker.Start()
 				if err != nil {
 					slog.Error("Failed to start worker", "error", err)
@@ -62,10 +67,26 @@ func serve() *cobra.Command {
 				mono.Worker.Wait()
 			}()
 
+			if mono.Config.Server.TLS {
+				err = http.ListenAndServeTLS(
+					mono.Config.Server.Addr,
+					mono.Config.Server.CertFile,
+					mono.Config.Server.KeyFile,
+					mono.Router,
+				)
+
+				if err != nil {
+					log.Fatal("Failed to start server:", err)
+				}
+
+				return
+			}
+
 			err = http.ListenAndServe(mono.Config.Server.Addr, mono.Router)
 			if err != nil {
 				log.Fatal("Failed to start server:", err)
 			}
+
 		},
 	}
 

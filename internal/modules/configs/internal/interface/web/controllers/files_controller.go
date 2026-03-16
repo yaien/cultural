@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"fmt"
+	"log/slog"
 	"net/http"
 	"strconv"
 
@@ -41,7 +42,11 @@ func (fc *FilesController) Upload(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		defer data.Close()
+		defer func() {
+			if err := data.Close(); err != nil {
+				slog.Warn("failed closing file data", "err", err)
+			}
+		}()
 
 		file, err := fc.app.UploadFile(ctx, &commands.UploadFileRequest{
 			Name:           handler.Filename,
@@ -58,7 +63,7 @@ func (fc *FilesController) Upload(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	w.Header().Set("HX-Trigger", "render")
-	pages.FileGrid(files, models.FileURL).Render(ctx, w)
+	_ = pages.FileGrid(files, models.FileURL).Render(ctx, w)
 
 }
 

@@ -35,7 +35,7 @@ func (c *ColorsController) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	pages.Color(color).Render(ctx, w)
+	_ = pages.Color(color).Render(ctx, w)
 
 }
 

@@ -13,3 +13,9 @@ type H struct {
 type Handler interface {
 	Handle(ctx context.Context, data map[string]any) error
 }
+
+type HandlerFunc func(ctx context.Context, data map[string]any) error
+
+func (f HandlerFunc) Handle(ctx context.Context, data map[string]any) error {
+	return f(ctx, data)
+}

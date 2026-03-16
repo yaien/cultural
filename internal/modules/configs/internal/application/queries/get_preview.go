@@ -3,16 +3,19 @@ package queries
 import (
 	"context"
 	"fmt"
+	"html/template"
+	"maps"
 
 	"github.com/yaien/cultural/internal/modules/configs/internal/models"
 )
 
 type GetPreviewQuery struct {
-	drafts models.DraftRepository
+	drafts   models.DraftRepository
+	registry *models.IntegrationRegistry
 }
 
-func NewGetPreviewQuery(drafts models.DraftRepository) *GetPreviewQuery {
-	return &GetPreviewQuery{drafts}
+func NewGetPreviewQuery(drafts models.DraftRepository, registry *models.IntegrationRegistry) *GetPreviewQuery {
+	return &GetPreviewQuery{drafts, registry}
 }
 
 type GetPreviewRequest struct {
@@ -40,7 +43,7 @@ func (q *GetPreviewQuery) GetPreview(ctx context.Context, req *GetPreviewRequest
 			layout = models.DefaultLayout
 		}
 
-		return q.renderPage(page, layout, draft.Fonts, draft.Colors, req.Config)
+		return q.renderPage(ctx, page, layout, draft.Fonts, draft.Colors, req.Config)
 
 	case "layout":
 		layout, ok := draft.Layouts[req.Key]
@@ -49,7 +52,7 @@ func (q *GetPreviewQuery) GetPreview(ctx context.Context, req *GetPreviewRequest
 		}
 
 		page := models.EmptyPage
-		return q.renderPage(page, layout, draft.Fonts, draft.Colors, req.Config)
+		return q.renderPage(ctx, page, layout, draft.Fonts, draft.Colors, req.Config)
 
 	case "email":
 		email, ok := draft.Emails[req.Key]
@@ -62,7 +65,15 @@ func (q *GetPreviewQuery) GetPreview(ctx context.Context, req *GetPreviewRequest
 	}
 }
 
-func (q *GetPreviewQuery) renderPage(page *models.Page, layout *models.Layout, fonts models.Fonts, colors models.Colors, config *models.Config) (html string, err error) {
+func (q *GetPreviewQuery) renderPage(ctx context.Context, page *models.Page, layout *models.Layout, fonts models.Fonts, colors models.Colors, config *models.Config) (html string, err error) {
+	funcs := template.FuncMap{}
+	for _, integration := range q.registry.All() {
+		if m, ok := integration.(models.IntegrationTemplateFuncMap); ok {
+			fm := m.TemplateFuncMap(ctx, config)
+			maps.Copy(funcs, fm)
+		}
+	}
+
 	data := &models.PageData{
 		Page:                page,
 		Layout:              layout,
@@ -72,6 +83,7 @@ func (q *GetPreviewQuery) renderPage(page *models.Page, layout *models.Layout, f
 		ExternalFileURLFunc: models.NewExternalFileURLFunc(config.Url, config.OrganizationID),
 		InlineStyles:        true,
 		InlineScript:        true,
+		Funcs:               funcs,
 	}
 
 	return models.RenderPage(data)

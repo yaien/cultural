@@ -12,6 +12,7 @@ import (
 	"github.com/markbates/goth"
 	"github.com/markbates/goth/gothic"
 	"github.com/markbates/goth/providers/google"
+	"github.com/robfig/cron/v3"
 	"github.com/yaien/cultural/internal/library/mail"
 	"github.com/yaien/cultural/internal/library/storage"
 	"github.com/yaien/cultural/internal/library/worker"
@@ -20,16 +21,18 @@ import (
 )
 
 type Monolith struct {
-	Config       *Config
-	MongoDB      *mongo.Database
-	MongoClient  *mongo.Client
-	Router       *http.ServeMux
-	WebRouter    *http.ServeMux
-	SessionStore sessions.Store
-	Mail         mail.Mail
-	Storage      storage.Storage
-	Queue        *worker.Queue
-	Worker       *worker.Worker
+	Config          *Config
+	MongoDB         *mongo.Database
+	MongoClient     *mongo.Client
+	Router          *http.ServeMux
+	WebRouter       *http.ServeMux
+	DashboardRouter *http.ServeMux
+	SessionStore    sessions.Store
+	Mail            mail.Mail
+	Storage         storage.Storage
+	Queue           *worker.Queue
+	Worker          *worker.Worker
+	Cron            *cron.Cron
 }
 
 func NewMonolith() *Monolith {
@@ -45,6 +48,8 @@ func NewMonolith() *Monolith {
 	m.Storage = setupStorage(config)
 	m.Router = http.NewServeMux()
 	m.WebRouter = http.NewServeMux()
+	m.DashboardRouter = http.NewServeMux()
+	m.Cron = cron.New()
 
 	stream := worker.NewMemoryStream()
 	store := worker.NewMongoStore(m.MongoDB, "")

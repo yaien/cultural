@@ -1,0 +1,41 @@
+package integrations
+
+import "github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views/dashboard"
+import "github.com/yaien/cultural/internal/modules/configs/internal/models"
+
+templ Page(definitions []models.IntegrationDefinition) {
+	@dashboard.Page("Integraciones") {
+		<div class="container single" data-scope="integrations" id="container">
+			<div class="list">
+				for _, def := range definitions {
+					<div
+						class="list-item"
+						hx-get={ "/dashboard/integrations/" + def.Name() }
+						hx-target="#container"
+						hx-swap="beforeend"
+						hx-push-url="true"
+					>
+						<img class="list-image" src={ "/assets/static/dashboard/images/" + def.Image() } alt={ def.Name() }/>
+						<div class="list-content">
+							<h3 class="list-title">{ def.Title() }</h3>
+							<p class="list-text">{ def.Description() }</p>
+						</div>
+					</div>
+				}
+			</div>
+			{ children... }
+		</div>
+	}
+}
+
+templ Detail(definitions []models.IntegrationDefinition, def models.IntegrationDefinition, page templ.Component) {
+	@Page(definitions) {
+		@Modal(def, page)
+	}
+}
+
+templ Modal(def models.IntegrationDefinition, page templ.Component) {
+	@dashboard.Modal(def.Title(), templ.Attributes{"hx-push-url": "/dashboard/integrations"}) {
+		@page
+	}
+}

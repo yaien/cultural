@@ -10,13 +10,14 @@ import (
 )
 
 type Config struct {
-	MongoDB MongoDBConfig
-	Server  ServerConfig
-	Init    InitConfig
-	Session SessionConfig
-	Google  GoogleConfig
-	Storage StorageConfig
-	Mail    MailConfig
+	MongoDB   MongoDBConfig
+	Server    ServerConfig
+	Init      InitConfig
+	Session   SessionConfig
+	Google    GoogleConfig
+	Instagram InstagramConfig
+	Storage   StorageConfig
+	Mail      MailConfig
 }
 
 type MongoDBConfig struct {
@@ -25,8 +26,11 @@ type MongoDBConfig struct {
 }
 
 type ServerConfig struct {
-	Addr string
-	URL  string
+	Addr     string
+	URL      string
+	TLS      bool
+	KeyFile  string
+	CertFile string
 }
 
 type SessionConfig struct {
@@ -45,6 +49,11 @@ type GoogleConfig struct {
 	ClientID     string
 	ClientSecret string
 	APIKey       string
+}
+
+type InstagramConfig struct {
+	ClientID     string
+	ClientSecret string
 }
 
 type InitConfig struct {
@@ -77,8 +86,11 @@ type MailtrapMailConfig struct {
 func LoadConfig() *Config {
 	return &Config{
 		Server: ServerConfig{
-			Addr: viper.GetString("SERVER_ADDR"),
-			URL:  viper.GetString("SERVER_URL"),
+			Addr:     viper.GetString("SERVER_ADDR"),
+			URL:      viper.GetString("SERVER_URL"),
+			TLS:      viper.GetBool("SERVER_TLS"),
+			CertFile: viper.GetString("SERVER_CERT_FILE"),
+			KeyFile:  viper.GetString("SERVER_KEY_FILE"),
 		},
 		Init: InitConfig{
 			Host:  viper.GetString("INIT_HOST"),
@@ -106,6 +118,10 @@ func LoadConfig() *Config {
 			ClientID:     viper.GetString("GOOGLE_CLIENT_ID"),
 			ClientSecret: viper.GetString("GOOGLE_CLIENT_SECRET"),
 			APIKey:       viper.GetString("GOOGLE_API_KEY"),
+		},
+		Instagram: InstagramConfig{
+			ClientID:     viper.GetString("INSTAGRAM_CLIENT_ID"),
+			ClientSecret: viper.GetString("INSTAGRAM_CLIENT_SECRET"),
 		},
 		Storage: StorageConfig{
 			Provider: viper.GetString("STORAGE_PROVIDER"),
