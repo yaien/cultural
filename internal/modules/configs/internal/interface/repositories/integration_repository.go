@@ -37,3 +37,21 @@ func (i *IntegrationRepository[T]) GetByOrganizationIDAndName(ctx context.Contex
 	}
 	return &integration, nil
 }
+
+func (i *IntegrationRepository[T]) GetByName(ctx context.Context, name string) ([]*models.Integration[T], error) {
+	cursor, err := i.collection.Find(ctx, bson.M{"name": name})
+	if err != nil {
+		return nil, translate(err)
+	}
+
+	defer cursor.Close(ctx)
+
+	var integrations []*models.Integration[T]
+
+	if err := cursor.All(ctx, &integrations); err != nil {
+		return nil, translate(err)
+	}
+
+	return integrations, nil
+
+}

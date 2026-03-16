@@ -73,6 +73,46 @@ func (c *Client) GetLongToken(ctx context.Context) (*oauth2.Token, error) {
 	return &token, nil
 }
 
+func (c *Client) RefreshLongToken(ctx context.Context) (*oauth2.Token, error) {
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, c.base+"/refresh_access_token", http.NoBody)
+	if err != nil {
+		return nil, fmt.Errorf("failed creating request: %w", err)
+	}
+
+	query := req.URL.Query()
+	query.Set("grant_type", "ig_refresh_token")
+	if c.token != nil {
+		query.Set("access_token", c.token.AccessToken)
+	}
+	req.URL.RawQuery = query.Encode()
+
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("failed making request: %w", err)
+	}
+
+	defer func() {
+		if err := res.Body.Close(); err != nil {
+			slog.Warn("failed clossing instagram body", "err", err)
+		}
+	}()
+
+	if res.StatusCode != http.StatusOK {
+		var e Error
+		if err := json.NewDecoder(res.Body).Decode(&e); err != nil {
+			return nil, fmt.Errorf("unexpected status code: %d", res.StatusCode)
+		}
+		return nil, fmt.Errorf("error from API: %s - %s", e.Error.Type, e.Error.Message)
+	}
+
+	var token oauth2.Token
+	if err := json.NewDecoder(res.Body).Decode(&token); err != nil {
+		return nil, fmt.Errorf("failed decoding response: %w", err)
+	}
+
+	return &token, nil
+}
+
 type User struct {
 	ID                string `json:"id" bson:"id"`
 	Name              string `json:"name" bson:"name"`

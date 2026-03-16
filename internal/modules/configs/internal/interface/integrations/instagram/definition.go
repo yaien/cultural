@@ -12,6 +12,7 @@ var _ interface {
 	models.IntegrationDefinition
 	models.IntegrationOAuth
 	models.IntegrationTemplateFuncMap
+	models.IntegrationBackground
 } = (*Instagram)(nil)
 
 type Data struct {
@@ -24,11 +25,13 @@ type Data struct {
 
 type Instagram struct {
 	integrations models.IntegrationRepository[Data]
+	configs      models.ConfigRepository
 }
 
 func Mew(db *mongo.Database) *Instagram {
 	return &Instagram{
 		integrations: repositories.NewIntegrationRepository[Data](db),
+		configs:      repositories.NewConfigRepository(db),
 	}
 }
 

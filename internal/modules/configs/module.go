@@ -53,6 +53,12 @@ func (m *Module) Init(mono *infrastructure.Monolith) error {
 		Handler: handlers.NewGenerateFileFormatHandler(deps.Files, deps.Storage),
 	})
 
+	for _, integration := range m.Registry.All() {
+		if background, ok := integration.(models.IntegrationBackground); ok {
+			background.RegisterBackgroundProcess(mono.Cron, mono.Queue, mono.Worker)
+		}
+	}
+
 	mono.Router.Handle("/", m.Web.WithConfig(mono.WebRouter))
 
 	return nil

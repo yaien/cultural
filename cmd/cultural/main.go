@@ -51,7 +51,12 @@ func serve() *cobra.Command {
 					slog.Error("Failed running migrations", "error", err)
 					return
 				}
+
 				log.Println("Migrations checked successfully")
+
+				mono.Cron.Start()
+				log.Println("Cron started successfully")
+
 				err = mono.Worker.Start()
 				if err != nil {
 					slog.Error("Failed to start worker", "error", err)
