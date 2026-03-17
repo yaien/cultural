@@ -8,6 +8,7 @@ import (
 	"github.com/markbates/goth/gothic"
 	"github.com/yaien/cultural/internal/modules/configs/internal/application"
 	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/middlewares"
+	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views/auth"
 )
 
 type AuthController struct {
@@ -17,6 +18,10 @@ type AuthController struct {
 
 func NewAuthController(app *application.Application, store sessions.Store) *AuthController {
 	return &AuthController{app, store}
+}
+
+func (c *AuthController) ShowLogin(w http.ResponseWriter, r *http.Request) {
+	auth.Login().Render(r.Context(), w)
 }
 
 func (c *AuthController) Login(w http.ResponseWriter, r *http.Request) {
