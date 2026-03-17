@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -19,12 +20,32 @@ type AuthController struct {
 	config *oauth2.Config
 }
 
+type AuthState struct {
+	Redirect string
+}
+
 func NewAuthController(app *application.Application, store sessions.Store, config *oauth2.Config) *AuthController {
 	return &AuthController{app, store, config}
 }
 
 func (c *AuthController) Login(w http.ResponseWriter, r *http.Request) {
-	url := c.config.AuthCodeURL("")
+
+	state := AuthState{}
+
+	session, _ := c.store.Get(r, middlewares.SessionKey)
+	if rd := session.Flashes(middlewares.RedirectKey); len(rd) > 0 {
+		state.Redirect = rd[0].(string)
+	}
+
+	bs, err := json.Marshal(state)
+	if err != nil {
+		WriteHTMLErr(w, fmt.Errorf("failed to marshal state: %w", err))
+		return
+	}
+
+	s := base64.RawURLEncoding.EncodeToString(bs)
+
+	url := c.config.AuthCodeURL(s)
 	http.Redirect(w, r, url, http.StatusTemporaryRedirect)
 }
 
@@ -96,15 +117,26 @@ func (c *AuthController) Callback(w http.ResponseWriter, r *http.Request) {
 
 	session, _ := c.store.Get(r, middlewares.SessionKey)
 	session.Values[middlewares.UserIDKey] = user.ID.Hex()
-
-	redirect := "/"
-	if rd := session.Flashes(middlewares.RedirectKey); len(rd) > 0 {
-		redirect = rd[0].(string)
-	}
-
 	if err := session.Save(r, w); err != nil {
 		WriteHTMLErr(w, fmt.Errorf("failed to save session: %w", err))
 		return
+	}
+
+	var state AuthState
+	bs, err := base64.RawURLEncoding.DecodeString(r.URL.Query().Get("state"))
+	if err != nil {
+		WriteHTMLErr(w, fmt.Errorf("failed to decode state: %w", err))
+		return
+	}
+
+	if err := json.Unmarshal(bs, &state); err != nil {
+		WriteHTMLErr(w, fmt.Errorf("failed to unmarshal state: %w", err))
+		return
+	}
+
+	redirect := "/"
+	if state.Redirect != "" {
+		redirect = state.Redirect
 	}
 
 	http.Redirect(w, r, redirect, http.StatusSeeOther)
