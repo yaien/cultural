@@ -50,10 +50,12 @@ templ Page(title string) {
 					<nav>
 						<ul>
 							<li>
-								<a href="/auth/logout">
-									@icons.Logout()
-									<span>Cerrar Sesión </span>
-								</a>
+								<form action="/auth/logout" method="POST" x-ref="logout">
+									<a href="" @click.prevent="$refs.logout.submit()">
+										@icons.Logout()
+										<span>Cerrar Sesión </span>
+									</a>
+								</form>
 							</li>
 						</ul>
 					</nav>
