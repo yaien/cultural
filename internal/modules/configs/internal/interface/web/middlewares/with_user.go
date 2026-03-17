@@ -37,7 +37,7 @@ func NewWithUser(app *application.Application, store sessions.Store) func(next h
 
 			user, err := app.GetUserByID(r.Context(), oid)
 			if err != nil {
-				redirect(s, w, r)
+				http.Error(w, "Failed to retrieve user", http.StatusInternalServerError)
 				return
 			}
 
@@ -58,5 +58,5 @@ func redirect(s *sessions.Session, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	http.Redirect(w, r, "/auth/login", http.StatusPermanentRedirect)
+	http.Redirect(w, r, "/auth/google/login", http.StatusPermanentRedirect)
 }
