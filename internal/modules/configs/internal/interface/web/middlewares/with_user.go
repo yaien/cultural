@@ -50,13 +50,6 @@ func NewWithUser(app *application.Application, store sessions.Store) func(next h
 	}
 }
 
-func redirect(s *sessions.Session, w http.ResponseWriter, r *http.Request) {
-	s.AddFlash(r.URL.Path, RedirectKey)
-
-	if err := s.Save(r, w); err != nil {
-		http.Error(w, "Failed to save session", http.StatusInternalServerError)
-		return
-	}
-
-	http.Redirect(w, r, "/auth/google/login", http.StatusPermanentRedirect)
+func redirect(_ *sessions.Session, w http.ResponseWriter, r *http.Request) {
+	http.Redirect(w, r, "/auth/google/login?redirect="+r.URL.Path, http.StatusPermanentRedirect)
 }

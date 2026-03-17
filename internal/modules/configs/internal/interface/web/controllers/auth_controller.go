@@ -30,11 +30,8 @@ func NewAuthController(app *application.Application, store sessions.Store, confi
 
 func (c *AuthController) Login(w http.ResponseWriter, r *http.Request) {
 
-	state := AuthState{}
-
-	session, _ := c.store.Get(r, middlewares.SessionKey)
-	if rd := session.Flashes(middlewares.RedirectKey); len(rd) > 0 {
-		state.Redirect = rd[0].(string)
+	state := AuthState{
+		Redirect: r.URL.Query().Get("redirect"),
 	}
 
 	bs, err := json.Marshal(state)
