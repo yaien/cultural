@@ -19,6 +19,6 @@ func Register(mono *infrastructure.Monolith, app *application.Application) {
 	mono.WebRouter.HandleFunc("GET /assets/landing/styles/layouts/{layout}", ctrl.LayoutStyles)
 	mono.WebRouter.HandleFunc("GET /assets/landing/scripts/pages/{page}", ctrl.PageScripts)
 	mono.WebRouter.HandleFunc("GET /assets/landing/scripts/layouts/{layout}", ctrl.LayoutScripts)
-	mono.WebRouter.HandleFunc("/{page}", ctrl.Page)
-	mono.WebRouter.HandleFunc("/", ctrl.Page)
+	mono.WebRouter.HandleFunc("/{page...}", ctrl.Page)
+	mono.WebRouter.HandleFunc("/{$}", ctrl.Page)
 }

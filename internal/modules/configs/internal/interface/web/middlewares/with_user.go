@@ -58,5 +58,5 @@ func redirect(s *sessions.Session, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	http.Redirect(w, r, "/auth/google/login", http.StatusPermanentRedirect)
+	http.Redirect(w, r, "/auth/login", http.StatusPermanentRedirect)
 }
