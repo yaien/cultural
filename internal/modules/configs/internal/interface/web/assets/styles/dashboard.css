@@ -454,10 +454,6 @@ div[role="group"] button:last-child {
     margin: auto;
 }
 
-.text-center {
-    text-align: center;
-}
-
 /* Table Styles */
 table {
     border-collapse: collapse;
