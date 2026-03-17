@@ -51,5 +51,6 @@ func NewWithUser(app *application.Application, store sessions.Store) func(next h
 }
 
 func redirect(_ *sessions.Session, w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("cache-control", "no-cache, no-store, must-revalidate")
 	http.Redirect(w, r, "/auth/google/login?redirect="+r.URL.Path, http.StatusPermanentRedirect)
 }
