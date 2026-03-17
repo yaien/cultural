@@ -18,7 +18,13 @@ import (
 	"github.com/yaien/cultural/internal/library/worker"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"golang.org/x/oauth2"
 )
+
+type OAuth struct {
+	Google    *oauth2.Config
+	Instagram *oauth2.Config
+}
 
 type Monolith struct {
 	Config          *Config
@@ -33,6 +39,7 @@ type Monolith struct {
 	Queue           *worker.Queue
 	Worker          *worker.Worker
 	Cron            *cron.Cron
+	OAuth           *OAuth
 }
 
 func NewMonolith() *Monolith {
