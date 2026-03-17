@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/markbates/goth"
 	"github.com/yaien/cultural/internal/modules/configs/internal/models"
 )
 
@@ -18,13 +17,13 @@ func NewSyncUserCommand(users models.UserRepository) *SyncUserCommand {
 	return &SyncUserCommand{users: users}
 }
 
-func (c *SyncUserCommand) SyncUser(ctx context.Context, user goth.User) (*models.User, error) {
-	u, err := c.users.GetByEmail(ctx, user.Email)
+func (c *SyncUserCommand) SyncUser(ctx context.Context, account *models.Account) (*models.User, error) {
+	u, err := c.users.GetByEmail(ctx, account.Email)
 	var e *models.Error
 	switch {
 	case err == nil:
 
-		u.Accounts[user.Provider] = user
+		u.Accounts[account.Provider] = account
 
 		err = c.users.Update(ctx, u)
 		if err != nil {
@@ -36,10 +35,10 @@ func (c *SyncUserCommand) SyncUser(ctx context.Context, user goth.User) (*models
 	case errors.As(err, &e) && e.Code == "not_found":
 
 		u = &models.User{
-			Email:     user.Email,
-			Name:      user.Name,
-			AvatarUrl: user.AvatarURL,
-			Accounts:  map[string]goth.User{user.Provider: user},
+			Email:     account.Email,
+			Name:      account.Name,
+			AvatarUrl: account.AvatarUrl,
+			Accounts:  map[string]*models.Account{account.Provider: account},
 			CreatedAt: time.Now(),
 			UpdatedAt: time.Now(),
 		}
