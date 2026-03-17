@@ -57,7 +57,7 @@ func (c *AuthController) Logout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	http.Redirect(w, r, "/", http.StatusPermanentRedirect)
+	http.Redirect(w, r, "/", http.StatusFound)
 }
 
 func (c *AuthController) Callback(w http.ResponseWriter, r *http.Request) {
