@@ -9,22 +9,13 @@ import (
 	"time"
 
 	"github.com/gorilla/sessions"
-	"github.com/markbates/goth"
-	"github.com/markbates/goth/gothic"
-	"github.com/markbates/goth/providers/google"
 	"github.com/robfig/cron/v3"
 	"github.com/yaien/cultural/internal/library/mail"
 	"github.com/yaien/cultural/internal/library/storage"
 	"github.com/yaien/cultural/internal/library/worker"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"golang.org/x/oauth2"
 )
-
-type OAuth struct {
-	Google    *oauth2.Config
-	Instagram *oauth2.Config
-}
 
 type Monolith struct {
 	Config          *Config
@@ -39,13 +30,10 @@ type Monolith struct {
 	Queue           *worker.Queue
 	Worker          *worker.Worker
 	Cron            *cron.Cron
-	OAuth           *OAuth
 }
 
 func NewMonolith() *Monolith {
 	config := LoadConfig()
-
-	setupOauthProviders(config)
 
 	var m Monolith
 	m.Config = config
@@ -66,20 +54,6 @@ func NewMonolith() *Monolith {
 
 	return &m
 
-}
-
-func setupOauthProviders(config *Config) {
-	store := sessions.NewCookieStore([]byte(config.Session.Secret))
-	store.Options.Path = ""
-	store.Options.HttpOnly = true
-	store.Options.SameSite = http.SameSiteLaxMode
-	store.Options.Secure = config.Session.Secure
-
-	gothic.Store = store
-
-	goth.UseProviders(
-		google.New(config.Google.ClientID, config.Google.ClientSecret, config.Server.URL+"/auth/google/callback", "email", "profile"),
-	)
 }
 
 func setupMail(config *Config) mail.Mail {
