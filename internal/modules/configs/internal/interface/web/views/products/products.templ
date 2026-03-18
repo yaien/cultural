@@ -1,9 +1,54 @@
 package products
 
 import "github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views/dashboard"
+import "github.com/yaien/cultural/internal/modules/configs/internal/models"
+import "github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views/icons"
 
-templ Products() {
+templ Page(products []*models.Product) {
 	@dashboard.Page("Productos") {
-		<h1>Productos</h1>
+		@Content(products)
+	}
+}
+
+templ Content(products []*models.Product) {
+	<div class="container" data-scope="products">
+		<div class="actions text-center">
+			<button class="button clear" hx-get="/dashboard/products/create" hx-target=".container">
+				@icons.Add()
+			</button>
+		</div>
+		<div class="grid">
+			for _, product := range products {
+				<div class="card" id={ product.ID.Hex() }>
+					<div class="card-header">
+						<div class="card-thumbnail"></div>
+					</div>
+					<div class="card-body">
+						<div class="card-title">
+							{ product.Name }
+						</div>
+					</div>
+				</div>
+			}
+		</div>
+	</div>
+}
+
+templ Create() {
+	@dashboard.Modal("Crear Producto") {
+		<form
+			hx-post={ templ.URL("/dashboard/products") }
+			hx-target=".modal"
+			hx-swap="outerHTML swap:250ms"
+			hx-disable-elt="find button"
+		>
+			<fieldset>
+				<legend>Nombre</legend>
+				<input name="name" required/>
+			</fieldset>
+			<div class="actions">
+				<button>Crear</button>
+			</div>
+		</form>
 	}
 }

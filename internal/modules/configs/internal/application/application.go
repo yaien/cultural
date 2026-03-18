@@ -22,6 +22,8 @@ type Application struct {
 	*queries.GetFilesQuery
 	*queries.GetDraftByConfigIDQuery
 	*queries.GetPreviewQuery
+	*queries.GetProductsQuery
+	*queries.GetProductByIDQuery
 
 	*commands.CreateInvitationCommand
 	*commands.SyncUserCommand
@@ -40,6 +42,7 @@ type Application struct {
 	*commands.CreateDraftModelCommand
 	*commands.DeleteDraftModelCommand
 	*commands.CommitDraftCommand
+	*commands.CreateProductCommand
 }
 
 type Deps struct {
@@ -52,6 +55,7 @@ type Deps struct {
 	Fonts         models.FontRepository
 	Files         models.FileRepository
 	Drafts        models.DraftRepository
+	Products      models.ProductRepository
 	Cache         *cache.Cache[*models.Config]
 	Queue         *worker.Queue
 	Registry      *models.IntegrationRegistry
@@ -72,6 +76,8 @@ func New(deps Deps) *Application {
 		queries.NewGetFilesQuery(deps.Files),
 		queries.NewGetDraftByConfigIDQuery(deps.Drafts),
 		queries.NewGetPreviewQuery(deps.Drafts, deps.Registry),
+		queries.NewGetProductsQuery(deps.Products),
+		queries.NewGetProductByIDQuery(deps.Products),
 
 		commands.NewCreateInvitationCommand(deps.Invitations, deps.Organizations, deps.Configs, deps.Roles, deps.Groups, deps.Mail),
 		commands.NewSyncUserCommand(deps.Users),
@@ -90,5 +96,6 @@ func New(deps Deps) *Application {
 		commands.NewCreateDraftModelCommand(deps.Drafts),
 		commands.NewDeleteDraftModelCommand(deps.Drafts),
 		commands.NewCommitDraftCommand(deps.Configs, deps.Drafts, deps.Cache),
+		commands.NewCreateProductCommand(deps.Products),
 	}
 }

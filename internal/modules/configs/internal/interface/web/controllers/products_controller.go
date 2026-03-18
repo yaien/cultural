@@ -4,7 +4,9 @@ import (
 	"net/http"
 
 	"github.com/yaien/cultural/internal/modules/configs/internal/application"
+	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/middlewares"
 	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views/products"
+	"github.com/yaien/cultural/internal/modules/configs/internal/models"
 )
 
 type ProductsController struct {
@@ -16,5 +18,13 @@ func NewProductsController(app *application.Application) *ProductsController {
 }
 
 func (c *ProductsController) Index(w http.ResponseWriter, r *http.Request) {
-	_ = products.Products().Render(r.Context(), w)
+	ctx := r.Context()
+	config := ctx.Value(middlewares.ConfigContextKey).(*models.Config)
+	prs, err := c.app.GetProducts(ctx, config.OrganizationID)
+	if err != nil {
+		WriteHTMLErr(w, err)
+		return
+	}
+
+	_ = products.Page(prs).Render(r.Context(), w)
 }

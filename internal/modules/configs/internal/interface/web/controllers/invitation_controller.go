@@ -43,6 +43,6 @@ func (c *InvitationController) Accept(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	http.Redirect(w, r, "/dashboard", http.StatusMovedPermanently)
+	http.Redirect(w, r, "/dashboard", http.StatusFound)
 
 }

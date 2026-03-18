@@ -99,5 +99,5 @@ func (c *IntegrationController) OauthCallback(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	http.Redirect(w, r, "/dashboard/integrations/"+def.Name(), http.StatusPermanentRedirect)
+	http.Redirect(w, r, "/dashboard/integrations/"+def.Name(), http.StatusFound)
 }

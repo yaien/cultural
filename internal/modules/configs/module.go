@@ -37,6 +37,7 @@ func (m *Module) Init(mono *infrastructure.Monolith) error {
 		Fonts:         repositories.NewFontRepository(mono.MongoDB),
 		Files:         repositories.NewFileRepository(mono.MongoDB),
 		Drafts:        repositories.NewDraftRepository(mono.MongoDB),
+		Products:      repositories.NewProductRepository(mono.MongoDB),
 		Registry:      m.Registry,
 		Cache:         cache.New[*models.Config](time.Hour),
 		Mail:          mono.Mail,
