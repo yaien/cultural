@@ -17,16 +17,19 @@ templ Content(products []*models.Product) {
 				@icons.Add()
 			</button>
 		</div>
-		<div class="grid">
+		<div class="flex flex-center">
 			for _, product := range products {
-				<article id={ product.ID.Hex() }>
+				<a role="article" href={ "/dashboard/products/" + product.ID.Hex() } hx-boost="true" class="detail">
 					<header>
-						<div class="card-thumbnail"></div>
+						if len(product.Presentations) > 0 && len(product.Presentations[0].FileIDS) > 0 {
+							<img src={ "/dashboard/files/" + product.Presentations[0].FileIDS[0].Hex() } alt=""/>
+						}
+						<div class="placeholder w-100 "></div>
 					</header>
-					<div class="card-title">
+					<div class="text-center">
 						<h4>{ product.Name }</h4>
 					</div>
-				</article>
+				</a>
 			}
 		</div>
 	</div>
@@ -52,7 +55,7 @@ templ Create() {
 }
 
 templ Show(product *models.Product) {
-	@dashboard.Page("Producto - " + product.Name) {
+	@dashboard.Page("Products / " + product.Name) {
 		<div class="product-details">
 			<div class="product-name">
 				{ product.Name }

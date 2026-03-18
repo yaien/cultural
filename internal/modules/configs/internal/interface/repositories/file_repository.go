@@ -59,6 +59,15 @@ func (r *FileRepository) GetByOrganizationIDAndName(ctx context.Context, organiz
 	return &file, nil
 }
 
+func (r *FileRepository) GetByOrganizationIDAndID(ctx context.Context, organizationID, id primitive.ObjectID) (*models.File, error) {
+	var file models.File
+	err := r.db.Collection("files").FindOne(ctx, bson.M{"organizationId": organizationID, "_id": id}).Decode(&file)
+	if err != nil {
+		return nil, translate(err)
+	}
+	return &file, nil
+}
+
 func (r *FileRepository) DeleteByOrganizationIDAndName(ctx context.Context, organizationID primitive.ObjectID, name string) error {
 	res, err := r.db.Collection("files").DeleteOne(ctx, bson.M{"organizationId": organizationID, "name": name})
 	if err != nil {

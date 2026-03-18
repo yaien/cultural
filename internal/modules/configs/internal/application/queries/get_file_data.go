@@ -23,6 +23,7 @@ func NewGetFileDataQuery(files models.FileRepository, st storage.Storage) *GetFi
 type GetFileDataRequest struct {
 	OrganizationID primitive.ObjectID
 	Name           string
+	ID             *primitive.ObjectID
 	Variant        int
 }
 
@@ -36,7 +37,15 @@ type GetFileDataResponse struct {
 }
 
 func (q *GetFileDataQuery) GetFileData(ctx context.Context, req *GetFileDataRequest) (*GetFileDataResponse, error) {
-	file, err := q.files.GetByOrganizationIDAndName(ctx, req.OrganizationID, req.Name)
+	var file *models.File
+	var err error
+
+	if req.ID != nil {
+		file, err = q.files.GetByOrganizationIDAndID(ctx, req.OrganizationID, *req.ID)
+	} else {
+		file, err = q.files.GetByOrganizationIDAndName(ctx, req.OrganizationID, req.Name)
+	}
+
 	if err != nil {
 		return nil, fmt.Errorf("failed to get file: %w", err)
 	}

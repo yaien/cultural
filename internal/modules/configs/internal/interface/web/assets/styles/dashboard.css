@@ -9,8 +9,10 @@
   --header-height: 60px;
   --header-border-color: var(--border-color);
   --shadow-color: rgba(0, 0, 0, 0.1);
+  --box-shadow: 0 2px 4px var(--shadow-color);
   --border-color: #e5e7eb;
   --border-radius: 0.5rem;
+  --border: 1px solid var(--border-color);
   --primary-color: #3b82f6;
   --primary-color-hover: oklch(from var(--primary-color) calc(l + 0.25) calc(c - 0.12) h);
   --primary-color-light: oklch(from var(--primary-color) calc(l + 0.3) calc(c - 0.15) h);
@@ -53,7 +55,7 @@ body {
 }
 
 /* Aside Styles */
-aside {
+body > aside {
   width: var(--aside-width);
   height: 100%;
   position: fixed;
@@ -70,17 +72,17 @@ aside {
   border-right: 1px solid var(--border-color);
 }
 
-body.open aside {
+body.open > aside {
   --aside-width: var(--aside-width-open);
 }
 
-aside h2 {
+body > aside h2 {
   text-align: center;
   margin-top: 7px;
   margin-bottom: 36px;
 }
 
-aside a {
+body > aside a {
   padding: 0.3rem;
   text-decoration: none;
   color: var(--primary-color);
@@ -88,17 +90,17 @@ aside a {
   align-items: center;
 }
 
-aside nav {
+body > aside nav {
   flex-grow: 1;
 }
 
-aside ul {
+body > aside ul {
   margin: 0;
   padding: 0;
   width: 100%;
 }
 
-aside li {
+body > aside li {
   list-style: none;
   margin: 1rem 0;
   width: 100%;
@@ -106,50 +108,50 @@ aside li {
   overflow: hidden;
 }
 
-body.open aside li a {
+body.open > aside li a {
   padding: 0.5rem;
 }
 
-aside li a {
+body > aside li a {
   color: var(--primary-color);
 }
 
-aside li a:hover {
+body > aside li a:hover {
   background-color: var(--primary-color-light);
   color: var(--primary-color);
 }
 
-aside li.active a {
+body > aside li.active a {
   background-color: var(--primary-color-light);
   color: var(--primary-color);
   border-radius: var(--border-radius);
 }
 
-aside li a span {
+body > aside li a span {
   display: none;
   text-wrap-mode: nowrap;
 }
 
-body.open aside li a span {
+body.open > aside li a span {
   display: inline;
 }
 
-aside svg {
+body > aside svg {
   margin: auto;
 }
 
-body.open aside svg {
+body.open > aside svg {
   margin: 0 0.5rem;
 }
 
-aside .footer {
+body > aside .footer {
   min-height: fit-content;
   text-align: center;
   color: var(--aside-text-color);
 }
 
 /* Main Content Styles */
-main {
+body > main {
   padding-left: calc(var(--aside-width-closed) + var(--aside-space));
   padding-top: var(--header-height);
   background-color: var(--light-color-light);
@@ -169,7 +171,7 @@ body.open main {
 }
 
 /* Header Styles */
-header {
+body > header {
   padding-left: calc(var(--aside-width-closed) + var(--aside-space));
   color: var(--primary-color);
   height: var(--header-height);
@@ -185,29 +187,29 @@ header {
   box-sizing: border-box;
 }
 
-body.open header {
+body.open > header {
   padding-left: calc(var(--aside-width-open) + var(--aside-space));
 }
 
-header .start {
+body > header .start {
   display: flex;
   align-items: center;
 }
 
-header .title {
+body > header .title {
   flex-grow: 1;
   border-radius: var(--border-radius);
   overflow: hidden;
 }
 
-header .account {
+body > header .account {
   margin-right: 1rem;
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
-header button.toggle {
+body > header button.toggle {
   border: none;
   font-size: 25px;
   cursor: pointer;
@@ -220,7 +222,7 @@ header button.toggle {
   color: var(--primary-color);
 }
 
-header h3 {
+body > header h3 {
   margin: 0;
   font-size: 20px;
 }
@@ -251,10 +253,30 @@ header h3 {
   margin: auto;
 }
 
+.placeholder {
+  background-color: var(--secondary-color-light);
+}
+
+.w-100 {
+  width: 100%;
+}
+
 .grid {
   display: grid;
   gap: 1rem;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+
+.flex {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 /* Form Styles */
@@ -590,6 +612,7 @@ tbody tr.htmx-swapping {
   padding: 1rem;
 }
 
+/* Toast Styles */
 .toast {
   position: fixed;
   bottom: 0px;
@@ -693,4 +716,36 @@ tbody tr.htmx-swapping {
   height: 100%;
   transition: width var(--transition-duration) ease;
   border-radius: var(--border-radius);
+}
+
+/* Card Styles */
+article,
+[role="article"] {
+  box-shadow: var(--box-shadow);
+  border-radius: var(--border-radius);
+  border: var(--border);
+  padding: 1rem;
+  position: relative;
+  text-decoration: none;
+  color: var(--text-color);
+
+  &.detail:hover {
+    box-shadow: 0 4px 8px var(--shadow-color);
+    cursor: pointer;
+  }
+
+  & > header {
+    margin: -1rem;
+    border-bottom: var(--border);
+
+    img,
+    .placeholder {
+      width: 150px;
+      height: 150px;
+      background-color: var(--secondary-color-light);
+      border: none;
+      object-fit: cover;
+      object-position: center;
+    }
+  }
 }
