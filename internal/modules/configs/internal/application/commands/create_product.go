@@ -34,6 +34,10 @@ func (c *CreateProductCommand) CreateProduct(ctx context.Context, req CreateProd
 		UpdatedAt:      time.Now(),
 	}
 
+	if req.Name == "" {
+		return nil, &models.Error{Code: "invalid_product_name", Err: fmt.Errorf("product name cannot be empty")}
+	}
+
 	_, err := c.products.GetBySlugAndOrganizationID(ctx, product.Slug, product.OrganizationID)
 	switch {
 	case err == nil:

@@ -13,22 +13,20 @@ templ Page(products []*models.Product) {
 templ Content(products []*models.Product) {
 	<div class="container" data-scope="products">
 		<div class="actions text-center">
-			<button class="button clear" hx-get="/dashboard/products/create" hx-target=".container">
+			<button class="button clear" hx-get="/dashboard/products/create" hx-target=".container" hx-swap="beforeend">
 				@icons.Add()
 			</button>
 		</div>
 		<div class="grid">
 			for _, product := range products {
-				<div class="card" id={ product.ID.Hex() }>
-					<div class="card-header">
+				<article id={ product.ID.Hex() }>
+					<header>
 						<div class="card-thumbnail"></div>
+					</header>
+					<div class="card-title">
+						<h4>{ product.Name }</h4>
 					</div>
-					<div class="card-body">
-						<div class="card-title">
-							{ product.Name }
-						</div>
-					</div>
-				</div>
+				</article>
 			}
 		</div>
 	</div>
@@ -46,9 +44,19 @@ templ Create() {
 				<legend>Nombre</legend>
 				<input name="name" required/>
 			</fieldset>
-			<div class="actions">
+			<div class="actions text-center">
 				<button>Crear</button>
 			</div>
 		</form>
+	}
+}
+
+templ Show(product *models.Product) {
+	@dashboard.Page("Producto - " + product.Name) {
+		<div class="product-details">
+			<div class="product-name">
+				{ product.Name }
+			</div>
+		</div>
 	}
 }
