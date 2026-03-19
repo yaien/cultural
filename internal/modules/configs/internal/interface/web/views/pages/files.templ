@@ -25,6 +25,7 @@ templ Files(state *State) {
 				<button type="button" @click="$refs.input.click()" class="clear">
 					@icons.Add()
 				</button>
+				<progress max="100" value="30"></progress>
 				<template x-if="loading">
 					<div class="progress-bar">
 						<div class="progress-bar-value" :style="{ width: percent + '%' }"></div>
