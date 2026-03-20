@@ -17,7 +17,7 @@ templ Content(products []*models.Product) {
 				@icons.Add()
 			</button>
 		</div>
-		<div class="flex flex-center">
+		<div class="flex justify-center">
 			for _, product := range products {
 				<a role="article" href={ "/dashboard/products/" + product.ID.Hex() } hx-boost="true" class="detail">
 					<header>
@@ -55,10 +55,78 @@ templ Create() {
 }
 
 templ Show(product *models.Product) {
-	@dashboard.Page("Products / " + product.Name) {
-		<div class="product-details">
-			<div class="product-name">
-				{ product.Name }
+	@dashboard.Page("Productos") {
+		<div class="container flex justify-center">
+			<div class="flex flex-column">
+				<article>
+					<h4 class="text-center m-0 m-b">Producto</h4>
+					<form>
+						<fieldset>
+							<legend>Nombre</legend>
+							<input name="name" value={ product.Name } required/>
+						</fieldset>
+						<fieldset>
+							<legend>Publicado</legend>
+							<select name="published" value={ product.Name } required>
+								<option value="true" selected={ product.Published }>Sí</option>
+								<option value="false" selected={ !product.Published }>No</option>
+							</select>
+						</fieldset>
+						<div class="flex justify-around">
+							<button class="danger" type="button">
+								Eliminar
+							</button>
+							<button>Guardar</button>
+						</div>
+					</form>
+				</article>
+				<article>
+					<h4 class="text-center m-0 m-b">Presentaciones</h4>
+					<div role="group">
+						<button>
+							base
+						</button>
+						<button class="icon">
+							@icons.Add()
+						</button>
+					</div>
+					<form>
+						<fieldset>
+							<legend>Nombre</legend>
+							<input name="name"/>
+						</fieldset>
+						<fieldset>
+							<legend>Inventario</legend>
+							<input name="inventory" type="number" min="0"/>
+						</fieldset>
+						<fieldset>
+							<legend>Precio</legend>
+							<input name="price" type="number" min="0" step="1000"/>
+						</fieldset>
+						<div class="flex justify-around">
+							<button class="danger" type="button">
+								Eliminar
+							</button>
+							<button>Guardar</button>
+						</div>
+					</form>
+				</article>
+			</div>
+			<div>
+				<article>
+					<div class="placeholder" style="width: 100%; aspect-ratio: 1/1; margin-bottom: 0.5rem; "></div>
+					<div class="flex">
+						<div class="placeholder" style="width: 100px; aspect-ratio: 1/1"></div>
+						<div class="placeholder" style="width: 100px; aspect-ratio: 1/1"></div>
+						<div class="placeholder" style="width: 100px; aspect-ratio: 1/1"></div>
+						<div class="placeholder" style="width: 100px; aspect-ratio: 1/1"></div>
+						<div class="placeholder flex justify-center align-center" style="width: 100px;">
+							<button class="clear">
+								@icons.Add()
+							</button>
+						</div>
+					</div>
+				</article>
 			</div>
 		</div>
 	}

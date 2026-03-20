@@ -44,6 +44,7 @@
   --text-color: var(--dark-color);
   --text-muted: var(--dark-color-light);
   --transition-duration: 100ms;
+  --space: 0.5rem;
 }
 
 /* Body Styles */
@@ -276,10 +277,38 @@ body {
   flex-wrap: wrap;
 }
 
-.flex-center {
+.flex-column {
   display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.justify-center {
   justify-content: center;
+}
+
+.justify-around {
+  justify-content: space-around;
+}
+
+.align-center {
   align-items: center;
+}
+
+.m {
+  margin: var(--space);
+}
+
+.m-0 {
+  margin: 0;
+}
+
+.m-b {
+  margin-bottom: var(--space);
+}
+
+.p {
+  padding: var(--space);
 }
 
 /* Form Styles */
@@ -345,6 +374,10 @@ button,
     cursor: default;
     background-color: var(--secondary-color-light) !important;
     color: var(--secondary-color) !important;
+  }
+
+  &.icon {
+    display: flex;
   }
 
   &.clear {
