@@ -9,24 +9,24 @@ import (
 )
 
 type Layout struct {
-	Title  string `bson:"title,omitempty" json:"title,omitempty"`
-	Name   string `bson:"name,omitempty" json:"name,omitempty"`
-	Layout string `bson:"layout,omitempty" json:"layout,omitempty"`
-	Styles string `bson:"styles,omitempty" json:"styles,omitempty"`
-	Script string `bson:"script,omitempty" json:"script,omitempty"`
-	Body   string `bson:"body" json:"body"`
+	Title  string `bson:"title,omitempty"`
+	Name   string `bson:"name,omitempty"`
+	Layout string `bson:"layout,omitempty"`
+	Styles string `bson:"styles,omitempty"`
+	Script string `bson:"script,omitempty"`
+	Body   string `bson:"body"`
 }
 
 type Page struct {
-	Title       string `bson:"title,omitempty" json:"title,omitempty"`
-	Description string `bson:"description,omitempty" json:"description,omitempty"`
-	Name        string `bson:"name,omitempty" json:"name,omitempty"`
-	Layout      string `bson:"layout,omitempty" json:"layout,omitempty"`
-	Styles      string `bson:"styles,omitempty" json:"styles,omitempty"`
-	Script      string `bson:"script,omitempty" json:"script,omitempty"`
-	Body        string `bson:"body" json:"body"`
-	OGImage     string `bson:"ogImage,omitempty" json:"ogImage,omitempty"`
-	OGType      string `bson:"ogType,omitempty" json:"ogType,omitempty"`
+	Title       string `bson:"title,omitempty"`
+	Description string `bson:"description,omitempty"`
+	Name        string `bson:"name,omitempty"`
+	Layout      string `bson:"layout,omitempty"`
+	Styles      string `bson:"styles,omitempty"`
+	Script      string `bson:"script,omitempty"`
+	Body        string `bson:"body"`
+	OGImage     string `bson:"ogImage,omitempty"`
+	OGType      string `bson:"ogType,omitempty"`
 }
 
 var EmptyPage = &Page{}

@@ -43,6 +43,9 @@ type Application struct {
 	*commands.DeleteDraftModelCommand
 	*commands.CommitDraftCommand
 	*commands.CreateProductCommand
+	*commands.CreateProductPresentationCommand
+	*commands.UpdateProductPresentationCommand
+	*commands.DeleteProductPresentationCommand
 }
 
 type Deps struct {
@@ -97,5 +100,8 @@ func New(deps Deps) *Application {
 		commands.NewDeleteDraftModelCommand(deps.Drafts),
 		commands.NewCommitDraftCommand(deps.Configs, deps.Drafts, deps.Cache),
 		commands.NewCreateProductCommand(deps.Products),
+		commands.NewCreateProductPresentationCommand(deps.Products),
+		commands.NewUpdateProductPresentationCommand(deps.Products),
+		commands.NewDeleteProductPresentationCommand(deps.Products),
 	}
 }

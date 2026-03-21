@@ -82,6 +82,9 @@ func dashboard(mono *infrastructure.Monolith, app *application.Application, md *
 		mono.DashboardRouter.HandleFunc("GET /dashboard/products/create", ctrl.CreateModal)
 		mono.DashboardRouter.HandleFunc("POST /dashboard/products", ctrl.Create)
 		mono.DashboardRouter.HandleFunc("GET /dashboard/products/{id}", ctrl.Show)
+		mono.DashboardRouter.HandleFunc("POST /dashboard/products/{id}/presentations", ctrl.CreatePresentation)
+		mono.DashboardRouter.HandleFunc("PATCH /dashboard/products/{id}/presentations/{presentationId}", ctrl.UpdatePresentation)
+		mono.DashboardRouter.HandleFunc("DELETE /dashboard/products/{id}/presentations/{presentationId}", ctrl.DeletePresentation)
 	}
 
 	mono.WebRouter.HandleFunc("/dashboard/", md.WithPath(md.WithRole(mono.DashboardRouter)))

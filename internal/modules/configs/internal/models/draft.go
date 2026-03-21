@@ -8,9 +8,9 @@ import (
 )
 
 type Color struct {
-	ID    primitive.ObjectID `bson:"_id" json:"id"`
-	Value string             `bson:"value" json:"value"`
-	Tag   string             `bson:"tag" json:"tag"`
+	ID    primitive.ObjectID `bson:"_id"`
+	Value string             `bson:"value"`
+	Tag   string             `bson:"tag"`
 }
 
 type Colors []*Color
@@ -20,15 +20,15 @@ type Pages map[string]*Page
 type Emails map[string]*Email
 
 type Draft struct {
-	ID        primitive.ObjectID `bson:"_id" json:"id"`
-	ConfigID  primitive.ObjectID `bson:"configId" json:"configId"`
-	CreatedAt time.Time          `bson:"createdAt" json:"createdAt"`
-	UpdatedAt time.Time          `bson:"updatedAt" json:"updatedAt"`
-	Layouts   Layouts            `bson:"layouts" json:"layouts"`
-	Fonts     Fonts              `bson:"fonts" json:"fonts"`
-	Pages     Pages              `bson:"pages" json:"pages"`
-	Emails    Emails             `bson:"emails" json:"emails"`
-	Colors    Colors             `bson:"colors" json:"colors"`
+	ID        primitive.ObjectID `bson:"_id"`
+	ConfigID  primitive.ObjectID `bson:"configId"`
+	CreatedAt time.Time          `bson:"createdAt"`
+	UpdatedAt time.Time          `bson:"updatedAt"`
+	Layouts   Layouts            `bson:"layouts"`
+	Fonts     Fonts              `bson:"fonts"`
+	Pages     Pages              `bson:"pages"`
+	Emails    Emails             `bson:"emails"`
+	Colors    Colors             `bson:"colors"`
 }
 
 type DraftRepository interface {

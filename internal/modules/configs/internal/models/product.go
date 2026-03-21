@@ -12,7 +12,7 @@ type Product struct {
 	OrganizationID primitive.ObjectID `bson:"organizationId"`
 	Name           string             `bson:"name"`
 	Slug           string             `bson:"slug"`
-	Presentations  []Presentation     `bson:"presentations,omitempty"`
+	Presentations  []*Presentation    `bson:"presentations,omitempty"`
 	Published      bool               `bson:"published"`
 	CreatedAt      time.Time          `bson:"createdAt"`
 	UpdatedAt      time.Time          `bson:"updatedAt"`

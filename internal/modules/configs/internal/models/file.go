@@ -25,22 +25,23 @@ import (
 )
 
 type File struct {
-	ID             primitive.ObjectID `bson:"_id" json:"id"`
-	OrganizationID primitive.ObjectID `bson:"organizationId" json:"organizationId"`
-	Name           string             `bson:"name" json:"name"`
-	Preset         string             `bson:"preset" json:"preset"`
-	Formats        []Format           `bson:"formats" json:"formats"`
-	CreatedAt      time.Time          `bson:"createdAt" json:"createdAt"`
-	UpdatedAt      time.Time          `bson:"updatedAt" json:"updatedAt"`
+	ID             primitive.ObjectID `bson:"_id"`
+	OrganizationID primitive.ObjectID `bson:"organizationId"`
+	Name           string             `bson:"name"`
+	Preset         string             `bson:"preset"`
+	Hidden         bool               `bson:"hidden"`
+	Formats        []Format           `bson:"formats"`
+	CreatedAt      time.Time          `bson:"createdAt"`
+	UpdatedAt      time.Time          `bson:"updatedAt"`
 }
 
 type Format struct {
-	ID          primitive.ObjectID `bson:"_id" json:"id"`
-	Variant     int                `bson:"variant" json:"variant"`
-	Size        int64              `bson:"size" json:"size"`
-	Width       int                `bson:"width" json:"width"`
-	Height      int                `bson:"height" json:"height"`
-	ContentType string             `bson:"contentType" json:"contentType"`
+	ID          primitive.ObjectID `bson:"_id"`
+	Variant     int                `bson:"variant"`
+	Size        int64              `bson:"size"`
+	Width       int                `bson:"width"`
+	Height      int                `bson:"height"`
+	ContentType string             `bson:"contentType"`
 }
 
 type FileRepository interface {

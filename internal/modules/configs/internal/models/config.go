@@ -8,19 +8,19 @@ import (
 )
 
 type Config struct {
-	ID             primitive.ObjectID `bson:"_id,omitempty" json:"id"`
-	OrganizationID primitive.ObjectID `bson:"organizationId" json:"organizationId"`
-	CreatedAt      time.Time          `bson:"createdAt" json:"createdAt"`
-	UpdatedAt      time.Time          `bson:"updatedAt" json:"updatedAt"`
-	Host           string             `bson:"host" json:"host"`
-	Title          string             `bson:"title" json:"title"`
-	Url            string             `bson:"url" json:"url"`
-	Email          string             `bson:"email" json:"email"`
-	Fonts          Fonts              `bson:"fonts" json:"fonts"`
-	Pages          Pages              `bson:"pages" json:"pages"`
-	Layouts        Layouts            `bson:"layouts" json:"layouts"`
-	Emails         Emails             `bson:"emails" json:"emails"`
-	Colors         Colors             `bson:"colors" json:"colors"`
+	ID             primitive.ObjectID `bson:"_id,omitempty"`
+	OrganizationID primitive.ObjectID `bson:"organizationId"`
+	CreatedAt      time.Time          `bson:"createdAt"`
+	UpdatedAt      time.Time          `bson:"updatedAt"`
+	Host           string             `bson:"host"`
+	Title          string             `bson:"title"`
+	Url            string             `bson:"url"`
+	Email          string             `bson:"email"`
+	Fonts          Fonts              `bson:"fonts"`
+	Pages          Pages              `bson:"pages"`
+	Layouts        Layouts            `bson:"layouts"`
+	Emails         Emails             `bson:"emails"`
+	Colors         Colors             `bson:"colors"`
 }
 
 type ConfigRepository interface {

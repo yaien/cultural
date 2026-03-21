@@ -26,9 +26,9 @@ func Register(migration Migration) {
 }
 
 type MigrationEntry struct {
-	ID        string    `bson:"_id,omitempty" json:"id"`
-	Name      string    `bson:"name" json:"name"`
-	AppliedAt time.Time `bson:"appliedAt" json:"appliedAt"`
+	ID        string    `bson:"_id,omitempty"`
+	Name      string    `bson:"name"`
+	AppliedAt time.Time `bson:"appliedAt"`
 }
 
 func Migrate(ctx context.Context, db *mongo.Database) error {

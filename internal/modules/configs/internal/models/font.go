@@ -8,16 +8,16 @@ import (
 )
 
 type Font struct {
-	ID        primitive.ObjectID `bson:"_id" json:"id"`
-	CreatedAt time.Time          `bson:"createdAt" json:"createdAt"`
-	UpdatedAt time.Time          `bson:"updatedAt" json:"updatedAt"`
-	Provider  string             `bson:"provider" json:"provider"`
-	Family    string             `bson:"family" json:"family"`
-	Category  string             `bson:"category" json:"category"`
-	Subsets   []string           `bson:"subsets" json:"subsets"`
-	Variants  []string           `bson:"variants" json:"variants"`
-	Version   string             `bson:"version" json:"version"`
-	Files     map[string]string  `bson:"files" json:"files"`
+	ID        primitive.ObjectID `bson:"_id"`
+	CreatedAt time.Time          `bson:"createdAt"`
+	UpdatedAt time.Time          `bson:"updatedAt"`
+	Provider  string             `bson:"provider"`
+	Family    string             `bson:"family"`
+	Category  string             `bson:"category"`
+	Subsets   []string           `bson:"subsets"`
+	Variants  []string           `bson:"variants"`
+	Version   string             `bson:"version"`
+	Files     map[string]string  `bson:"files"`
 }
 
 type FindFontOptions struct {

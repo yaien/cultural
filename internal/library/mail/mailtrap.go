@@ -49,16 +49,16 @@ type MailtrapClient struct {
 }
 
 type mailtrapAddress struct {
-	Email string `json:"email"`
-	Name  string `json:"name,omitempty"`
+	Email string
+	Name  string
 }
 
 type mailtrapPayload struct {
-	From     mailtrapAddress   `json:"from"`
-	To       []mailtrapAddress `json:"to"`
-	Subject  string            `json:"subject"`
-	HTML     string            `json:"html,omitempty"`
-	Category string            `json:"category,omitempty"`
+	From     mailtrapAddress
+	To       []mailtrapAddress
+	Subject  string
+	HTML     string
+	Category string
 }
 
 func (c *MailtrapClient) Send(ctx context.Context, email *Email) error {

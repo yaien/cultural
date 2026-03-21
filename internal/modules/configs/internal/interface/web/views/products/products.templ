@@ -1,8 +1,12 @@
 package products
 
-import "github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views/dashboard"
-import "github.com/yaien/cultural/internal/modules/configs/internal/models"
-import "github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views/icons"
+import (
+	"fmt"
+	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views/dashboard"
+	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views/icons"
+	"github.com/yaien/cultural/internal/modules/configs/internal/models"
+	"slices"
+)
 
 templ Page(products []*models.Product) {
 	@dashboard.Page("Productos") {
@@ -54,7 +58,7 @@ templ Create() {
 	}
 }
 
-templ Show(product *models.Product) {
+templ Show(product *models.Product, presentation *models.Presentation) {
 	@dashboard.Page("Productos") {
 		<div class="container flex justify-center">
 			<div class="flex flex-column">
@@ -80,54 +84,96 @@ templ Show(product *models.Product) {
 						</div>
 					</form>
 				</article>
-				<article>
-					<h4 class="text-center m-0 m-b">Presentaciones</h4>
-					<div role="group">
-						<button>
-							base
-						</button>
-						<button class="icon">
-							@icons.Add()
-						</button>
-					</div>
-					<form>
-						<fieldset>
-							<legend>Nombre</legend>
-							<input name="name"/>
-						</fieldset>
-						<fieldset>
-							<legend>Inventario</legend>
-							<input name="inventory" type="number" min="0"/>
-						</fieldset>
-						<fieldset>
-							<legend>Precio</legend>
-							<input name="price" type="number" min="0" step="1000"/>
-						</fieldset>
-						<div class="flex justify-around">
-							<button class="danger" type="button">
-								Eliminar
-							</button>
-							<button>Guardar</button>
-						</div>
-					</form>
-				</article>
+				@Presentations(product, presentation)
 			</div>
-			<div>
-				<article>
-					<div class="placeholder" style="width: 100%; aspect-ratio: 1/1; margin-bottom: 0.5rem; "></div>
-					<div class="flex">
-						<div class="placeholder" style="width: 100px; aspect-ratio: 1/1"></div>
-						<div class="placeholder" style="width: 100px; aspect-ratio: 1/1"></div>
-						<div class="placeholder" style="width: 100px; aspect-ratio: 1/1"></div>
-						<div class="placeholder" style="width: 100px; aspect-ratio: 1/1"></div>
-						<div class="placeholder flex justify-center align-center" style="width: 100px;">
-							<button class="clear">
-								@icons.Add()
-							</button>
-						</div>
-					</div>
-				</article>
-			</div>
+			@Pictures(presentation)
 		</div>
 	}
+}
+
+const PresentationsID = "presentations"
+
+templ Presentations(product *models.Product, presentation *models.Presentation) {
+	<article id={ PresentationsID }>
+		<h4 class="text-center m-0 m-b">Presentaciones</h4>
+		<div role="group">
+			for _, pre := range product.Presentations {
+				<button
+					if presentation != nil && pre.ID == presentation.ID {
+						class="active"
+					} else {
+						hx-get={ fmt.Sprintf("/dashboard/products/%s?presentation=%s", product.ID.Hex(), pre.ID.Hex()) }
+						hx-target={ "#" + PresentationsID }
+						hx-swap="outerHTML"
+						hx-push-url="true"
+					}
+				>
+					{ pre.Name }
+				</button>
+			}
+			<button
+				class="icon"
+				hx-post={ fmt.Sprintf("/dashboard/products/%s/presentations", product.ID.Hex()) }
+				hx-target={ "#" + PresentationsID }
+				hx-swap="outerHTML"
+			>
+				@icons.Add()
+			</button>
+		</div>
+		if presentation != nil {
+			{{ url := fmt.Sprintf("/dashboard/products/%s/presentations/%s", product.ID.Hex(), presentation.ID.Hex()) }}
+			<form hx-patch={ url } hx-target={ "#" + PresentationsID } hx-swap="outerHTML">
+				<fieldset>
+					<legend>Nombre</legend>
+					<input name="name" value={ presentation.Name }/>
+				</fieldset>
+				<fieldset>
+					<legend>Inventario</legend>
+					<input name="quantity" type="number" min="0" value={ presentation.Quantity }/>
+				</fieldset>
+				<fieldset>
+					<legend>Precio</legend>
+					<input name="price" type="number" min="0" step="1000" value={ presentation.Price }/>
+				</fieldset>
+				<div class="flex justify-around">
+					<button
+						class="danger"
+						type="button"
+						hx-delete={ url }
+						hx-target={ "#" + PresentationsID }
+						hx-swap="outerHTML"
+					>
+						Eliminar
+					</button>
+					<button>Guardar</button>
+				</div>
+			</form>
+		}
+	</article>
+}
+
+type Options int
+
+const SWAPOOB = Options(1)
+
+templ Pictures(presentation *models.Presentation, options ...Options) {
+	<article
+		id="pictures"
+		if slices.Contains(options, SWAPOOB) {
+			hx-swap-oob="true"
+		}
+	>
+		<div class="placeholder" style="width: 100%; aspect-ratio: 1/1; margin-bottom: 0.5rem; "></div>
+		<div class="flex">
+			<div class="placeholder" style="width: 100px; aspect-ratio: 1/1"></div>
+			<div class="placeholder" style="width: 100px; aspect-ratio: 1/1"></div>
+			<div class="placeholder" style="width: 100px; aspect-ratio: 1/1"></div>
+			<div class="placeholder" style="width: 100px; aspect-ratio: 1/1"></div>
+			<div class="placeholder flex justify-center align-center" style="width: 100px;">
+				<button class="clear">
+					@icons.Add()
+				</button>
+			</div>
+		</div>
+	</article>
 }
