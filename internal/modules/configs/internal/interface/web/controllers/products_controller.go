@@ -98,7 +98,7 @@ func (c *ProductsController) Show(w http.ResponseWriter, r *http.Request) {
 	if r.Header.Get("HX-Target") == products.PresentationsID {
 		_ = templ.Join(
 			products.Presentations(product, presentation),
-			products.Pictures(presentation, products.SWAPOOB),
+			products.Pictures(product, presentation, products.SWAPOOB),
 		).Render(ctx, w)
 
 		return
@@ -125,7 +125,7 @@ func (c *ProductsController) CreatePresentation(w http.ResponseWriter, r *http.R
 
 	_ = templ.Join(
 		products.Presentations(product, presentation),
-		products.Pictures(presentation, products.SWAPOOB),
+		products.Pictures(product, presentation, products.SWAPOOB),
 	).Render(ctx, w)
 }
 
@@ -209,7 +209,51 @@ func (c *ProductsController) DeletePresentation(w http.ResponseWriter, r *http.R
 
 	_ = templ.Join(
 		products.Presentations(product, presentation),
-		products.Pictures(presentation, products.SWAPOOB),
+		products.Pictures(product, presentation, products.SWAPOOB),
+	).Render(ctx, w)
+
+}
+
+func (c *ProductsController) UploadPresentationFile(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	config := ctx.Value(middlewares.ConfigContextKey).(*models.Config)
+
+	productID, err := primitive.ObjectIDFromHex(r.PathValue("id"))
+	if err != nil {
+		WriteHTMLErr(w, models.DecodeError(fmt.Errorf("invalid product id: %w", err)))
+		return
+	}
+
+	presentationID, err := primitive.ObjectIDFromHex(r.PathValue("presentationId"))
+	if err != nil {
+		WriteHTMLErr(w, models.DecodeError(fmt.Errorf("invalid presentation id: %w", err)))
+		return
+	}
+
+	file, fileheader, err := r.FormFile("file")
+	if err != nil {
+		WriteHTMLErr(w, fmt.Errorf("error retrieving file: %w", err))
+		return
+	}
+
+	product, presentation, err := c.app.AddProductPresentationFile(ctx, commands.AddProductPresentationFileRequest{
+		PresentationID: presentationID,
+		ProductID:      productID,
+		OrganizationID: config.OrganizationID,
+		Name:           fileheader.Filename,
+		Size:           fileheader.Size,
+		ContentType:    fileheader.Header.Get("Content-Type"),
+		Data:           file,
+	})
+
+	if err != nil {
+		WriteHTMLErr(w, fmt.Errorf("error adding presentation picture: %w", err))
+		return
+	}
+
+	_ = templ.Join(
+		products.Pictures(product, presentation),
+		dashboard.Toast("Archivo subido", dashboard.Primary),
 	).Render(ctx, w)
 
 }

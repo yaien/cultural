@@ -86,7 +86,7 @@ templ Show(product *models.Product, presentation *models.Presentation) {
 				</article>
 				@Presentations(product, presentation)
 			</div>
-			@Pictures(presentation)
+			@Pictures(product, presentation)
 		</div>
 	}
 }
@@ -156,24 +156,75 @@ type Options int
 
 const SWAPOOB = Options(1)
 
-templ Pictures(presentation *models.Presentation, options ...Options) {
+templ Pictures(product *models.Product, presentation *models.Presentation, options ...Options) {
 	<article
 		id="pictures"
 		if slices.Contains(options, SWAPOOB) {
 			hx-swap-oob="true"
 		}
 	>
-		<div class="placeholder" style="width: 100%; aspect-ratio: 1/1; margin-bottom: 0.5rem; "></div>
-		<div class="flex">
-			<div class="placeholder" style="width: 100px; aspect-ratio: 1/1"></div>
-			<div class="placeholder" style="width: 100px; aspect-ratio: 1/1"></div>
-			<div class="placeholder" style="width: 100px; aspect-ratio: 1/1"></div>
-			<div class="placeholder" style="width: 100px; aspect-ratio: 1/1"></div>
-			<div class="placeholder flex justify-center align-center" style="width: 100px;">
-				<button class="clear">
-					@icons.Add()
-				</button>
-			</div>
-		</div>
+		if presentation == nil {
+			@PicturesPlaceholder(options...)
+		} else {
+			@PicturesDisplay(product, presentation)
+		}
 	</article>
+}
+
+templ PicturesPlaceholder(options ...Options) {
+	<div class="flex flex-column align-center justify-center">
+		<div class="placeholder m-b" style="width: 450px"></div>
+		<div class="flex">
+			for range 5 {
+				<div class="placeholder" style="width: 100px"></div>
+			}
+		</div>
+	</div>
+}
+
+templ PicturesDisplay(product *models.Product, presentation *models.Presentation) {
+	{{
+		var selected string
+		if len(presentation.FileIDS) > 0 {
+			selected = presentation.FileIDS[0].Hex()
+		}
+	}}
+	<div class="flex flex-column align-center justify-center h-100" x-data={ fmt.Sprintf("{ selected: %q }", selected) }>
+		<div class="placeholder m-b aspect-square" style="width: 450px">
+			<img class="w-100 cover aspect-square" x-show="selected" :src="'/dashboard/files/' + selected" alt=""/>
+		</div>
+		<div class="flex">
+			for _, fileID := range presentation.FileIDS {
+				<div class="placeholder pointer" style="width: 100px" x-data={ fmt.Sprintf("{ file: %q }", fileID.Hex()) } @click="selected = file">
+					<img class="w-100 cover aspect-square" src={ "/dashboard/files/" + fileID.Hex() } alt=""/>
+				</div>
+			}
+			for range 5 - len(presentation.FileIDS) - 1 {
+				<div class="placeholder" style="width: 100px"></div>
+			}
+			if len(presentation.FileIDS) < 5 {
+				<div class="placeholder flex justify-center align-center aspect-square" style="width: 100px;" x-data="progress">
+					<div x-show="loading" class="progress w-100">
+						<div :style="{ width: percent + '%' }"></div>
+					</div>
+					<input
+						type="file"
+						name="file"
+						hidden="true"
+						accept="image/*"
+						x-ref="fileinput"
+						hx-post={ fmt.Sprintf("/dashboard/products/%s/presentations/%s/files", product.ID.Hex(), presentation.ID.Hex()) }
+						hx-encoding="multipart/form-data"
+						hx-trigger="change changed"
+						hx-target="#pictures"
+						hx-swap="outerHTML"
+						@htmx:xhr:progress="progress($event)"
+					/>
+					<button class="clear" x-show="!loading" @click="$refs.fileinput.click()">
+						@icons.Add()
+					</button>
+				</div>
+			}
+		</div>
+	</div>
 }

@@ -46,6 +46,7 @@ type Application struct {
 	*commands.CreateProductPresentationCommand
 	*commands.UpdateProductPresentationCommand
 	*commands.DeleteProductPresentationCommand
+	*commands.AddProductPresentationFileCommand
 }
 
 type Deps struct {
@@ -103,5 +104,6 @@ func New(deps Deps) *Application {
 		commands.NewCreateProductPresentationCommand(deps.Products),
 		commands.NewUpdateProductPresentationCommand(deps.Products),
 		commands.NewDeleteProductPresentationCommand(deps.Products),
+		commands.NewAddProductPresentationFileCommand(deps.Products, commands.NewUploadFileCommand(deps.Files, deps.Storage, deps.Queue)),
 	}
 }

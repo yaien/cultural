@@ -29,7 +29,6 @@ type File struct {
 	OrganizationID primitive.ObjectID `bson:"organizationId"`
 	Name           string             `bson:"name"`
 	Preset         string             `bson:"preset"`
-	Hidden         bool               `bson:"hidden"`
 	Formats        []Format           `bson:"formats"`
 	CreatedAt      time.Time          `bson:"createdAt"`
 	UpdatedAt      time.Time          `bson:"updatedAt"`
