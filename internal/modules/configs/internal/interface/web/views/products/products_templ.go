@@ -744,7 +744,7 @@ func PicturesDisplay(product *models.Product, presentation *models.Presentation)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "\" alt=\"\"></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "\" alt=\"\" draggable=\"true\"></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -756,20 +756,20 @@ func PicturesDisplay(product *models.Product, presentation *models.Presentation)
 			}
 		}
 		if len(presentation.FileIDS) < 5 {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 54, "<div class=\"placeholder flex justify-center align-center aspect-square\" style=\"width: 100px;\" x-data=\"progress\"><div x-show=\"loading\" class=\"progress w-100\"><div :style=\"{ width: percent + '%' }\"></div></div><input type=\"file\" name=\"file\" hidden=\"true\" accept=\"image/*\" x-ref=\"fileinput\" hx-post=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 54, "<div class=\"placeholder flex justify-center align-center aspect-square\" style=\"width: 100px;\" x-data=\"progress\"><div x-show=\"loading\" class=\"progress w-100\"><div :style=\"{ width: percent + '%' }\"></div></div><form hx-post=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var36 string
 			templ_7745c5c3_Var36, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("/dashboard/products/%s/presentations/%s/files", product.ID.Hex(), presentation.ID.Hex()))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `products/products.templ`, Line: 216, Col: 117}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `products/products.templ`, Line: 211, Col: 117}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var36))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 55, "\" hx-encoding=\"multipart/form-data\" hx-trigger=\"change changed\" hx-target=\"#pictures\" hx-swap=\"outerHTML\" @htmx:xhr:progress=\"progress($event)\"> <button class=\"clear\" x-show=\"!loading\" @click=\"$refs.fileinput.click()\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 55, "\" hx-encoding=\"multipart/form-data\" hx-trigger=\"change changed\" hx-target=\"#pictures\" hx-swap=\"outerHTML\" @htmx:xhr:progress=\"progress($event)\"><input type=\"file\" name=\"file\" hidden=\"true\" accept=\"image/*\" x-ref=\"fileinput\"></form><button class=\"clear\" x-show=\"!loading\" @click=\"$refs.fileinput.click()\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

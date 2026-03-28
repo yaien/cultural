@@ -196,7 +196,7 @@ templ PicturesDisplay(product *models.Product, presentation *models.Presentation
 		<div class="flex">
 			for _, fileID := range presentation.FileIDS {
 				<div class="placeholder pointer" style="width: 100px" x-data={ fmt.Sprintf("{ file: %q }", fileID.Hex()) } @click="selected = file">
-					<img class="w-100 cover aspect-square" src={ "/dashboard/files/" + fileID.Hex() } alt=""/>
+					<img class="w-100 cover aspect-square" src={ "/dashboard/files/" + fileID.Hex() } alt="" draggable="true"/>
 				</div>
 			}
 			for range 5 - len(presentation.FileIDS) - 1 {
@@ -207,19 +207,16 @@ templ PicturesDisplay(product *models.Product, presentation *models.Presentation
 					<div x-show="loading" class="progress w-100">
 						<div :style="{ width: percent + '%' }"></div>
 					</div>
-					<input
-						type="file"
-						name="file"
-						hidden="true"
-						accept="image/*"
-						x-ref="fileinput"
+					<form
 						hx-post={ fmt.Sprintf("/dashboard/products/%s/presentations/%s/files", product.ID.Hex(), presentation.ID.Hex()) }
 						hx-encoding="multipart/form-data"
 						hx-trigger="change changed"
 						hx-target="#pictures"
 						hx-swap="outerHTML"
 						@htmx:xhr:progress="progress($event)"
-					/>
+					>
+						<input type="file" name="file" hidden="true" accept="image/*" x-ref="fileinput"/>
+					</form>
 					<button class="clear" x-show="!loading" @click="$refs.fileinput.click()">
 						@icons.Add()
 					</button>
