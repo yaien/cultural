@@ -11,15 +11,14 @@ import (
 )
 
 type Application struct {
+	Deps Deps
+
 	*queries.GetConfigByHostQuery
 	*queries.GetUserByIDQuery
 	*queries.GetRoleQuery
 	*queries.GetRolesQuery
 	*queries.GetFontsQuery
 	*queries.GetFontQuery
-	*queries.GetFileDataQuery
-	*queries.GetFileQuery
-	*queries.GetFilesQuery
 	*queries.GetDraftByConfigIDQuery
 	*queries.GetPreviewQuery
 	*queries.GetProductsQuery
@@ -30,9 +29,6 @@ type Application struct {
 	*commands.AcceptInvitationCommand
 	*commands.UpdateRoleCommand
 	*commands.DeleteRoleCommand
-	*commands.UploadFileCommand
-	*commands.RenameFileCommand
-	*commands.DeleteFileCommand
 	*commands.UpdateDraftBasicCommand
 	*commands.UpdateDraftSourceCommand
 	*commands.UpdateDraftFontCommand
@@ -57,27 +53,25 @@ type Deps struct {
 	Groups        models.GroupRepository
 	Users         models.UserRepository
 	Fonts         models.FontRepository
-	Files         models.FileRepository
 	Drafts        models.DraftRepository
 	Products      models.ProductRepository
 	Cache         *cache.Cache[*models.Config]
 	Queue         *worker.Queue
 	Registry      *models.IntegrationRegistry
 	Mail          mail.Mail
-	Storage       storage.Storage
+	Storage       *storage.Storage
 }
 
 func New(deps Deps) *Application {
 	return &Application{
+		deps,
+
 		queries.NewGetConfigByHostQuery(deps.Configs, deps.Cache),
 		queries.NewGetUserByIDQuery(deps.Users),
 		queries.NewGetRoleQuery(deps.Roles),
 		queries.NewGetRolesQuery(deps.Roles),
 		queries.NewGetFontsQuery(deps.Fonts),
 		queries.NewGetFontQuery(deps.Fonts),
-		queries.NewGetFileDataQuery(deps.Files, deps.Storage),
-		queries.NewGetFileQuery(deps.Files),
-		queries.NewGetFilesQuery(deps.Files),
 		queries.NewGetDraftByConfigIDQuery(deps.Drafts),
 		queries.NewGetPreviewQuery(deps.Drafts, deps.Registry),
 		queries.NewGetProductsQuery(deps.Products),
@@ -88,9 +82,6 @@ func New(deps Deps) *Application {
 		commands.NewAcceptInvitationCommand(deps.Invitations, deps.Roles),
 		commands.NewUpdateRoleCommand(deps.Roles, deps.Groups),
 		commands.NewDeleteRoleCommand(deps.Roles),
-		commands.NewUploadFileCommand(deps.Files, deps.Storage, deps.Queue),
-		commands.NewRenameFileCommand(deps.Files),
-		commands.NewDeleteFileCommand(deps.Files, deps.Storage),
 		commands.NewUpdateDraftBasicCommand(deps.Drafts),
 		commands.NewUpdateDraftSourceCommand(deps.Drafts),
 		commands.NewUpdateDraftFontCommand(deps.Drafts, deps.Fonts),
@@ -104,6 +95,6 @@ func New(deps Deps) *Application {
 		commands.NewCreateProductPresentationCommand(deps.Products),
 		commands.NewUpdateProductPresentationCommand(deps.Products),
 		commands.NewDeleteProductPresentationCommand(deps.Products),
-		commands.NewAddProductPresentationFileCommand(deps.Products, commands.NewUploadFileCommand(deps.Files, deps.Storage, deps.Queue)),
+		commands.NewAddProductPresentationFileCommand(deps.Products, deps.Storage),
 	}
 }

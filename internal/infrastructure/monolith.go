@@ -26,7 +26,7 @@ type Monolith struct {
 	DashboardRouter *http.ServeMux
 	SessionStore    sessions.Store
 	Mail            mail.Mail
-	Storage         storage.Storage
+	StorageDriver   storage.Driver
 	Queue           *worker.Queue
 	Worker          *worker.Worker
 	Cron            *cron.Cron
@@ -40,7 +40,7 @@ func NewMonolith() *Monolith {
 	m.MongoDB = setupMongoDB(config)
 	m.SessionStore = setupSessionStore(config)
 	m.Mail = setupMail(config)
-	m.Storage = setupStorage(config)
+	m.StorageDriver = setupStorage(config)
 	m.Router = http.NewServeMux()
 	m.WebRouter = http.NewServeMux()
 	m.DashboardRouter = http.NewServeMux()
@@ -74,7 +74,7 @@ func setupMail(config *Config) mail.Mail {
 	}
 }
 
-func setupStorage(config *Config) storage.Storage {
+func setupStorage(config *Config) storage.Driver {
 	switch config.Storage.Provider {
 	case "local":
 		return storage.NewLocal(config.Storage.Local.Path)

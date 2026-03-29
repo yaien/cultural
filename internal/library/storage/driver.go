@@ -1,0 +1,11 @@
+package storage
+
+import "io"
+
+type Driver interface {
+	Put(id string, size int64, data io.Reader) error
+	Remove(id string) error
+	Get(id string) (io.ReadCloser, error)
+	Mount(id string) (dir, src string, err error)
+	Unmount(dir string) error
+}

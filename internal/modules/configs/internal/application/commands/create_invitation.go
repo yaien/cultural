@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/yaien/cultural/internal/library/mail"
+	"github.com/yaien/cultural/internal/library/storage"
 	"github.com/yaien/cultural/internal/modules/configs/internal/models"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -55,7 +56,7 @@ type invitationEmailData struct {
 	OrganizationName string
 	InvitationURL    string
 	ConfigURL        string
-	FileURL          models.FileURLFunc
+	FileURL          storage.URLFunc
 }
 
 func (c *CreateInvitationCommand) CreateInvitation(ctx context.Context, req *CreateInvitationRequest) (*models.Invitation, error) {
@@ -116,7 +117,7 @@ func (c *CreateInvitationCommand) CreateInvitation(ctx context.Context, req *Cre
 		OrganizationName: organization.Name,
 		InvitationURL:    fmt.Sprintf("%s/invitation/%s", config.Url, invitation.ID.Hex()),
 		ConfigURL:        config.Url,
-		FileURL:          models.NewExternalFileURLFunc(config.Url, organization.ID),
+		FileURL:          storage.NewExternalURLFunc(config.Url, organization.ID),
 	}
 
 	subjectTemplate, err := template.New("subject").Parse(email.Subject)

@@ -9,7 +9,6 @@ import (
 	"github.com/yaien/cultural/internal/infrastructure/migrations"
 	"github.com/yaien/cultural/internal/library/storage"
 	"github.com/yaien/cultural/internal/library/worker"
-	"github.com/yaien/cultural/internal/modules/configs/internal/models"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -25,20 +24,20 @@ func init() {
 				OrganizationID primitive.ObjectID `bson:"organizationId"`
 				Name           string             `bson:"name"`
 				Size           int64              `bson:"size"`
-				Formats        []models.Format    `bson:"formats"`
+				Formats        []storage.Format   `bson:"formats"`
 				MimeType       string             `bson:"mimeType"`
 				CreatedAt      time.Time          `bson:"createdAt"`
 				UpdatedAt      time.Time          `bson:"updatedAt"`
 			}
 
 			type NewFile struct {
-				ID             primitive.ObjectID    `bson:"_id"`
-				OrganizationID primitive.ObjectID    `bson:"organizationId"`
-				Name           string                `bson:"name"`
-				ContentType    string                `bson:"contentType"`
-				Formats        map[int]models.Format `bson:"formats"`
-				CreatedAt      time.Time             `bson:"createdAt"`
-				UpdatedAt      time.Time             `bson:"updatedAt"`
+				ID             primitive.ObjectID     `bson:"_id"`
+				OrganizationID primitive.ObjectID     `bson:"organizationId"`
+				Name           string                 `bson:"name"`
+				ContentType    string                 `bson:"contentType"`
+				Formats        map[int]storage.Format `bson:"formats"`
+				CreatedAt      time.Time              `bson:"createdAt"`
+				UpdatedAt      time.Time              `bson:"updatedAt"`
 			}
 
 			cfg := infrastructure.LoadConfig()
@@ -68,12 +67,12 @@ func init() {
 					return fmt.Errorf("failed getting file %s from storage: %w", oldie.ID.Hex(), err)
 				}
 
-				width, height, quality, err := models.GetFileDimensionByContentType(ctx, src, oldie.MimeType)
+				width, height, quality, err := storage.GetDimensionByContentType(ctx, src, oldie.MimeType)
 				if err != nil {
 					return fmt.Errorf("failed getting dimensions for file %s: %w", oldie.ID.Hex(), err)
 				}
 
-				format := models.Format{
+				format := storage.Format{
 					ID:      oldie.ID,
 					Size:    oldie.Size,
 					Width:   width,
@@ -86,7 +85,7 @@ func init() {
 					OrganizationID: oldie.OrganizationID,
 					Name:           oldie.Name,
 					ContentType:    oldie.MimeType,
-					Formats:        map[int]models.Format{format.Variant: format},
+					Formats:        map[int]storage.Format{format.Variant: format},
 					CreatedAt:      oldie.CreatedAt,
 					UpdatedAt:      time.Now(),
 				}
@@ -96,8 +95,8 @@ func init() {
 					return fmt.Errorf("failed updating file: %w", err)
 				}
 
-				file := &models.File{ID: oldie.ID}
-				if err := queue.Push(ctx, file.NewGenerateFormatsTask()); err != nil {
+				file := &storage.File{ID: oldie.ID}
+				if err := queue.Push(ctx, storage.NewTask(file)); err != nil {
 					return fmt.Errorf("failed pushing optimize task: %w", err)
 				}
 

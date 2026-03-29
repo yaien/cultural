@@ -1,4 +1,4 @@
-package models
+package storage
 
 import (
 	"log/slog"
@@ -8,147 +8,15 @@ import (
 	"testing"
 )
 
-func TestFileGetFormat(t *testing.T) {
-	tests := []struct {
-		name     string
-		variants []int
-		query    int
-		want     int
-		err      string
-	}{
-		{
-			name: "If No Formats: return err",
-			err:  "file has no formats",
-		},
-		{
-			name:     "If only one format, return it",
-			variants: []int{100},
-			query:    300,
-			want:     100,
-		},
-		{
-			name:     "If query is 0, return the best format",
-			variants: []int{200, 300, 100},
-			query:    0,
-			want:     300,
-		},
-		{
-			name:     "If query is less than zero formats, return the best format",
-			variants: []int{200, 300, 100},
-			query:    -1,
-			want:     300,
-		},
-		{
-			name:     "If query is greater than all formats, return the best format",
-			variants: []int{200, 300, 100},
-			query:    400,
-			want:     300,
-		},
-		{
-			name:     "If query is between formats, return the best format",
-			variants: []int{200, 300, 100},
-			query:    250,
-			want:     300,
-		},
-	}
-
-	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
-			formats := make([]Format, len(test.variants))
-			for i, f := range test.variants {
-				formats[i] = Format{Variant: f}
-			}
-
-			file := &File{Formats: formats}
-			format, err := file.GetFormat(test.query)
-
-			if test.err != "" {
-				if err == nil {
-					t.Errorf("Expected error '%s', got nil", test.err)
-					return
-				}
-
-				if err.Error() != test.err {
-					t.Errorf("Expected error '%s', got '%s'", test.err, err.Error())
-					return
-				}
-
-				return
-			}
-
-			if err != nil {
-				t.Fatalf("Unexpected error: %s", err.Error())
-			}
-
-			if format.Variant != test.want {
-				t.Errorf("Expected format quality %d, got %d", test.want, format.Variant)
-			}
-
-		})
-	}
-
-}
-
-func TestGetFileDimension(t *testing.T) {
-	var tests = []struct {
-		name        string
-		file        string
-		contentType string
-		width       int
-		height      int
-		variant     int
-		dimension   GetFileDimensionFunc
-	}{
-		{
-			name:        "big_photo",
-			file:        "testdata/big_photo.jpg",
-			contentType: "image/jpeg",
-			width:       3303,
-			height:      4954,
-			variant:     4954,
-			dimension:   GetImageDimension,
-		},
-		{
-			name:        "big_video",
-			file:        "testdata/big_video.mp4",
-			contentType: "video/mp4",
-			width:       1920,
-			height:      1080,
-			variant:     1080,
-			dimension:   GetVideoDimension,
-		},
-	}
-
-	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
-			ctx := t.Context()
-			width, height, quality, err := test.dimension(ctx, test.file)
-			if err != nil {
-				t.Fatalf("dimension returned an error: %v", err)
-			}
-			if width != test.width {
-				t.Errorf("Expected width %d, got %d", test.width, width)
-			}
-			if height != test.height {
-				t.Errorf("Expected height %d, got %d", test.height, height)
-			}
-			if quality != test.variant {
-				t.Errorf("Expected quality %d, got %d", test.variant, quality)
-			}
-		})
-	}
-}
-
 func TestConvertFiles(t *testing.T) {
 	tests := []struct {
-		name      string
-		src       string
-		variants  []int
-		convert   ConvertFunc
-		dimension GetFileDimensionFunc
+		name     string
+		src      string
+		preset   string
+		variants []int
 	}{
-		{"convert a big photo", "testdata/big_photo.jpg", []int{320, 640, 1280}, ConvertImage, GetImageDimension},
-		{"convert a big video", "testdata/big_video.mp4", []int{420, 720}, ConvertVideo, GetVideoDimension},
+		{"convert a big photo", "testdata/big_photo.jpg", "image", ImagePreset.Variants},
+		{"convert a big video", "testdata/big_video.mp4", "video", VideoPreset.Variants},
 	}
 
 	for _, test := range tests {
@@ -166,7 +34,7 @@ func TestConvertFiles(t *testing.T) {
 				}
 			}()
 
-			convertions, err := test.convert(ctx, test.src, outdir, test.variants)
+			convertions, err := Convert(ctx, test.preset, test.src, outdir)
 			if err != nil {
 				t.Fatalf("failed file convertion: %v", err)
 			}
@@ -190,7 +58,7 @@ func TestConvertFiles(t *testing.T) {
 					t.Fatalf("expected content type %s, got %s", conversion.ContentType, detectedContentType)
 				}
 
-				_, _, variant, err := test.dimension(ctx, conversion.Path)
+				_, _, variant, err := GetDimensionByContentType(ctx, conversion.Path, conversion.ContentType)
 				if err != nil {
 					t.Fatalf("failed to get file dimension: %v", err)
 				}
@@ -362,7 +230,7 @@ func TestFileConversionState(t *testing.T) {
 			}
 
 			if state.Preset != test.state.Preset {
-				t.Errorf("expected preset convert function presence '%v', got '%v'", &test.state.Preset.Convert, &state.Preset.Convert)
+				t.Errorf("expected preset convert function presence '%v', got '%v'", test.state.Preset.Name, state.Preset.Name)
 			}
 
 			if !slices.Equal(test.state.MissingVariants, state.MissingVariants) {

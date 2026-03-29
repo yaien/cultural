@@ -6,9 +6,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/yaien/cultural/internal/modules/configs/internal/application"
-	"github.com/yaien/cultural/internal/modules/configs/internal/application/commands"
-	"github.com/yaien/cultural/internal/modules/configs/internal/application/queries"
+	"github.com/yaien/cultural/internal/library/storage"
 	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/middlewares"
 	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views/pages"
 	"github.com/yaien/cultural/internal/modules/configs/internal/models"
@@ -16,11 +14,11 @@ import (
 )
 
 type FilesController struct {
-	app *application.Application
+	storage *storage.Storage
 }
 
-func NewFilesController(app *application.Application) *FilesController {
-	return &FilesController{app: app}
+func NewFilesController(s *storage.Storage) *FilesController {
+	return &FilesController{s}
 }
 
 func (fc *FilesController) Upload(w http.ResponseWriter, r *http.Request) {
@@ -34,7 +32,7 @@ func (fc *FilesController) Upload(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	config := ctx.Value(middlewares.ConfigContextKey).(*models.Config)
 
-	var files []*models.File
+	var files []*storage.File
 
 	for _, handler := range r.MultipartForm.File["files"] {
 		data, err := handler.Open()
@@ -49,7 +47,7 @@ func (fc *FilesController) Upload(w http.ResponseWriter, r *http.Request) {
 			}
 		}()
 
-		file, err := fc.app.UploadFile(ctx, &commands.UploadFileRequest{
+		file, err := fc.storage.Upload(ctx, &storage.UploadOptions{
 			Name:           handler.Filename,
 			Size:           handler.Size,
 			ContentType:    handler.Header.Get("Content-Type"),
@@ -64,7 +62,7 @@ func (fc *FilesController) Upload(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	w.Header().Set("HX-Trigger", "render")
-	_ = pages.FileGrid(files, models.FileURL).Render(ctx, w)
+	_ = pages.FileGrid(files, storage.FileURL).Render(ctx, w)
 
 }
 
@@ -73,7 +71,7 @@ func (fc *FilesController) Delete(w http.ResponseWriter, r *http.Request) {
 	config := ctx.Value(middlewares.ConfigContextKey).(*models.Config)
 	filename := r.PathValue("filename")
 
-	if err := fc.app.DeleteFile(ctx, config.OrganizationID, filename); err != nil {
+	if err := fc.storage.Delete(ctx, config.OrganizationID, filename); err != nil {
 		WriteHTMLErr(w, err)
 		return
 	}
@@ -86,7 +84,7 @@ func (fc *FilesController) Download(w http.ResponseWriter, r *http.Request) {
 	config := r.Context().Value(middlewares.ConfigContextKey).(*models.Config)
 
 	var err error
-	var req queries.GetFileDataRequest
+	var req storage.DownloadOptions
 
 	req.Name = r.PathValue("filename")
 	req.OrganizationID = config.OrganizationID
@@ -103,7 +101,7 @@ func (fc *FilesController) Download(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	res, err := fc.app.GetFileData(r.Context(), &req)
+	res, err := fc.storage.Download(r.Context(), &req)
 	if err != nil {
 		WriteJSONErr(w, fmt.Errorf("failed getting file: %w", err))
 		return
@@ -124,7 +122,7 @@ func (fc *FilesController) Rename(w http.ResponseWriter, r *http.Request) {
 
 	newName := r.PostFormValue("name")
 
-	if err := fc.app.RenameFile(ctx, config.OrganizationID, filename, newName); err != nil {
+	if err := fc.storage.Rename(ctx, config.OrganizationID, filename, newName); err != nil {
 		WriteHTMLErr(w, fmt.Errorf("failed renaming file: %w", err))
 		return
 	}

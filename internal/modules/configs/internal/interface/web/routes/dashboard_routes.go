@@ -21,7 +21,7 @@ func dashboard(mono *infrastructure.Monolith, app *application.Application, md *
 	}
 
 	{
-		ctrl := controllers.NewPagesController(app)
+		ctrl := controllers.NewPagesController(app, app.Deps.Storage)
 		mono.DashboardRouter.HandleFunc("GET /dashboard/pages", ctrl.Index)
 		mono.DashboardRouter.HandleFunc("GET /dashboard/pages/preview", ctrl.Preview)
 		mono.DashboardRouter.HandleFunc("PATCH /dashboard/pages/basic", ctrl.UpdateBasic)
@@ -32,7 +32,7 @@ func dashboard(mono *infrastructure.Monolith, app *application.Application, md *
 	}
 
 	{
-		ctrl := controllers.NewFilesController(app)
+		ctrl := controllers.NewFilesController(app.Deps.Storage)
 		mono.DashboardRouter.HandleFunc("POST /dashboard/files", ctrl.Upload)
 		mono.DashboardRouter.HandleFunc("DELETE /dashboard/files/{filename}", ctrl.Delete)
 		mono.DashboardRouter.HandleFunc("PATCH /dashboard/files/{filename}", ctrl.Rename)

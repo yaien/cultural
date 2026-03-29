@@ -6,17 +6,18 @@ import (
 	"io"
 	"time"
 
+	"github.com/yaien/cultural/internal/library/storage"
 	"github.com/yaien/cultural/internal/modules/configs/internal/models"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type AddProductPresentationFileCommand struct {
-	upload   *UploadFileCommand
+	storage  *storage.Storage
 	products models.ProductRepository
 }
 
-func NewAddProductPresentationFileCommand(products models.ProductRepository, upload *UploadFileCommand) *AddProductPresentationFileCommand {
-	return &AddProductPresentationFileCommand{products: products, upload: upload}
+func NewAddProductPresentationFileCommand(products models.ProductRepository, st *storage.Storage) *AddProductPresentationFileCommand {
+	return &AddProductPresentationFileCommand{products: products, storage: st}
 }
 
 type AddProductPresentationFileRequest struct {
@@ -50,7 +51,7 @@ func (c *AddProductPresentationFileCommand) AddProductPresentationFile(ctx conte
 		return nil, nil, &models.Error{Code: "presentation_file_limit_exceeded", Err: fmt.Errorf("presentation file limit exceeded")}
 	}
 
-	file, err := c.upload.UploadFile(ctx, &UploadFileRequest{
+	file, err := c.storage.Upload(ctx, &storage.UploadOptions{
 		Name:           req.Name,
 		Size:           req.Size,
 		ContentType:    req.ContentType,

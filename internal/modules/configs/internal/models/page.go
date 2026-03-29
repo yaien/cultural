@@ -6,6 +6,8 @@ import (
 	"io"
 	"strings"
 	"text/template"
+
+	"github.com/yaien/cultural/internal/library/storage"
 )
 
 type Layout struct {
@@ -34,8 +36,8 @@ var EmptyPage = &Page{}
 type PageData struct {
 	InlineStyles        bool
 	InlineScript        bool
-	FileURLFunc         FileURLFunc
-	ExternalFileURLFunc FileURLFunc
+	FileURLFunc         storage.URLFunc
+	ExternalFileURLFunc storage.URLFunc
 	AppTitle            string
 	Page                *Page
 	Layout              *Layout

@@ -7,7 +7,7 @@ import (
 	"path"
 )
 
-var _ Storage = (*Local)(nil)
+var _ Driver = (*Local)(nil)
 
 type Local struct {
 	root string

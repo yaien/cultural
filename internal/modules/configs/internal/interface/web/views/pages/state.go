@@ -3,6 +3,7 @@ package pages
 import (
 	"fmt"
 
+	"github.com/yaien/cultural/internal/library/storage"
 	"github.com/yaien/cultural/internal/modules/configs/internal/application/commands"
 	"github.com/yaien/cultural/internal/modules/configs/internal/models"
 )
@@ -38,11 +39,11 @@ type State struct {
 	Section            string
 }
 
-type FileFunc func(filename string) (*models.File, error)
+type FileFunc func(filename string) (*storage.File, error)
 type FontFunc func(fontFamily string) (*models.Font, error)
 type FontsFunc func(family string, limit, offset int64) ([]*models.Font, error)
-type FilesFunc func() ([]*models.File, error)
-type FileURLFunc models.FileURLFunc
+type FilesFunc func() ([]*storage.File, error)
+type FileURLFunc storage.URLFunc
 
 func (c *State) PageIsDefault() bool {
 	page, ok := c.Selected.(*models.Page)

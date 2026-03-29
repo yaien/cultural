@@ -5,24 +5,21 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/yaien/cultural/internal/modules/configs/internal/application"
-	"github.com/yaien/cultural/internal/modules/configs/internal/application/queries"
+	"github.com/yaien/cultural/internal/library/storage"
 	"github.com/yaien/cultural/internal/modules/configs/internal/models"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type ExternalController struct {
-	app *application.Application
+	storage *storage.Storage
 }
 
-func NewExternalController(app *application.Application) *ExternalController {
-	return &ExternalController{
-		app: app,
-	}
+func NewExternalController(s *storage.Storage) *ExternalController {
+	return &ExternalController{s}
 }
 
 func (c *ExternalController) GetFile(w http.ResponseWriter, r *http.Request) {
-	var req queries.GetFileDataRequest
+	var req storage.DownloadOptions
 	var err error
 
 	req.OrganizationID, err = primitive.ObjectIDFromHex(r.PathValue("organization_id"))
@@ -42,7 +39,7 @@ func (c *ExternalController) GetFile(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
 
-	res, err := c.app.GetFileData(ctx, &req)
+	res, err := c.storage.Download(ctx, &req)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

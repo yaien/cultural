@@ -28,16 +28,16 @@ func (c *DeleteProductPresentationCommand) DeleteProductPresentation(ctx context
 		return fmt.Errorf("error fetching product: %w", err)
 	}
 
-	var found bool
+	var deleted *models.Presentation
 	for i, presentation := range product.Presentations {
 		if presentation.ID == req.ID {
 			product.Presentations = append(product.Presentations[:i], product.Presentations[i+1:]...)
-			found = true
+			deleted = presentation
 			break
 		}
 	}
 
-	if !found {
+	if deleted == nil {
 		return &models.Error{Code: "presentation_not_found", Err: fmt.Errorf("presentation with id %s not found", req.ID.Hex())}
 	}
 

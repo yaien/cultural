@@ -8,7 +8,7 @@ import (
 	"log/slog"
 	"net/http"
 
-	"github.com/yaien/cultural/internal/modules/configs/internal/application/queries"
+	"github.com/yaien/cultural/internal/library/storage"
 	"github.com/yaien/cultural/internal/modules/configs/internal/models"
 )
 
@@ -75,32 +75,32 @@ func WriteHTMLErr(w http.ResponseWriter, err error) {
 	}
 }
 
-func WriteFile(w http.ResponseWriter, r *http.Request, res *queries.GetFileDataResponse) {
+func WriteFile(w http.ResponseWriter, r *http.Request, d *storage.Download) {
 	defer func() {
-		if err := res.Data.Close(); err != nil {
+		if err := d.Data.Close(); err != nil {
 			slog.Warn("error closing file data", "err", err)
 		}
 	}()
 
-	w.Header().Set("Content-Type", res.ContentType)
-	w.Header().Set("Content-Length", fmt.Sprint(res.Size))
+	w.Header().Set("Content-Type", d.ContentType)
+	w.Header().Set("Content-Length", fmt.Sprint(d.Size))
 	w.Header().Set("Cache-Control", "public, max-age=0")
-	w.Header().Set("ETag", res.ID.Hex())
-	w.Header().Set("Last-Modified", res.UpdatedAt.Format(http.TimeFormat))
+	w.Header().Set("ETag", d.ID.Hex())
+	w.Header().Set("Last-Modified", d.UpdatedAt.Format(http.TimeFormat))
 
-	if match := r.Header.Get("If-None-Match"); match != "" && match == res.ID.Hex() {
+	if match := r.Header.Get("If-None-Match"); match != "" && match == d.ID.Hex() {
 		w.WriteHeader(http.StatusNotModified)
 		return
 	}
 
 	if modified := r.Header.Get("If-Modified-Since"); modified != "" {
-		if t, err := http.ParseTime(modified); err == nil && res.UpdatedAt.Equal(t) {
+		if t, err := http.ParseTime(modified); err == nil && d.UpdatedAt.Equal(t) {
 			w.WriteHeader(http.StatusNotModified)
 			return
 		}
 	}
 
-	if _, err := io.Copy(w, res.Data); err != nil {
+	if _, err := io.Copy(w, d.Data); err != nil {
 		slog.Warn("error downloading the file", "err", err)
 		return
 	}

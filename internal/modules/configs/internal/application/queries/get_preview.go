@@ -6,6 +6,7 @@ import (
 	"html/template"
 	"maps"
 
+	"github.com/yaien/cultural/internal/library/storage"
 	"github.com/yaien/cultural/internal/modules/configs/internal/models"
 )
 
@@ -79,8 +80,8 @@ func (q *GetPreviewQuery) renderPage(ctx context.Context, page *models.Page, lay
 		Layout:              layout,
 		Fonts:               fonts,
 		Colors:              colors,
-		FileURLFunc:         models.FileURL,
-		ExternalFileURLFunc: models.NewExternalFileURLFunc(config.Url, config.OrganizationID),
+		FileURLFunc:         storage.FileURL,
+		ExternalFileURLFunc: storage.NewExternalURLFunc(config.Url, config.OrganizationID),
 		InlineStyles:        true,
 		InlineScript:        true,
 		Funcs:               funcs,

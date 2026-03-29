@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/yaien/cultural/internal/library/cache"
+	"github.com/yaien/cultural/internal/library/storage"
 	"github.com/yaien/cultural/internal/modules/configs"
 )
 
@@ -48,8 +49,8 @@ func (q *GetPageTemplateQuery) GetPageHTML(config *configs.Config, pagename stri
 		AppTitle:            config.Title,
 		Fonts:               config.Fonts,
 		Colors:              config.Colors,
-		ExternalFileURLFunc: configs.NewExternalFileURLFunc(config.Url, config.OrganizationID),
-		FileURLFunc:         configs.FileURL,
+		ExternalFileURLFunc: storage.NewExternalURLFunc(config.Url, config.OrganizationID),
+		FileURLFunc:         storage.FileURL,
 	})
 
 	if err != nil {

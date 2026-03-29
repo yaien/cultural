@@ -7,6 +7,6 @@ import (
 )
 
 func external(mono *infrastructure.Monolith, app *application.Application) {
-	ctrl := controllers.NewExternalController(app)
+	ctrl := controllers.NewExternalController(app.Deps.Storage)
 	mono.Router.HandleFunc("/assets/external/{organization_id}/{filename}", ctrl.GetFile)
 }

@@ -5,9 +5,9 @@ import (
 
 	"github.com/yaien/cultural/internal/infrastructure"
 	"github.com/yaien/cultural/internal/library/cache"
+	"github.com/yaien/cultural/internal/library/storage"
 	"github.com/yaien/cultural/internal/library/worker"
 	"github.com/yaien/cultural/internal/modules/configs/internal/application"
-	"github.com/yaien/cultural/internal/modules/configs/internal/interface/handlers"
 	"github.com/yaien/cultural/internal/modules/configs/internal/interface/integrations/instagram"
 	_ "github.com/yaien/cultural/internal/modules/configs/internal/interface/migrations"
 
@@ -35,13 +35,12 @@ func (m *Module) Init(mono *infrastructure.Monolith) error {
 		Groups:        repositories.NewGroupRepository(mono.MongoDB),
 		Users:         repositories.NewUserRepository(mono.MongoDB),
 		Fonts:         repositories.NewFontRepository(mono.MongoDB),
-		Files:         repositories.NewFileRepository(mono.MongoDB),
 		Drafts:        repositories.NewDraftRepository(mono.MongoDB),
 		Products:      repositories.NewProductRepository(mono.MongoDB),
 		Registry:      m.Registry,
 		Cache:         cache.New[*models.Config](time.Hour),
 		Mail:          mono.Mail,
-		Storage:       mono.Storage,
+		Storage:       storage.New(mono.StorageDriver, storage.NewMongo(mono.MongoDB), mono.Queue),
 		Queue:         mono.Queue,
 	}
 
@@ -50,8 +49,8 @@ func (m *Module) Init(mono *infrastructure.Monolith) error {
 	m.Web = web.Register(mono, m.App, m.Registry)
 
 	mono.Worker.Register(worker.H{
-		Name:    models.GenerateFormatsTaskName,
-		Handler: handlers.NewGenerateFileFormatHandler(deps.Files, deps.Storage),
+		Name:    storage.TaskName,
+		Handler: storage.NewHandler(deps.Storage),
 	})
 
 	for _, integration := range m.Registry.All() {

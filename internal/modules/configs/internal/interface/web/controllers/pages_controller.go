@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/a-h/templ"
+	"github.com/yaien/cultural/internal/library/storage"
 	"github.com/yaien/cultural/internal/modules/configs/internal/application"
 	"github.com/yaien/cultural/internal/modules/configs/internal/application/commands"
 	"github.com/yaien/cultural/internal/modules/configs/internal/application/queries"
@@ -15,11 +16,12 @@ import (
 )
 
 type PagesController struct {
-	app *application.Application
+	app     *application.Application
+	storage *storage.Storage
 }
 
-func NewPagesController(app *application.Application) *PagesController {
-	return &PagesController{app}
+func NewPagesController(app *application.Application, s *storage.Storage) *PagesController {
+	return &PagesController{app: app, storage: s}
 }
 
 func (c *PagesController) Index(w http.ResponseWriter, r *http.Request) {
@@ -46,12 +48,12 @@ func (c *PagesController) Index(w http.ResponseWriter, r *http.Request) {
 		SelectedFontFamily: query.Get(pages.FontQuery),
 		SelectedFontKey:    query.Get(pages.FontKeyQuery),
 		Section:            query.Get(pages.SectionQuery),
-		FileURL:            models.FileURL,
-		Files: func() ([]*models.File, error) {
-			return c.app.GetFiles(ctx, config.OrganizationID)
+		FileURL:            storage.FileURL,
+		Files: func() ([]*storage.File, error) {
+			return c.storage.GetByOrganizationID(ctx, config.OrganizationID)
 		},
-		File: func(name string) (*models.File, error) {
-			return c.app.GetFile(ctx, config.OrganizationID, name)
+		File: func(name string) (*storage.File, error) {
+			return c.storage.GetByOrganizationIDAndName(ctx, config.OrganizationID, name)
 		},
 		Fonts: func(family string, limit, offset int64) ([]*models.Font, error) {
 			return c.app.GetFonts(ctx, &models.FindFontOptions{

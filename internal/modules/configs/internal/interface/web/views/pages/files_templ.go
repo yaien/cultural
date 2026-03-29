@@ -8,10 +8,12 @@ package pages
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
-import "fmt"
-import "github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views/icons"
-import "github.com/yaien/cultural/internal/modules/configs/internal/models"
-import "slices"
+import (
+	"fmt"
+	"github.com/yaien/cultural/internal/library/storage"
+	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views/icons"
+	"slices"
+)
 
 func Files(state *State) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
@@ -50,14 +52,14 @@ func Files(state *State) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</button><div class=\"progress\"><div style=\"width: 20%\"></div></div><template x-if=\"loading\"><div class=\"progress\"><div :style=\"{ width: percent + '%' }\"></div></div></template></form></div><x-scrollable scale=\"0.929\"><div id=\"files\" class=\"grid\" hx-vals=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</button><template x-if=\"loading\"><div class=\"progress\"><div :style=\"{ width: percent + '%' }\"></div></div></template></form></div><x-scrollable scale=\"0.929\"><div id=\"files\" class=\"grid\" hx-vals=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var2 string
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(state.HxSelectedVals())
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/files.templ`, Line: 39, Col: 64}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/files.templ`, Line: 38, Col: 64}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 		if templ_7745c5c3_Err != nil {
@@ -79,7 +81,7 @@ func Files(state *State) templ.Component {
 	})
 }
 
-func FileGrid(files []*models.File, url FileURLFunc) templ.Component {
+func FileGrid(files []*storage.File, url FileURLFunc) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -108,7 +110,7 @@ func FileGrid(files []*models.File, url FileURLFunc) templ.Component {
 			var templ_7745c5c3_Var4 string
 			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("{ %q: %q, %q: %q }", FileQuery, file.Name, SectionQuery, FileSection))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/files.templ`, Line: 48, Col: 112}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/files.templ`, Line: 47, Col: 112}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 			if templ_7745c5c3_Err != nil {
@@ -121,7 +123,7 @@ func FileGrid(files []*models.File, url FileURLFunc) templ.Component {
 			var templ_7745c5c3_Var5 string
 			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(file.Name)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/files.templ`, Line: 50, Col: 40}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/files.templ`, Line: 49, Col: 40}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 			if templ_7745c5c3_Err != nil {
@@ -134,7 +136,7 @@ func FileGrid(files []*models.File, url FileURLFunc) templ.Component {
 			var templ_7745c5c3_Var6 string
 			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(Path)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/files.templ`, Line: 50, Col: 56}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/files.templ`, Line: 49, Col: 56}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 			if templ_7745c5c3_Err != nil {
@@ -147,7 +149,7 @@ func FileGrid(files []*models.File, url FileURLFunc) templ.Component {
 			var templ_7745c5c3_Var7 string
 			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs("#" + EditorID)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/files.templ`, Line: 50, Col: 85}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/files.templ`, Line: 49, Col: 85}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 			if templ_7745c5c3_Err != nil {
@@ -166,7 +168,7 @@ func FileGrid(files []*models.File, url FileURLFunc) templ.Component {
 				var templ_7745c5c3_Var8 string
 				templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(url(file.Name))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/files.templ`, Line: 53, Col: 31}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/files.templ`, Line: 52, Col: 31}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 				if templ_7745c5c3_Err != nil {
@@ -179,7 +181,7 @@ func FileGrid(files []*models.File, url FileURLFunc) templ.Component {
 				var templ_7745c5c3_Var9 string
 				templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(file.Name)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/files.templ`, Line: 53, Col: 51}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/files.templ`, Line: 52, Col: 51}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 				if templ_7745c5c3_Err != nil {
@@ -192,7 +194,7 @@ func FileGrid(files []*models.File, url FileURLFunc) templ.Component {
 				var templ_7745c5c3_Var10 string
 				templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(file.Name)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/files.templ`, Line: 53, Col: 69}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/files.templ`, Line: 52, Col: 69}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 				if templ_7745c5c3_Err != nil {
@@ -210,7 +212,7 @@ func FileGrid(files []*models.File, url FileURLFunc) templ.Component {
 				var templ_7745c5c3_Var11 string
 				templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(url(file.Name))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/files.templ`, Line: 55, Col: 33}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/files.templ`, Line: 54, Col: 33}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 				if templ_7745c5c3_Err != nil {
@@ -223,7 +225,7 @@ func FileGrid(files []*models.File, url FileURLFunc) templ.Component {
 				var templ_7745c5c3_Var12 string
 				templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(file.Name)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/files.templ`, Line: 55, Col: 53}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/files.templ`, Line: 54, Col: 53}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 				if templ_7745c5c3_Err != nil {
@@ -236,7 +238,7 @@ func FileGrid(files []*models.File, url FileURLFunc) templ.Component {
 				var templ_7745c5c3_Var13 string
 				templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(file.Name)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/files.templ`, Line: 55, Col: 71}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/files.templ`, Line: 54, Col: 71}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 				if templ_7745c5c3_Err != nil {

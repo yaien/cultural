@@ -1,9 +1,11 @@
 package pages
 
-import "fmt"
-import "github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views/icons"
-import "github.com/yaien/cultural/internal/modules/configs/internal/models"
-import "slices"
+import (
+	"fmt"
+	"github.com/yaien/cultural/internal/library/storage"
+	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views/icons"
+	"slices"
+)
 
 templ Files(state *State) {
 	{{ files, err := state.Files() }}
@@ -25,9 +27,6 @@ templ Files(state *State) {
 				<button type="button" @click="$refs.input.click()" class="clear">
 					@icons.Add()
 				</button>
-				<div class="progress">
-					<div style="width: 20%"></div>
-				</div>
 				<template x-if="loading">
 					<div class="progress">
 						<div :style="{ width: percent + '%' }"></div>
@@ -43,7 +42,7 @@ templ Files(state *State) {
 	</div>
 }
 
-templ FileGrid(files []*models.File, url FileURLFunc) {
+templ FileGrid(files []*storage.File, url FileURLFunc) {
 	for _, file := range slices.Backward(files) {
 		<div class="item" hx-vals={ fmt.Sprintf("{ %q: %q, %q: %q }", FileQuery, file.Name, SectionQuery, FileSection) }>
 			<x-hover-play>
