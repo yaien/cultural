@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/yaien/cultural/internal/library/coderr"
+	"github.com/yaien/cultural/internal/library/coderror"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -48,7 +48,7 @@ func (r *Mongo) GetByID(ctx context.Context, id primitive.ObjectID) (*File, erro
 	case nil:
 		return &file, nil
 	case mongo.ErrNoDocuments:
-		return nil, coderr.New("not_found", err)
+		return nil, coderror.New("not_found", err)
 	default:
 		return nil, fmt.Errorf("failed finding file: %w", err)
 	}
@@ -61,7 +61,7 @@ func (r *Mongo) GetByOrganizationIDAndName(ctx context.Context, organizationID p
 	case nil:
 		return &file, nil
 	case mongo.ErrNoDocuments:
-		return nil, coderr.New("not_found", err)
+		return nil, coderror.New("not_found", err)
 	default:
 		return nil, fmt.Errorf("failed finding file: %w", err)
 	}
@@ -75,7 +75,7 @@ func (r *Mongo) GetByOrganizationIDAndID(ctx context.Context, organizationID, id
 	case nil:
 		return &file, nil
 	case mongo.ErrNoDocuments:
-		return nil, coderr.New("not_found", err)
+		return nil, coderror.New("not_found", err)
 	default:
 		return nil, fmt.Errorf("failed finding file: %w", err)
 	}

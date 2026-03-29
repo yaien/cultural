@@ -1,4 +1,4 @@
-package coderr
+package coderror
 
 import "fmt"
 

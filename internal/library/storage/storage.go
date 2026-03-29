@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/yaien/cultural/internal/library/coderr"
+	"github.com/yaien/cultural/internal/library/coderror"
 	"github.com/yaien/cultural/internal/library/worker"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -41,10 +41,10 @@ type UploadOptions struct {
 func (s *Storage) Upload(ctx context.Context, req *UploadOptions) (*File, error) {
 	_, err := s.repo.GetByOrganizationIDAndName(ctx, req.OrganizationID, req.Name)
 
-	var e *coderr.Error
+	var e *coderror.Error
 	switch {
 	case err == nil:
-		return nil, coderr.New("name_already_exits", errors.New("file already exists"))
+		return nil, coderror.New("name_already_exits", errors.New("file already exists"))
 	case errors.As(err, &e) && e.Code == "not_found":
 	default:
 		return nil, fmt.Errorf("failed to check file existence: %w", err)
