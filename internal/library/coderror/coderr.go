@@ -1,6 +1,11 @@
 package coderror
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+)
+
+const NotFound = "not_found"
 
 type Error struct {
 	Code string
@@ -27,4 +32,9 @@ func Newf(code string, format string, args ...any) *Error {
 		Code: code,
 		err:  fmt.Errorf(format, args...),
 	}
+}
+
+func Is(err error, code string) bool {
+	var e *Error
+	return errors.As(err, &e) && e.Code == code
 }

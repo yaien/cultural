@@ -4,17 +4,17 @@ import (
 	"fmt"
 	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views/dashboard"
 	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views/icons"
-	"github.com/yaien/cultural/internal/modules/configs/internal/models"
+	"github.com/yaien/cultural/internal/library/store"
 	"slices"
 )
 
-templ Page(products []*models.Product) {
+templ Page(products []*store.Product) {
 	@dashboard.Page("Productos") {
 		@Content(products)
 	}
 }
 
-templ Content(products []*models.Product) {
+templ Content(products []*store.Product) {
 	<div class="container" data-scope="products">
 		<div class="actions text-center">
 			<button class="button clear" hx-get="/dashboard/products/create" hx-target=".container" hx-swap="beforeend">
@@ -25,10 +25,11 @@ templ Content(products []*models.Product) {
 			for _, product := range products {
 				<a role="article" href={ "/dashboard/products/" + product.ID.Hex() } hx-boost="true" class="detail">
 					<header>
-						if len(product.Presentations) > 0 && len(product.Presentations[0].FileIDS) > 0 {
-							<img src={ "/dashboard/files/" + product.Presentations[0].FileIDS[0].Hex() } alt=""/>
-						}
+						if len(product.Presentations) > 0 && len(product.Presentations[0].Files) > 0 {
+							<img src={ "/dashboard/files/" + product.Presentations[0].Files[0].ID.Hex() } alt=""/>
+						} else {
 						<div class="placeholder w-100 "></div>
+						}
 					</header>
 					<div class="text-center">
 						<h4>{ product.Name }</h4>
@@ -58,7 +59,7 @@ templ Create() {
 	}
 }
 
-templ Show(product *models.Product, presentation *models.Presentation) {
+templ Show(product *store.Product, presentation *store.Presentation) {
 	@dashboard.Page("Productos") {
 		<div class="container flex justify-center">
 			<div class="flex flex-column">
@@ -93,7 +94,7 @@ templ Show(product *models.Product, presentation *models.Presentation) {
 
 const PresentationsID = "presentations"
 
-templ Presentations(product *models.Product, presentation *models.Presentation) {
+templ Presentations(product *store.Product, presentation *store.Presentation) {
 	<article id={ PresentationsID }>
 		<h4 class="text-center m-0 m-b">Presentaciones</h4>
 		<div role="group">
@@ -156,7 +157,7 @@ type Options int
 
 const SWAPOOB = Options(1)
 
-templ Pictures(product *models.Product, presentation *models.Presentation, options ...Options) {
+templ Pictures(product *store.Product, presentation *store.Presentation, options ...Options) {
 	<article
 		id="pictures"
 		if slices.Contains(options, SWAPOOB) {
@@ -182,27 +183,29 @@ templ PicturesPlaceholder(options ...Options) {
 	</div>
 }
 
-templ PicturesDisplay(product *models.Product, presentation *models.Presentation) {
+templ PicturesDisplay(product *store.Product, presentation *store.Presentation) {
 	{{
-		var selected string
-		if len(presentation.FileIDS) > 0 {
-			selected = presentation.FileIDS[0].Hex()
+		var selected *store.File
+		if len(presentation.Files) > 0 {
+			selected = presentation.Files[0]
 		}
+
+
 	}}
-	<div class="flex flex-column align-center justify-center h-100" x-data={ fmt.Sprintf("{ selected: %q }", selected) }>
+	<div class="flex flex-column align-center justify-center h-100" x-data={ fmt.Sprintf("{ selected: %q }", selected.ID.Hex()) }>
 		<div class="placeholder m-b aspect-square" style="width: 450px">
 			<img class="w-100 cover aspect-square" x-show="selected" :src="'/dashboard/files/' + selected" alt=""/>
 		</div>
 		<div class="flex">
-			for _, fileID := range presentation.FileIDS {
-				<div class="placeholder pointer" style="width: 100px" x-data={ fmt.Sprintf("{ file: %q }", fileID.Hex()) } @click="selected = file">
-					<img class="w-100 cover aspect-square" src={ "/dashboard/files/" + fileID.Hex() } alt="" draggable="true"/>
+			for _, file := range presentation.Files {
+				<div class="placeholder pointer" style="width: 100px" x-data={ fmt.Sprintf("{ file: %q }", file.ID.Hex()) } @click="selected = file">
+					<img class="w-100 cover aspect-square" src={ "/dashboard/files/" + file.ID.Hex() } alt="" draggable="true"/>
 				</div>
 			}
-			for range 5 - len(presentation.FileIDS) - 1 {
+			for range 5 - len(presentation.Files) - 1 {
 				<div class="placeholder" style="width: 100px"></div>
 			}
-			if len(presentation.FileIDS) < 5 {
+			if len(presentation.Files) < store.MaxFilesPerPresentation {
 				<div class="placeholder flex justify-center align-center aspect-square" style="width: 100px;" x-data="progress">
 					<div x-show="loading" class="progress w-100">
 						<div :style="{ width: percent + '%' }"></div>

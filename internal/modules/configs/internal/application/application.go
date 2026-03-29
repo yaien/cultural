@@ -4,6 +4,7 @@ import (
 	"github.com/yaien/cultural/internal/library/cache"
 	"github.com/yaien/cultural/internal/library/mail"
 	"github.com/yaien/cultural/internal/library/storage"
+	"github.com/yaien/cultural/internal/library/store"
 	"github.com/yaien/cultural/internal/library/worker"
 	"github.com/yaien/cultural/internal/modules/configs/internal/application/commands"
 	"github.com/yaien/cultural/internal/modules/configs/internal/application/queries"
@@ -21,8 +22,6 @@ type Application struct {
 	*queries.GetFontQuery
 	*queries.GetDraftByConfigIDQuery
 	*queries.GetPreviewQuery
-	*queries.GetProductsQuery
-	*queries.GetProductByIDQuery
 
 	*commands.CreateInvitationCommand
 	*commands.SyncUserCommand
@@ -38,11 +37,6 @@ type Application struct {
 	*commands.CreateDraftModelCommand
 	*commands.DeleteDraftModelCommand
 	*commands.CommitDraftCommand
-	*commands.CreateProductCommand
-	*commands.CreateProductPresentationCommand
-	*commands.UpdateProductPresentationCommand
-	*commands.DeleteProductPresentationCommand
-	*commands.AddProductPresentationFileCommand
 }
 
 type Deps struct {
@@ -54,12 +48,12 @@ type Deps struct {
 	Users         models.UserRepository
 	Fonts         models.FontRepository
 	Drafts        models.DraftRepository
-	Products      models.ProductRepository
 	Cache         *cache.Cache[*models.Config]
 	Queue         *worker.Queue
 	Registry      *models.IntegrationRegistry
 	Mail          mail.Mail
 	Storage       *storage.Storage
+	Store         *store.Store
 }
 
 func New(deps Deps) *Application {
@@ -74,8 +68,6 @@ func New(deps Deps) *Application {
 		queries.NewGetFontQuery(deps.Fonts),
 		queries.NewGetDraftByConfigIDQuery(deps.Drafts),
 		queries.NewGetPreviewQuery(deps.Drafts, deps.Registry),
-		queries.NewGetProductsQuery(deps.Products),
-		queries.NewGetProductByIDQuery(deps.Products),
 
 		commands.NewCreateInvitationCommand(deps.Invitations, deps.Organizations, deps.Configs, deps.Roles, deps.Groups, deps.Mail),
 		commands.NewSyncUserCommand(deps.Users),
@@ -91,10 +83,5 @@ func New(deps Deps) *Application {
 		commands.NewCreateDraftModelCommand(deps.Drafts),
 		commands.NewDeleteDraftModelCommand(deps.Drafts),
 		commands.NewCommitDraftCommand(deps.Configs, deps.Drafts, deps.Cache),
-		commands.NewCreateProductCommand(deps.Products),
-		commands.NewCreateProductPresentationCommand(deps.Products),
-		commands.NewUpdateProductPresentationCommand(deps.Products),
-		commands.NewDeleteProductPresentationCommand(deps.Products),
-		commands.NewAddProductPresentationFileCommand(deps.Products, deps.Storage),
 	}
 }

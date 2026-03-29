@@ -77,7 +77,7 @@ func dashboard(mono *infrastructure.Monolith, app *application.Application, md *
 	}
 
 	{
-		ctrl := controllers.NewProductsController(app)
+		ctrl := controllers.NewProductsController(app.Deps.Store.Products, app.Deps.Store.Presentations, app.Deps.Store.Files)
 		mono.DashboardRouter.HandleFunc("GET /dashboard/products", ctrl.Index)
 		mono.DashboardRouter.HandleFunc("GET /dashboard/products/create", ctrl.CreateModal)
 		mono.DashboardRouter.HandleFunc("POST /dashboard/products", ctrl.Create)

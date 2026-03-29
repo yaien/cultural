@@ -6,6 +6,7 @@ import (
 	"github.com/yaien/cultural/internal/infrastructure"
 	"github.com/yaien/cultural/internal/library/cache"
 	"github.com/yaien/cultural/internal/library/storage"
+	"github.com/yaien/cultural/internal/library/store"
 	"github.com/yaien/cultural/internal/library/worker"
 	"github.com/yaien/cultural/internal/modules/configs/internal/application"
 	"github.com/yaien/cultural/internal/modules/configs/internal/interface/integrations/instagram"
@@ -36,13 +37,14 @@ func (m *Module) Init(mono *infrastructure.Monolith) error {
 		Users:         repositories.NewUserRepository(mono.MongoDB),
 		Fonts:         repositories.NewFontRepository(mono.MongoDB),
 		Drafts:        repositories.NewDraftRepository(mono.MongoDB),
-		Products:      repositories.NewProductRepository(mono.MongoDB),
 		Registry:      m.Registry,
 		Cache:         cache.New[*models.Config](time.Hour),
 		Mail:          mono.Mail,
-		Storage:       storage.New(mono.StorageDriver, storage.NewMongo(mono.MongoDB), mono.Queue),
 		Queue:         mono.Queue,
 	}
+
+	deps.Storage = storage.New(mono.StorageDriver, storage.NewMongo(mono.MongoDB), mono.Queue)
+	deps.Store = store.New(store.NewMongo(mono.MongoDB), deps.Storage)
 
 	m.App = application.New(deps)
 

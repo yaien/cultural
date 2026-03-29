@@ -6,8 +6,7 @@ import (
 	"strconv"
 
 	"github.com/a-h/templ"
-	"github.com/yaien/cultural/internal/modules/configs/internal/application"
-	"github.com/yaien/cultural/internal/modules/configs/internal/application/commands"
+	"github.com/yaien/cultural/internal/library/store"
 	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/middlewares"
 	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views/dashboard"
 	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views/products"
@@ -16,17 +15,19 @@ import (
 )
 
 type ProductsController struct {
-	app *application.Application
+	products      *store.Products
+	presentations *store.Presentations
+	files         *store.Files
 }
 
-func NewProductsController(app *application.Application) *ProductsController {
-	return &ProductsController{app: app}
+func NewProductsController(products *store.Products, presentations *store.Presentations, files *store.Files) *ProductsController {
+	return &ProductsController{products, presentations, files}
 }
 
 func (c *ProductsController) Index(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	config := ctx.Value(middlewares.ConfigContextKey).(*models.Config)
-	prs, err := c.app.GetProducts(ctx, config.OrganizationID)
+	prs, err := c.products.GetByOrganizationID(ctx, config.OrganizationID)
 	if err != nil {
 		WriteHTMLErr(w, err)
 		return
@@ -48,11 +49,12 @@ func (c *ProductsController) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	product, err := c.app.CreateProduct(ctx, commands.CreateProductRequest{
+	opts := &store.CreateProductOptions{
 		OrganizationID: config.OrganizationID,
 		Name:           r.PostForm.Get("name"),
-	})
+	}
 
+	product, err := c.products.Create(ctx, opts)
 	if err != nil {
 		WriteHTMLErr(w, err)
 		return
@@ -72,13 +74,13 @@ func (c *ProductsController) Show(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	product, err := c.app.GetProductByID(ctx, productID, config.OrganizationID)
+	product, err := c.products.GetByIDAndOrganizationID(ctx, productID, config.OrganizationID)
 	if err != nil {
 		WriteHTMLErr(w, err)
 		return
 	}
 
-	var presentation *models.Presentation
+	var presentation *store.Presentation
 	if pid, err := primitive.ObjectIDFromHex(r.URL.Query().Get("presentation")); err == nil {
 		for _, p := range product.Presentations {
 			if p.ID == pid {
@@ -117,7 +119,12 @@ func (c *ProductsController) CreatePresentation(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	product, presentation, err := c.app.CreateProductPresentation(ctx, productID, config.OrganizationID)
+	opts := &store.CreatePresentationOptions{
+		OrganizationID: config.OrganizationID,
+		ProductID:      productID,
+	}
+
+	product, presentation, err := c.presentations.Create(ctx, opts)
 	if err != nil {
 		WriteHTMLErr(w, err)
 		return
@@ -149,13 +156,13 @@ func (c *ProductsController) UpdatePresentation(w http.ResponseWriter, r *http.R
 	quantity, _ := strconv.Atoi(r.PostFormValue("quantity"))
 	price, _ := strconv.ParseFloat(r.PostFormValue("price"), 64)
 
-	product, presentation, err := c.app.UpdateProductPresentation(ctx, commands.UpdateProductPresentationRequest{
-		ID:             presentationID,
+	product, presentation, err := c.presentations.Update(ctx, &store.UpdatePresentationOptions{
+		PresentationID: presentationID,
+		ProductID:      productID,
+		OrganizationID: config.OrganizationID,
 		Name:           name,
 		Quantity:       quantity,
 		Price:          price,
-		ProductID:      productID,
-		OrganizationID: config.OrganizationID,
 	})
 
 	if err != nil {
@@ -185,24 +192,19 @@ func (c *ProductsController) DeletePresentation(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	err = c.app.DeleteProductPresentation(ctx, commands.DeleteProductPresentationRequest{
+	opts := &store.DeletePresentationOptions{
 		ID:             presentationID,
 		ProductID:      productID,
 		OrganizationID: config.OrganizationID,
-	})
+	}
 
+	product, err := c.presentations.Delete(ctx, opts)
 	if err != nil {
 		WriteHTMLErr(w, fmt.Errorf("error deleting presentation: %w", err))
 		return
 	}
 
-	product, err := c.app.GetProductByID(ctx, productID, config.OrganizationID)
-	if err != nil {
-		WriteHTMLErr(w, err)
-		return
-	}
-
-	var presentation *models.Presentation
+	var presentation *store.Presentation
 	if len(product.Presentations) > 0 {
 		presentation = product.Presentations[0]
 	}
@@ -236,7 +238,7 @@ func (c *ProductsController) UploadPresentationFile(w http.ResponseWriter, r *ht
 		return
 	}
 
-	product, presentation, err := c.app.AddProductPresentationFile(ctx, commands.AddProductPresentationFileRequest{
+	opts := &store.UploadFileOptions{
 		PresentationID: presentationID,
 		ProductID:      productID,
 		OrganizationID: config.OrganizationID,
@@ -244,8 +246,9 @@ func (c *ProductsController) UploadPresentationFile(w http.ResponseWriter, r *ht
 		Size:           fileheader.Size,
 		ContentType:    fileheader.Header.Get("Content-Type"),
 		Data:           file,
-	})
+	}
 
+	product, presentation, err := c.files.Upload(ctx, opts)
 	if err != nil {
 		WriteHTMLErr(w, fmt.Errorf("error adding presentation picture: %w", err))
 		return

@@ -1,9 +1,10 @@
-package models
+package store
 
 import (
 	"context"
 	"time"
 
+	"github.com/yaien/cultural/internal/library/storage"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -19,17 +20,36 @@ type Product struct {
 }
 
 type Presentation struct {
-	ID       primitive.ObjectID   `bson:"_id"`
-	FileIDS  []primitive.ObjectID `bson:"fileIds,omitempty"`
-	Name     string               `bson:"name"`
-	Quantity int                  `bson:"quantity"`
-	Price    float64              `bson:"price"`
+	ID       primitive.ObjectID `bson:"_id"`
+	Files    []*File            `bson:"files,omitempty"`
+	Name     string             `bson:"name"`
+	Quantity int                `bson:"quantity"`
+	Price    float64            `bson:"price"`
 }
 
-type ProductRepository interface {
+type File struct {
+	ID     primitive.ObjectID `bson:"_id"`
+	Preset string             `bson:"preset"`
+}
+
+type Repository interface {
 	Create(ctx context.Context, product *Product) error
 	Update(ctx context.Context, product *Product) error
 	GetByOrganizationID(ctx context.Context, organizationID primitive.ObjectID) ([]*Product, error)
 	GetByIDAndOrganizationID(ctx context.Context, id, organizationID primitive.ObjectID) (*Product, error)
 	GetBySlugAndOrganizationID(ctx context.Context, slug string, organizationID primitive.ObjectID) (*Product, error)
+}
+
+type Store struct {
+	Products      *Products
+	Presentations *Presentations
+	Files         *Files
+}
+
+func New(repository Repository, storage *storage.Storage) *Store {
+	return &Store{
+		Products:      NewProducts(repository, storage),
+		Presentations: NewPresentations(repository, storage),
+		Files:         NewFiles(repository, storage),
+	}
 }
