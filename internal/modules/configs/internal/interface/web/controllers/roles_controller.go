@@ -9,11 +9,12 @@ import (
 
 	"github.com/a-h/templ"
 	"github.com/gorilla/sessions"
-	"github.com/yaien/cultural/internal/library/admin"
+	"github.com/yaien/cultural/internal/admin"
+	"github.com/yaien/cultural/internal/coderror"
+	"github.com/yaien/cultural/internal/label"
 	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/middlewares"
 	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views/dashboard"
 	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views/roles"
-	"github.com/yaien/cultural/internal/modules/configs/internal/models"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -29,7 +30,7 @@ func NewRolesController(rls *admin.Roles, ivs *admin.Invitations, store sessions
 
 func (c *RolesController) Index(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	config := ctx.Value(middlewares.ConfigContextKey).(*models.Config)
+	config := ctx.Value(middlewares.ConfigContextKey).(*label.Config)
 
 	var state roles.State
 	var err error
@@ -59,12 +60,12 @@ func (c *RolesController) Create(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if input.Name == "" || input.Email == "" {
-		WriteHTMLErr(w, models.DecodeError(fmt.Errorf("name and email are required")))
+		WriteHTMLErr(w, coderror.Newf(coderror.DecodeFailed, "name and email are required"))
 		return
 	}
 
 	ctx := r.Context()
-	config := ctx.Value(middlewares.ConfigContextKey).(*models.Config)
+	config := ctx.Value(middlewares.ConfigContextKey).(*label.Config)
 	role := ctx.Value(middlewares.RoleContextKey).(*admin.Role)
 
 	request := &admin.CreateInvitationOptions{
@@ -91,7 +92,7 @@ func (c *RolesController) ShowDelete(w http.ResponseWriter, r *http.Request) {
 
 	id, err := primitive.ObjectIDFromHex(r.PathValue("id"))
 	if err != nil {
-		WriteJSONErr(w, models.DecodeError(fmt.Errorf("invalid role id: %w", err)))
+		WriteJSONErr(w, coderror.Newf(coderror.DecodeFailed, "invalid role id: %w", err))
 		return
 	}
 
@@ -109,12 +110,12 @@ func (c *RolesController) ShowDelete(w http.ResponseWriter, r *http.Request) {
 func (c *RolesController) Delete(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
-	config := ctx.Value(middlewares.ConfigContextKey).(*models.Config)
+	config := ctx.Value(middlewares.ConfigContextKey).(*label.Config)
 	role := ctx.Value(middlewares.RoleContextKey).(*admin.Role)
 
 	id, err := primitive.ObjectIDFromHex(r.PathValue("id"))
 	if err != nil {
-		WriteJSONErr(w, models.DecodeError(fmt.Errorf("invalid role id: %w", err)))
+		WriteJSONErr(w, coderror.Newf(coderror.DecodeFailed, "invalid role id: %w", err))
 		return
 	}
 
@@ -126,7 +127,7 @@ func (c *RolesController) Delete(w http.ResponseWriter, r *http.Request) {
 
 	if err := c.roles.Delete(ctx, request); err != nil {
 
-		if e, ok := errors.AsType[*models.Error](err); ok {
+		if e, ok := errors.AsType[*coderror.Error](err); ok {
 			dashboard.Toast(e.Error(), dashboard.Danger).Render(ctx, w)
 			return
 		}

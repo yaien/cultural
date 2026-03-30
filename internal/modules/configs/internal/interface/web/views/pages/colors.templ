@@ -3,8 +3,8 @@ package pages
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/yaien/cultural/internal/label"
 	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views/icons"
-	"github.com/yaien/cultural/internal/modules/configs/internal/models"
 )
 
 templ Colors(state *State) {
@@ -29,7 +29,7 @@ templ Colors(state *State) {
 	</div>
 }
 
-templ Color(color *models.Color) {
+templ Color(color *label.Color) {
 	<div class="color" x-data={ fmt.Sprintf("coloris({ color: %q, tag: %q, swatches })", color.Value, color.Tag) }>
 		<form
 			hx-put={ "/dashboard/colors/" + color.ID.Hex() }

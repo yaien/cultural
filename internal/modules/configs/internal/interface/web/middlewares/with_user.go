@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/sessions"
-	"github.com/yaien/cultural/internal/library/auth"
+	"github.com/yaien/cultural/internal/auth"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 

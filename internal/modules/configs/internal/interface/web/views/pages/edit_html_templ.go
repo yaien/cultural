@@ -8,10 +8,11 @@ package pages
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
-import "github.com/yaien/cultural/internal/modules/configs/internal/models"
-import "github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views/icons"
-import "fmt"
-import "github.com/yaien/cultural/internal/modules/configs/internal/application/commands"
+import (
+	"fmt"
+	"github.com/yaien/cultural/internal/label"
+	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views/icons"
+)
 
 func EditHTML(state *State) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
@@ -36,11 +37,11 @@ func EditHTML(state *State) templ.Component {
 		ctx = templ.ClearChildren(ctx)
 		var source string
 		switch selected := state.Selected.(type) {
-		case *models.Page:
+		case *label.Page:
 			source = selected.Body
-		case *models.Layout:
+		case *label.Layout:
 			source = selected.Body
-		case *models.Email:
+		case *label.Email:
 			source = selected.Body
 		}
 		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"monaco\" x-data=\"")
@@ -50,7 +51,7 @@ func EditHTML(state *State) templ.Component {
 		var templ_7745c5c3_Var2 string
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("monaco({ language: %q, source: %q })", "html", source))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/edit_html.templ`, Line: 22, Col: 78}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/edit_html.templ`, Line: 23, Col: 78}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 		if templ_7745c5c3_Err != nil {
@@ -61,9 +62,9 @@ func EditHTML(state *State) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var3 string
-		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("js:{ modelType: %q, key: %q, sourceType: %q, source: event.detail.value }", state.SelectedType, state.SelectedKey, commands.DraftBodyType))
+		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("js:{ modelType: %q, key: %q, sourceType: %q, source: event.detail.value }", state.SelectedType, state.SelectedKey, label.DraftBodyType))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/edit_html.templ`, Line: 25, Col: 163}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/edit_html.templ`, Line: 26, Col: 160}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 		if templ_7745c5c3_Err != nil {

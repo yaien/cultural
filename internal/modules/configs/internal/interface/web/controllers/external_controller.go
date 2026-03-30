@@ -1,12 +1,11 @@
 package controllers
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
 
-	"github.com/yaien/cultural/internal/library/storage"
-	"github.com/yaien/cultural/internal/modules/configs/internal/models"
+	"github.com/yaien/cultural/internal/coderror"
+	"github.com/yaien/cultural/internal/storage"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -24,7 +23,7 @@ func (c *ExternalController) GetFile(w http.ResponseWriter, r *http.Request) {
 
 	req.OrganizationID, err = primitive.ObjectIDFromHex(r.PathValue("organization_id"))
 	if err != nil {
-		WriteJSONErr(w, models.DecodeError(fmt.Errorf("invalid organization id: %w", err)))
+		WriteJSONErr(w, coderror.Newf(coderror.DecodeFailed, "invalid organization id: %w", err))
 		return
 	}
 
@@ -32,7 +31,7 @@ func (c *ExternalController) GetFile(w http.ResponseWriter, r *http.Request) {
 
 	if variant := r.URL.Query().Get("variant"); variant != "" {
 		if req.Variant, err = strconv.Atoi(variant); err != nil {
-			WriteJSONErr(w, models.DecodeError(fmt.Errorf("invalid quality: %w", err)))
+			WriteJSONErr(w, coderror.Newf(coderror.DecodeFailed, "invalid variant: %w", err))
 			return
 		}
 	}

@@ -3,9 +3,9 @@ package queries
 import (
 	"fmt"
 
-	"github.com/yaien/cultural/internal/library/cache"
-	"github.com/yaien/cultural/internal/library/storage"
+	"github.com/yaien/cultural/internal/cache"
 	"github.com/yaien/cultural/internal/modules/configs"
+	"github.com/yaien/cultural/internal/storage"
 )
 
 type GetPageTemplateQuery struct {

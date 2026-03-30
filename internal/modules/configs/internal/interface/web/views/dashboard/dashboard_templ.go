@@ -9,7 +9,7 @@ import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
 import (
-	"github.com/yaien/cultural/internal/library/admin"
+	"github.com/yaien/cultural/internal/admin"
 	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/middlewares"
 	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views/icons"
 )

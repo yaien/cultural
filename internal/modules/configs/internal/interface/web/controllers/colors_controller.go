@@ -1,37 +1,35 @@
 package controllers
 
 import (
-	"fmt"
 	"net/http"
 
-	"github.com/yaien/cultural/internal/modules/configs/internal/application"
-	"github.com/yaien/cultural/internal/modules/configs/internal/application/commands"
+	"github.com/yaien/cultural/internal/coderror"
+	"github.com/yaien/cultural/internal/label"
 	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/middlewares"
 	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views/pages"
-	"github.com/yaien/cultural/internal/modules/configs/internal/models"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type ColorsController struct {
-	app *application.Application
+	drafts *label.Drafts
 }
 
-func NewColorsController(app *application.Application) *ColorsController {
-	return &ColorsController{app: app}
+func NewColorsController(drafts *label.Drafts) *ColorsController {
+	return &ColorsController{drafts: drafts}
 }
 
 func (c *ColorsController) Create(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
-		WriteHTMLErr(w, models.DecodeError(err))
+		WriteHTMLErr(w, coderror.Newf(coderror.DecodeFailed, "failed to parse form: %w", err))
 		return
 	}
 
 	ctx := r.Context()
-	config := ctx.Value(middlewares.ConfigContextKey).(*models.Config)
+	config := ctx.Value(middlewares.ConfigContextKey).(*label.Config)
 
-	color, err := c.app.CreateDraftColor(ctx, config.ID)
+	color, err := c.drafts.CreateColor(ctx, config.ID)
 	if err != nil {
-		WriteHTMLErr(w, models.DecodeError(fmt.Errorf("failed to create draft color: %w", err)))
+		WriteHTMLErr(w, coderror.Newf(coderror.DecodeFailed, "failed to create draft color: %w", err))
 		return
 	}
 
@@ -41,27 +39,27 @@ func (c *ColorsController) Create(w http.ResponseWriter, r *http.Request) {
 
 func (c *ColorsController) Update(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
-		WriteHTMLErr(w, models.DecodeError(err))
+		WriteHTMLErr(w, coderror.Newf(coderror.DecodeFailed, "failed to parse form: %w", err))
 		return
 	}
 	ctx := r.Context()
-	config := ctx.Value(middlewares.ConfigContextKey).(*models.Config)
+	config := ctx.Value(middlewares.ConfigContextKey).(*label.Config)
 
 	id, err := primitive.ObjectIDFromHex(r.PathValue("id"))
 	if err != nil {
-		WriteHTMLErr(w, models.DecodeError(fmt.Errorf("invalid previousKey: %w", err)))
+		WriteHTMLErr(w, coderror.Newf(coderror.DecodeFailed, "invalid previousKey: %w", err))
 		return
 	}
 
-	req := &commands.UpdateDraftColorRequest{
+	req := &label.UpdateDraftColorOptions{
 		ConfigID: config.ID,
 		ID:       id,
 		Tag:      r.PostForm.Get("tag"),
 		Value:    r.PostForm.Get("value"),
 	}
 
-	if err := c.app.UpdateDraftColor(ctx, req); err != nil {
-		WriteHTMLErr(w, models.DecodeError(fmt.Errorf("failed to update draft colors: %w", err)))
+	if err := c.drafts.UpdateColor(ctx, req); err != nil {
+		WriteHTMLErr(w, coderror.Newf(coderror.DecodeFailed, "failed to update draft colors: %w", err))
 		return
 	}
 
@@ -72,16 +70,16 @@ func (c *ColorsController) Update(w http.ResponseWriter, r *http.Request) {
 func (c *ColorsController) Delete(w http.ResponseWriter, r *http.Request) {
 	id, err := primitive.ObjectIDFromHex(r.PathValue("id"))
 	if err != nil {
-		WriteHTMLErr(w, models.DecodeError(fmt.Errorf("invalid id: %w", err)))
+		WriteHTMLErr(w, coderror.Newf(coderror.DecodeFailed, "invalid id: %w", err))
 		return
 	}
 
 	ctx := r.Context()
-	config := ctx.Value(middlewares.ConfigContextKey).(*models.Config)
+	config := ctx.Value(middlewares.ConfigContextKey).(*label.Config)
 
-	err = c.app.DeleteDraftColor(ctx, config.ID, id)
+	err = c.drafts.DeleteColor(ctx, config.ID, id)
 	if err != nil {
-		WriteHTMLErr(w, models.DecodeError(fmt.Errorf("failed to delete draft color: %w", err)))
+		WriteHTMLErr(w, coderror.Newf(coderror.DecodeFailed, "failed to delete draft color: %w", err))
 		return
 	}
 

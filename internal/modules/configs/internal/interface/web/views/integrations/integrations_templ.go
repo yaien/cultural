@@ -9,9 +9,9 @@ import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
 import "github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views/dashboard"
-import "github.com/yaien/cultural/internal/modules/configs/internal/models"
+import "github.com/yaien/cultural/internal/integration"
 
-func Page(definitions []models.IntegrationDefinition) templ.Component {
+func Page(definitions []integration.Definition) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -141,7 +141,7 @@ func Page(definitions []models.IntegrationDefinition) templ.Component {
 	})
 }
 
-func Detail(definitions []models.IntegrationDefinition, def models.IntegrationDefinition, page templ.Component) templ.Component {
+func Detail(definitions []integration.Definition, def integration.Definition, page templ.Component) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -188,7 +188,7 @@ func Detail(definitions []models.IntegrationDefinition, def models.IntegrationDe
 	})
 }
 
-func Modal(def models.IntegrationDefinition, page templ.Component) templ.Component {
+func Modal(def integration.Definition, page templ.Component) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {

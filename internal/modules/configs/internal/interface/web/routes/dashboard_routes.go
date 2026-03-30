@@ -8,10 +8,9 @@ import (
 	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/assets"
 	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/controllers"
 	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/middlewares"
-	"github.com/yaien/cultural/internal/modules/configs/internal/models"
 )
 
-func dashboard(mono *infrastructure.Monolith, app *application.Application, md *middlewares.Middlewares, reg *models.IntegrationRegistry) {
+func dashboard(mono *infrastructure.Monolith, app *application.Application, md *middlewares.Middlewares) {
 
 	{
 		ctrl := controllers.NewDashboardController(app)
@@ -21,7 +20,7 @@ func dashboard(mono *infrastructure.Monolith, app *application.Application, md *
 	}
 
 	{
-		ctrl := controllers.NewPagesController(app, app.Deps.Storage)
+		ctrl := controllers.NewPagesController(app.Deps.Label.Drafts, app.Deps.Label.Fonts, app.Deps.Preview, app.Deps.Storage)
 		mono.DashboardRouter.HandleFunc("GET /dashboard/pages", ctrl.Index)
 		mono.DashboardRouter.HandleFunc("GET /dashboard/pages/preview", ctrl.Preview)
 		mono.DashboardRouter.HandleFunc("PATCH /dashboard/pages/basic", ctrl.UpdateBasic)
@@ -42,13 +41,13 @@ func dashboard(mono *infrastructure.Monolith, app *application.Application, md *
 	}
 
 	{
-		ctrl := controllers.NewFontsController(app)
+		ctrl := controllers.NewFontsController(app.Deps.Label.Fonts, app.Deps.Label.Drafts)
 		mono.DashboardRouter.HandleFunc("GET /dashboard/fonts", ctrl.List)
 		mono.DashboardRouter.HandleFunc("POST /dashboard/fonts", ctrl.Update)
 	}
 
 	{
-		ctrl := controllers.NewColorsController(app)
+		ctrl := controllers.NewColorsController(app.Deps.Label.Drafts)
 		mono.DashboardRouter.HandleFunc("POST /dashboard/colors", ctrl.Create)
 		mono.DashboardRouter.HandleFunc("PUT /dashboard/colors/{id}", ctrl.Update)
 		mono.DashboardRouter.HandleFunc("DELETE /dashboard/colors/{id}", ctrl.Delete)
@@ -69,7 +68,7 @@ func dashboard(mono *infrastructure.Monolith, app *application.Application, md *
 	}
 
 	{
-		ctrl := controllers.NewIntegrationController(app, reg)
+		ctrl := controllers.NewIntegrationController(app.Deps.Registry)
 		mono.DashboardRouter.HandleFunc("GET /dashboard/integrations", ctrl.Index)
 		mono.DashboardRouter.HandleFunc("GET /dashboard/integrations/{integration}", ctrl.Integration)
 		mono.DashboardRouter.HandleFunc("GET /dashboard/integrations/{integration}/oauth/connect", ctrl.OAuthLogin)

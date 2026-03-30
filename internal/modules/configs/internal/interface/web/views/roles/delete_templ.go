@@ -10,7 +10,7 @@ import templruntime "github.com/a-h/templ/runtime"
 
 import (
 	"fmt"
-	"github.com/yaien/cultural/internal/library/admin"
+	"github.com/yaien/cultural/internal/admin"
 	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views/dashboard"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )

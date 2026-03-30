@@ -4,19 +4,19 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/yaien/cultural/internal/modules/configs/internal/application"
+	"github.com/yaien/cultural/internal/coderror"
+	"github.com/yaien/cultural/internal/integration"
+	"github.com/yaien/cultural/internal/label"
 	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/middlewares"
 	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views/integrations"
-	"github.com/yaien/cultural/internal/modules/configs/internal/models"
 )
 
 type IntegrationController struct {
-	app      *application.Application
-	registry *models.IntegrationRegistry
+	registry *integration.Registry
 }
 
-func NewIntegrationController(app *application.Application, registry *models.IntegrationRegistry) *IntegrationController {
-	return &IntegrationController{app: app, registry: registry}
+func NewIntegrationController(registry *integration.Registry) *IntegrationController {
+	return &IntegrationController{registry: registry}
 }
 
 func (c *IntegrationController) Index(w http.ResponseWriter, r *http.Request) {
@@ -26,12 +26,12 @@ func (c *IntegrationController) Index(w http.ResponseWriter, r *http.Request) {
 func (c *IntegrationController) Integration(w http.ResponseWriter, r *http.Request) {
 	def, ok := c.registry.Get(r.PathValue("integration"))
 	if !ok {
-		WriteHTMLErr(w, models.NotFoundError(fmt.Errorf("itegration %q not found", r.PathValue("integration"))))
+		WriteHTMLErr(w, coderror.Newf(coderror.NotFound, "integration not found"))
 		return
 	}
 
 	ctx := r.Context()
-	config := ctx.Value(middlewares.ConfigContextKey).(*models.Config)
+	config := ctx.Value(middlewares.ConfigContextKey).(*label.Config)
 
 	page, err := def.Page(ctx, config)
 	if err != nil {
@@ -52,18 +52,18 @@ func (c *IntegrationController) OAuthLogin(w http.ResponseWriter, r *http.Reques
 
 	def, ok := c.registry.Get(r.PathValue("integration"))
 	if !ok {
-		WriteHTMLErr(w, models.NotFoundError(fmt.Errorf("itegration %q not found", r.PathValue("integration"))))
+		WriteHTMLErr(w, coderror.Newf(coderror.NotFound, "integration %q not found", r.PathValue("integration")))
 		return
 	}
 
-	lgn, ok := def.(models.IntegrationOAuth)
+	lgn, ok := def.(integration.OAuth)
 	if !ok {
-		WriteHTMLErr(w, models.NotFoundError(fmt.Errorf("integration %q does not support oauth", r.PathValue("integration"))))
+		WriteHTMLErr(w, coderror.Newf(coderror.NotFound, "integration %q does not support oauth", r.PathValue("integration")))
 		return
 	}
 
 	ctx := r.Context()
-	config := ctx.Value(middlewares.ConfigContextKey).(*models.Config)
+	config := ctx.Value(middlewares.ConfigContextKey).(*label.Config)
 
 	url, err := lgn.OAuthCodeURL(ctx, config)
 	if err != nil {
@@ -79,18 +79,18 @@ func (c *IntegrationController) OauthCallback(w http.ResponseWriter, r *http.Req
 
 	def, ok := c.registry.Get(r.PathValue("integration"))
 	if !ok {
-		WriteHTMLErr(w, models.NotFoundError(fmt.Errorf("itegration %q not found", r.PathValue("integration"))))
+		WriteHTMLErr(w, coderror.Newf(coderror.NotFound, "integration %q not found", r.PathValue("integration")))
 		return
 	}
 
-	lgn, ok := def.(models.IntegrationOAuth)
+	lgn, ok := def.(integration.OAuth)
 	if !ok {
-		WriteHTMLErr(w, models.NotFoundError(fmt.Errorf("integration %q does not support oauth", r.PathValue("integration"))))
+		WriteHTMLErr(w, coderror.Newf(coderror.NotFound, "integration %q does not support oauth", r.PathValue("integration")))
 		return
 	}
 
 	ctx := r.Context()
-	config := ctx.Value(middlewares.ConfigContextKey).(*models.Config)
+	config := ctx.Value(middlewares.ConfigContextKey).(*label.Config)
 
 	code := r.URL.Query().Get("code")
 	err := lgn.OAuthExchange(ctx, config, code)

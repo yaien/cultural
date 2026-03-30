@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views/dashboard"
 	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views/icons"
-	"github.com/yaien/cultural/internal/library/store"
+	"github.com/yaien/cultural/internal/store"
 	"slices"
 )
 
@@ -28,7 +28,7 @@ templ Content(products []*store.Product) {
 						if len(product.Presentations) > 0 && len(product.Presentations[0].Files) > 0 {
 							<img src={ "/dashboard/files/" + product.Presentations[0].Files[0].ID.Hex() } alt=""/>
 						} else {
-						<div class="placeholder w-100 "></div>
+							<div class="placeholder w-100 "></div>
 						}
 					</header>
 					<div class="text-center">
@@ -189,8 +189,6 @@ templ PicturesDisplay(product *store.Product, presentation *store.Presentation) 
 		if len(presentation.Files) > 0 {
 			selected = presentation.Files[0]
 		}
-
-
 	}}
 	<div class="flex flex-column align-center justify-center h-100" x-data={ fmt.Sprintf("{ selected: %q }", selected.ID.Hex()) }>
 		<div class="placeholder m-b aspect-square" style="width: 450px">

@@ -8,9 +8,9 @@ import (
 	"time"
 
 	"github.com/spf13/cobra"
+	"github.com/yaien/cultural/internal/admin"
 	"github.com/yaien/cultural/internal/infrastructure"
 	"github.com/yaien/cultural/internal/infrastructure/migrations"
-	"github.com/yaien/cultural/internal/library/admin"
 	"github.com/yaien/cultural/internal/modules/configs"
 )
 
@@ -145,7 +145,7 @@ func invite() *cobra.Command {
 
 			ctx := cmd.Context()
 
-			config, err := cfg.App.GetConfigByHost(ctx, mono.Config.Init.Host)
+			config, err := cfg.App.Deps.Label.Configs.GetByHost(ctx, mono.Config.Init.Host)
 			if err != nil {
 				log.Fatal("Failed to get config by host:", err)
 			}

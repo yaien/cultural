@@ -8,7 +8,7 @@ package pages
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
-import "github.com/yaien/cultural/internal/modules/configs/internal/models"
+import "github.com/yaien/cultural/internal/label"
 
 func Initial(state *State) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
@@ -183,7 +183,7 @@ func Initial(state *State) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		switch state.Selected.(type) {
-		case *models.Page:
+		case *label.Page:
 			for key := range state.Draft.Pages {
 				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<option value=\"")
 				if templ_7745c5c3_Err != nil {
@@ -226,7 +226,7 @@ func Initial(state *State) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			}
-		case *models.Layout:
+		case *label.Layout:
 			for key := range state.Draft.Layouts {
 				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "<option value=\"")
 				if templ_7745c5c3_Err != nil {
@@ -269,7 +269,7 @@ func Initial(state *State) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			}
-		case *models.Email:
+		case *label.Email:
 			for key := range state.Draft.Emails {
 				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "<option value=\"")
 				if templ_7745c5c3_Err != nil {
@@ -331,7 +331,7 @@ func Initial(state *State) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		switch selected := state.Selected.(type) {
-		case *models.Page:
+		case *label.Page:
 			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "<fieldset><legend>Nombre</legend> <input name=\"name\" required value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -522,7 +522,7 @@ func Initial(state *State) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-		case *models.Layout:
+		case *label.Layout:
 			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, "<fieldset><legend>Nombre</legend> <input name=\"name\" required value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -553,7 +553,7 @@ func Initial(state *State) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-		case *models.Email:
+		case *label.Email:
 			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, "<fieldset><legend>Asunto</legend> <textarea name=\"subject\" class=\"no-resize\" required cols=\"10\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err

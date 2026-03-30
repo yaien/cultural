@@ -10,8 +10,8 @@ import templruntime "github.com/a-h/templ/runtime"
 
 import (
 	"fmt"
-	"github.com/yaien/cultural/internal/library/storage"
 	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views/icons"
+	"github.com/yaien/cultural/internal/storage"
 	"slices"
 )
 

@@ -8,8 +8,8 @@ import (
 	"log/slog"
 	"net/http"
 
-	"github.com/yaien/cultural/internal/library/storage"
-	"github.com/yaien/cultural/internal/modules/configs/internal/models"
+	"github.com/yaien/cultural/internal/coderror"
+	"github.com/yaien/cultural/internal/storage"
 )
 
 func WriteJSON(w http.ResponseWriter, data any) {
@@ -29,16 +29,11 @@ func WriteJSONSuccess(w http.ResponseWriter) {
 func WriteJSONErr(w http.ResponseWriter, err error) {
 	w.Header().Set("Content-Type", "application/json")
 
-	var e *models.Error
+	var e *coderror.Error
 
 	switch {
 	case errors.As(err, &e):
-		status := http.StatusBadRequest
-		if e.HTTPStatus > 0 {
-			status = e.HTTPStatus
-		}
-
-		w.WriteHeader(status)
+		w.WriteHeader(e.HTTPStatus())
 
 		err = json.NewEncoder(w).Encode(map[string]string{"error": e.Code, "message": e.Error()})
 	default:
@@ -53,16 +48,12 @@ func WriteJSONErr(w http.ResponseWriter, err error) {
 }
 
 func WriteHTMLErr(w http.ResponseWriter, err error) {
-	var e *models.Error
+	var e *coderror.Error
 
 	switch {
 	case errors.As(err, &e):
-		status := http.StatusBadRequest
-		if e.HTTPStatus > 0 {
-			status = e.HTTPStatus
-		}
 
-		w.WriteHeader(status)
+		w.WriteHeader(e.HTTPStatus())
 		_, err = fmt.Fprintf(w, "<h1>Error: %s - %s</h1>", e.Code, e.Error())
 	default:
 		slog.Error("Internal server error", "err", err.Error())

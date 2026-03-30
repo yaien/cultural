@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/gorilla/sessions"
-	"github.com/yaien/cultural/internal/library/auth"
+	"github.com/yaien/cultural/internal/auth"
 	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/middlewares"
 	"golang.org/x/oauth2"
 )

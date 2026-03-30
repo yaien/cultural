@@ -2,8 +2,8 @@ package pages
 
 import (
 	"fmt"
+	"github.com/yaien/cultural/internal/label"
 	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views/icons"
-	"github.com/yaien/cultural/internal/modules/configs/internal/models"
 )
 
 templ BrowseFonts(state *State) {
@@ -46,7 +46,7 @@ templ BrowseFonts(state *State) {
 	</div>
 }
 
-templ FontList(fonts []*models.Font, family string, limit int64, offset int64) {
+templ FontList(fonts []*label.Font, family string, limit int64, offset int64) {
 	for index, font := range fonts {
 		<div
 			class="font"

@@ -3,28 +3,27 @@ package pages
 import (
 	"fmt"
 
-	"github.com/yaien/cultural/internal/library/storage"
-	"github.com/yaien/cultural/internal/modules/configs/internal/application/commands"
-	"github.com/yaien/cultural/internal/modules/configs/internal/models"
+	"github.com/yaien/cultural/internal/label"
+	"github.com/yaien/cultural/internal/storage"
 )
 
-type SelectedType = commands.DraftModelType
+type SelectedType = label.DraftModelType
 
 const (
-	SelectedTypePage   = commands.DraftPageModelType
-	SelectedTypeLayout = commands.DraftLayoutModelType
-	SelectedTypeEmail  = commands.DraftEmailModelType
+	SelectedTypePage   = label.DraftPageModelType
+	SelectedTypeLayout = label.DraftLayoutModelType
+	SelectedTypeEmail  = label.DraftEmailModelType
 )
 
 const (
-	DefaultPageName   = models.DefaultPageName
-	DefaultLayoutName = models.DefaultLayoutName
-	DefaultEmailName  = models.DefaultEmailName
+	DefaultPageName   = label.DefaultPageName
+	DefaultLayoutName = label.DefaultLayoutName
+	DefaultEmailName  = label.DefaultEmailName
 )
 
 type State struct {
-	Config             *models.Config
-	Draft              *models.Draft
+	Config             *label.Config
+	Draft              *label.Draft
 	Selected           any
 	SelectedType       SelectedType
 	SelectedKey        string
@@ -40,13 +39,13 @@ type State struct {
 }
 
 type FileFunc func(filename string) (*storage.File, error)
-type FontFunc func(fontFamily string) (*models.Font, error)
-type FontsFunc func(family string, limit, offset int64) ([]*models.Font, error)
+type FontFunc func(fontFamily string) (*label.Font, error)
+type FontsFunc func(family string, limit, offset int64) ([]*label.Font, error)
 type FilesFunc func() ([]*storage.File, error)
 type FileURLFunc storage.URLFunc
 
 func (c *State) PageIsDefault() bool {
-	page, ok := c.Selected.(*models.Page)
+	page, ok := c.Selected.(*label.Page)
 	if !ok {
 		return false
 	}
@@ -55,7 +54,7 @@ func (c *State) PageIsDefault() bool {
 }
 
 func (c *State) PageUrl() string {
-	page, ok := c.Selected.(*models.Page)
+	page, ok := c.Selected.(*label.Page)
 	if !ok {
 		return ""
 	}

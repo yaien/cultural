@@ -10,8 +10,8 @@ import templruntime "github.com/a-h/templ/runtime"
 
 import (
 	"fmt"
+	"github.com/yaien/cultural/internal/label"
 	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views/icons"
-	"github.com/yaien/cultural/internal/modules/configs/internal/models"
 )
 
 func BrowseFonts(state *State) templ.Component {
@@ -159,7 +159,7 @@ func BrowseFonts(state *State) templ.Component {
 	})
 }
 
-func FontList(fonts []*models.Font, family string, limit int64, offset int64) templ.Component {
+func FontList(fonts []*label.Font, family string, limit int64, offset int64) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {

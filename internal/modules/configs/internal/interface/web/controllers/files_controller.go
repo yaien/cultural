@@ -6,10 +6,11 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/yaien/cultural/internal/library/storage"
+	"github.com/yaien/cultural/internal/coderror"
+	"github.com/yaien/cultural/internal/label"
 	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/middlewares"
 	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views/pages"
-	"github.com/yaien/cultural/internal/modules/configs/internal/models"
+	"github.com/yaien/cultural/internal/storage"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -25,12 +26,12 @@ func (fc *FilesController) Upload(w http.ResponseWriter, r *http.Request) {
 
 	err := r.ParseMultipartForm(5 << 20) // 5 MB
 	if err != nil {
-		WriteJSONErr(w, &models.Error{Code: "invalid form data", Err: fmt.Errorf("failed to parse multipart form: %w", err)})
+		WriteJSONErr(w, coderror.Newf(coderror.DecodeFailed, "failed to parse multipart form: %w", err))
 		return
 	}
 
 	ctx := r.Context()
-	config := ctx.Value(middlewares.ConfigContextKey).(*models.Config)
+	config := ctx.Value(middlewares.ConfigContextKey).(*label.Config)
 
 	var files []*storage.File
 
@@ -68,7 +69,7 @@ func (fc *FilesController) Upload(w http.ResponseWriter, r *http.Request) {
 
 func (fc *FilesController) Delete(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	config := ctx.Value(middlewares.ConfigContextKey).(*models.Config)
+	config := ctx.Value(middlewares.ConfigContextKey).(*label.Config)
 	filename := r.PathValue("filename")
 
 	if err := fc.storage.Delete(ctx, config.OrganizationID, filename); err != nil {
@@ -81,7 +82,7 @@ func (fc *FilesController) Delete(w http.ResponseWriter, r *http.Request) {
 }
 
 func (fc *FilesController) Download(w http.ResponseWriter, r *http.Request) {
-	config := r.Context().Value(middlewares.ConfigContextKey).(*models.Config)
+	config := r.Context().Value(middlewares.ConfigContextKey).(*label.Config)
 
 	var err error
 	var req storage.DownloadOptions
@@ -96,7 +97,7 @@ func (fc *FilesController) Download(w http.ResponseWriter, r *http.Request) {
 
 	if variant := r.URL.Query().Get("variant"); variant != "" {
 		if req.Variant, err = strconv.Atoi(variant); err != nil {
-			WriteJSONErr(w, models.DecodeError(fmt.Errorf("invalid quality: %w", err)))
+			WriteJSONErr(w, coderror.Newf(coderror.DecodeFailed, "invalid variant: %w", err))
 			return
 		}
 	}
@@ -113,11 +114,12 @@ func (fc *FilesController) Download(w http.ResponseWriter, r *http.Request) {
 
 func (fc *FilesController) Rename(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	config := ctx.Value(middlewares.ConfigContextKey).(*models.Config)
+	config := ctx.Value(middlewares.ConfigContextKey).(*label.Config)
 	filename := r.PathValue("filename")
 
 	if err := r.ParseForm(); err != nil {
-		WriteHTMLErr(w, models.DecodeError(err))
+		WriteHTMLErr(w, coderror.Newf(coderror.DecodeFailed, "failed parsing form: %w", err))
+		return
 	}
 
 	newName := r.PostFormValue("name")

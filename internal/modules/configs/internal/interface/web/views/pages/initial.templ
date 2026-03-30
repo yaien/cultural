@@ -1,6 +1,6 @@
 package pages
 
-import "github.com/yaien/cultural/internal/modules/configs/internal/models"
+import "github.com/yaien/cultural/internal/label"
 
 templ Initial(state *State) {
 	<fieldset role="group">
@@ -15,15 +15,15 @@ templ Initial(state *State) {
 		<legend>Seleccionar Plantilla</legend>
 		<select name={ SelectedKeyQuery } hx-get={ Path } hx-target={ "#" + ContentID } hx-swap="outerHTML" hx-push-url="true">
 			switch state.Selected.(type) {
-				case *models.Page:
+				case *label.Page:
 					for key := range state.Draft.Pages {
 						<option value={ key } selected?={ state.SelectedKey == key }>{ key }</option>
 					}
-				case *models.Layout:
+				case *label.Layout:
 					for key := range state.Draft.Layouts {
 						<option value={ key } selected?={ state.SelectedKey == key }>{ key }</option>
 					}
-				case *models.Email:
+				case *label.Email:
 					for key := range state.Draft.Emails {
 						<option value={ key } selected?={ state.SelectedKey == key }>{ key }</option>
 					}
@@ -32,7 +32,7 @@ templ Initial(state *State) {
 	</fieldset>
 	<form hx-patch="/dashboard/pages/basic" hx-swap="none" hx-vals={ state.HxSelectedVals() }>
 		switch selected := state.Selected.(type) {
-			case *models.Page:
+			case *label.Page:
 				<fieldset>
 					<legend>Nombre</legend>
 					<input name="name" required value={ selected.Name } disabled?={ state.PageIsDefault() }/>
@@ -74,7 +74,7 @@ templ Initial(state *State) {
 						}
 					</select>
 				</fieldset>
-			case *models.Layout:
+			case *label.Layout:
 				<fieldset>
 					<legend>Nombre</legend>
 					<input name="name" required value={ selected.Name }/>
@@ -83,7 +83,7 @@ templ Initial(state *State) {
 					<legend>Titulo</legend>
 					<input name="title" required value={ selected.Title }/>
 				</fieldset>
-			case *models.Email:
+			case *label.Email:
 				<fieldset>
 					<legend>Asunto</legend>
 					<textarea name="subject" class="no-resize" required cols="10">

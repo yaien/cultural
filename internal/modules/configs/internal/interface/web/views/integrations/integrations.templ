@@ -1,9 +1,9 @@
 package integrations
 
 import "github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views/dashboard"
-import "github.com/yaien/cultural/internal/modules/configs/internal/models"
+import "github.com/yaien/cultural/internal/integration"
 
-templ Page(definitions []models.IntegrationDefinition) {
+templ Page(definitions []integration.Definition) {
 	@dashboard.Page("Integraciones") {
 		<div class="container single" data-scope="integrations" id="container">
 			<div class="list">
@@ -28,13 +28,13 @@ templ Page(definitions []models.IntegrationDefinition) {
 	}
 }
 
-templ Detail(definitions []models.IntegrationDefinition, def models.IntegrationDefinition, page templ.Component) {
+templ Detail(definitions []integration.Definition, def integration.Definition, page templ.Component) {
 	@Page(definitions) {
 		@Modal(def, page)
 	}
 }
 
-templ Modal(def models.IntegrationDefinition, page templ.Component) {
+templ Modal(def integration.Definition, page templ.Component) {
 	@dashboard.Modal(def.Title(), templ.Attributes{"hx-push-url": "/dashboard/integrations"}) {
 		@page
 	}

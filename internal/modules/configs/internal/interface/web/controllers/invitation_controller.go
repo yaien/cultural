@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/yaien/cultural/internal/library/admin"
-	"github.com/yaien/cultural/internal/library/auth"
+	"github.com/yaien/cultural/internal/admin"
+	"github.com/yaien/cultural/internal/auth"
+	"github.com/yaien/cultural/internal/label"
 	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/middlewares"
-	"github.com/yaien/cultural/internal/modules/configs/internal/models"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -27,7 +27,7 @@ func (c *InvitationController) Accept(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ctx := r.Context()
-	config := ctx.Value(middlewares.ConfigContextKey).(*models.Config)
+	config := ctx.Value(middlewares.ConfigContextKey).(*label.Config)
 	user := ctx.Value(middlewares.UserContextKey).(*auth.User)
 
 	opts := &admin.AcceptInvitationOptions{

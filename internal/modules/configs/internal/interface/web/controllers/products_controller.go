@@ -6,11 +6,12 @@ import (
 	"strconv"
 
 	"github.com/a-h/templ"
-	"github.com/yaien/cultural/internal/library/store"
+	"github.com/yaien/cultural/internal/coderror"
+	"github.com/yaien/cultural/internal/label"
 	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/middlewares"
 	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views/dashboard"
 	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views/products"
-	"github.com/yaien/cultural/internal/modules/configs/internal/models"
+	"github.com/yaien/cultural/internal/store"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -26,7 +27,7 @@ func NewProductsController(products *store.Products, presentations *store.Presen
 
 func (c *ProductsController) Index(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	config := ctx.Value(middlewares.ConfigContextKey).(*models.Config)
+	config := ctx.Value(middlewares.ConfigContextKey).(*label.Config)
 	prs, err := c.products.GetByOrganizationID(ctx, config.OrganizationID)
 	if err != nil {
 		WriteHTMLErr(w, err)
@@ -42,7 +43,7 @@ func (c *ProductsController) CreateModal(w http.ResponseWriter, r *http.Request)
 
 func (c *ProductsController) Create(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	config := ctx.Value(middlewares.ConfigContextKey).(*models.Config)
+	config := ctx.Value(middlewares.ConfigContextKey).(*label.Config)
 
 	if err := r.ParseForm(); err != nil {
 		WriteHTMLErr(w, err)
@@ -66,11 +67,11 @@ func (c *ProductsController) Create(w http.ResponseWriter, r *http.Request) {
 
 func (c *ProductsController) Show(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	config := ctx.Value(middlewares.ConfigContextKey).(*models.Config)
+	config := ctx.Value(middlewares.ConfigContextKey).(*label.Config)
 
 	productID, err := primitive.ObjectIDFromHex(r.PathValue("id"))
 	if err != nil {
-		WriteHTMLErr(w, models.DecodeError(fmt.Errorf("invalid product id: %w", err)))
+		WriteHTMLErr(w, coderror.Newf(coderror.DecodeFailed, "invalid product id: %w", err))
 		return
 	}
 
@@ -90,7 +91,7 @@ func (c *ProductsController) Show(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if presentation == nil {
-			WriteHTMLErr(w, &models.Error{Code: "presentation_not_found", Err: fmt.Errorf("presentation with id %s not found", pid.Hex())})
+			WriteHTMLErr(w, coderror.Newf("presentation_not_found", "presentation with id %s not found", pid.Hex()))
 			return
 		}
 	} else if len(product.Presentations) > 0 {
@@ -111,11 +112,11 @@ func (c *ProductsController) Show(w http.ResponseWriter, r *http.Request) {
 
 func (c *ProductsController) CreatePresentation(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	config := ctx.Value(middlewares.ConfigContextKey).(*models.Config)
+	config := ctx.Value(middlewares.ConfigContextKey).(*label.Config)
 
 	productID, err := primitive.ObjectIDFromHex(r.PathValue("id"))
 	if err != nil {
-		WriteHTMLErr(w, models.DecodeError(fmt.Errorf("invalid product id: %w", err)))
+		WriteHTMLErr(w, coderror.Newf(coderror.DecodeFailed, "invalid product id: %w", err))
 		return
 	}
 
@@ -138,17 +139,17 @@ func (c *ProductsController) CreatePresentation(w http.ResponseWriter, r *http.R
 
 func (c *ProductsController) UpdatePresentation(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	config := ctx.Value(middlewares.ConfigContextKey).(*models.Config)
+	config := ctx.Value(middlewares.ConfigContextKey).(*label.Config)
 
 	productID, err := primitive.ObjectIDFromHex(r.PathValue("id"))
 	if err != nil {
-		WriteHTMLErr(w, models.DecodeError(fmt.Errorf("invalid product id: %w", err)))
+		WriteHTMLErr(w, coderror.Newf(coderror.DecodeFailed, "invalid product id: %w", err))
 		return
 	}
 
 	presentationID, err := primitive.ObjectIDFromHex(r.PathValue("presentationId"))
 	if err != nil {
-		WriteHTMLErr(w, models.DecodeError(fmt.Errorf("invalid presentation id: %w", err)))
+		WriteHTMLErr(w, coderror.Newf(coderror.DecodeFailed, "invalid presentation id: %w", err))
 		return
 	}
 
@@ -178,17 +179,17 @@ func (c *ProductsController) UpdatePresentation(w http.ResponseWriter, r *http.R
 
 func (c *ProductsController) DeletePresentation(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	config := ctx.Value(middlewares.ConfigContextKey).(*models.Config)
+	config := ctx.Value(middlewares.ConfigContextKey).(*label.Config)
 
 	productID, err := primitive.ObjectIDFromHex(r.PathValue("id"))
 	if err != nil {
-		WriteHTMLErr(w, models.DecodeError(fmt.Errorf("invalid product id: %w", err)))
+		WriteHTMLErr(w, coderror.Newf(coderror.DecodeFailed, "invalid product id: %w", err))
 		return
 	}
 
 	presentationID, err := primitive.ObjectIDFromHex(r.PathValue("presentationId"))
 	if err != nil {
-		WriteHTMLErr(w, models.DecodeError(fmt.Errorf("invalid presentation id: %w", err)))
+		WriteHTMLErr(w, coderror.Newf(coderror.DecodeFailed, "invalid presentation id: %w", err))
 		return
 	}
 
@@ -218,17 +219,17 @@ func (c *ProductsController) DeletePresentation(w http.ResponseWriter, r *http.R
 
 func (c *ProductsController) UploadPresentationFile(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	config := ctx.Value(middlewares.ConfigContextKey).(*models.Config)
+	config := ctx.Value(middlewares.ConfigContextKey).(*label.Config)
 
 	productID, err := primitive.ObjectIDFromHex(r.PathValue("id"))
 	if err != nil {
-		WriteHTMLErr(w, models.DecodeError(fmt.Errorf("invalid product id: %w", err)))
+		WriteHTMLErr(w, coderror.Newf(coderror.DecodeFailed, "invalid product id: %w", err))
 		return
 	}
 
 	presentationID, err := primitive.ObjectIDFromHex(r.PathValue("presentationId"))
 	if err != nil {
-		WriteHTMLErr(w, models.DecodeError(fmt.Errorf("invalid presentation id: %w", err)))
+		WriteHTMLErr(w, coderror.Newf(coderror.DecodeFailed, "invalid presentation id: %w", err))
 		return
 	}
 

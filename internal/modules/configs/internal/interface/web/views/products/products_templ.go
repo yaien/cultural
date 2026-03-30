@@ -10,9 +10,9 @@ import templruntime "github.com/a-h/templ/runtime"
 
 import (
 	"fmt"
-	"github.com/yaien/cultural/internal/library/store"
 	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views/dashboard"
 	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views/icons"
+	"github.com/yaien/cultural/internal/store"
 	"slices"
 )
 
@@ -712,7 +712,7 @@ func PicturesDisplay(product *store.Product, presentation *store.Presentation) t
 		var templ_7745c5c3_Var33 string
 		templ_7745c5c3_Var33, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("{ selected: %q }", selected.ID.Hex()))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `products/products.templ`, Line: 195, Col: 124}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `products/products.templ`, Line: 193, Col: 124}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var33))
 		if templ_7745c5c3_Err != nil {
@@ -730,7 +730,7 @@ func PicturesDisplay(product *store.Product, presentation *store.Presentation) t
 			var templ_7745c5c3_Var34 string
 			templ_7745c5c3_Var34, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("{ file: %q }", file.ID.Hex()))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `products/products.templ`, Line: 201, Col: 109}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `products/products.templ`, Line: 199, Col: 109}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var34))
 			if templ_7745c5c3_Err != nil {
@@ -743,7 +743,7 @@ func PicturesDisplay(product *store.Product, presentation *store.Presentation) t
 			var templ_7745c5c3_Var35 string
 			templ_7745c5c3_Var35, templ_7745c5c3_Err = templ.JoinStringErrs("/dashboard/files/" + file.ID.Hex())
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `products/products.templ`, Line: 202, Col: 85}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `products/products.templ`, Line: 200, Col: 85}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var35))
 			if templ_7745c5c3_Err != nil {
@@ -768,7 +768,7 @@ func PicturesDisplay(product *store.Product, presentation *store.Presentation) t
 			var templ_7745c5c3_Var36 string
 			templ_7745c5c3_Var36, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("/dashboard/products/%s/presentations/%s/files", product.ID.Hex(), presentation.ID.Hex()))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `products/products.templ`, Line: 214, Col: 117}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `products/products.templ`, Line: 212, Col: 117}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var36))
 			if templ_7745c5c3_Err != nil {

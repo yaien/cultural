@@ -3,44 +3,34 @@ package configs
 import (
 	"time"
 
+	"github.com/yaien/cultural/internal/admin"
+	"github.com/yaien/cultural/internal/auth"
+	"github.com/yaien/cultural/internal/cache"
 	"github.com/yaien/cultural/internal/infrastructure"
-	"github.com/yaien/cultural/internal/library/admin"
-	"github.com/yaien/cultural/internal/library/auth"
-	"github.com/yaien/cultural/internal/library/cache"
-	"github.com/yaien/cultural/internal/library/storage"
-	"github.com/yaien/cultural/internal/library/store"
-	"github.com/yaien/cultural/internal/library/worker"
+	"github.com/yaien/cultural/internal/integration"
+	"github.com/yaien/cultural/internal/integration/integrations/instagram"
+	"github.com/yaien/cultural/internal/label"
 	"github.com/yaien/cultural/internal/modules/configs/internal/application"
-	"github.com/yaien/cultural/internal/modules/configs/internal/interface/integrations/instagram"
-	_ "github.com/yaien/cultural/internal/modules/configs/internal/interface/migrations"
+	"github.com/yaien/cultural/internal/preview"
+	"github.com/yaien/cultural/internal/storage"
+	"github.com/yaien/cultural/internal/store"
+	"github.com/yaien/cultural/internal/worker"
 
-	"github.com/yaien/cultural/internal/modules/configs/internal/interface/repositories"
 	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web"
-	"github.com/yaien/cultural/internal/modules/configs/internal/models"
 )
 
 type Module struct {
-	App      *application.Application
-	Web      *web.Web
-	Registry *models.IntegrationRegistry
+	App *application.Application
+	Web *web.Web
 }
 
 func (m *Module) Init(mono *infrastructure.Monolith) error {
-	m.Registry = models.NewIntegrationRegistry(
-		instagram.Mew(mono.MongoDB),
-	)
 
-	deps := application.Deps{
-		Configs: repositories.NewConfigRepository(mono.MongoDB),
+	var deps application.Deps
 
-		Fonts:    repositories.NewFontRepository(mono.MongoDB),
-		Drafts:   repositories.NewDraftRepository(mono.MongoDB),
-		Registry: m.Registry,
-		Cache:    cache.New[*models.Config](time.Hour),
-		Mail:     mono.Mail,
-		Queue:    mono.Queue,
-	}
-
+	deps.Mail = mono.Mail
+	deps.Cache = cache.New[*label.Config](time.Hour)
+	deps.Queue = mono.Queue
 	deps.Storage = storage.New(mono.StorageDriver, storage.NewMongo(mono.MongoDB), mono.Queue)
 	deps.Store = store.New(store.NewMongo(mono.MongoDB), deps.Storage)
 	deps.Auth = auth.New(auth.NewMongo(mono.MongoDB))
@@ -51,18 +41,28 @@ func (m *Module) Init(mono *infrastructure.Monolith) error {
 		admin.NewMongoGroups(mono.MongoDB),
 		mono.Mail,
 	)
+	deps.Label = label.New(
+		label.NewMongoFonts(mono.MongoDB),
+		label.NewMongoConfigs(mono.MongoDB),
+		label.NewMongoDrafts(mono.MongoDB),
+		deps.Cache,
+	)
+	deps.Registry = integration.NewRegistry(
+		instagram.Mew(mono.MongoDB),
+	)
+	deps.Preview = preview.New(deps.Registry)
 
 	m.App = application.New(deps)
 
-	m.Web = web.Register(mono, m.App, m.Registry)
+	m.Web = web.Register(mono, m.App)
 
 	mono.Worker.Register(worker.H{
 		Name:    storage.TaskName,
 		Handler: storage.NewHandler(deps.Storage),
 	})
 
-	for _, integration := range m.Registry.All() {
-		if background, ok := integration.(models.IntegrationBackground); ok {
+	for _, itgr := range deps.Registry.All() {
+		if background, ok := itgr.(integration.Background); ok {
 			background.RegisterBackgroundProcess(mono.Cron, mono.Queue, mono.Worker)
 		}
 	}

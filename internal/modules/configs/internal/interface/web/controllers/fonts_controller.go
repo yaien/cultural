@@ -4,19 +4,18 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/yaien/cultural/internal/modules/configs/internal/application"
-	"github.com/yaien/cultural/internal/modules/configs/internal/application/commands"
+	"github.com/yaien/cultural/internal/label"
 	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/middlewares"
 	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views/pages"
-	"github.com/yaien/cultural/internal/modules/configs/internal/models"
 )
 
 type FontsController struct {
-	app *application.Application
+	fonts  *label.Fonts
+	drafts *label.Drafts
 }
 
-func NewFontsController(app *application.Application) *FontsController {
-	return &FontsController{app: app}
+func NewFontsController(fonts *label.Fonts, drafts *label.Drafts) *FontsController {
+	return &FontsController{fonts, drafts}
 }
 
 func (c *FontsController) List(w http.ResponseWriter, r *http.Request) {
@@ -36,7 +35,7 @@ func (c *FontsController) List(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fonts, err := c.app.GetFonts(r.Context(), &models.FindFontOptions{
+	fonts, err := c.fonts.Find(r.Context(), &label.FindFontOptions{
 		Family: family,
 		Limit:  limit,
 		Offset: offset,
@@ -58,15 +57,15 @@ func (c *FontsController) Update(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ctx := r.Context()
-	config := ctx.Value(middlewares.ConfigContextKey).(*models.Config)
+	config := ctx.Value(middlewares.ConfigContextKey).(*label.Config)
 
-	req := commands.UpdateDraftFontRequest{
+	req := label.UpdateDraftFontOptions{
 		ConfigID: config.ID,
 		Family:   r.PostForm.Get("family"),
 		Tag:      r.PostForm.Get("tag"),
 	}
 
-	if err := c.app.UpdateDraftFont(ctx, req); err != nil {
+	if err := c.drafts.UpdateFont(ctx, req); err != nil {
 		WriteHTMLErr(w, err)
 	}
 

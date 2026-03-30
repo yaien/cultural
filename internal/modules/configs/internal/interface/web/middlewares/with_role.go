@@ -5,8 +5,8 @@ import (
 	"net/http"
 
 	"github.com/gorilla/sessions"
-	"github.com/yaien/cultural/internal/library/admin"
-	"github.com/yaien/cultural/internal/modules/configs/internal/models"
+	"github.com/yaien/cultural/internal/admin"
+	"github.com/yaien/cultural/internal/label"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -30,7 +30,7 @@ func NewWithRole(roles *admin.Roles, store sessions.Store) func(next http.Handle
 
 			ctx := r.Context()
 
-			config, ok := ctx.Value(ConfigContextKey).(*models.Config)
+			config, ok := ctx.Value(ConfigContextKey).(*label.Config)
 			if !ok || config == nil {
 				http.Error(w, "Config not found in context", http.StatusInternalServerError)
 				return

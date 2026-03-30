@@ -1,7 +1,7 @@
 package application
 
 import (
-	"github.com/yaien/cultural/internal/library/cache"
+	"github.com/yaien/cultural/internal/cache"
 	"github.com/yaien/cultural/internal/modules/landing/internal/application/queries"
 )
 

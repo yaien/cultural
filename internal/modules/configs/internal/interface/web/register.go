@@ -5,17 +5,17 @@ import (
 	"github.com/yaien/cultural/internal/modules/configs/internal/application"
 	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/middlewares"
 	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/routes"
-	"github.com/yaien/cultural/internal/modules/configs/internal/models"
 )
 
 type Web struct {
 	*middlewares.Middlewares
 }
 
-func Register(mono *infrastructure.Monolith, app *application.Application, registry *models.IntegrationRegistry) *Web {
+func Register(mono *infrastructure.Monolith, app *application.Application) *Web {
+
 	web := &Web{
 		Middlewares: &middlewares.Middlewares{
-			WithConfig: middlewares.NewWithConfig(app),
+			WithConfig: middlewares.NewWithConfig(app.Deps.Label.Configs),
 			WithUser:   middlewares.NewWithUser(app.Deps.Auth.Users, mono.SessionStore),
 			WithRole:   middlewares.NewWithRole(app.Deps.Admin.Roles, mono.SessionStore),
 			WithCache:  middlewares.WithCache,
@@ -23,6 +23,6 @@ func Register(mono *infrastructure.Monolith, app *application.Application, regis
 		},
 	}
 
-	routes.Register(mono, app, web.Middlewares, registry)
+	routes.Register(mono, app, web.Middlewares)
 	return web
 }

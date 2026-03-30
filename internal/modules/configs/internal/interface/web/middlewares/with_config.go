@@ -7,12 +7,12 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/yaien/cultural/internal/modules/configs/internal/application"
+	"github.com/yaien/cultural/internal/label"
 )
 
 const ConfigContextKey = key("config")
 
-func NewWithConfig(app *application.Application) func(next http.Handler) http.HandlerFunc {
+func NewWithConfig(configs *label.Configs) func(next http.Handler) http.HandlerFunc {
 	return func(next http.Handler) http.HandlerFunc {
 		return func(w http.ResponseWriter, r *http.Request) {
 			host := r.Host
@@ -47,7 +47,7 @@ func NewWithConfig(app *application.Application) func(next http.Handler) http.Ha
 				return
 			}
 
-			config, err := app.GetConfigByHost(r.Context(), host)
+			config, err := configs.GetByHost(r.Context(), host)
 			if err != nil {
 				http.Error(w, "Failed to get config", http.StatusInternalServerError)
 				return

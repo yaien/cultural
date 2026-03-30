@@ -5,31 +5,36 @@ import (
 	"net/http"
 
 	"github.com/a-h/templ"
-	"github.com/yaien/cultural/internal/library/storage"
-	"github.com/yaien/cultural/internal/modules/configs/internal/application"
-	"github.com/yaien/cultural/internal/modules/configs/internal/application/commands"
-	"github.com/yaien/cultural/internal/modules/configs/internal/application/queries"
+	"github.com/yaien/cultural/internal/label"
 	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/middlewares"
 	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views/dashboard"
 	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views/pages"
-	"github.com/yaien/cultural/internal/modules/configs/internal/models"
+	"github.com/yaien/cultural/internal/preview"
+	"github.com/yaien/cultural/internal/storage"
 )
 
 type PagesController struct {
-	app     *application.Application
+	drafts  *label.Drafts
+	fonts   *label.Fonts
+	preview *preview.Preview
 	storage *storage.Storage
 }
 
-func NewPagesController(app *application.Application, s *storage.Storage) *PagesController {
-	return &PagesController{app: app, storage: s}
+func NewPagesController(drafts *label.Drafts, fonts *label.Fonts, preview *preview.Preview, storage *storage.Storage) *PagesController {
+	return &PagesController{
+		drafts:  drafts,
+		fonts:   fonts,
+		preview: preview,
+		storage: storage,
+	}
 }
 
 func (c *PagesController) Index(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	config := ctx.Value(middlewares.ConfigContextKey).(*models.Config)
+	config := ctx.Value(middlewares.ConfigContextKey).(*label.Config)
 
-	draft, err := c.app.GetDraftByConfigID(ctx, config.ID)
+	draft, err := c.drafts.GetByConfigID(ctx, config.ID)
 	if err != nil {
 		WriteHTMLErr(w, fmt.Errorf("failed getting draft: %w", err))
 		return
@@ -55,15 +60,15 @@ func (c *PagesController) Index(w http.ResponseWriter, r *http.Request) {
 		File: func(name string) (*storage.File, error) {
 			return c.storage.GetByOrganizationIDAndName(ctx, config.OrganizationID, name)
 		},
-		Fonts: func(family string, limit, offset int64) ([]*models.Font, error) {
-			return c.app.GetFonts(ctx, &models.FindFontOptions{
+		Fonts: func(family string, limit, offset int64) ([]*label.Font, error) {
+			return c.fonts.Find(ctx, &label.FindFontOptions{
 				Family: family,
 				Limit:  limit,
 				Offset: int64(offset),
 			})
 		},
-		Font: func(family string) (*models.Font, error) {
-			return c.app.GetFont(ctx, family)
+		Font: func(family string) (*label.Font, error) {
+			return c.fonts.GetByFamily(ctx, family)
 		},
 	}
 
@@ -105,13 +110,20 @@ func (c *PagesController) Index(w http.ResponseWriter, r *http.Request) {
 func (c *PagesController) Preview(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	config := ctx.Value(middlewares.ConfigContextKey).(*models.Config)
+	config := ctx.Value(middlewares.ConfigContextKey).(*label.Config)
 	query := r.URL.Query()
 
-	html, err := c.app.GetPreview(ctx, &queries.GetPreviewRequest{
+	draft, err := c.drafts.GetByConfigID(ctx, config.ID)
+	if err != nil {
+		WriteHTMLErr(w, fmt.Errorf("failed getting draft: %w", err))
+		return
+	}
+
+	html, err := c.preview.GetHTML(ctx, &preview.GetHTMLOptions{
 		Key:    query.Get(pages.SelectedKeyQuery),
 		Type:   query.Get(pages.SelectedTypeQuery),
 		Config: config,
+		Draft:  draft,
 	})
 
 	if err != nil {
@@ -127,16 +139,16 @@ func (c *PagesController) UpdateBasic(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
 
-	config := ctx.Value(middlewares.ConfigContextKey).(*models.Config)
+	config := ctx.Value(middlewares.ConfigContextKey).(*label.Config)
 
 	if err := r.ParseForm(); err != nil {
 		WriteHTMLErr(w, fmt.Errorf("failed parsing form: %w", err))
 		return
 	}
 
-	req := commands.UpdateDraftBasicRequest{
+	req := label.UpdateDraftBasicOptions{
 		ConfigID:    config.ID,
-		Type:        commands.DraftModelType(r.PostForm.Get("type")),
+		Type:        label.DraftModelType(r.PostForm.Get("type")),
 		Key:         r.PostForm.Get("key"),
 		Name:        r.PostForm.Get("name"),
 		Title:       r.PostForm.Get("title"),
@@ -147,7 +159,7 @@ func (c *PagesController) UpdateBasic(w http.ResponseWriter, r *http.Request) {
 		OGType:      r.PostForm.Get("og_type"),
 	}
 
-	if err := c.app.UpdateDraftBasic(ctx, req); err != nil {
+	if err := c.drafts.UpdateBasic(ctx, req); err != nil {
 		WriteHTMLErr(w, fmt.Errorf("failed updating basic info: %w", err))
 		return
 	}
@@ -160,22 +172,22 @@ func (c *PagesController) UpdateBasic(w http.ResponseWriter, r *http.Request) {
 func (c *PagesController) UpdateSource(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	config := ctx.Value(middlewares.ConfigContextKey).(*models.Config)
+	config := ctx.Value(middlewares.ConfigContextKey).(*label.Config)
 
 	if err := r.ParseForm(); err != nil {
 		WriteHTMLErr(w, fmt.Errorf("failed parsing form: %w", err))
 		return
 	}
 
-	req := commands.UpdateDraftSourceRequest{
+	req := label.UpdateDraftSourceOptions{
 		ConfigID:   config.ID,
-		ModelType:  commands.DraftModelType(r.PostForm.Get("modelType")),
+		ModelType:  label.DraftModelType(r.PostForm.Get("modelType")),
 		Key:        r.PostForm.Get("key"),
-		SourceType: commands.DraftSourceType(r.PostForm.Get("sourceType")),
+		SourceType: label.DraftSourceType(r.PostForm.Get("sourceType")),
 		Source:     r.PostForm.Get("source"),
 	}
 
-	if err := c.app.UpdateDraftSource(ctx, &req); err != nil {
+	if err := c.drafts.UpdateSource(ctx, &req); err != nil {
 		WriteHTMLErr(w, fmt.Errorf("failed updating source: %w", err))
 		return
 	}
@@ -188,21 +200,21 @@ func (c *PagesController) UpdateSource(w http.ResponseWriter, r *http.Request) {
 func (c *PagesController) Create(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	config := ctx.Value(middlewares.ConfigContextKey).(*models.Config)
+	config := ctx.Value(middlewares.ConfigContextKey).(*label.Config)
 
 	if err := r.ParseForm(); err != nil {
 		WriteHTMLErr(w, fmt.Errorf("failed parsing form: %w", err))
 		return
 	}
 
-	req := commands.CreateDraftModelRequest{
+	req := label.CreateDraftModelOptions{
 		ConfigID: config.ID,
-		Type:     commands.DraftModelType(r.PostForm.Get("type")),
+		Type:     label.DraftModelType(r.PostForm.Get("type")),
 		Name:     r.PostForm.Get("name"),
 		Title:    r.PostForm.Get("title"),
 	}
 
-	res, err := c.app.CreateDraftModel(ctx, req)
+	res, err := c.drafts.CreateModel(ctx, req)
 	if err != nil {
 		WriteHTMLErr(w, fmt.Errorf("failed creating model: %w", err))
 		return
@@ -227,20 +239,20 @@ func (c *PagesController) Create(w http.ResponseWriter, r *http.Request) {
 
 func (c *PagesController) Delete(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	config := ctx.Value(middlewares.ConfigContextKey).(*models.Config)
+	config := ctx.Value(middlewares.ConfigContextKey).(*label.Config)
 
 	if err := r.ParseForm(); err != nil {
 		WriteHTMLErr(w, fmt.Errorf("failed parsing form: %w", err))
 		return
 	}
 
-	req := commands.DeleteDraftModelRequest{
+	req := label.DeleteDraftModelOptions{
 		ConfigID: config.ID,
-		Type:     commands.DraftModelType(r.Form.Get("type")),
+		Type:     label.DraftModelType(r.Form.Get("type")),
 		Key:      r.Form.Get("key"),
 	}
 
-	res, err := c.app.DeleteDraftModel(ctx, req)
+	res, err := c.drafts.DeleteModel(ctx, req)
 	if err != nil {
 		WriteHTMLErr(w, fmt.Errorf("failed deleting model: %w", err))
 		return
@@ -265,14 +277,14 @@ func (c *PagesController) Delete(w http.ResponseWriter, r *http.Request) {
 
 func (c *PagesController) CommitDraft(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	config := ctx.Value(middlewares.ConfigContextKey).(*models.Config)
+	config := ctx.Value(middlewares.ConfigContextKey).(*label.Config)
 
 	if err := r.ParseForm(); err != nil {
 		WriteHTMLErr(w, fmt.Errorf("failed parsing form: %w", err))
 		return
 	}
 
-	if err := c.app.CommitDraft(ctx, config); err != nil {
+	if err := c.drafts.Commit(ctx, config); err != nil {
 		WriteHTMLErr(w, fmt.Errorf("failed committing draft: %w", err))
 		return
 	}
