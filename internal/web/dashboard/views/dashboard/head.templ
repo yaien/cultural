@@ -1,0 +1,23 @@
+package dashboard
+
+import (
+	"fmt"
+	"github.com/yaien/cultural/internal/application/label"
+	"github.com/yaien/cultural/internal/web/middlewares"
+)
+
+templ Head(title string) {
+	{{ config := ctx.Value(middlewares.ConfigContextKey).(*label.Config) }}
+	<meta charset="UTF-8"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+	<title>{ title } - { config.Title }</title>
+	<link rel="icon" type="image/png" href={ "/assets/landing/favicon.png?v" + fmt.Sprint(config.UpdatedAt.Unix()) }/>
+	<link rel="preconnect" href="https://fonts.googleapis.com"/>
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+	<link
+		href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+		rel="stylesheet"
+	/>
+	<link rel="stylesheet" href="/assets/static/dashboard/dist/dashboard.min.css"/>
+	<script type="module" src="/assets/static/dashboard/dist/dashboard.min.js"></script>
+}

@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"log/slog"
 
-	"github.com/yaien/cultural/internal/storage"
-	"github.com/yaien/cultural/internal/worker"
+	"github.com/yaien/cultural/internal/application/storage"
+	"github.com/yaien/cultural/internal/lib/worker"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )

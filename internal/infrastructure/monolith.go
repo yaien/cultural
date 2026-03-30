@@ -10,9 +10,9 @@ import (
 
 	"github.com/gorilla/sessions"
 	"github.com/robfig/cron/v3"
-	"github.com/yaien/cultural/internal/mail"
-	"github.com/yaien/cultural/internal/storage"
-	"github.com/yaien/cultural/internal/worker"
+	"github.com/yaien/cultural/internal/application/storage"
+	"github.com/yaien/cultural/internal/lib/mail"
+	"github.com/yaien/cultural/internal/lib/worker"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )

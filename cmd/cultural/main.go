@@ -1,17 +1,20 @@
 package main
 
 import (
+	"context"
 	"log"
 	"log/slog"
 	"net/http"
 	"os"
+	"os/signal"
 	"time"
 
 	"github.com/spf13/cobra"
-	"github.com/yaien/cultural/internal/admin"
+	"github.com/yaien/cultural/internal/application"
+	"github.com/yaien/cultural/internal/application/admin"
 	"github.com/yaien/cultural/internal/infrastructure"
 	"github.com/yaien/cultural/internal/infrastructure/migrations"
-	"github.com/yaien/cultural/internal/modules/configs"
+	"github.com/yaien/cultural/internal/web"
 )
 
 func main() {
@@ -36,18 +39,20 @@ func serve() *cobra.Command {
 	cmd := &cobra.Command{
 		Use: "serve",
 		Run: func(cmd *cobra.Command, args []string) {
-			ctx := cmd.Context()
+
+			ctx, stop := signal.NotifyContext(cmd.Context(), os.Interrupt, os.Kill)
+			defer stop()
+
 			mono := infrastructure.NewMonolith()
-			err := register(mono)
-			if err != nil {
-				log.Fatal("Failed to register modules:", err)
-			}
+			app := application.New(mono)
+			web.Register(mono, app)
 
 			log.Printf("Mongodb database: %s", mono.Config.MongoDB.Database)
 			log.Printf("Mongodb uri: %s", mono.Config.MongoDB.URI)
 			log.Printf("App is running on %s", mono.Config.Server.URL)
 
 			go func() {
+
 				if err := migrations.Migrate(ctx, mono.MongoDB); err != nil {
 					slog.Error("Failed running migrations", "error", err)
 					return
@@ -58,18 +63,25 @@ func serve() *cobra.Command {
 				mono.Cron.Start()
 				log.Println("Cron started successfully")
 
-				err = mono.Worker.Start()
-				if err != nil {
-					slog.Error("Failed to start worker", "error", err)
-					os.Exit(1)
+				mono.Worker.Start()
+				log.Println("Worker started successfully")
+
+				<-ctx.Done()
+				if err := ctx.Err(); err != nil {
+					slog.Info("context done", "error", context.Cause(ctx))
 				}
 
-				log.Println("Worker started successfully")
-				mono.Worker.Wait()
+				mono.Worker.Stop()
+				log.Println("Worker stopped successfully")
+
+				<-mono.Cron.Stop().Done()
+				log.Println("Cron stopped successfully")
+
+				os.Exit(0)
 			}()
 
 			if mono.Config.Server.TLS {
-				err = http.ListenAndServeTLS(
+				err := http.ListenAndServeTLS(
 					mono.Config.Server.Addr,
 					mono.Config.Server.CertFile,
 					mono.Config.Server.KeyFile,
@@ -83,7 +95,7 @@ func serve() *cobra.Command {
 				return
 			}
 
-			err = http.ListenAndServe(mono.Config.Server.Addr, mono.Router)
+			err := http.ListenAndServe(mono.Config.Server.Addr, mono.Router)
 			if err != nil {
 				log.Fatal("Failed to start server:", err)
 			}
@@ -133,19 +145,10 @@ func invite() *cobra.Command {
 		Args: cobra.ExactArgs(2),
 		Run: func(cmd *cobra.Command, args []string) {
 			mono := infrastructure.NewMonolith()
-			err := register(mono)
-			if err != nil {
-				log.Fatal("Failed to register modules:", err)
-			}
-
-			cfg, err := infrastructure.Resolve(mono, &configs.Module{})
-			if err != nil {
-				log.Fatal("Failed to resolve configs module:", err)
-			}
-
+			app := application.New(mono)
 			ctx := cmd.Context()
 
-			config, err := cfg.App.Deps.Label.Configs.GetByHost(ctx, mono.Config.Init.Host)
+			config, err := app.Label.Configs.GetByHost(ctx, mono.Config.Init.Host)
 			if err != nil {
 				log.Fatal("Failed to get config by host:", err)
 			}
@@ -159,7 +162,7 @@ func invite() *cobra.Command {
 				ExpiresAt:       time.Now().Add(3 * time.Hour),
 			}
 
-			if _, err = cfg.App.Deps.Admin.Invitations.Create(ctx, opts); err != nil {
+			if _, err = app.Admin.Invitations.Create(ctx, opts); err != nil {
 				log.Fatal("Failed to create invitation:", err)
 			}
 

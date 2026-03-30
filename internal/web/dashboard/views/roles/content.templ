@@ -1,0 +1,59 @@
+package roles
+
+import (
+	"fmt"
+	"github.com/yaien/cultural/internal/application/admin"
+	"github.com/yaien/cultural/internal/web/dashboard/views/icons"
+	"github.com/yaien/cultural/internal/web/middlewares"
+)
+
+templ Content(state *State) {
+	{{ current := ctx.Value(middlewares.RoleContextKey).(*admin.Role) }}
+	<div class="container" data-scope="roles">
+		<table>
+			<thead>
+				<tr>
+					<th>Usuario</th>
+					<th>Correo</th>
+					<th>Rol</th>
+					<th>Acciones</th>
+				</tr>
+			</thead>
+			<tbody>
+				for _, role := range state.Roles {
+					<tr id={ role.ID.Hex() }>
+						<td>{ role.UserName }</td>
+						<td>{ role.UserEmail }</td>
+						<td class="capitalize">{ role.Name }</td>
+						<td>
+							<div role="group" class="clear">
+								if role.ID.Hex() != current.ID.Hex() {
+									<button
+										class="danger clear"
+										hx-get={ templ.URL(fmt.Sprintf("/dashboard/roles/delete/%s?name=%s", role.ID.Hex(), role.UserName)) }
+										hx-swap="beforeend"
+										hx-target=".container"
+										hx-disabled-elt="this"
+									>
+										@icons.Trash()
+									</button>
+								}
+							</div>
+						</td>
+					</tr>
+				}
+			</tbody>
+		</table>
+		<div class="actions">
+			<button
+				class="primary clear"
+				hx-get={ templ.URL("/dashboard/roles/create") }
+				hx-swap="beforeend"
+				hx-target=".container"
+				hx-disabled-elt="this"
+			>
+				@icons.Add()
+			</button>
+		</div>
+	</div>
+}

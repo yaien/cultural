@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/yaien/cultural/internal/label"
+	"github.com/yaien/cultural/internal/application/label"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"

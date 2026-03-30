@@ -1,0 +1,33 @@
+package pages
+
+import (
+	"fmt"
+	"github.com/yaien/cultural/internal/application/label"
+	"github.com/yaien/cultural/internal/web/dashboard/views/icons"
+)
+
+templ EditHTML(state *State) {
+	{{
+		var source string
+		switch selected := state.Selected.(type) {
+		case *label.Page:
+			source = selected.Body
+		case *label.Layout:
+			source = selected.Body
+		case *label.Email:
+			source = selected.Body
+		}
+	}}
+	<div
+		class="monaco"
+		x-data={ fmt.Sprintf("monaco({ language: %q, source: %q })", "html", source) }
+		hx-patch="/dashboard/pages/source"
+		hx-trigger="input throttle:100ms"
+		hx-vals={ fmt.Sprintf("js:{ modelType: %q, key: %q, sourceType: %q, source: event.detail.value }", state.SelectedType, state.SelectedKey, label.DraftBodyType) }
+		hx-swap="none"
+	>
+		<div class="spinner" x-show="loading">
+			@icons.Spinner()
+		</div>
+	</div>
+}

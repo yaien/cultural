@@ -7,8 +7,8 @@ import (
 
 	"github.com/yaien/cultural/internal/infrastructure"
 
-	"github.com/yaien/cultural/internal/admin"
-	"github.com/yaien/cultural/internal/label"
+	"github.com/yaien/cultural/internal/application/admin"
+	"github.com/yaien/cultural/internal/application/label"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
