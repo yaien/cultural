@@ -1,0 +1,1 @@
+{{.OrganizationName}} te ha invitado a unirte a su equipo de trabajo

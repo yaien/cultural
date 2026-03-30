@@ -1,4 +1,4 @@
-package models
+package auth
 
 import (
 	"context"
@@ -29,9 +29,21 @@ type User struct {
 	Accounts  map[string]*Account `bson:"accounts"`
 }
 
-type UserRepository interface {
+type Repository interface {
 	GetByID(ctx context.Context, id primitive.ObjectID) (*User, error)
 	GetByEmail(ctx context.Context, email string) (*User, error)
 	Create(ctx context.Context, user *User) error
 	Update(ctx context.Context, user *User) error
+}
+
+type Auth struct {
+	Users    *Users
+	Accounts *Accounts
+}
+
+func New(repo Repository) *Auth {
+	return &Auth{
+		Users:    NewUsers(repo),
+		Accounts: NewAccounts(repo),
+	}
 }

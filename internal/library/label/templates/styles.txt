@@ -1,0 +1,10 @@
+:root {
+    {{ range $key, $font := .Fonts -}}
+    --{{$key}}-font-family: "{{$font.Family}}", sans-serif;
+    {{ end -}}
+    {{ range .Colors -}}
+    --{{.Tag}}-color: {{.Value}};
+    {{ end -}}
+}
+{{.LayoutStyles}}
+{{.PageStyles}}

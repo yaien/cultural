@@ -7,7 +7,8 @@ import (
 
 	"github.com/yaien/cultural/internal/infrastructure"
 	"github.com/yaien/cultural/internal/infrastructure/migrations"
-	"github.com/yaien/cultural/internal/modules/configs/internal/models"
+	"github.com/yaien/cultural/internal/library/admin"
+	"github.com/yaien/cultural/internal/library/label"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -18,7 +19,7 @@ func init() {
 		Name: "202510262019_initial_config",
 		Up: func(ctx context.Context, db *mongo.Database) error {
 			organizations := db.Collection("organizations")
-			res, err := organizations.InsertOne(ctx, models.Organization{
+			res, err := organizations.InsertOne(ctx, admin.Organization{
 				Name:      "Cultural",
 				CreatedAt: time.Now(),
 				UpdatedAt: time.Now(),
@@ -41,7 +42,7 @@ func init() {
 			cfg := infrastructure.LoadConfig()
 
 			_, err = configs.InsertOne(ctx,
-				models.Config{
+				label.Config{
 					Host:           cfg.Init.Host,
 					Title:          cfg.Init.Title,
 					Url:            cfg.Init.Url,
@@ -49,9 +50,9 @@ func init() {
 					OrganizationID: res.InsertedID.(primitive.ObjectID),
 					CreatedAt:      time.Now(),
 					UpdatedAt:      time.Now(),
-					Colors:         models.DefaultColors,
-					Pages:          models.DefaultPages,
-					Emails:         models.DefaultEmails,
+					Colors:         label.DefaultColors,
+					Pages:          label.DefaultPages,
+					Emails:         label.DefaultEmails,
 				})
 
 			return err

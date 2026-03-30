@@ -5,14 +5,14 @@ import (
 	"net/http"
 
 	"github.com/gorilla/sessions"
-	"github.com/yaien/cultural/internal/modules/configs/internal/application"
+	"github.com/yaien/cultural/internal/library/admin"
 	"github.com/yaien/cultural/internal/modules/configs/internal/models"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 const RoleContextKey = key("role")
 
-func NewWithRole(app *application.Application, store sessions.Store) func(next http.Handler) http.HandlerFunc {
+func NewWithRole(roles *admin.Roles, store sessions.Store) func(next http.Handler) http.HandlerFunc {
 	return func(next http.Handler) http.HandlerFunc {
 		return func(w http.ResponseWriter, r *http.Request) {
 			session, _ := store.Get(r, SessionKey)
@@ -28,13 +28,15 @@ func NewWithRole(app *application.Application, store sessions.Store) func(next h
 				return
 			}
 
-			config, ok := r.Context().Value(ConfigContextKey).(*models.Config)
+			ctx := r.Context()
+
+			config, ok := ctx.Value(ConfigContextKey).(*models.Config)
 			if !ok || config == nil {
 				http.Error(w, "Config not found in context", http.StatusInternalServerError)
 				return
 			}
 
-			role, err := app.GetRole(r.Context(), userID, config.OrganizationID)
+			role, err := roles.GetByUserIDAndOrganizationID(ctx, userID, config.OrganizationID)
 			if err != nil {
 				http.Error(w, "Failed to get user role", http.StatusInternalServerError)
 				return

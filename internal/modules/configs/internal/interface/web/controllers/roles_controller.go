@@ -9,8 +9,7 @@ import (
 
 	"github.com/a-h/templ"
 	"github.com/gorilla/sessions"
-	"github.com/yaien/cultural/internal/modules/configs/internal/application"
-	"github.com/yaien/cultural/internal/modules/configs/internal/application/commands"
+	"github.com/yaien/cultural/internal/library/admin"
 	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/middlewares"
 	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views/dashboard"
 	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views/roles"
@@ -19,12 +18,13 @@ import (
 )
 
 type RolesController struct {
-	app   *application.Application
-	store sessions.Store
+	roles       *admin.Roles
+	invitations *admin.Invitations
+	store       sessions.Store
 }
 
-func NewRolesController(app *application.Application, store sessions.Store) *RolesController {
-	return &RolesController{app: app, store: store}
+func NewRolesController(rls *admin.Roles, ivs *admin.Invitations, store sessions.Store) *RolesController {
+	return &RolesController{rls, ivs, store}
 }
 
 func (c *RolesController) Index(w http.ResponseWriter, r *http.Request) {
@@ -34,7 +34,7 @@ func (c *RolesController) Index(w http.ResponseWriter, r *http.Request) {
 	var state roles.State
 	var err error
 
-	state.Roles, err = c.app.GetRoles(ctx, config.OrganizationID)
+	state.Roles, err = c.roles.GetByOrganizationID(ctx, config.OrganizationID)
 	if err != nil {
 		WriteHTMLErr(w, fmt.Errorf("failed getting roles: %w", err))
 		return
@@ -65,9 +65,9 @@ func (c *RolesController) Create(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
 	config := ctx.Value(middlewares.ConfigContextKey).(*models.Config)
-	role := ctx.Value(middlewares.RoleContextKey).(*models.Role)
+	role := ctx.Value(middlewares.RoleContextKey).(*admin.Role)
 
-	request := &commands.CreateInvitationRequest{
+	request := &admin.CreateInvitationOptions{
 		ExpiresAt:       time.Now().Add(24 * time.Hour),
 		OrganizationID:  config.OrganizationID,
 		CreatorID:       role.UserID,
@@ -77,7 +77,7 @@ func (c *RolesController) Create(w http.ResponseWriter, r *http.Request) {
 		UserEmail:       input.Email,
 	}
 
-	_, err := c.app.CreateInvitation(ctx, request)
+	_, err := c.invitations.Create(ctx, request)
 	if err != nil {
 		WriteJSONErr(w, fmt.Errorf("failed creating invitation: %w", err))
 		return
@@ -97,7 +97,7 @@ func (c *RolesController) ShowDelete(w http.ResponseWriter, r *http.Request) {
 
 	name := r.URL.Query().Get("name")
 
-	role := &models.Role{
+	role := &admin.Role{
 		ID:       id,
 		UserName: name,
 	}
@@ -110,7 +110,7 @@ func (c *RolesController) Delete(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
 	config := ctx.Value(middlewares.ConfigContextKey).(*models.Config)
-	role := ctx.Value(middlewares.RoleContextKey).(*models.Role)
+	role := ctx.Value(middlewares.RoleContextKey).(*admin.Role)
 
 	id, err := primitive.ObjectIDFromHex(r.PathValue("id"))
 	if err != nil {
@@ -118,13 +118,13 @@ func (c *RolesController) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	request := &commands.DeleteRoleRequest{
+	request := &admin.DeleteRoleOptions{
 		SessionRole:    role,
 		TargetRoleID:   id,
 		OrganizationID: config.OrganizationID,
 	}
 
-	if err := c.app.DeleteRole(ctx, request); err != nil {
+	if err := c.roles.Delete(ctx, request); err != nil {
 
 		if e, ok := errors.AsType[*models.Error](err); ok {
 			dashboard.Toast(e.Error(), dashboard.Danger).Render(ctx, w)

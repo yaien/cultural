@@ -1,7 +1,7 @@
 package roles
 
-import "github.com/yaien/cultural/internal/modules/configs/internal/models"
+import "github.com/yaien/cultural/internal/library/admin"
 
 type State struct {
-	Roles []*models.Role
+	Roles []*admin.Role
 }

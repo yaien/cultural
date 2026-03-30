@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/sessions"
-	"github.com/yaien/cultural/internal/modules/configs/internal/application"
+	"github.com/yaien/cultural/internal/library/auth"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -19,7 +19,7 @@ const (
 	SessionContextKey = key("session")
 )
 
-func NewWithUser(app *application.Application, store sessions.Store) func(next http.Handler) http.HandlerFunc {
+func NewWithUser(users *auth.Users, store sessions.Store) func(next http.Handler) http.HandlerFunc {
 	return func(next http.Handler) http.HandlerFunc {
 		return func(w http.ResponseWriter, r *http.Request) {
 			s, _ := store.Get(r, SessionKey)
@@ -35,13 +35,14 @@ func NewWithUser(app *application.Application, store sessions.Store) func(next h
 				return
 			}
 
-			user, err := app.GetUserByID(r.Context(), oid)
+			ctx := r.Context()
+
+			user, err := users.GetByID(ctx, oid)
 			if err != nil {
 				http.Error(w, "Failed to retrieve user", http.StatusInternalServerError)
 				return
 			}
 
-			ctx := r.Context()
 			ctx = context.WithValue(ctx, UserContextKey, user)
 			ctx = context.WithValue(ctx, SessionContextKey, s)
 

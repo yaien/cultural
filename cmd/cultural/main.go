@@ -10,6 +10,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/yaien/cultural/internal/infrastructure"
 	"github.com/yaien/cultural/internal/infrastructure/migrations"
+	"github.com/yaien/cultural/internal/library/admin"
 	"github.com/yaien/cultural/internal/modules/configs"
 )
 
@@ -149,16 +150,16 @@ func invite() *cobra.Command {
 				log.Fatal("Failed to get config by host:", err)
 			}
 
-			_, err = cfg.App.CreateInvitation(ctx, &configs.CreateInvitationRequest{
+			opts := &admin.CreateInvitationOptions{
 				OrganizationID:  config.OrganizationID,
 				UserEmail:       args[0],
 				UserDisplayName: args[1],
 				RolePermissions: []string{"*"},
 				RoleName:        "Admin",
 				ExpiresAt:       time.Now().Add(3 * time.Hour),
-			})
+			}
 
-			if err != nil {
+			if _, err = cfg.App.Deps.Admin.Invitations.Create(ctx, opts); err != nil {
 				log.Fatal("Failed to create invitation:", err)
 			}
 

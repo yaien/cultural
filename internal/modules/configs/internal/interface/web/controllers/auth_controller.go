@@ -8,24 +8,23 @@ import (
 	"time"
 
 	"github.com/gorilla/sessions"
-	"github.com/yaien/cultural/internal/modules/configs/internal/application"
+	"github.com/yaien/cultural/internal/library/auth"
 	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/middlewares"
-	"github.com/yaien/cultural/internal/modules/configs/internal/models"
 	"golang.org/x/oauth2"
 )
 
 type AuthController struct {
-	app    *application.Application
-	store  sessions.Store
-	config *oauth2.Config
+	accounts *auth.Accounts
+	store    sessions.Store
+	config   *oauth2.Config
 }
 
 type AuthState struct {
 	Redirect string
 }
 
-func NewAuthController(app *application.Application, store sessions.Store, config *oauth2.Config) *AuthController {
-	return &AuthController{app, store, config}
+func NewAuthController(accounts *auth.Accounts, store sessions.Store, config *oauth2.Config) *AuthController {
+	return &AuthController{accounts, store, config}
 }
 
 func (c *AuthController) Login(w http.ResponseWriter, r *http.Request) {
@@ -100,7 +99,7 @@ func (c *AuthController) Callback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := c.app.SyncUser(ctx, &models.Account{
+	account := &auth.Account{
 		Provider:     "google",
 		ID:           body.ID,
 		Email:        body.Email,
@@ -110,7 +109,13 @@ func (c *AuthController) Callback(w http.ResponseWriter, r *http.Request) {
 		RefreshToken: token.RefreshToken,
 		ExpiresAt:    token.Expiry,
 		LastUsedAt:   time.Now(),
-	})
+	}
+
+	user, err := c.accounts.Sync(ctx, account)
+	if err != nil {
+		WriteHTMLErr(w, fmt.Errorf("failed to sync account: %w", err))
+		return
+	}
 
 	session, _ := c.store.Get(r, middlewares.SessionKey)
 	session.Values[middlewares.UserIDKey] = user.ID.Hex()

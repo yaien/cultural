@@ -60,7 +60,7 @@ func dashboard(mono *infrastructure.Monolith, app *application.Application, md *
 	}
 
 	{
-		ctrl := controllers.NewRolesController(app, mono.SessionStore)
+		ctrl := controllers.NewRolesController(app.Deps.Admin.Roles, app.Deps.Admin.Invitations, mono.SessionStore)
 		mono.DashboardRouter.HandleFunc("GET /dashboard/roles", ctrl.Index)
 		mono.DashboardRouter.HandleFunc("POST /dashboard/roles", ctrl.Create)
 		mono.DashboardRouter.Handle("GET /dashboard/roles/create", md.WithCache(http.HandlerFunc(ctrl.ShowCreate)))

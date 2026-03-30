@@ -4,19 +4,19 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/yaien/cultural/internal/modules/configs/internal/application"
-	"github.com/yaien/cultural/internal/modules/configs/internal/application/commands"
+	"github.com/yaien/cultural/internal/library/admin"
+	"github.com/yaien/cultural/internal/library/auth"
 	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/middlewares"
 	"github.com/yaien/cultural/internal/modules/configs/internal/models"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type InvitationController struct {
-	app *application.Application
+	invitations *admin.Invitations
 }
 
-func NewInvitationController(app *application.Application) *InvitationController {
-	return &InvitationController{app: app}
+func NewInvitationController(ivs *admin.Invitations) *InvitationController {
+	return &InvitationController{ivs}
 }
 
 func (c *InvitationController) Accept(w http.ResponseWriter, r *http.Request) {
@@ -26,19 +26,20 @@ func (c *InvitationController) Accept(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	config := r.Context().Value(middlewares.ConfigContextKey).(*models.Config)
-	user := r.Context().Value(middlewares.UserContextKey).(*models.User)
+	ctx := r.Context()
+	config := ctx.Value(middlewares.ConfigContextKey).(*models.Config)
+	user := ctx.Value(middlewares.UserContextKey).(*auth.User)
 
-	err = c.app.AcceptInvitation(r.Context(), &commands.AcceptInvitationRequest{
+	opts := &admin.AcceptInvitationOptions{
 		InvitationID:   id,
 		OrganizationID: config.OrganizationID,
 		UserID:         user.ID,
 		UserEmail:      user.Email,
 		UserName:       user.Name,
 		UserAvatarUrl:  user.AvatarUrl,
-	})
+	}
 
-	if err != nil {
+	if err := c.invitations.Accept(ctx, opts); err != nil {
 		WriteHTMLErr(w, fmt.Errorf("failed accepting invitation: %w", err))
 		return
 	}

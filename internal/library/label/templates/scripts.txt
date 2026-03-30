@@ -1,0 +1,7 @@
+<script type="text/javascript">
+function __init() {
+    {{.LayoutScript}}
+    {{.PageScript}}
+}
+__init();
+</script>

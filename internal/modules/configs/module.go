@@ -4,6 +4,8 @@ import (
 	"time"
 
 	"github.com/yaien/cultural/internal/infrastructure"
+	"github.com/yaien/cultural/internal/library/admin"
+	"github.com/yaien/cultural/internal/library/auth"
 	"github.com/yaien/cultural/internal/library/cache"
 	"github.com/yaien/cultural/internal/library/storage"
 	"github.com/yaien/cultural/internal/library/store"
@@ -29,22 +31,26 @@ func (m *Module) Init(mono *infrastructure.Monolith) error {
 	)
 
 	deps := application.Deps{
-		Configs:       repositories.NewConfigRepository(mono.MongoDB),
-		Invitations:   repositories.NewInvitationRepository(mono.MongoDB),
-		Organizations: repositories.NewOrganizationRepository(mono.MongoDB),
-		Roles:         repositories.NewRoleRepository(mono.MongoDB),
-		Groups:        repositories.NewGroupRepository(mono.MongoDB),
-		Users:         repositories.NewUserRepository(mono.MongoDB),
-		Fonts:         repositories.NewFontRepository(mono.MongoDB),
-		Drafts:        repositories.NewDraftRepository(mono.MongoDB),
-		Registry:      m.Registry,
-		Cache:         cache.New[*models.Config](time.Hour),
-		Mail:          mono.Mail,
-		Queue:         mono.Queue,
+		Configs: repositories.NewConfigRepository(mono.MongoDB),
+
+		Fonts:    repositories.NewFontRepository(mono.MongoDB),
+		Drafts:   repositories.NewDraftRepository(mono.MongoDB),
+		Registry: m.Registry,
+		Cache:    cache.New[*models.Config](time.Hour),
+		Mail:     mono.Mail,
+		Queue:    mono.Queue,
 	}
 
 	deps.Storage = storage.New(mono.StorageDriver, storage.NewMongo(mono.MongoDB), mono.Queue)
 	deps.Store = store.New(store.NewMongo(mono.MongoDB), deps.Storage)
+	deps.Auth = auth.New(auth.NewMongo(mono.MongoDB))
+	deps.Admin = admin.New(
+		admin.NewMongoRoles(mono.MongoDB),
+		admin.NewMongoOrganizations(mono.MongoDB),
+		admin.NewMongoInvitations(mono.MongoDB),
+		admin.NewMongoGroups(mono.MongoDB),
+		mono.Mail,
+	)
 
 	m.App = application.New(deps)
 

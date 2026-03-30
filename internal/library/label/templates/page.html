@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#ffffff" />
+    <meta name="description" content="{{.Page.Description}}" />
+    <meta name="og:title" content="{{.Page.Title}}" />
+    <meta name="og:description" content="{{.Page.Description}}" />
+    <meta name="og:image" content="{{.ExternalFileURL .Page.OGImage}}" />
+    <meta name="og:type" content="{{.Page.OGType}}" />
+
+    <title>{{.Title}}</title>
+
+    {{.FontLinks}}
+
+    <link rel="icon" type="image/png" href="/assets/landing/favicon.png?v={{.Version}}" />
+    <link rel="stylesheet" href="/assets/static/landing/base.css" />
+
+    {{if .InlineStyles}}
+    <!-- -->
+    {{- .Styles}}
+    <!-- -->
+    {{else -}}
+    <link rel="stylesheet" href="/assets/landing/styles.css" />
+    <link rel="stylesheet" href="{{ printf `/assets/landing/styles/pages/%s.css` .Page.Name }}" />
+    <link rel="stylesheet" href="{{ printf `/assets/landing/styles/layouts/%s.css` .Page.Layout }}" />
+    {{end}}
+
+    <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.8/dist/htmx.min.js"></script>
+    <!-- -->
+    {{if .InlineScript}}
+    <!-- -->
+    {{- .Script}}
+    <!-- -->
+    {{else}}
+    <script src="{{ printf `/assets/landing/scripts/pages/%s.js` .Page.Name }}"></script>
+    <script src="{{ printf `/assets/landing/scripts/layouts/%s.js` .Page.Layout }}"></script>
+    {{end}}
+
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  </head>
+
+  <body>
+    {{block "layout_body" .}}
+    <!-- -->
+    {{ template "page_body" .}}
+    <!-- -->
+    {{end}}
+    <!-- -->
+
+    {{define "page_body"}} {{end}}
+  </body>
+</html>

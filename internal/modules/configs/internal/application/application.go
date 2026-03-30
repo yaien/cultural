@@ -1,6 +1,8 @@
 package application
 
 import (
+	"github.com/yaien/cultural/internal/library/admin"
+	"github.com/yaien/cultural/internal/library/auth"
 	"github.com/yaien/cultural/internal/library/cache"
 	"github.com/yaien/cultural/internal/library/mail"
 	"github.com/yaien/cultural/internal/library/storage"
@@ -15,19 +17,11 @@ type Application struct {
 	Deps Deps
 
 	*queries.GetConfigByHostQuery
-	*queries.GetUserByIDQuery
-	*queries.GetRoleQuery
-	*queries.GetRolesQuery
 	*queries.GetFontsQuery
 	*queries.GetFontQuery
 	*queries.GetDraftByConfigIDQuery
 	*queries.GetPreviewQuery
 
-	*commands.CreateInvitationCommand
-	*commands.SyncUserCommand
-	*commands.AcceptInvitationCommand
-	*commands.UpdateRoleCommand
-	*commands.DeleteRoleCommand
 	*commands.UpdateDraftBasicCommand
 	*commands.UpdateDraftSourceCommand
 	*commands.UpdateDraftFontCommand
@@ -40,20 +34,17 @@ type Application struct {
 }
 
 type Deps struct {
-	Configs       models.ConfigRepository
-	Invitations   models.InvitationRepository
-	Organizations models.OrganizationRepository
-	Roles         models.RoleRepository
-	Groups        models.GroupRepository
-	Users         models.UserRepository
-	Fonts         models.FontRepository
-	Drafts        models.DraftRepository
-	Cache         *cache.Cache[*models.Config]
-	Queue         *worker.Queue
-	Registry      *models.IntegrationRegistry
-	Mail          mail.Mail
-	Storage       *storage.Storage
-	Store         *store.Store
+	Configs  models.ConfigRepository
+	Fonts    models.FontRepository
+	Drafts   models.DraftRepository
+	Cache    *cache.Cache[*models.Config]
+	Queue    *worker.Queue
+	Registry *models.IntegrationRegistry
+	Mail     mail.Mail
+	Storage  *storage.Storage
+	Store    *store.Store
+	Admin    *admin.Admin
+	Auth     *auth.Auth
 }
 
 func New(deps Deps) *Application {
@@ -61,19 +52,11 @@ func New(deps Deps) *Application {
 		deps,
 
 		queries.NewGetConfigByHostQuery(deps.Configs, deps.Cache),
-		queries.NewGetUserByIDQuery(deps.Users),
-		queries.NewGetRoleQuery(deps.Roles),
-		queries.NewGetRolesQuery(deps.Roles),
 		queries.NewGetFontsQuery(deps.Fonts),
 		queries.NewGetFontQuery(deps.Fonts),
 		queries.NewGetDraftByConfigIDQuery(deps.Drafts),
 		queries.NewGetPreviewQuery(deps.Drafts, deps.Registry),
 
-		commands.NewCreateInvitationCommand(deps.Invitations, deps.Organizations, deps.Configs, deps.Roles, deps.Groups, deps.Mail),
-		commands.NewSyncUserCommand(deps.Users),
-		commands.NewAcceptInvitationCommand(deps.Invitations, deps.Roles),
-		commands.NewUpdateRoleCommand(deps.Roles, deps.Groups),
-		commands.NewDeleteRoleCommand(deps.Roles),
 		commands.NewUpdateDraftBasicCommand(deps.Drafts),
 		commands.NewUpdateDraftSourceCommand(deps.Drafts),
 		commands.NewUpdateDraftFontCommand(deps.Drafts, deps.Fonts),

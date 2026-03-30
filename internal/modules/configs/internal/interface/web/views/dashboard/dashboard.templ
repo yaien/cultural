@@ -1,13 +1,13 @@
 package dashboard
 
 import (
+	"github.com/yaien/cultural/internal/library/admin"
 	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/middlewares"
 	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views/icons"
-	"github.com/yaien/cultural/internal/modules/configs/internal/models"
 )
 
 templ Page(title string) {
-	{{ role := ctx.Value(middlewares.RoleContextKey).(*models.Role) }}
+	{{ role := ctx.Value(middlewares.RoleContextKey).(*admin.Role) }}
 	{{ path := ctx.Value(middlewares.PathContextKey).(string) }}
 	<!DOCTYPE html>
 	<html lang="es">

@@ -9,9 +9,9 @@ import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
 import (
+	"github.com/yaien/cultural/internal/library/admin"
 	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/middlewares"
 	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views/icons"
-	"github.com/yaien/cultural/internal/modules/configs/internal/models"
 )
 
 func Page(title string) templ.Component {
@@ -35,7 +35,7 @@ func Page(title string) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		role := ctx.Value(middlewares.RoleContextKey).(*models.Role)
+		role := ctx.Value(middlewares.RoleContextKey).(*admin.Role)
 		path := ctx.Value(middlewares.PathContextKey).(string)
 		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<!doctype html><html lang=\"es\"><head>")
 		if templ_7745c5c3_Err != nil {

@@ -2,12 +2,12 @@ package roles
 
 import (
 	"fmt"
+	"github.com/yaien/cultural/internal/library/admin"
 	"github.com/yaien/cultural/internal/modules/configs/internal/interface/web/views/dashboard"
-	"github.com/yaien/cultural/internal/modules/configs/internal/models"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-templ Delete(role *models.Role) {
+templ Delete(role *admin.Role) {
 	{{ fmt.Printf("Delete role: %s\n, name %s", role.ID.Hex(), role.UserName) }}
 	@dashboard.Modal("Eliminar Rol") {
 		<form
