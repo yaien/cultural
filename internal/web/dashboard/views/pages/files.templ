@@ -34,11 +34,9 @@ templ Files(state *State) {
 				</template>
 			</form>
 		</div>
-		<x-scrollable scale="0.929">
-			<div id="files" class="grid" hx-vals={ state.HxSelectedVals() }>
-				@FileGrid(files, state.FileURL)
-			</div>
-		</x-scrollable>
+		<div id="files" class="grid" hx-vals={ state.HxSelectedVals() }>
+			@FileGrid(files, state.FileURL)
+		</div>
 	</div>
 }
 

@@ -6,7 +6,7 @@ import (
 
 	"github.com/yaien/cultural/internal/infrastructure"
 	"github.com/yaien/cultural/internal/lib/cache"
-	"github.com/yaien/cultural/internal/web/dashboard/assets"
+	"github.com/yaien/cultural/internal/web/public/assets"
 	"github.com/yaien/cultural/internal/web/public/controllers"
 )
 
