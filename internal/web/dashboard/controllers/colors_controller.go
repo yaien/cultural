@@ -5,9 +5,10 @@ import (
 
 	"github.com/yaien/cultural/internal/application/label"
 	"github.com/yaien/cultural/internal/lib/coderror"
+	"github.com/yaien/cultural/internal/lib/primitive"
+
 	"github.com/yaien/cultural/internal/web/dashboard/views/pages"
 	"github.com/yaien/cultural/internal/web/middlewares"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type ColorsController struct {
@@ -45,7 +46,7 @@ func (c *ColorsController) Update(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	config := ctx.Value(middlewares.ConfigContextKey).(*label.Config)
 
-	id, err := primitive.ObjectIDFromHex(r.PathValue("id"))
+	id, err := primitive.ParseUUID(r.PathValue("id"))
 	if err != nil {
 		WriteHTMLErr(w, coderror.Newf(coderror.DecodeFailed, "invalid previousKey: %w", err))
 		return
@@ -68,7 +69,7 @@ func (c *ColorsController) Update(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c *ColorsController) Delete(w http.ResponseWriter, r *http.Request) {
-	id, err := primitive.ObjectIDFromHex(r.PathValue("id"))
+	id, err := primitive.ParseUUID(r.PathValue("id"))
 	if err != nil {
 		WriteHTMLErr(w, coderror.Newf(coderror.DecodeFailed, "invalid id: %w", err))
 		return

@@ -4,28 +4,28 @@ import (
 	"context"
 	"time"
 
-	"go.mongodb.org/mongo-driver/bson/primitive"
+	"github.com/yaien/cultural/internal/lib/primitive"
 )
 
 type Config struct {
-	ID             primitive.ObjectID `bson:"_id,omitempty"`
-	OrganizationID primitive.ObjectID `bson:"organizationId"`
-	CreatedAt      time.Time          `bson:"createdAt"`
-	UpdatedAt      time.Time          `bson:"updatedAt"`
-	Host           string             `bson:"host"`
-	Title          string             `bson:"title"`
-	Url            string             `bson:"url"`
-	Email          string             `bson:"email"`
-	Fonts          map[string]*Font   `bson:"fonts"`
-	Pages          map[string]*Page   `bson:"pages"`
-	Layouts        map[string]*Layout `bson:"layouts"`
-	Emails         map[string]*Email  `bson:"emails"`
-	Colors         []*Color           `bson:"colors"`
+	ID             primitive.ID `gorm:"primaryKey,autoIncrement"`
+	OrganizationID primitive.ID `gorm:"index"`
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
+	Host           string `gorm:"index"`
+	Title          string
+	Url            string
+	Email          string
+	Fonts          map[string]*Font   `gorm:"type:jsonb;serializer:json"`
+	Pages          map[string]*Page   `gorm:"type:jsonb;serializer:json"`
+	Layouts        map[string]*Layout `gorm:"type:jsonb;serializer:json"`
+	Emails         map[string]*Email  `gorm:"type:jsonb;serializer:json"`
+	Colors         []*Color           `gorm:"type:jsonb;serializer:json"`
 }
 
 type ConfigRepository interface {
 	GetByHost(ctx context.Context, host string) (*Config, error)
-	GetByOrganizationID(ctx context.Context, organizationID primitive.ObjectID) (*Config, error)
+	GetByOrganizationID(ctx context.Context, id primitive.ID) (*Config, error)
 	Update(ctx context.Context, config *Config) error
 }
 
@@ -41,7 +41,7 @@ func (c *Configs) GetByHost(ctx context.Context, host string) (*Config, error) {
 	return c.configs.GetByHost(ctx, host)
 }
 
-func (c *Configs) GetByOrganizationID(ctx context.Context, organizationID primitive.ObjectID) (*Config, error) {
+func (c *Configs) GetByOrganizationID(ctx context.Context, organizationID primitive.ID) (*Config, error) {
 	return c.configs.GetByOrganizationID(ctx, organizationID)
 }
 

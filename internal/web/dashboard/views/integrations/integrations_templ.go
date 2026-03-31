@@ -56,7 +56,7 @@ func Page(definitions []integration.Definition) templ.Component {
 				var templ_7745c5c3_Var3 string
 				templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs("/dashboard/integrations/" + def.Name())
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `integrations/integrations.templ`, Line: 13, Col: 54}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/dashboard/views/integrations/integrations.templ`, Line: 13, Col: 54}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 				if templ_7745c5c3_Err != nil {
@@ -69,7 +69,7 @@ func Page(definitions []integration.Definition) templ.Component {
 				var templ_7745c5c3_Var4 string
 				templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs("/assets/static/dashboard/images/" + def.Image())
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `integrations/integrations.templ`, Line: 18, Col: 84}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/dashboard/views/integrations/integrations.templ`, Line: 18, Col: 84}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 				if templ_7745c5c3_Err != nil {
@@ -82,7 +82,7 @@ func Page(definitions []integration.Definition) templ.Component {
 				var templ_7745c5c3_Var5 string
 				templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(def.Name())
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `integrations/integrations.templ`, Line: 18, Col: 103}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/dashboard/views/integrations/integrations.templ`, Line: 18, Col: 103}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 				if templ_7745c5c3_Err != nil {
@@ -95,7 +95,7 @@ func Page(definitions []integration.Definition) templ.Component {
 				var templ_7745c5c3_Var6 string
 				templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(def.Title())
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `integrations/integrations.templ`, Line: 20, Col: 43}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/dashboard/views/integrations/integrations.templ`, Line: 20, Col: 43}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 				if templ_7745c5c3_Err != nil {
@@ -108,7 +108,7 @@ func Page(definitions []integration.Definition) templ.Component {
 				var templ_7745c5c3_Var7 string
 				templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(def.Description())
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `integrations/integrations.templ`, Line: 21, Col: 47}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/dashboard/views/integrations/integrations.templ`, Line: 21, Col: 47}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 				if templ_7745c5c3_Err != nil {

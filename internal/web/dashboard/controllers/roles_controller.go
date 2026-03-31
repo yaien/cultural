@@ -12,10 +12,11 @@ import (
 	"github.com/yaien/cultural/internal/application/admin"
 	"github.com/yaien/cultural/internal/application/label"
 	"github.com/yaien/cultural/internal/lib/coderror"
+	"github.com/yaien/cultural/internal/lib/primitive"
+
 	"github.com/yaien/cultural/internal/web/dashboard/views/dashboard"
 	"github.com/yaien/cultural/internal/web/dashboard/views/roles"
 	"github.com/yaien/cultural/internal/web/middlewares"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type RolesController struct {
@@ -90,11 +91,12 @@ func (c *RolesController) Create(w http.ResponseWriter, r *http.Request) {
 
 func (c *RolesController) ShowDelete(w http.ResponseWriter, r *http.Request) {
 
-	id, err := primitive.ObjectIDFromHex(r.PathValue("id"))
+	p, err := primitive.ParseID(r.PathValue("id"))
 	if err != nil {
 		WriteJSONErr(w, coderror.Newf(coderror.DecodeFailed, "invalid role id: %w", err))
 		return
 	}
+	id := primitive.ID(p)
 
 	name := r.URL.Query().Get("name")
 
@@ -113,7 +115,7 @@ func (c *RolesController) Delete(w http.ResponseWriter, r *http.Request) {
 	config := ctx.Value(middlewares.ConfigContextKey).(*label.Config)
 	role := ctx.Value(middlewares.RoleContextKey).(*admin.Role)
 
-	id, err := primitive.ObjectIDFromHex(r.PathValue("id"))
+	id, err := primitive.ParseID(r.PathValue("id"))
 	if err != nil {
 		WriteJSONErr(w, coderror.Newf(coderror.DecodeFailed, "invalid role id: %w", err))
 		return

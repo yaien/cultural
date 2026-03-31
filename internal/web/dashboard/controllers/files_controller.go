@@ -9,9 +9,10 @@ import (
 	"github.com/yaien/cultural/internal/application/label"
 	"github.com/yaien/cultural/internal/application/storage"
 	"github.com/yaien/cultural/internal/lib/coderror"
+	"github.com/yaien/cultural/internal/lib/primitive"
+
 	"github.com/yaien/cultural/internal/web/dashboard/views/pages"
 	"github.com/yaien/cultural/internal/web/middlewares"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type FilesController struct {
@@ -90,7 +91,7 @@ func (fc *FilesController) Download(w http.ResponseWriter, r *http.Request) {
 	req.Name = r.PathValue("filename")
 	req.OrganizationID = config.OrganizationID
 
-	if id, err := primitive.ObjectIDFromHex(req.Name); err == nil {
+	if id, err := primitive.ParseID(req.Name); err == nil {
 		req.ID = &id
 		req.Name = ""
 	}

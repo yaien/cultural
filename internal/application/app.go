@@ -29,24 +29,25 @@ type Application struct {
 func New(mono *infrastructure.Monolith) *Application {
 	var app Application
 
-	app.Storage = storage.New(mono.StorageDriver, storage.NewMongo(mono.MongoDB), mono.Queue)
-	app.Store = store.New(store.NewMongo(mono.MongoDB), app.Storage)
-	app.Auth = auth.New(auth.NewMongo(mono.MongoDB))
+	app.Storage = storage.New(mono.StorageDriver, storage.NewGorm(mono.GormDB), mono.Queue)
+	app.Store = store.New(store.NewGorm(mono.GormDB), app.Storage)
+	app.Auth = auth.New(auth.NewGorm(mono.GormDB))
 	app.Admin = admin.New(
-		admin.NewMongoRoles(mono.MongoDB),
-		admin.NewMongoOrganizations(mono.MongoDB),
-		admin.NewMongoInvitations(mono.MongoDB),
-		admin.NewMongoGroups(mono.MongoDB),
+		admin.NewGormRoles(mono.GormDB),
+		admin.NewGormOrganizations(mono.GormDB),
+		admin.NewGormInvitations(mono.GormDB),
+		admin.NewGormGroups(mono.GormDB),
 		mono.Mail,
 	)
 	app.Label = label.New(
-		label.NewMongoFonts(mono.MongoDB),
-		label.NewMongoConfigs(mono.MongoDB),
-		label.NewMongoDrafts(mono.MongoDB),
+		label.NewGormFonts(mono.GormDB),
+		label.NewGormConfigs(mono.GormDB),
+		label.NewGormDrafts(mono.GormDB),
 		cache.New[*label.Config](time.Hour),
 	)
+
 	app.Registry = integration.NewRegistry(
-		instagram.Mew(mono.MongoDB),
+		instagram.Mew(integration.NewGorm[instagram.Data](mono.GormDB), app.Label.Configs),
 	)
 	app.Preview = preview.New(app.Registry)
 

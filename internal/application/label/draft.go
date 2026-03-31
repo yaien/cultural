@@ -6,24 +6,24 @@ import (
 	"time"
 
 	"github.com/yaien/cultural/internal/lib/cache"
-	"go.mongodb.org/mongo-driver/bson/primitive"
+	"github.com/yaien/cultural/internal/lib/primitive"
 )
 
 type Draft struct {
-	ID        primitive.ObjectID `bson:"_id"`
-	ConfigID  primitive.ObjectID `bson:"configId"`
-	CreatedAt time.Time          `bson:"createdAt"`
-	UpdatedAt time.Time          `bson:"updatedAt"`
-	Layouts   map[string]*Layout `bson:"layouts"`
-	Fonts     map[string]*Font   `bson:"fonts"`
-	Pages     map[string]*Page   `bson:"pages"`
-	Emails    map[string]*Email  `bson:"emails"`
-	Colors    []*Color           `bson:"colors"`
+	ID        primitive.ID `gorm:"primaryKey;autoIncrement"`
+	ConfigID  primitive.ID `gorm:"index"`
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	Layouts   map[string]*Layout
+	Fonts     map[string]*Font
+	Pages     map[string]*Page
+	Emails    map[string]*Email
+	Colors    []*Color
 }
 
 type DraftRepository interface {
 	Update(ctx context.Context, draft *Draft) error
-	GetByConfigID(ctx context.Context, configID primitive.ObjectID) (*Draft, error)
+	GetByConfigID(ctx context.Context, id primitive.ID) (*Draft, error)
 }
 
 type Drafts struct {
@@ -37,11 +37,11 @@ func NewDrafts(drafts DraftRepository, configs ConfigRepository, fonts FontRepos
 	return &Drafts{drafts: drafts, configs: configs, fonts: fonts, cache: ch}
 }
 
-func (c *Drafts) GetByConfigID(ctx context.Context, configID primitive.ObjectID) (*Draft, error) {
+func (c *Drafts) GetByConfigID(ctx context.Context, configID primitive.ID) (*Draft, error) {
 	return c.drafts.GetByConfigID(ctx, configID)
 }
 
-func (c *Drafts) CreateColor(ctx context.Context, configID primitive.ObjectID) (*Color, error) {
+func (c *Drafts) CreateColor(ctx context.Context, configID primitive.ID) (*Color, error) {
 	draft, err := c.drafts.GetByConfigID(ctx, configID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get draft: %w", err)
@@ -78,8 +78,8 @@ const (
 )
 
 type UpdateDraftColorOptions struct {
-	ConfigID primitive.ObjectID
-	ID       primitive.ObjectID
+	ConfigID primitive.ID
+	ID       primitive.UUID
 	Tag      string
 	Value    string
 }
@@ -100,7 +100,7 @@ func (c *Drafts) UpdateColor(ctx context.Context, req *UpdateDraftColorOptions) 
 
 	var found bool
 	for _, color := range draft.Colors {
-		if color.ID.Hex() == req.ID.Hex() {
+		if color.ID == req.ID {
 			color.Tag = req.Tag
 			color.Value = req.Value
 			found = true
@@ -109,7 +109,7 @@ func (c *Drafts) UpdateColor(ctx context.Context, req *UpdateDraftColorOptions) 
 	}
 
 	if !found {
-		return fmt.Errorf("color with id %s not found", req.ID.Hex())
+		return fmt.Errorf("color with id %d not found", req.ID)
 	}
 
 	draft.UpdatedAt = time.Now()
@@ -121,7 +121,7 @@ func (c *Drafts) UpdateColor(ctx context.Context, req *UpdateDraftColorOptions) 
 	return nil
 }
 
-func (c *Drafts) DeleteColor(ctx context.Context, configID, id primitive.ObjectID) error {
+func (c *Drafts) DeleteColor(ctx context.Context, configID primitive.ID, id primitive.UUID) error {
 	draft, err := c.drafts.GetByConfigID(ctx, configID)
 	if err != nil {
 		return err
@@ -137,7 +137,7 @@ func (c *Drafts) DeleteColor(ctx context.Context, configID, id primitive.ObjectI
 	}
 
 	if !deleted {
-		return fmt.Errorf("no color found with id %s", id.Hex())
+		return fmt.Errorf("no color found with id %d", id)
 	}
 
 	draft.UpdatedAt = time.Now()
@@ -145,7 +145,7 @@ func (c *Drafts) DeleteColor(ctx context.Context, configID, id primitive.ObjectI
 }
 
 type CreateDraftModelOptions struct {
-	ConfigID primitive.ObjectID
+	ConfigID primitive.ID
 	Type     DraftModelType
 	Title    string
 	Name     string
@@ -204,7 +204,7 @@ func (c *Drafts) CreateModel(ctx context.Context, req CreateDraftModelOptions) (
 }
 
 type DeleteDraftModelOptions struct {
-	ConfigID primitive.ObjectID
+	ConfigID primitive.ID
 	Type     DraftModelType
 	Key      string
 }
@@ -268,7 +268,7 @@ func (c *Drafts) DeleteModel(ctx context.Context, req DeleteDraftModelOptions) (
 }
 
 type UpdateDraftBasicOptions struct {
-	ConfigID    primitive.ObjectID
+	ConfigID    primitive.ID
 	Type        DraftModelType
 	Key         string
 	Name        string
@@ -333,7 +333,7 @@ func (c *Drafts) UpdateBasic(ctx context.Context, req UpdateDraftBasicOptions) e
 }
 
 type UpdateDraftFontOptions struct {
-	ConfigID primitive.ObjectID
+	ConfigID primitive.ID
 	Family   string
 	Tag      string
 }
@@ -363,7 +363,7 @@ func (c *Drafts) UpdateFont(ctx context.Context, req UpdateDraftFontOptions) err
 }
 
 type UpdateDraftSourceOptions struct {
-	ConfigID   primitive.ObjectID
+	ConfigID   primitive.ID
 	Source     string
 	ModelType  DraftModelType
 	SourceType DraftSourceType

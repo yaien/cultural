@@ -3,7 +3,7 @@ package auth
 import (
 	"context"
 
-	"go.mongodb.org/mongo-driver/bson/primitive"
+	"github.com/yaien/cultural/internal/lib/primitive"
 )
 
 type Users struct {
@@ -14,6 +14,6 @@ func NewUsers(repository Repository) *Users {
 	return &Users{repository: repository}
 }
 
-func (c *Users) GetByID(ctx context.Context, id primitive.ObjectID) (*User, error) {
+func (c *Users) GetByID(ctx context.Context, id primitive.ID) (*User, error) {
 	return c.repository.GetByID(ctx, id)
 }

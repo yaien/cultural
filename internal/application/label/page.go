@@ -11,24 +11,24 @@ import (
 )
 
 type Layout struct {
-	Title  string `bson:"title,omitempty"`
-	Name   string `bson:"name,omitempty"`
-	Layout string `bson:"layout,omitempty"`
-	Styles string `bson:"styles,omitempty"`
-	Script string `bson:"script,omitempty"`
-	Body   string `bson:"body"`
+	Title  string
+	Name   string
+	Layout string
+	Styles string
+	Script string
+	Body   string
 }
 
 type Page struct {
-	Title       string `bson:"title,omitempty"`
-	Description string `bson:"description,omitempty"`
-	Name        string `bson:"name,omitempty"`
-	Layout      string `bson:"layout,omitempty"`
-	Styles      string `bson:"styles,omitempty"`
-	Script      string `bson:"script,omitempty"`
-	Body        string `bson:"body"`
-	OGImage     string `bson:"ogImage,omitempty"`
-	OGType      string `bson:"ogType,omitempty"`
+	Title       string
+	Description string
+	Name        string
+	Layout      string
+	Styles      string
+	Script      string
+	Body        string
+	OGImage     string
+	OGType      string
 }
 
 var EmptyPage = &Page{}

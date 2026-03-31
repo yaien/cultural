@@ -8,28 +8,29 @@ import (
 	"github.com/a-h/templ"
 	"github.com/robfig/cron/v3"
 	"github.com/yaien/cultural/internal/application/label"
+
+	"github.com/yaien/cultural/internal/lib/primitive"
 	"github.com/yaien/cultural/internal/lib/worker"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type Integration[T any] struct {
-	ID             primitive.ObjectID `bson:"_id"`
-	OrganizationID primitive.ObjectID `bson:"organizationId"`
-	CreatedAt      time.Time          `bson:"createdAt"`
-	UpdatedAt      time.Time          `bson:"updatedAt"`
-	Name           string             `bson:"name"`
-	Data           T                  `bson:"data"`
+	ID             primitive.ID `gorm:"primaryKey,autoIncrement"`
+	OrganizationID primitive.ID
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
+	Name           string
+	Data           T `gorm:"type:jsonb;serializer:json"`
 }
 
 type GetOptions struct {
-	OrganizationID primitive.ObjectID
+	OrganizationID primitive.ID
 	Name           string
 }
 
 type Repository[T any] interface {
 	Create(ctx context.Context, i *Integration[T]) error
 	Update(ctx context.Context, i *Integration[T]) error
-	GetByOrganizationIDAndName(ctx context.Context, organizationID primitive.ObjectID, name string) (*Integration[T], error)
+	GetByOrganizationIDAndName(ctx context.Context, id primitive.ID, name string) (*Integration[T], error)
 	GetByName(ctx context.Context, name string) ([]*Integration[T], error)
 }
 

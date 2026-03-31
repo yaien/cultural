@@ -9,7 +9,6 @@ import (
 	"strings"
 
 	"github.com/redis/go-redis/v9"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 var ErrRedisMissingData = errors.New("missing data field in redis stream message")
@@ -30,7 +29,7 @@ func NewRedisStream(client *redis.Client) (*RedisStream, error) {
 		client:        client,
 		streamName:    "jobs:stream",
 		consumerGroup: "jobs:group",
-		consumerName:  "jobs:consumer:" + fmt.Sprint(primitive.NewObjectID().Hex()),
+		consumerName:  "jobs:consumer:1",
 		read:          10,
 		ctx:           context.Background(),
 	}
@@ -58,7 +57,7 @@ func (s *RedisStream) Publish(ctx context.Context, job Job) error {
 
 	return s.client.XAdd(ctx, &redis.XAddArgs{
 		Stream: s.streamName,
-		ID:     job.ID.Hex(),
+		ID:     fmt.Sprintf("%d", job.ID),
 		Values: map[string]any{"job": string(data)},
 	}).Err()
 }

@@ -118,7 +118,7 @@ func (c *AuthController) Callback(w http.ResponseWriter, r *http.Request) {
 	}
 
 	session, _ := c.store.Get(r, middlewares.SessionKey)
-	session.Values[middlewares.UserIDKey] = user.ID.Hex()
+	session.Values[middlewares.UserIDKey] = fmt.Sprintf("%d", user.ID)
 	if err := session.Save(r, w); err != nil {
 		WriteHTMLErr(w, fmt.Errorf("failed to save session: %w", err))
 		return

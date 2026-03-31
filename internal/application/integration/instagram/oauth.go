@@ -5,11 +5,12 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/yaien/cultural/internal/lib/primitive"
+
 	"github.com/spf13/viper"
 	"github.com/yaien/cultural/internal/application/integration"
 	"github.com/yaien/cultural/internal/application/label"
 	"github.com/yaien/cultural/internal/lib/coderror"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/endpoints"
 )
@@ -75,7 +76,7 @@ func (i *Instagram) OAuthExchange(ctx context.Context, config *label.Config, cod
 
 }
 
-func (i *Instagram) Save(ctx context.Context, organizationID primitive.ObjectID, data Data) error {
+func (i *Instagram) Save(ctx context.Context, organizationID primitive.ID, data Data) error {
 	itg, err := i.integrations.GetByOrganizationIDAndName(ctx, organizationID, i.Name())
 
 	switch {
@@ -86,7 +87,6 @@ func (i *Instagram) Save(ctx context.Context, organizationID primitive.ObjectID,
 
 	case coderror.Is(err, coderror.NotFound):
 		itg = &integration.Integration[Data]{
-			ID:             primitive.NewObjectID(),
 			CreatedAt:      time.Now(),
 			UpdatedAt:      time.Now(),
 			Name:           i.Name(),

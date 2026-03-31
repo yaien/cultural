@@ -3,7 +3,7 @@ package label
 import (
 	"embed"
 
-	"go.mongodb.org/mongo-driver/bson/primitive"
+	"github.com/yaien/cultural/internal/lib/primitive"
 )
 
 //go:embed templates/*
@@ -49,9 +49,9 @@ var DefaultEmails = map[string]*Email{
 }
 
 var DefaultColors = Colors{
-	{ID: primitive.NewObjectID(), Tag: "primary", Value: "#330136"},
-	{ID: primitive.NewObjectID(), Tag: "secondary", Value: "#FFFFFF"},
-	{ID: primitive.NewObjectID(), Tag: "accent", Value: "#FF6F61"},
-	{ID: primitive.NewObjectID(), Tag: "background", Value: "#F5F5F5"},
-	{ID: primitive.NewObjectID(), Tag: "text", Value: "#333333"},
+	{ID: primitive.NewUUID(), Tag: "primary", Value: "#330136"},
+	{ID: primitive.NewUUID(), Tag: "secondary", Value: "#FFFFFF"},
+	{ID: primitive.NewUUID(), Tag: "accent", Value: "#FF6F61"},
+	{ID: primitive.NewUUID(), Tag: "background", Value: "#F5F5F5"},
+	{ID: primitive.NewUUID(), Tag: "text", Value: "#333333"},
 }

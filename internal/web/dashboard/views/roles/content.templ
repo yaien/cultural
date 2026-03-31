@@ -3,6 +3,7 @@ package roles
 import (
 	"fmt"
 	"github.com/yaien/cultural/internal/application/admin"
+
 	"github.com/yaien/cultural/internal/web/dashboard/views/icons"
 	"github.com/yaien/cultural/internal/web/middlewares"
 )
@@ -21,16 +22,16 @@ templ Content(state *State) {
 			</thead>
 			<tbody>
 				for _, role := range state.Roles {
-					<tr id={ role.ID.Hex() }>
+					<tr id={ fmt.Sprintf("%d", role.ID) }>
 						<td>{ role.UserName }</td>
 						<td>{ role.UserEmail }</td>
 						<td class="capitalize">{ role.Name }</td>
 						<td>
 							<div role="group" class="clear">
-								if role.ID.Hex() != current.ID.Hex() {
+								if role.ID != current.ID {
 									<button
 										class="danger clear"
-										hx-get={ templ.URL(fmt.Sprintf("/dashboard/roles/delete/%s?name=%s", role.ID.Hex(), role.UserName)) }
+										hx-get={ templ.URL(fmt.Sprintf("/dashboard/roles/delete/%d?name=%s", role.ID, role.UserName)) }
 										hx-swap="beforeend"
 										hx-target=".container"
 										hx-disabled-elt="this"

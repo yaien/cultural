@@ -6,7 +6,7 @@ import (
 
 	"github.com/yaien/cultural/internal/application/storage"
 	"github.com/yaien/cultural/internal/lib/coderror"
-	"go.mongodb.org/mongo-driver/bson/primitive"
+	"github.com/yaien/cultural/internal/lib/primitive"
 )
 
 type ExternalController struct {
@@ -21,7 +21,7 @@ func (c *ExternalController) GetFile(w http.ResponseWriter, r *http.Request) {
 	var req storage.DownloadOptions
 	var err error
 
-	req.OrganizationID, err = primitive.ObjectIDFromHex(r.PathValue("organization_id"))
+	req.OrganizationID, err = primitive.ParseID(r.PathValue("organization_id"))
 	if err != nil {
 		WriteJSONErr(w, coderror.Newf(coderror.DecodeFailed, "invalid organization id: %w", err))
 		return

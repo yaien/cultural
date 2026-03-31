@@ -5,7 +5,6 @@ import (
 
 	"github.com/yaien/cultural/internal/application/integration"
 	"github.com/yaien/cultural/internal/application/label"
-	"go.mongodb.org/mongo-driver/mongo"
 )
 
 var _ interface {
@@ -16,22 +15,22 @@ var _ interface {
 } = (*Instagram)(nil)
 
 type Data struct {
-	Connected bool      `bson:"connected"`
-	User      *User     `bson:"user"`
-	Posts     []*Post   `bson:"posts"`
-	Token     string    `bson:"token"`
-	ExpireAt  time.Time `bson:"expireAt"`
+	Connected bool
+	User      *User
+	Posts     []*Post
+	Token     string
+	ExpireAt  time.Time
 }
 
 type Instagram struct {
 	integrations integration.Repository[Data]
-	configs      label.ConfigRepository
+	configs      *label.Configs
 }
 
-func Mew(db *mongo.Database) *Instagram {
+func Mew(its integration.Repository[Data], configs *label.Configs) *Instagram {
 	return &Instagram{
-		integrations: integration.NewMongo[Data](db),
-		configs:      label.NewMongoConfigs(db),
+		integrations: its,
+		configs:      configs,
 	}
 }
 

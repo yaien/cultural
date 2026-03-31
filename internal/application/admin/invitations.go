@@ -7,29 +7,30 @@ import (
 	"text/template"
 	"time"
 
+	"github.com/yaien/cultural/internal/lib/primitive"
+
 	"github.com/yaien/cultural/internal/application/label"
 	"github.com/yaien/cultural/internal/application/storage"
 	"github.com/yaien/cultural/internal/lib/coderror"
 	"github.com/yaien/cultural/internal/lib/mail"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type Invitation struct {
-	ID              primitive.ObjectID  `bson:"_id,omitempty"`
-	OrganizationID  primitive.ObjectID  `bson:"organizationId"`
-	CreatorID       primitive.ObjectID  `bson:"creatorId,omitempty"`
-	CreatedAt       time.Time           `bson:"createdAt"`
-	AcceptedAt      *time.Time          `bson:"acceptedAt,omitempty"`
-	ExpiresAt       time.Time           `bson:"expiresAt"`
-	RoleGroupID     *primitive.ObjectID `bson:"roleGroupId,omitempty"`
-	RolePermissions Permissions         `bson:"rolePermissions,omitempty"`
-	RoleName        string              `bson:"roleName"`
-	UserDisplayName string              `bson:"userDisplayName"`
-	UserEmail       string              `bson:"userEmail"`
+	ID              primitive.ID `gorm:"primaryKey;autoIncrement"`
+	OrganizationID  primitive.ID `gorm:"index"`
+	CreatorID       primitive.ID
+	CreatedAt       time.Time
+	AcceptedAt      *time.Time
+	ExpiresAt       time.Time
+	RoleGroupID     *primitive.ID
+	RolePermissions Permissions
+	RoleName        string
+	UserDisplayName string
+	UserEmail       string `gorm:"index"`
 }
 
 type InvitationRepository interface {
-	GetByIDAndOrganizationID(ctx context.Context, id, organizationID primitive.ObjectID) (*Invitation, error)
+	GetByIDAndOrganizationID(ctx context.Context, id, organizationID primitive.ID) (*Invitation, error)
 	Create(ctx context.Context, invitation *Invitation) error
 	Update(ctx context.Context, invitation *Invitation) error
 }
@@ -54,9 +55,9 @@ func NewInvitations(roles RoleRepository, organizations OrganizationRepository, 
 
 type CreateInvitationOptions struct {
 	ExpiresAt       time.Time
-	OrganizationID  primitive.ObjectID
-	CreatorID       primitive.ObjectID
-	RoleGroupID     *primitive.ObjectID
+	OrganizationID  primitive.ID
+	CreatorID       primitive.ID
+	RoleGroupID     *primitive.ID
 	Config          *label.Config
 	RolePermissions []string
 	RoleName        string
@@ -88,7 +89,7 @@ func (c *Invitations) Create(ctx context.Context, req *CreateInvitationOptions) 
 	}
 
 	// validate creator permissions if creator is provided
-	if !req.CreatorID.IsZero() {
+	if req.CreatorID != 0 {
 		role, err := c.roles.GetByUserIDAndOrganizationID(ctx, req.CreatorID, req.OrganizationID)
 		if err != nil {
 			return nil, fmt.Errorf("creator role not found in organization: %w", err)
@@ -123,7 +124,7 @@ func (c *Invitations) Create(ctx context.Context, req *CreateInvitationOptions) 
 	data := InvitationEmailData{
 		UserDisplayName:  req.UserDisplayName,
 		OrganizationName: organization.Name,
-		InvitationURL:    fmt.Sprintf("%s/invitation/%s", req.Config.Url, invitation.ID.Hex()),
+		InvitationURL:    fmt.Sprintf("%s/invitation/%d", req.Config.Url, invitation.ID),
 		ConfigURL:        req.Config.Url,
 		FileURL:          storage.NewExternalURLFunc(req.Config.Url, organization.ID),
 	}
@@ -167,9 +168,9 @@ func (c *Invitations) Create(ctx context.Context, req *CreateInvitationOptions) 
 }
 
 type AcceptInvitationOptions struct {
-	InvitationID   primitive.ObjectID
-	OrganizationID primitive.ObjectID
-	UserID         primitive.ObjectID
+	InvitationID   primitive.ID
+	OrganizationID primitive.ID
+	UserID         primitive.ID
 	UserEmail      string
 	UserName       string
 	UserAvatarUrl  string
@@ -186,7 +187,7 @@ func (c *Invitations) Accept(ctx context.Context, req *AcceptInvitationOptions) 
 	}
 
 	if invitation.AcceptedAt != nil {
-		return coderror.Newf("invitation_already_accepted", "invitation %s already accepted", req.InvitationID.Hex())
+		return coderror.Newf("invitation_already_accepted", "invitation %d already accepted", req.InvitationID)
 	}
 
 	now := time.Now()

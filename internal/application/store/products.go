@@ -5,10 +5,11 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/yaien/cultural/internal/lib/primitive"
+
 	"github.com/gosimple/slug"
 	"github.com/yaien/cultural/internal/application/storage"
 	"github.com/yaien/cultural/internal/lib/coderror"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type Products struct {
@@ -21,7 +22,7 @@ func NewProducts(repository Repository, storage *storage.Storage) *Products {
 }
 
 type CreateProductOptions struct {
-	OrganizationID primitive.ObjectID
+	OrganizationID primitive.ID
 	Name           string
 }
 
@@ -31,7 +32,6 @@ type CreateProductOptions struct {
 func (c *Products) Create(ctx context.Context, req *CreateProductOptions) (*Product, error) {
 
 	product := &Product{
-		ID:             primitive.NewObjectID(),
 		OrganizationID: req.OrganizationID,
 		Name:           req.Name,
 		Slug:           slug.Make(req.Name),
@@ -59,11 +59,11 @@ func (c *Products) Create(ctx context.Context, req *CreateProductOptions) (*Prod
 }
 
 // GetByOrganizationID retrieves all products for a given organization ID.
-func (c *Products) GetByOrganizationID(ctx context.Context, organizationID primitive.ObjectID) ([]*Product, error) {
+func (c *Products) GetByOrganizationID(ctx context.Context, organizationID primitive.ID) ([]*Product, error) {
 	return c.repository.GetByOrganizationID(ctx, organizationID)
 }
 
 // GetByIDAndOrganizationID retrieves a product by its ID and organization ID.
-func (c *Products) GetByIDAndOrganizationID(ctx context.Context, id, organizationID primitive.ObjectID) (*Product, error) {
+func (c *Products) GetByIDAndOrganizationID(ctx context.Context, id, organizationID primitive.ID) (*Product, error) {
 	return c.repository.GetByIDAndOrganizationID(ctx, id, organizationID)
 }

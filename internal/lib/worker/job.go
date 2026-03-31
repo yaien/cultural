@@ -3,7 +3,7 @@ package worker
 import (
 	"time"
 
-	"go.mongodb.org/mongo-driver/bson/primitive"
+	"github.com/yaien/cultural/internal/lib/primitive"
 )
 
 type Status string
@@ -16,19 +16,19 @@ const (
 )
 
 type Job struct {
-	ID         primitive.ObjectID `bson:"_id"`
-	Name       string             `bson:"name"`
-	Data       map[string]any     `bson:"data"`
-	Status     Status             `bson:"status"`
-	CreatedAt  time.Time          `bson:"createdAt"`
-	UpdatedAt  time.Time          `bson:"updatedAt"`
-	Executions []Execution        `bson:"executions"`
-	Retries    int                `bson:"retries"`
+	ID         primitive.ID `gorm:"primaryKey;autoIncrement"`
+	Name       string
+	Data       []byte `gorm:"type:jsonb"`
+	Status     Status
+	CreatedAt  time.Time
+	UpdatedAt  time.Time
+	Executions []Execution
+	Retries    int
 }
 
 type Execution struct {
-	StartedAt  time.Time `bson:"startedAt"`
-	FinishedAt time.Time `bson:"finishedAt"`
-	FinishedIn string    `bson:"finishedIn"`
-	Error      string    `bson:"error,omitempty"`
+	StartedAt  time.Time
+	FinishedAt time.Time
+	FinishedIn string
+	Error      string
 }

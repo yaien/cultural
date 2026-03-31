@@ -4,20 +4,20 @@ import (
 	"context"
 	"time"
 
-	"go.mongodb.org/mongo-driver/bson/primitive"
+	"github.com/yaien/cultural/internal/lib/primitive"
 )
 
 type Font struct {
-	ID        primitive.ObjectID `bson:"_id"`
-	CreatedAt time.Time          `bson:"createdAt"`
-	UpdatedAt time.Time          `bson:"updatedAt"`
-	Provider  string             `bson:"provider"`
-	Family    string             `bson:"family"`
-	Category  string             `bson:"category"`
-	Subsets   []string           `bson:"subsets"`
-	Variants  []string           `bson:"variants"`
-	Version   string             `bson:"version"`
-	Files     map[string]string  `bson:"files"`
+	ID        primitive.ID `gorm:"primaryKey;autoIncrement"`
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	Provider  string
+	Family    string `gorm:"index"`
+	Category  string
+	Subsets   []string
+	Variants  []string
+	Version   string
+	Files     map[string]string
 }
 
 type FindFontOptions struct {

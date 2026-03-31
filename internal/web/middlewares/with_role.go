@@ -7,7 +7,7 @@ import (
 	"github.com/gorilla/sessions"
 	"github.com/yaien/cultural/internal/application/admin"
 	"github.com/yaien/cultural/internal/application/label"
-	"go.mongodb.org/mongo-driver/bson/primitive"
+	"github.com/yaien/cultural/internal/lib/primitive"
 )
 
 const RoleContextKey = key("role")
@@ -22,11 +22,12 @@ func NewWithRole(roles *admin.Roles, store sessions.Store) func(next http.Handle
 				return
 			}
 
-			userID, err := primitive.ObjectIDFromHex(id)
+			p, err := primitive.ParseID(id)
 			if err != nil {
 				http.Error(w, "Invalid user ID in session", http.StatusInternalServerError)
 				return
 			}
+			userID := primitive.ID(p)
 
 			ctx := r.Context()
 

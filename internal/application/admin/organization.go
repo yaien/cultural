@@ -4,16 +4,16 @@ import (
 	"context"
 	"time"
 
-	"go.mongodb.org/mongo-driver/bson/primitive"
+	"github.com/yaien/cultural/internal/lib/primitive"
 )
 
 type Organization struct {
-	ID        primitive.ObjectID `bson:"_id,omitempty"`
-	Name      string             `bson:"name"`
-	CreatedAt time.Time          `bson:"createdAt"`
-	UpdatedAt time.Time          `bson:"updatedAt"`
+	ID        primitive.ID `gorm:"primaryKey;autoIncrement"`
+	Name      string
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 type OrganizationRepository interface {
-	GetByID(ctx context.Context, id primitive.ObjectID) (*Organization, error)
+	GetByID(ctx context.Context, id primitive.ID) (*Organization, error)
 }

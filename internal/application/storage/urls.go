@@ -3,7 +3,7 @@ package storage
 import (
 	"fmt"
 
-	"go.mongodb.org/mongo-driver/bson/primitive"
+	"github.com/yaien/cultural/internal/lib/primitive"
 )
 
 type URLFunc func(filename string, variant ...int) string
@@ -16,11 +16,11 @@ func FileURL(filename string, variant ...int) string {
 }
 
 // NewExternalURLFunc creates a FileURLFunc that generates URLs for files served from the server's external assets endpoint.
-func NewExternalURLFunc(serverURL string, organizationID primitive.ObjectID) URLFunc {
+func NewExternalURLFunc(serverURL string, organizationID primitive.ID) URLFunc {
 	return func(filename string, variant ...int) string {
 		if len(variant) > 0 {
-			return fmt.Sprintf("%s/assets/external/%s/%s?variant=%d", serverURL, organizationID.Hex(), filename, variant[0])
+			return fmt.Sprintf("%s/assets/external/%d/%s?variant=%d", serverURL, organizationID, filename, variant[0])
 		}
-		return fmt.Sprintf("%s/assets/external/%s/%s", serverURL, organizationID.Hex(), filename)
+		return fmt.Sprintf("%s/assets/external/%d/%s", serverURL, organizationID, filename)
 	}
 }

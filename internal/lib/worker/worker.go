@@ -82,7 +82,7 @@ func (w *Worker) poll() {
 			}
 
 			if err := w.stream.Publish(w.ctx, job); err != nil {
-				slog.Error("Failed to publish job", "id", job.ID.Hex(), "error", err)
+				slog.Error("Failed to publish job", "id", job.ID, "error", err)
 			}
 		}
 
@@ -124,7 +124,7 @@ func (w *Worker) work() {
 
 		err := w.execute(handler, job)
 		if err != nil {
-			slog.Error("Failed to execute job", "job_id", job.ID.Hex(), "error", err)
+			slog.Error("Failed to execute job", "job_id", job.ID, "error", err)
 			continue
 		}
 
@@ -148,7 +148,7 @@ func (w *Worker) execute(handler H, job Job) error {
 		return fmt.Errorf("failed to update job status: %w", err)
 	}
 
-	slog.Debug("Starting job execution", "id", job.ID.Hex(), "name", job.Name)
+	slog.Debug("Starting job execution", "id", job.ID, "name", job.Name)
 
 	err := w.handle(handler, job)
 	switch {
@@ -157,7 +157,7 @@ func (w *Worker) execute(handler H, job Job) error {
 		job.Status = StatusCompleted
 
 		slog.Debug("Job executed successfully",
-			"id", job.ID.Hex(),
+			"id", job.ID,
 			"name", job.Name,
 			"duration", time.Since(execution.StartedAt))
 
@@ -167,7 +167,7 @@ func (w *Worker) execute(handler H, job Job) error {
 		execution.Error = err.Error()
 
 		slog.Warn("Job execution failed, will retry",
-			"id", job.ID.Hex(),
+			"id", job.ID,
 			"retries", job.Retries,
 			"error", err,
 			"duration", time.Since(execution.StartedAt))
@@ -177,7 +177,7 @@ func (w *Worker) execute(handler H, job Job) error {
 		execution.Error = err.Error()
 
 		slog.Error("Job execution failed",
-			"id", job.ID.Hex(),
+			"id", job.ID,
 			"error", err,
 			"duration", time.Since(execution.StartedAt))
 	}

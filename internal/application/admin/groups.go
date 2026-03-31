@@ -4,19 +4,19 @@ import (
 	"context"
 	"time"
 
-	"go.mongodb.org/mongo-driver/bson/primitive"
+	"github.com/yaien/cultural/internal/lib/primitive"
 )
 
 type Group struct {
-	ID             primitive.ObjectID `bson:"_id,omitempty"`
-	Name           string             `bson:"name"`
-	OrganizationID primitive.ObjectID `bson:"organizationId"`
-	Permissions    Permissions        `bson:"permissions"`
-	CreatedAt      time.Time          `bson:"createdAt"`
-	UpdatedAt      time.Time          `bson:"updatedAt"`
-	DeletedAt      *time.Time         `bson:"deletedAt,omitempty"`
+	ID             primitive.ID `gorm:"primaryKey;autoIncrement"`
+	Name           string
+	OrganizationID primitive.ID
+	Permissions    Permissions `gorm:"type:jsonb;serializer:json"`
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
+	DeletedAt      *time.Time
 }
 
 type GroupRepository interface {
-	GetByIDAndOrganizationID(ctx context.Context, id, organizationID primitive.ObjectID) (*Group, error)
+	GetByIDAndOrganizationID(ctx context.Context, id, organizationID primitive.ID) (*Group, error)
 }

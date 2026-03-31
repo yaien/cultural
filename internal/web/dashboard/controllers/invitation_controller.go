@@ -7,8 +7,9 @@ import (
 	"github.com/yaien/cultural/internal/application/admin"
 	"github.com/yaien/cultural/internal/application/auth"
 	"github.com/yaien/cultural/internal/application/label"
+	"github.com/yaien/cultural/internal/lib/primitive"
+
 	"github.com/yaien/cultural/internal/web/middlewares"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type InvitationController struct {
@@ -20,11 +21,13 @@ func NewInvitationController(ivs *admin.Invitations) *InvitationController {
 }
 
 func (c *InvitationController) Accept(w http.ResponseWriter, r *http.Request) {
-	id, err := primitive.ObjectIDFromHex(r.PathValue("id"))
+	p, err := primitive.ParseID(r.PathValue("id"))
 	if err != nil {
-		http.NotFound(w, r)
+		WriteHTMLErr(w, fmt.Errorf("invalid id: %w", err))
 		return
 	}
+
+	id := primitive.ID(p)
 
 	ctx := r.Context()
 	config := ctx.Value(middlewares.ConfigContextKey).(*label.Config)

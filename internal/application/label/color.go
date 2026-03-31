@@ -3,13 +3,13 @@ package label
 import (
 	"fmt"
 
-	"go.mongodb.org/mongo-driver/bson/primitive"
+	"github.com/yaien/cultural/internal/lib/primitive"
 )
 
 type Color struct {
-	ID    primitive.ObjectID `bson:"_id"`
-	Value string             `bson:"value"`
-	Tag   string             `bson:"tag"`
+	ID    primitive.UUID
+	Value string
+	Tag   string
 }
 
 type Colors []*Color
@@ -17,7 +17,7 @@ type Colors []*Color
 func NewColor(colors []*Color) (*Color, error) {
 loop:
 	for index := range 100 {
-		tag := fmt.Sprintf("color-%d", len(colors)+1+index)
+		tag := fmt.Sprintf("tag-%s", primitive.ID(len(colors)+1+index))
 		for _, color := range colors {
 			if color.Tag == tag {
 				continue loop
@@ -25,7 +25,7 @@ loop:
 		}
 
 		color := &Color{
-			ID:    primitive.NewObjectID(),
+			ID:    primitive.NewUUID(),
 			Tag:   tag,
 			Value: "#000000",
 		}

@@ -9,14 +9,14 @@ import (
 	"strings"
 	"time"
 
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
+	"github.com/yaien/cultural/internal/lib/primitive"
+	"gorm.io/gorm"
 )
 
 type Migration struct {
 	Name string
-	Up   func(ctx context.Context, db *mongo.Database) error
-	Down func(ctx context.Context, db *mongo.Database) error
+	Up   func(ctx context.Context, db *gorm.DB) error
+	Down func(ctx context.Context, db *gorm.DB) error
 }
 
 var migrations []Migration
@@ -25,27 +25,34 @@ func Register(migration Migration) {
 	migrations = append(migrations, migration)
 }
 
-type MigrationEntry struct {
-	ID        string    `bson:"_id,omitempty"`
-	Name      string    `bson:"name"`
-	AppliedAt time.Time `bson:"appliedAt"`
+type Entry struct {
+	ID        primitive.ID `gorm:"primaryKey,autoIncrement"`
+	Name      string
+	AppliedAt time.Time
 }
 
-func Migrate(ctx context.Context, db *mongo.Database) error {
-	collection := db.Collection("migrations")
+func (Entry) TableName() string {
+	return "migrations"
+}
+
+func Migrate(ctx context.Context, db *gorm.DB) error {
+
+	if err := db.AutoMigrate(&Entry{}); err != nil {
+		return fmt.Errorf("failed migrating migrations table: %w", err)
+	}
 
 	slices.SortFunc(migrations, func(a, b Migration) int {
 		return strings.Compare(a.Name, b.Name)
 	})
 
 	for _, migration := range migrations {
-		var entry MigrationEntry
 
-		err := collection.FindOne(ctx, bson.M{"name": migration.Name}).Decode(&entry)
+		var entry Entry
+		err := db.WithContext(ctx).Where("name = ?", migration.Name).Take(&entry).Error
 		switch {
 		case err == nil:
 			continue
-		case errors.Is(err, mongo.ErrNoDocuments):
+		case errors.Is(err, gorm.ErrRecordNotFound):
 			err = migration.Up(ctx, db)
 			if err != nil {
 				return fmt.Errorf("failed applying migration %s: %w", migration.Name, err)
@@ -53,12 +60,12 @@ func Migrate(ctx context.Context, db *mongo.Database) error {
 
 			slog.Info("applied migration", "name", migration.Name)
 
-			_, err := collection.InsertOne(ctx, MigrationEntry{
+			entry := &Entry{
 				Name:      migration.Name,
 				AppliedAt: time.Now(),
-			})
+			}
 
-			if err != nil {
+			if err := db.WithContext(ctx).Create(entry).Error; err != nil {
 				return fmt.Errorf("failed recording migration %s: %w", migration.Name, err)
 			}
 
@@ -71,12 +78,10 @@ func Migrate(ctx context.Context, db *mongo.Database) error {
 
 }
 
-func Revert(ctx context.Context, name string, db *mongo.Database) error {
-	collection := db.Collection("migrations")
-	var entry MigrationEntry
+func Revert(ctx context.Context, name string, db *gorm.DB) error {
+	var entry Entry
 
-	err := collection.FindOne(ctx, bson.M{"name": bson.M{"$regex": name + "$"}}).Decode(&entry)
-	if err != nil {
+	if err := db.Where("name ilike ?", name+"%").Take(&entry).Error; err != nil {
 		return fmt.Errorf("failed finding migration %s: %w", name, err)
 	}
 
@@ -92,15 +97,11 @@ func Revert(ctx context.Context, name string, db *mongo.Database) error {
 		return fmt.Errorf("migration %s not found", name)
 	}
 
-	err = migration.Down(ctx, db)
-	if err != nil {
+	if err := migration.Down(ctx, db); err != nil {
 		return fmt.Errorf("failed downgrading migration %s: %w", migration.Name, err)
 	}
 
-	slog.Info("downgraded migration", "name", name)
-
-	_, err = collection.DeleteOne(ctx, bson.M{"name": migration.Name})
-	if err != nil {
+	if err := db.WithContext(ctx).Delete(&Entry{}, "name = ?", migration.Name).Error; err != nil {
 		return fmt.Errorf("failed removing migration record %s: %w", migration.Name, err)
 	}
 

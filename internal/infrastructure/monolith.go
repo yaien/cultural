@@ -8,6 +8,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/glebarez/sqlite"
 	"github.com/gorilla/sessions"
 	"github.com/robfig/cron/v3"
 	"github.com/yaien/cultural/internal/application/storage"
@@ -15,10 +16,12 @@ import (
 	"github.com/yaien/cultural/internal/lib/worker"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"gorm.io/gorm"
 )
 
 type Monolith struct {
 	Config          *Config
+	GormDB          *gorm.DB
 	MongoDB         *mongo.Database
 	MongoClient     *mongo.Client
 	Router          *http.ServeMux
@@ -37,6 +40,7 @@ func NewMonolith() *Monolith {
 
 	var m Monolith
 	m.Config = config
+	m.GormDB = setupGormDB(config)
 	m.MongoDB = setupMongoDB(config)
 	m.SessionStore = setupSessionStore(config)
 	m.Mail = setupMail(config)
@@ -91,6 +95,14 @@ func setupSessionStore(config *Config) sessions.Store {
 	store.Options.SameSite = http.SameSiteLaxMode
 	store.Options.MaxAge = int((7 * 24 * time.Hour).Seconds()) // 7 days
 	return store
+}
+
+func setupGormDB(config *Config) *gorm.DB {
+	db, err := gorm.Open(sqlite.Open(config.Sqlite.DSN))
+	if err != nil {
+		log.Fatal("Failed to connect to sqlite database: ", err)
+	}
+	return db
 }
 
 func setupMongoDB(config *Config) *mongo.Database {

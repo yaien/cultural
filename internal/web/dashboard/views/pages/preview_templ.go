@@ -38,7 +38,7 @@ func Preview(key string, typ SelectedType, swap bool) templ.Component {
 		var templ_7745c5c3_Var2 string
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("preview('/dashboard/pages/preview?key=%s&type=%s')", key, typ))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/preview.templ`, Line: 6, Col: 116}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/dashboard/views/pages/preview.templ`, Line: 6, Col: 116}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 		if templ_7745c5c3_Err != nil {

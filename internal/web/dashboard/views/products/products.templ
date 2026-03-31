@@ -3,6 +3,7 @@ package products
 import (
 	"fmt"
 	"github.com/yaien/cultural/internal/application/store"
+
 	"github.com/yaien/cultural/internal/web/dashboard/views/dashboard"
 	"github.com/yaien/cultural/internal/web/dashboard/views/icons"
 	"slices"
@@ -23,10 +24,10 @@ templ Content(products []*store.Product) {
 		</div>
 		<div class="products">
 			for _, product := range products {
-				<a role="article" href={ "/dashboard/products/" + product.ID.Hex() } hx-boost="true" class="detail">
+				<a role="article" href={ "/dashboard/products/" + fmt.Sprintf("%d", product.ID) } hx-boost="true" class="detail">
 					<header>
-						if len(product.Presentations) > 0 && len(product.Presentations[0].Files) > 0 {
-							<img src={ "/dashboard/files/" + product.Presentations[0].Files[0].ID.Hex() } alt=""/>
+						if len(product.Presentations) > 0 && len(product.Presentations[0].Contents) > 0 {
+							<img src={ "/dashboard/files/" + fmt.Sprintf("%d", product.Presentations[0].Contents[0].FileID) } alt=""/>
 						} else {
 							<div class="placeholder"></div>
 						}
@@ -103,7 +104,7 @@ templ Presentations(product *store.Product, presentation *store.Presentation) {
 					if presentation != nil && pre.ID == presentation.ID {
 						class="active"
 					} else {
-						hx-get={ fmt.Sprintf("/dashboard/products/%s?presentation=%s", product.ID.Hex(), pre.ID.Hex()) }
+						hx-get={ fmt.Sprintf("/dashboard/products/%d?presentation=%d", product.ID, pre.ID) }
 						hx-target={ "#" + PresentationsID }
 						hx-swap="outerHTML"
 						hx-push-url="true"
@@ -114,7 +115,7 @@ templ Presentations(product *store.Product, presentation *store.Presentation) {
 			}
 			<button
 				class="icon"
-				hx-post={ fmt.Sprintf("/dashboard/products/%s/presentations", product.ID.Hex()) }
+				hx-post={ fmt.Sprintf("/dashboard/products/%d/presentations", product.ID) }
 				hx-target={ "#" + PresentationsID }
 				hx-swap="outerHTML"
 			>
@@ -122,7 +123,7 @@ templ Presentations(product *store.Product, presentation *store.Presentation) {
 			</button>
 		</div>
 		if presentation != nil {
-			{{ url := fmt.Sprintf("/dashboard/products/%s/presentations/%s", product.ID.Hex(), presentation.ID.Hex()) }}
+			{{ url := fmt.Sprintf("/dashboard/products/%d/presentations/%d", product.ID, presentation.ID) }}
 			<form hx-patch={ url } hx-target={ "#" + PresentationsID } hx-swap="outerHTML">
 				<fieldset>
 					<legend>Nombre</legend>
@@ -189,27 +190,27 @@ templ PicturesDisplay(product *store.Product, presentation *store.Presentation) 
 		filepath := "/dashboard/files/"
 
 		data := func() string {
-			var s *store.File
-			if len(presentation.Files) > 0 {
-				s = presentation.Files[0]
+			var s *store.Content
+			if len(presentation.Contents) > 0 {
+				s = presentation.Contents[0]
 			}
 
 			if s != nil {
-				return fmt.Sprintf("{ selected: { id: %q, preset: %q }, filepath: %q }", s.ID.Hex(), s.Preset, filepath)
+				return fmt.Sprintf("{ selected: { id: %q, preset: %q }, filepath: %q }", s.File.ID, s.File.Preset, filepath)
 			}
 			return fmt.Sprintf("{ selected: null, filepath: %q }", filepath)
 		}
 
-		filedata := func(file *store.File) string {
-			return fmt.Sprintf("{ file: { id: %q, preset: %q } }", file.ID.Hex(), file.Preset)
+		filedata := func(content *store.Content) string {
+			return fmt.Sprintf("{ file: { id: %q, preset: %q } }", content.File.ID, content.File.Preset)
 		}
 
 		upload := func() string {
-			return fmt.Sprintf("/dashboard/products/%s/presentations/%s/files", product.ID.Hex(), presentation.ID.Hex())
+			return fmt.Sprintf("/dashboard/products/%d/presentations/%d/files", product.ID, presentation.ID)
 		}
 
 		toggle := func() string {
-			return fmt.Sprintf("/dashboard/products/%s/presentations/%s/files/toggle", product.ID.Hex(), presentation.ID.Hex())
+			return fmt.Sprintf("/dashboard/products/%d/presentations/%d/files/toggle", product.ID, presentation.ID)
 		}
 	}}
 	<div class="pictures" x-data={ data() }>
@@ -218,17 +219,17 @@ templ PicturesDisplay(product *store.Product, presentation *store.Presentation) 
 		</div>
 		<div class="flex">
 			<form class="flex" x-data="drag" hx-patch={ toggle() } hx-trigger="end" hx-target="#pictures" hx-swap="outerHTML">
-			for _, file := range presentation.Files {
-				<div class="placeholder small draggable" x-data={ filedata(file) } @click="selected = file">
-					<input type="hidden" name="ids" :value="file.id"/>
-					<img :src="filepath + file.id"/>
-				</div>
-			}
+				for _, content := range presentation.Contents {
+					<div class="placeholder small draggable" x-data={ filedata(content) } @click="selected = file">
+						<input type="hidden" name="ids" :value="file.id"/>
+						<img :src="filepath + file.id"/>
+					</div>
+				}
 			</form>
-			for range store.MaxFilesPerPresentation - len(presentation.Files) - 1 {
+			for range store.MaxFilesPerPresentation - len(presentation.Contents) - 1 {
 				<div class="placeholder small"></div>
 			}
-			if len(presentation.Files) < store.MaxFilesPerPresentation {
+			if len(presentation.Contents) < store.MaxFilesPerPresentation {
 				<div class="placeholder small" x-data="progress">
 					<div x-show="loading" class="progress">
 						<div x-bind="bar"></div>

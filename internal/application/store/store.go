@@ -4,40 +4,45 @@ import (
 	"context"
 	"time"
 
+	"github.com/yaien/cultural/internal/lib/primitive"
+
 	"github.com/yaien/cultural/internal/application/storage"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type Product struct {
-	ID             primitive.ObjectID `bson:"_id,omitempty"`
-	OrganizationID primitive.ObjectID `bson:"organizationId"`
-	Name           string             `bson:"name"`
-	Slug           string             `bson:"slug"`
-	Presentations  []*Presentation    `bson:"presentations,omitempty"`
-	Published      bool               `bson:"published"`
-	CreatedAt      time.Time          `bson:"createdAt"`
-	UpdatedAt      time.Time          `bson:"updatedAt"`
+	ID             primitive.ID `gorm:"primaryKey;autoIncrement"`
+	OrganizationID primitive.ID `gorm:"index"`
+	Slug           string       `gorm:"index"`
+	Name           string
+	Presentations  []*Presentation
+	Published      bool
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
 }
 
 type Presentation struct {
-	ID       primitive.ObjectID `bson:"_id"`
-	Files    []*File            `bson:"files,omitempty"`
-	Name     string             `bson:"name"`
-	Quantity int                `bson:"quantity"`
-	Price    float64            `bson:"price"`
+	ID        primitive.ID `gorm:"primaryKey;autoIncrement"`
+	ProductID primitive.ID
+	Contents  []*Content
+	Name      string
+	Quantity  int
+	Price     float64
 }
 
-type File struct {
-	ID     primitive.ObjectID `bson:"_id"`
-	Preset string             `bson:"preset"`
+type Content struct {
+	ID             primitive.ID `gorm:"primaryKey;autoIncrement"`
+	PresentationID primitive.ID
+	FileID         primitive.ID
+	File           storage.File
+	Order          int
 }
 
 type Repository interface {
 	Create(ctx context.Context, product *Product) error
 	Update(ctx context.Context, product *Product) error
-	GetByOrganizationID(ctx context.Context, organizationID primitive.ObjectID) ([]*Product, error)
-	GetByIDAndOrganizationID(ctx context.Context, id, organizationID primitive.ObjectID) (*Product, error)
-	GetBySlugAndOrganizationID(ctx context.Context, slug string, organizationID primitive.ObjectID) (*Product, error)
+	GetByOrganizationID(ctx context.Context, organizationID primitive.ID) ([]*Product, error)
+	GetByIDAndOrganizationID(ctx context.Context, productID, organizationID primitive.ID) (*Product, error)
+	GetBySlugAndOrganizationID(ctx context.Context, slug string, organizationID primitive.ID) (*Product, error)
 }
 
 type Store struct {

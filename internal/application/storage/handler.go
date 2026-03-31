@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/yaien/cultural/internal/lib/primitive"
 	"github.com/yaien/cultural/internal/lib/worker"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 var _ worker.Handler = (*Handler)(nil)
@@ -19,7 +19,7 @@ func NewHandler(s *Storage) *Handler {
 }
 
 func (h *Handler) Handle(ctx context.Context, data map[string]any) error {
-	id, ok := data["_id"].(primitive.ObjectID)
+	id, ok := data["id"].(primitive.ID)
 	if !ok {
 		return fmt.Errorf("invalid file id")
 	}

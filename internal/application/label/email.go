@@ -1,7 +1,7 @@
 package label
 
 type Email struct {
-	Subject  string `bson:"subject"`
-	Body     string `bson:"body"`
-	Category string `bson:"category"`
+	Subject  string
+	Body     string
+	Category string
 }

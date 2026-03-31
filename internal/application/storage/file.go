@@ -6,28 +6,28 @@ import (
 	"slices"
 	"time"
 
-	"go.mongodb.org/mongo-driver/bson/primitive"
+	"github.com/yaien/cultural/internal/lib/primitive"
 )
 
 var ErrUnsupportedContentType = errors.New("unsupported content type")
 
 type File struct {
-	ID             primitive.ObjectID `bson:"_id"`
-	OrganizationID primitive.ObjectID `bson:"organizationId"`
-	Name           string             `bson:"name"`
-	Preset         string             `bson:"preset"`
-	Formats        []Format           `bson:"formats"`
-	CreatedAt      time.Time          `bson:"createdAt"`
-	UpdatedAt      time.Time          `bson:"updatedAt"`
+	ID             primitive.ID `gorm:"primaryKey;autoIncrement"`
+	OrganizationID primitive.ID `gorm:"index"`
+	Name           string       `gorm:"index"`
+	Preset         string
+	Formats        []Format `gorm:"type:jsonb;serializer:json"`
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
 }
 
 type Format struct {
-	ID          primitive.ObjectID `bson:"_id"`
-	Variant     int                `bson:"variant"`
-	Size        int64              `bson:"size"`
-	Width       int                `bson:"width"`
-	Height      int                `bson:"height"`
-	ContentType string             `bson:"contentType"`
+	ID          string
+	Variant     int
+	Size        int64
+	Width       int
+	Height      int
+	ContentType string
 }
 
 // GetFormat returns the best format for the given variant.

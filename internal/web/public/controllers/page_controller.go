@@ -31,7 +31,7 @@ func (q *PageController) GetPageHTML(config *label.Config, pagename string) (htm
 		pagename = "index"
 	}
 
-	key := fmt.Sprintf("%s/%d/%s", config.ID.Hex(), config.UpdatedAt.Unix(), pagename)
+	key := fmt.Sprintf("%s/%d/%s", config.ID, config.UpdatedAt.Unix(), pagename)
 	html, ok := q.cache.Get(key)
 	if ok {
 		return html, true, nil

@@ -4,8 +4,6 @@ import (
 	"context"
 	"fmt"
 	"time"
-
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type Queue struct {
@@ -34,7 +32,7 @@ type Task struct {
 
 func (q *Queue) Push(ctx context.Context, task Task) error {
 	job := Job{
-		ID:        primitive.NewObjectID(),
+		ID:        0,
 		Name:      task.Name,
 		Data:      task.Data,
 		Status:    StatusPending,

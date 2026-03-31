@@ -5,9 +5,10 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/yaien/cultural/internal/lib/primitive"
+
 	"github.com/yaien/cultural/internal/application/storage"
 	"github.com/yaien/cultural/internal/lib/coderror"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type Presentations struct {
@@ -20,8 +21,8 @@ func NewPresentations(repository Repository, storage *storage.Storage) *Presenta
 }
 
 type CreatePresentationOptions struct {
-	ProductID      primitive.ObjectID
-	OrganizationID primitive.ObjectID
+	ProductID      primitive.ID
+	OrganizationID primitive.ID
 }
 
 // Create adds a new presentation to the specified product. It retrieves the product by its ID and organization ID,
@@ -34,7 +35,7 @@ func (c *Presentations) Create(ctx context.Context, req *CreatePresentationOptio
 	}
 
 	presentation := &Presentation{
-		ID:   primitive.NewObjectID(),
+		ID:   0,
 		Name: "Nueva",
 	}
 
@@ -48,9 +49,9 @@ func (c *Presentations) Create(ctx context.Context, req *CreatePresentationOptio
 }
 
 type UpdatePresentationOptions struct {
-	PresentationID primitive.ObjectID
-	ProductID      primitive.ObjectID
-	OrganizationID primitive.ObjectID
+	PresentationID primitive.ID
+	ProductID      primitive.ID
+	OrganizationID primitive.ID
 	Name           string
 	Quantity       int
 	Price          float64
@@ -87,7 +88,7 @@ func (c *Presentations) Update(ctx context.Context, req *UpdatePresentationOptio
 	}
 
 	if updated == nil {
-		return nil, nil, coderror.Newf("presentation_not_found", "presentation with id %s not found", req.PresentationID.Hex())
+		return nil, nil, coderror.Newf("presentation_not_found", "presentation with id %d not found", req.PresentationID)
 	}
 
 	if err = c.repository.Update(ctx, product); err != nil {
@@ -98,9 +99,9 @@ func (c *Presentations) Update(ctx context.Context, req *UpdatePresentationOptio
 }
 
 type DeletePresentationOptions struct {
-	ID             primitive.ObjectID
-	ProductID      primitive.ObjectID
-	OrganizationID primitive.ObjectID
+	ID             primitive.ID
+	ProductID      primitive.ID
+	OrganizationID primitive.ID
 }
 
 // Delete removes a presentation from a product. It retrieves the product by its ID and organization ID, finds the presentation by its ID,
@@ -120,7 +121,7 @@ func (c *Presentations) Delete(ctx context.Context, req *DeletePresentationOptio
 	}
 
 	if deleted == nil {
-		return nil, coderror.Newf("presentation_not_found", "presentation with id %s not found", req.ID.Hex())
+		return nil, coderror.Newf("presentation_not_found", "presentation with id %d not found", req.ID)
 	}
 
 	if err = c.repository.Update(ctx, product); err != nil {

@@ -12,9 +12,9 @@ import (
 	"time"
 
 	"github.com/yaien/cultural/internal/lib/coderror"
+	"github.com/yaien/cultural/internal/lib/primitive"
+
 	"github.com/yaien/cultural/internal/lib/worker"
-	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type Queue = worker.Queue
@@ -34,7 +34,7 @@ type UploadOptions struct {
 	Size           int64
 	ContentType    string
 	Data           io.Reader
-	OrganizationID primitive.ObjectID
+	OrganizationID primitive.ID
 }
 
 // Upload uploads a file to the storage and creates a corresponding record in the repository.
@@ -50,13 +50,13 @@ func (s *Storage) Upload(ctx context.Context, req *UploadOptions) (*File, error)
 		return nil, fmt.Errorf("failed to check file existence: %w", err)
 	}
 
-	id := primitive.NewObjectID()
+	id := primitive.ID(0)
 
-	if err = s.driver.Put(id.Hex(), req.Size, req.Data); err != nil {
+	if err = s.driver.Put(fmt.Sprintf("%d", id), req.Size, req.Data); err != nil {
 		return nil, fmt.Errorf("failed to upload file to storage: %w", err)
 	}
 
-	dir, src, err := s.driver.Mount(id.Hex())
+	dir, src, err := s.driver.Mount(fmt.Sprintf("%d", id))
 	if err != nil {
 		return nil, fmt.Errorf("failed to mount file: %w", err)
 	}
@@ -89,7 +89,7 @@ func (s *Storage) Upload(ctx context.Context, req *UploadOptions) (*File, error)
 		CreatedAt:      time.Now(),
 		UpdatedAt:      time.Now(),
 		Formats: []Format{{
-			ID:          id,
+			ID:          primitive.NewUUID(),
 			Width:       width,
 			Height:      height,
 			Variant:     variant,
@@ -113,7 +113,7 @@ func (s *Storage) Upload(ctx context.Context, req *UploadOptions) (*File, error)
 }
 
 // Delete removes a file from the storage and deletes the corresponding record from the repository.
-func (s *Storage) Delete(ctx context.Context, organizationID primitive.ObjectID, name string) error {
+func (s *Storage) Delete(ctx context.Context, organizationID primitive.ID, name string) error {
 	file, err := s.repo.GetByOrganizationIDAndName(ctx, organizationID, name)
 	if err != nil {
 		return fmt.Errorf("failed to get file from repository: %w", err)
@@ -125,7 +125,7 @@ func (s *Storage) Delete(ctx context.Context, organizationID primitive.ObjectID,
 	}
 
 	for _, format := range file.Formats {
-		err = s.driver.Remove(format.ID.Hex())
+		err = s.driver.Remove(format.ID)
 		if err != nil {
 			return fmt.Errorf("failed to delete file from storage: %w", err)
 		}
@@ -135,7 +135,7 @@ func (s *Storage) Delete(ctx context.Context, organizationID primitive.ObjectID,
 }
 
 // Rename updates the name of a file in the repository. It does not change the file in the storage.
-func (s *Storage) Rename(ctx context.Context, organizationID primitive.ObjectID, oldName, newName string) error {
+func (s *Storage) Rename(ctx context.Context, organizationID primitive.ID, oldName, newName string) error {
 	file, err := s.repo.GetByOrganizationIDAndName(ctx, organizationID, oldName)
 	if err != nil {
 		return fmt.Errorf("failed to get file from repository: %w", err)
@@ -153,14 +153,14 @@ func (s *Storage) Rename(ctx context.Context, organizationID primitive.ObjectID,
 }
 
 // Get retrieves a file record from the repository by organization ID and name. It does not access the storage.
-func (s *Storage) GetByOrganizationIDAndName(ctx context.Context, organizationID primitive.ObjectID, name string) (*File, error) {
+func (s *Storage) GetByOrganizationIDAndName(ctx context.Context, organizationID primitive.ID, name string) (*File, error) {
 	return s.repo.GetByOrganizationIDAndName(ctx, organizationID, name)
 }
 
 type DownloadOptions struct {
-	OrganizationID primitive.ObjectID
+	OrganizationID primitive.ID
 	Name           string
-	ID             *primitive.ObjectID
+	ID             *primitive.ID
 	Variant        int
 }
 
@@ -174,7 +174,7 @@ type Download struct {
 }
 
 // GetByOrganizationID retrieves all file records for a given organization ID from the repository. It does not access the storage.
-func (s *Storage) GetByOrganizationID(ctx context.Context, organizationID primitive.ObjectID) ([]*File, error) {
+func (s *Storage) GetByOrganizationID(ctx context.Context, organizationID primitive.ID) ([]*File, error) {
 	return s.repo.GetByOrganizationID(ctx, organizationID)
 }
 
@@ -198,7 +198,7 @@ func (s *Storage) Download(ctx context.Context, req *DownloadOptions) (*Download
 		return nil, fmt.Errorf("failed to get file format: %w", err)
 	}
 
-	data, err := s.driver.Get(format.ID.Hex())
+	data, err := s.driver.Get(fmt.Sprintf("%d", format.ID))
 	if err != nil {
 		return nil, fmt.Errorf("failed to open file from storage: %w", err)
 	}
@@ -218,10 +218,10 @@ func (s *Storage) Download(ctx context.Context, req *DownloadOptions) (*Download
 // it mounts the biggest format of the file, performs the necessary conversions to create the missing variants,
 // and uploads the converted files back to the storage. Finally,
 // it updates the file record in the repository with the new formats and removes the original biggest format if it is dropable.
-func (s *Storage) Convert(ctx context.Context, id primitive.ObjectID) error {
+func (s *Storage) Convert(ctx context.Context, id primitive.ID) error {
 	file, err := s.repo.GetByID(ctx, id)
 	switch {
-	case errors.Is(err, mongo.ErrNoDocuments):
+	case coderror.Is(err, coderror.NotFound):
 		return nil
 	case err != nil:
 		return fmt.Errorf("failed to get file: %w", err)
@@ -236,7 +236,7 @@ func (s *Storage) Convert(ctx context.Context, id primitive.ObjectID) error {
 		return nil
 	}
 
-	dir, src, err := s.driver.Mount(state.BiggestFormat.ID.Hex())
+	dir, src, err := s.driver.Mount(state.BiggestFormat.ID)
 	if err != nil {
 		return fmt.Errorf("failed mounting the biggest format: %w", err)
 	}
@@ -266,7 +266,7 @@ func (s *Storage) Convert(ctx context.Context, id primitive.ObjectID) error {
 	for _, conversion := range convertions {
 
 		format := Format{
-			ID:          primitive.NewObjectID(),
+			ID:          primitive.NewUUID(),
 			ContentType: conversion.ContentType,
 			Size:        conversion.Size,
 			Height:      conversion.Height,
@@ -279,7 +279,7 @@ func (s *Storage) Convert(ctx context.Context, id primitive.ObjectID) error {
 			return fmt.Errorf("failed opening conversion file: %s: %w", conversion.Path, err)
 		}
 
-		if err = s.driver.Put(format.ID.Hex(), format.Size, reader); err != nil {
+		if err = s.driver.Put(format.ID, format.Size, reader); err != nil {
 			return fmt.Errorf("failed writing conversion file: %s: %w", conversion.Path, err)
 		}
 
@@ -294,7 +294,7 @@ func (s *Storage) Convert(ctx context.Context, id primitive.ObjectID) error {
 
 		file.Formats = slices.Delete(file.Formats, state.BiggestFormatIndex, state.BiggestFormatIndex+1)
 
-		if err := s.driver.Remove(state.BiggestFormat.ID.Hex()); err != nil {
+		if err := s.driver.Remove(state.BiggestFormat.ID); err != nil {
 			return fmt.Errorf("failed removing original format: %w", err)
 		}
 

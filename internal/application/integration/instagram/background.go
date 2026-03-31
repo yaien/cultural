@@ -7,8 +7,8 @@ import (
 	"time"
 
 	"github.com/robfig/cron/v3"
+	"github.com/yaien/cultural/internal/lib/primitive"
 	"github.com/yaien/cultural/internal/lib/worker"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"golang.org/x/oauth2"
 )
 
@@ -35,7 +35,7 @@ func (i *Instagram) RegisterBackgroundProcess(c *cron.Cron, q *worker.Queue, w *
 
 			task := worker.Task{
 				Name: TaskName,
-				Data: map[string]any{"organizationId": integration.OrganizationID},
+				Data: map[string]any{"organization_id": integration.OrganizationID},
 			}
 
 			if err := q.Push(ctx, task); err != nil {
@@ -50,7 +50,7 @@ func (i *Instagram) RegisterBackgroundProcess(c *cron.Cron, q *worker.Queue, w *
 		Name:       TaskName,
 		MaxRetries: 3,
 		Handler: worker.HandlerFunc(func(ctx context.Context, taskData map[string]any) error {
-			organizationID, ok := taskData["organizationId"].(primitive.ObjectID)
+			organizationID, ok := taskData["organization_id"].(primitive.ID)
 			if !ok {
 				slog.Error("failed asserting organizationId to ObjectID")
 				return nil

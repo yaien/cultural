@@ -5,30 +5,31 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/yaien/cultural/internal/lib/primitive"
+
 	"github.com/yaien/cultural/internal/lib/coderror"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type Role struct {
-	ID             primitive.ObjectID  `bson:"_id,omitempty"`
-	UserID         primitive.ObjectID  `bson:"userId"`
-	UserEmail      string              `bson:"userEmail"`
-	UserName       string              `bson:"userName"`
-	UserAvatarUrl  string              `bson:"userAvatarUrl"`
-	OrganizationID primitive.ObjectID  `bson:"organizationId"`
-	GroupID        *primitive.ObjectID `bson:"groupId,omitempty"`
-	Name           string              `bson:"name"`
-	Permissions    Permissions         `bson:"permissions"`
-	CreatedAt      time.Time           `bson:"createdAt"`
-	UpdatedAt      time.Time           `bson:"updatedAt"`
-	DeletedAt      *time.Time          `bson:"deletedAt,omitempty"`
+	ID             primitive.ID `gorm:"primaryKey;autoIncrement"`
+	UserID         primitive.ID `gorm:"index:idx_role_user_org,unique"`
+	UserEmail      string
+	UserName       string
+	UserAvatarUrl  string
+	OrganizationID primitive.ID `gorm:"index:idx_role_user_org,unique"`
+	GroupID        *primitive.ID
+	Name           string
+	Permissions    Permissions
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
+	DeletedAt      *time.Time
 }
 
 type RoleRepository interface {
-	CountAdminsByOrganizationID(ctx context.Context, organizationID primitive.ObjectID) (int64, error)
-	GetByIDAndOrganizationID(ctx context.Context, id, organizationID primitive.ObjectID) (*Role, error)
-	GetByUserIDAndOrganizationID(ctx context.Context, userId, organizationID primitive.ObjectID) (*Role, error)
-	GetByOrganizationID(ctx context.Context, organizationID primitive.ObjectID) ([]*Role, error)
+	CountAdminsByOrganizationID(ctx context.Context, organizationID primitive.ID) (int64, error)
+	GetByIDAndOrganizationID(ctx context.Context, id, organizationID primitive.ID) (*Role, error)
+	GetByUserIDAndOrganizationID(ctx context.Context, id, organizationID primitive.ID) (*Role, error)
+	GetByOrganizationID(ctx context.Context, id primitive.ID) ([]*Role, error)
 	Create(ctx context.Context, role *Role) error
 	Update(ctx context.Context, role *Role) error
 	Delete(ctx context.Context, role *Role) error
@@ -42,15 +43,15 @@ func NewRoles(repository RoleRepository) *Roles {
 	return &Roles{repository: repository}
 }
 
-func (q *Roles) GetByOrganizationID(ctx context.Context, organizationID primitive.ObjectID) ([]*Role, error) {
+func (q *Roles) GetByOrganizationID(ctx context.Context, organizationID primitive.ID) ([]*Role, error) {
 	return q.repository.GetByOrganizationID(ctx, organizationID)
 }
 
-func (q *Roles) GetByUserIDAndOrganizationID(ctx context.Context, userId, organizationID primitive.ObjectID) (*Role, error) {
-	return q.repository.GetByUserIDAndOrganizationID(ctx, userId, organizationID)
+func (q *Roles) GetByUserIDAndOrganizationID(ctx context.Context, userID, organizationID primitive.ID) (*Role, error) {
+	return q.repository.GetByUserIDAndOrganizationID(ctx, userID, organizationID)
 }
 
-func (c *Roles) GetByIDAndOrganizationID(ctx context.Context, id, organizationID primitive.ObjectID) (*Role, error) {
+func (c *Roles) GetByIDAndOrganizationID(ctx context.Context, id, organizationID primitive.ID) (*Role, error) {
 	return c.repository.GetByIDAndOrganizationID(ctx, id, organizationID)
 }
 
@@ -60,8 +61,8 @@ func (c *Roles) Create(ctx context.Context, role *Role) error {
 
 type DeleteRoleOptions struct {
 	SessionRole    *Role
-	TargetRoleID   primitive.ObjectID
-	OrganizationID primitive.ObjectID
+	TargetRoleID   primitive.ID
+	OrganizationID primitive.ID
 }
 
 func (c *Roles) Delete(ctx context.Context, req *DeleteRoleOptions) error {

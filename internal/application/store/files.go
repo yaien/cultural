@@ -7,9 +7,10 @@ import (
 	"slices"
 	"time"
 
+	"github.com/yaien/cultural/internal/lib/primitive"
+
 	"github.com/yaien/cultural/internal/application/storage"
 	"github.com/yaien/cultural/internal/lib/coderror"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 var MaxFilesPerPresentation = 5
@@ -24,9 +25,9 @@ func NewFiles(repository Repository, storage *storage.Storage) *Files {
 }
 
 type UploadFileOptions struct {
-	PresentationID primitive.ObjectID
-	ProductID      primitive.ObjectID
-	OrganizationID primitive.ObjectID
+	PresentationID primitive.ID
+	ProductID      primitive.ID
+	OrganizationID primitive.ID
 	Name           string
 	Size           int64
 	ContentType    string
@@ -47,10 +48,10 @@ func (c *Files) Upload(ctx context.Context, req *UploadFileOptions) (*Product, *
 	}
 
 	if presentation == nil {
-		return nil, nil, coderror.Newf("presentation_not_found", "presentation with id %s not found", req.PresentationID.Hex())
+		return nil, nil, coderror.Newf("presentation_not_found", "presentation with id %d not found", req.PresentationID)
 	}
 
-	if len(presentation.Files) >= MaxFilesPerPresentation {
+	if len(presentation.Contents) >= MaxFilesPerPresentation {
 		return nil, nil, coderror.New("presentation_file_limit_exceeded", fmt.Errorf("presentation file limit exceeded"))
 	}
 
@@ -67,9 +68,10 @@ func (c *Files) Upload(ctx context.Context, req *UploadFileOptions) (*Product, *
 	}
 
 	product.UpdatedAt = time.Now()
-	presentation.Files = append(presentation.Files, &File{
-		ID:     file.ID,
-		Preset: file.Preset,
+	presentation.Contents = append(presentation.Contents, &Content{
+		PresentationID: presentation.ID,
+		FileID:         file.ID,
+		Order:          len(presentation.Contents),
 	})
 
 	if err = c.repository.Update(ctx, product); err != nil {
@@ -80,10 +82,10 @@ func (c *Files) Upload(ctx context.Context, req *UploadFileOptions) (*Product, *
 }
 
 type ToggleFilesOptions struct {
-	PresentationID primitive.ObjectID
-	ProductID      primitive.ObjectID
-	OrganizationID primitive.ObjectID
-	FileIDS        []primitive.ObjectID
+	PresentationID primitive.ID
+	ProductID      primitive.ID
+	OrganizationID primitive.ID
+	ContentIDS     []primitive.ID
 }
 
 func (c *Files) Toggle(ctx context.Context, req *ToggleFilesOptions) (*Product, *Presentation, error) {
@@ -101,26 +103,23 @@ func (c *Files) Toggle(ctx context.Context, req *ToggleFilesOptions) (*Product, 
 	}
 
 	if presentation == nil {
-		return nil, nil, coderror.Newf("presentation_not_found", "presentation with id %s not found", req.PresentationID.Hex())
+		return nil, nil, coderror.Newf("presentation_not_found", "presentation with id %d not found", req.PresentationID)
 	}
 
-	if len(presentation.Files) != len(req.FileIDS) {
+	if len(presentation.Contents) != len(req.ContentIDS) {
 		return nil, nil, coderror.New("presentation_file_count_mismatch", fmt.Errorf("presentation file count mismatch"))
 	}
 
-	var files []*File
+	for i, id := range req.ContentIDS {
 
-	for _, id := range req.FileIDS {
-		index := slices.IndexFunc(presentation.Files, func(file *File) bool { return file.ID == id })
+		index := slices.IndexFunc(presentation.Contents, func(content *Content) bool { return content.ID.Equal(id) })
 		if index == -1 {
-			return nil, nil, coderror.Newf("file_not_found", "file with id %s not found in presentation", id.Hex())
+			return nil, nil, coderror.Newf("file_not_found", "file with id %d not found in presentation", id)
 		}
 
-		files = append(files, presentation.Files[index])
-
+		presentation.Contents[index].Order = i
 	}
 
-	presentation.Files = files
 	product.UpdatedAt = time.Now()
 
 	if err = c.repository.Update(ctx, product); err != nil {
