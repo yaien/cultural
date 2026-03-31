@@ -11,4 +11,11 @@ Alpine.data("progress", () => ({
             this.percent = 0;
         }
     },
+    bar: {
+        [":style"]() {
+            return {
+                width: `${this.percent}%`,
+            };
+        },
+    },
 }));

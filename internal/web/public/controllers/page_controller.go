@@ -10,8 +10,8 @@ import (
 	"github.com/yaien/cultural/internal/application/label"
 	"github.com/yaien/cultural/internal/application/storage"
 	"github.com/yaien/cultural/internal/lib/cache"
-	"github.com/yaien/cultural/internal/web/dashboard/assets"
 	"github.com/yaien/cultural/internal/web/middlewares"
+	"github.com/yaien/cultural/internal/web/public/assets"
 )
 
 type PageController struct {

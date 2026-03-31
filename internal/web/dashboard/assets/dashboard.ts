@@ -6,6 +6,7 @@ import "./elements/x-file-input";
 import "./elements/x-font";
 import "./elements/x-code-editor";
 import "./elements/x-preview";
+import "./elements/x-drag";
 
 import "./styles/dashboard.css";
 import "./styles/pages.css";

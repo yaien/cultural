@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"slices"
 	"time"
 
 	"github.com/yaien/cultural/internal/application/storage"
@@ -70,6 +71,57 @@ func (c *Files) Upload(ctx context.Context, req *UploadFileOptions) (*Product, *
 		ID:     file.ID,
 		Preset: file.Preset,
 	})
+
+	if err = c.repository.Update(ctx, product); err != nil {
+		return nil, nil, fmt.Errorf("error updating product presentation files: %w", err)
+	}
+
+	return product, presentation, nil
+}
+
+type ToggleFilesOptions struct {
+	PresentationID primitive.ObjectID
+	ProductID      primitive.ObjectID
+	OrganizationID primitive.ObjectID
+	FileIDS        []primitive.ObjectID
+}
+
+func (c *Files) Toggle(ctx context.Context, req *ToggleFilesOptions) (*Product, *Presentation, error) {
+	product, err := c.repository.GetByIDAndOrganizationID(ctx, req.ProductID, req.OrganizationID)
+	if err != nil {
+		return nil, nil, fmt.Errorf("error fetching product: %w", err)
+	}
+
+	var presentation *Presentation
+	for _, p := range product.Presentations {
+		if p.ID == req.PresentationID {
+			presentation = p
+			break
+		}
+	}
+
+	if presentation == nil {
+		return nil, nil, coderror.Newf("presentation_not_found", "presentation with id %s not found", req.PresentationID.Hex())
+	}
+
+	if len(presentation.Files) != len(req.FileIDS) {
+		return nil, nil, coderror.New("presentation_file_count_mismatch", fmt.Errorf("presentation file count mismatch"))
+	}
+
+	var files []*File
+
+	for _, id := range req.FileIDS {
+		index := slices.IndexFunc(presentation.Files, func(file *File) bool { return file.ID == id })
+		if index == -1 {
+			return nil, nil, coderror.Newf("file_not_found", "file with id %s not found in presentation", id.Hex())
+		}
+
+		files = append(files, presentation.Files[index])
+
+	}
+
+	presentation.Files = files
+	product.UpdatedAt = time.Now()
 
 	if err = c.repository.Update(ctx, product); err != nil {
 		return nil, nil, fmt.Errorf("error updating product presentation files: %w", err)

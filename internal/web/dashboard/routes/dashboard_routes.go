@@ -85,6 +85,7 @@ func dashboard(mono *infrastructure.Monolith, app *application.Application, md *
 		mono.DashboardRouter.HandleFunc("PATCH /dashboard/products/{id}/presentations/{presentationId}", ctrl.UpdatePresentation)
 		mono.DashboardRouter.HandleFunc("DELETE /dashboard/products/{id}/presentations/{presentationId}", ctrl.DeletePresentation)
 		mono.DashboardRouter.HandleFunc("POST /dashboard/products/{id}/presentations/{presentationId}/files", ctrl.UploadPresentationFile)
+		mono.DashboardRouter.HandleFunc("PATCH /dashboard/products/{id}/presentations/{presentationId}/files/toggle", ctrl.TogglePresentationFiles)
 	}
 
 	mono.WebRouter.HandleFunc("/dashboard/", md.WithPath(md.WithRole(mono.DashboardRouter)))

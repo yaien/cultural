@@ -261,3 +261,53 @@ func (c *ProductsController) UploadPresentationFile(w http.ResponseWriter, r *ht
 	).Render(ctx, w)
 
 }
+
+func (c *ProductsController) TogglePresentationFiles(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	config := ctx.Value(middlewares.ConfigContextKey).(*label.Config)
+
+	productID, err := primitive.ObjectIDFromHex(r.PathValue("id"))
+	if err != nil {
+		WriteHTMLErr(w, coderror.Newf(coderror.DecodeFailed, "invalid product id: %w", err))
+		return
+	}
+
+	presentationID, err := primitive.ObjectIDFromHex(r.PathValue("presentationId"))
+	if err != nil {
+		WriteHTMLErr(w, coderror.Newf(coderror.DecodeFailed, "invalid presentation id: %w", err))
+		return
+	}
+
+	if err := r.ParseForm(); err != nil {
+		WriteHTMLErr(w, fmt.Errorf("error parsing form: %w", err))
+		return
+	}
+
+	var ids []primitive.ObjectID
+	for _, s := range r.PostForm["ids"] {
+		id, err := primitive.ObjectIDFromHex(s)
+		if err != nil {
+			WriteHTMLErr(w, fmt.Errorf("error parsing file id: %w", err))
+			return
+		}
+		ids = append(ids, id)
+	}
+
+	opts := &store.ToggleFilesOptions{
+		PresentationID: presentationID,
+		ProductID:      productID,
+		OrganizationID: config.OrganizationID,
+		FileIDS:        ids,
+	}
+
+	product, presentation, err := c.files.Toggle(ctx, opts)
+	if err != nil {
+		WriteHTMLErr(w, fmt.Errorf("error adding presentation picture: %w", err))
+		return
+	}
+
+	_ = templ.Join(
+		products.Pictures(product, presentation),
+	).Render(ctx, w)
+
+}
