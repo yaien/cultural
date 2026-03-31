@@ -11,6 +11,7 @@ import "./styles/dashboard.css";
 import "./styles/pages.css";
 import "./styles/roles.css";
 import "./styles/integrations.css";
+import "./styles/products.css";
 
 import Alpine from "alpinejs";
 Alpine.start();

@@ -16,22 +16,22 @@ templ Page(products []*store.Product) {
 
 templ Content(products []*store.Product) {
 	<div class="container" data-scope="products">
-		<div class="actions text-center">
-			<button class="button clear" hx-get="/dashboard/products/create" hx-target=".container" hx-swap="beforeend">
+		<div class="actions">
+			<button class="clear" hx-get="/dashboard/products/create" hx-target=".container" hx-swap="beforeend">
 				@icons.Add()
 			</button>
 		</div>
-		<div class="flex justify-center">
+		<div class="products">
 			for _, product := range products {
 				<a role="article" href={ "/dashboard/products/" + product.ID.Hex() } hx-boost="true" class="detail">
 					<header>
 						if len(product.Presentations) > 0 && len(product.Presentations[0].Files) > 0 {
 							<img src={ "/dashboard/files/" + product.Presentations[0].Files[0].ID.Hex() } alt=""/>
 						} else {
-							<div class="placeholder w-100 "></div>
+							<div class="placeholder"></div>
 						}
 					</header>
-					<div class="text-center">
+					<div>
 						<h4>{ product.Name }</h4>
 					</div>
 				</a>
@@ -61,10 +61,10 @@ templ Create() {
 
 templ Show(product *store.Product, presentation *store.Presentation) {
 	@dashboard.Page("Productos") {
-		<div class="container flex justify-center">
-			<div class="flex flex-column">
+		<div data-scope="product">
+			<div class="forms">
 				<article>
-					<h4 class="text-center m-0 m-b">Producto</h4>
+					<h4>Producto</h4>
 					<form>
 						<fieldset>
 							<legend>Nombre</legend>
@@ -77,7 +77,7 @@ templ Show(product *store.Product, presentation *store.Presentation) {
 								<option value="false" selected={ !product.Published }>No</option>
 							</select>
 						</fieldset>
-						<div class="flex justify-around">
+						<div class="actions">
 							<button class="danger" type="button">
 								Eliminar
 							</button>
@@ -96,7 +96,7 @@ const PresentationsID = "presentations"
 
 templ Presentations(product *store.Product, presentation *store.Presentation) {
 	<article id={ PresentationsID }>
-		<h4 class="text-center m-0 m-b">Presentaciones</h4>
+		<h4>Presentaciones</h4>
 		<div role="group">
 			for _, pre := range product.Presentations {
 				<button
@@ -136,7 +136,7 @@ templ Presentations(product *store.Product, presentation *store.Presentation) {
 					<legend>Precio</legend>
 					<input name="price" type="number" min="0" step="1000" value={ presentation.Price }/>
 				</fieldset>
-				<div class="flex justify-around">
+				<div class="actions">
 					<button
 						class="danger"
 						type="button"
@@ -159,6 +159,7 @@ const SWAPOOB = Options(1)
 
 templ Pictures(product *store.Product, presentation *store.Presentation, options ...Options) {
 	<article
+		class="pictures"
 		id="pictures"
 		if slices.Contains(options, SWAPOOB) {
 			hx-swap-oob="true"
@@ -173,11 +174,11 @@ templ Pictures(product *store.Product, presentation *store.Presentation, options
 }
 
 templ PicturesPlaceholder(options ...Options) {
-	<div class="flex flex-column align-center justify-center">
-		<div class="placeholder m-b" style="width: 450px"></div>
-		<div class="flex">
+	<div class="pictures">
+		<div class="placeholder big"></div>
+		<div class="list">
 			for range 5 {
-				<div class="placeholder" style="width: 100px"></div>
+				<div class="placeholder small"></div>
 			}
 		</div>
 	</div>
@@ -185,31 +186,48 @@ templ PicturesPlaceholder(options ...Options) {
 
 templ PicturesDisplay(product *store.Product, presentation *store.Presentation) {
 	{{
-		var selected *store.File
-		if len(presentation.Files) > 0 {
-			selected = presentation.Files[0]
+		filepath := "/dashboard/files/"
+
+		data := func() string {
+			var s *store.File
+			if len(presentation.Files) > 0 {
+				s = presentation.Files[0]
+			}
+
+			if s != nil {
+				return fmt.Sprintf("{ selected: { id: %q, preset: %q }, filepath: %q }", s.ID.Hex(), s.Preset, filepath)
+			}
+			return fmt.Sprintf("{ selected: null, filepath: %q }", filepath)
+		}
+
+		filedata := func(file *store.File) string {
+			return fmt.Sprintf("{ file: { id: %q, preset: %q } }", file.ID.Hex(), file.Preset)
+		}
+
+		upload := func() string {
+			return fmt.Sprintf("/dashboard/products/%s/presentations/%s/files", product.ID.Hex(), presentation.ID.Hex())
 		}
 	}}
-	<div class="flex flex-column align-center justify-center h-100" x-data={ fmt.Sprintf("{ selected: %q }", selected.ID.Hex()) }>
-		<div class="placeholder m-b aspect-square" style="width: 450px">
-			<img class="w-100 cover aspect-square" x-show="selected" :src="'/dashboard/files/' + selected" alt=""/>
+	<div class="pictures" x-data={ data() }>
+		<div class="placeholder big">
+			<img x-show="selected" :src="filepath + selected.id" alt=""/>
 		</div>
 		<div class="flex">
 			for _, file := range presentation.Files {
-				<div class="placeholder pointer" style="width: 100px" x-data={ fmt.Sprintf("{ file: %q }", file.ID.Hex()) } @click="selected = file">
-					<img class="w-100 cover aspect-square" src={ "/dashboard/files/" + file.ID.Hex() } alt="" draggable="true"/>
+				<div class="placeholder small" x-data={ filedata(file) } @click="selected = file">
+					<img :src="filepath + file.id" alt="" draggable="true"/>
 				</div>
 			}
-			for range 5 - len(presentation.Files) - 1 {
-				<div class="placeholder" style="width: 100px"></div>
+			for range store.MaxFilesPerPresentation - len(presentation.Files) - 1 {
+				<div class="placeholder small"></div>
 			}
 			if len(presentation.Files) < store.MaxFilesPerPresentation {
-				<div class="placeholder flex justify-center align-center aspect-square" style="width: 100px;" x-data="progress">
-					<div x-show="loading" class="progress w-100">
+				<div class="placeholder small" x-data="progress">
+					<div x-show="loading" class="progress">
 						<div :style="{ width: percent + '%' }"></div>
 					</div>
 					<form
-						hx-post={ fmt.Sprintf("/dashboard/products/%s/presentations/%s/files", product.ID.Hex(), presentation.ID.Hex()) }
+						hx-post={ upload() }
 						hx-encoding="multipart/form-data"
 						hx-trigger="change changed"
 						hx-target="#pictures"
