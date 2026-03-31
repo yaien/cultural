@@ -2,9 +2,7 @@ package auth
 
 import (
 	"context"
-	"errors"
 
-	"github.com/yaien/cultural/internal/lib/coderror"
 	"github.com/yaien/cultural/internal/lib/primitive"
 	"gorm.io/gorm"
 )
@@ -22,27 +20,13 @@ func NewGorm(db *gorm.DB) *Gorm {
 func (r *Gorm) GetByID(ctx context.Context, id primitive.ID) (*User, error) {
 	var user User
 	err := r.db.WithContext(ctx).First(&user, id).Error
-	switch {
-	case err == nil:
-		return &user, nil
-	case errors.Is(err, gorm.ErrRecordNotFound):
-		return nil, coderror.New(coderror.NotFound, err)
-	default:
-		return nil, err
-	}
+	return &user, primitive.Error(err)
 }
 
 func (r *Gorm) GetByEmail(ctx context.Context, email string) (*User, error) {
 	var user User
 	err := r.db.WithContext(ctx).Where("email = ?", email).First(&user).Error
-	switch {
-	case err == nil:
-		return &user, nil
-	case errors.Is(err, gorm.ErrRecordNotFound):
-		return nil, coderror.New(coderror.NotFound, err)
-	default:
-		return nil, err
-	}
+	return &user, primitive.Error(err)
 }
 
 func (r *Gorm) Create(ctx context.Context, user *User) error {

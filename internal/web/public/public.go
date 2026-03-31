@@ -5,8 +5,6 @@ import (
 	"github.com/yaien/cultural/internal/web/public/routes"
 )
 
-func Register(mono *infrastructure.Monolith) error {
+func Register(mono *infrastructure.Monolith) {
 	routes.Register(mono)
-	return nil
-
 }

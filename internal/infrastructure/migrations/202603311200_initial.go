@@ -9,6 +9,7 @@ import (
 	"github.com/yaien/cultural/internal/application/label"
 	"github.com/yaien/cultural/internal/application/storage"
 	"github.com/yaien/cultural/internal/application/store"
+	"github.com/yaien/cultural/internal/lib/worker"
 	"gorm.io/gorm"
 )
 
@@ -30,6 +31,7 @@ func init() {
 				&store.Product{},
 				&store.Presentation{},
 				&store.Content{},
+				&worker.Job{},
 			)
 		},
 		Down: func(ctx context.Context, db *gorm.DB) error {

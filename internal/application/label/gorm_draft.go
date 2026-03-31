@@ -2,9 +2,7 @@ package label
 
 import (
 	"context"
-	"errors"
 
-	"github.com/yaien/cultural/internal/lib/coderror"
 	"github.com/yaien/cultural/internal/lib/primitive"
 	"gorm.io/gorm"
 )
@@ -26,12 +24,5 @@ func (r *GormDrafts) Update(ctx context.Context, draft *Draft) error {
 func (r *GormDrafts) GetByConfigID(ctx context.Context, configID primitive.ID) (*Draft, error) {
 	var draft Draft
 	err := r.db.WithContext(ctx).Where("config_id = ?", configID).First(&draft).Error
-	switch {
-	case err == nil:
-		return &draft, nil
-	case errors.Is(err, gorm.ErrRecordNotFound):
-		return nil, coderror.New(coderror.NotFound, err)
-	default:
-		return nil, err
-	}
+	return &draft, primitive.Error(err)
 }

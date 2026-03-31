@@ -2,9 +2,7 @@ package admin
 
 import (
 	"context"
-	"errors"
 
-	"github.com/yaien/cultural/internal/lib/coderror"
 	"github.com/yaien/cultural/internal/lib/primitive"
 	"gorm.io/gorm"
 )
@@ -27,28 +25,19 @@ func (r *GormRoles) CountAdminsByOrganizationID(ctx context.Context, organizatio
 
 func (r *GormRoles) GetByIDAndOrganizationID(ctx context.Context, id, organizationID primitive.ID) (*Role, error) {
 	var role Role
-	err := r.db.WithContext(ctx).Where("id = ? AND organization_id = ?", id, organizationID).First(&role).Error
-	switch {
-	case err == nil:
-		return &role, nil
-	case errors.Is(err, gorm.ErrRecordNotFound):
-		return nil, coderror.New(coderror.NotFound, err)
-	default:
-		return nil, err
-	}
+	err := r.db.WithContext(ctx).
+		Joins("User").
+		Where("id = ? AND organization_id = ?", id, organizationID).First(&role).Error
+	return &role, primitive.Error(err)
 }
 
 func (r *GormRoles) GetByUserIDAndOrganizationID(ctx context.Context, userID, organizationID primitive.ID) (*Role, error) {
 	var role Role
-	err := r.db.WithContext(ctx).Where("user_id = ? AND organization_id = ?", userID, organizationID).First(&role).Error
-	switch {
-	case err == nil:
-		return &role, nil
-	case errors.Is(err, gorm.ErrRecordNotFound):
-		return nil, coderror.New(coderror.NotFound, err)
-	default:
-		return nil, err
-	}
+	err := r.db.WithContext(ctx).
+		Joins("User").
+		Where("user_id = ? AND organization_id = ?", userID, organizationID).
+		First(&role).Error
+	return &role, primitive.Error(err)
 }
 
 func (r *GormRoles) GetByOrganizationID(ctx context.Context, organizationID primitive.ID) ([]*Role, error) {

@@ -198,7 +198,7 @@ func (s *Storage) Download(ctx context.Context, req *DownloadOptions) (*Download
 		return nil, fmt.Errorf("failed to get file format: %w", err)
 	}
 
-	data, err := s.driver.Get(fmt.Sprintf("%d", format.ID))
+	data, err := s.driver.Get(format.ID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open file from storage: %w", err)
 	}

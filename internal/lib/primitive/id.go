@@ -27,12 +27,16 @@ func ParseID(s string) (ID, error) {
 	return ID(id), nil
 }
 
+// UUID is a type alias for string, representing a universally unique identifier.
 type UUID = string
 
+// NewUUID generates a new UUID string.
 func NewUUID() UUID {
 	return uuid.NewString()
 }
 
+// ParseUUID validates that the input string is a valid UUID and returns it as a UUID type.
+// It returns an error if the string is not a valid UUID.
 func ParseUUID(s string) (UUID, error) {
 	if _, err := uuid.Parse(s); err != nil {
 		return "", err

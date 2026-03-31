@@ -44,7 +44,7 @@ func init() {
 				}
 			}
 
-			if err := db.WithContext(ctx).Create(fonts); err != nil {
+			if err := db.WithContext(ctx).Create(fonts).Error; err != nil {
 				return fmt.Errorf("failed inserting google fonts: %w", err)
 			}
 

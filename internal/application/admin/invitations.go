@@ -9,6 +9,7 @@ import (
 
 	"github.com/yaien/cultural/internal/lib/primitive"
 
+	"github.com/yaien/cultural/internal/application/auth"
 	"github.com/yaien/cultural/internal/application/label"
 	"github.com/yaien/cultural/internal/application/storage"
 	"github.com/yaien/cultural/internal/lib/coderror"
@@ -18,12 +19,15 @@ import (
 type Invitation struct {
 	ID              primitive.ID `gorm:"primaryKey;autoIncrement"`
 	OrganizationID  primitive.ID `gorm:"index"`
+	Organization    *Organization
 	CreatorID       primitive.ID
+	Creator         *auth.User
 	CreatedAt       time.Time
 	AcceptedAt      *time.Time
 	ExpiresAt       time.Time
 	RoleGroupID     *primitive.ID
-	RolePermissions Permissions
+	RoleGroup       *Group
+	RolePermissions Permissions `gorm:"type:jsonb;serializer:json"`
 	RoleName        string
 	UserDisplayName string
 	UserEmail       string `gorm:"index"`
@@ -217,9 +221,6 @@ func (c *Invitations) Accept(ctx context.Context, req *AcceptInvitationOptions) 
 	case coderror.Is(err, coderror.NotFound):
 		role = &Role{
 			UserID:         req.UserID,
-			UserEmail:      req.UserEmail,
-			UserName:       req.UserName,
-			UserAvatarUrl:  req.UserAvatarUrl,
 			OrganizationID: req.OrganizationID,
 			Name:           invitation.RoleName,
 			Permissions:    invitation.RolePermissions,

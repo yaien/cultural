@@ -2,11 +2,9 @@ package integration
 
 import (
 	"context"
-	"errors"
 
 	"github.com/yaien/cultural/internal/lib/primitive"
 
-	"github.com/yaien/cultural/internal/lib/coderror"
 	"gorm.io/gorm"
 )
 
@@ -33,14 +31,7 @@ func (r *Gorm[T]) GetByOrganizationIDAndName(ctx context.Context, organizationID
 	err := r.db.WithContext(ctx).
 		Where("organization_id = ? AND name = ?", organizationID, name).
 		First(&i).Error
-	switch {
-	case err == nil:
-		return &i, nil
-	case errors.Is(err, gorm.ErrRecordNotFound):
-		return nil, coderror.New(coderror.NotFound, err)
-	default:
-		return nil, err
-	}
+	return &i, primitive.Error(err)
 }
 
 func (r *Gorm[T]) GetByName(ctx context.Context, name string) ([]*Integration[T], error) {

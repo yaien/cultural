@@ -1,11 +1,9 @@
 package infrastructure
 
 import (
-	"context"
 	"log"
 	"log/slog"
 	"net/http"
-	"os"
 	"time"
 
 	"github.com/glebarez/sqlite"
@@ -15,8 +13,8 @@ import (
 	"github.com/yaien/cultural/internal/lib/mail"
 	"github.com/yaien/cultural/internal/lib/worker"
 	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 type Monolith struct {
@@ -41,7 +39,6 @@ func NewMonolith() *Monolith {
 	var m Monolith
 	m.Config = config
 	m.GormDB = setupGormDB(config)
-	m.MongoDB = setupMongoDB(config)
 	m.SessionStore = setupSessionStore(config)
 	m.Mail = setupMail(config)
 	m.StorageDriver = setupStorage(config)
@@ -51,7 +48,7 @@ func NewMonolith() *Monolith {
 	m.Cron = cron.New()
 
 	stream := worker.NewMemoryStream()
-	store := worker.NewMongoStore(m.MongoDB, "")
+	store := worker.NewGormStore(m.GormDB)
 
 	m.Queue = worker.NewQueue(store, stream)
 	m.Worker = worker.New(store, stream)
@@ -98,48 +95,12 @@ func setupSessionStore(config *Config) sessions.Store {
 }
 
 func setupGormDB(config *Config) *gorm.DB {
-	db, err := gorm.Open(sqlite.Open(config.Sqlite.DSN))
+	gormLog := newGormLogger(slog.Default(), logger.Info)
+
+	db, err := gorm.Open(sqlite.Open(config.Sqlite.DSN), &gorm.Config{Logger: gormLog})
 	if err != nil {
 		log.Fatal("Failed to connect to sqlite database: ", err)
 	}
+
 	return db
-}
-
-func setupMongoDB(config *Config) *mongo.Database {
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-
-	opts := options.Client().ApplyURI(config.MongoDB.URI)
-	opts.SetLoggerOptions(options.Logger().SetComponentLevel(options.LogComponentCommand, options.LogLevelDebug).SetSink(&sink{}))
-
-	client, err := mongo.Connect(ctx, opts)
-	if err != nil {
-		slog.Error("Failed to connect to mongodb:", "error", err)
-		os.Exit(1)
-	}
-
-	err = client.Ping(ctx, nil)
-	if err != nil {
-		slog.Error("Failed to ping mongodb:", "error", err)
-		os.Exit(1)
-	}
-
-	log.Println("Connected to mongodb successfully")
-
-	database := client.Database(config.MongoDB.Database)
-
-	return database
-}
-
-var _ options.LogSink = (*sink)(nil)
-
-type sink struct {
-}
-
-func (s *sink) Info(level int, msg string, args ...any) {
-	slog.With(args...).Debug("Mongodb", "level", level, "msg", msg)
-}
-
-func (s *sink) Error(err error, msg string, args ...any) {
-	slog.With(args...).Error("Mongodb", "error", err, "msg", msg)
 }

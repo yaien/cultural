@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 
-	"github.com/yaien/cultural/internal/lib/coderror"
 	"github.com/yaien/cultural/internal/lib/primitive"
 	"gorm.io/gorm"
 )
@@ -43,25 +42,11 @@ func (r *Gorm) GetByOrganizationID(ctx context.Context, organizationID primitive
 func (r *Gorm) GetByIDAndOrganizationID(ctx context.Context, productID, organizationID primitive.ID) (*Product, error) {
 	var product Product
 	err := r.db.WithContext(ctx).Where("id = ? AND organization_id = ?", productID, organizationID).First(&product).Error
-	switch {
-	case err == nil:
-		return &product, nil
-	case errors.Is(err, gorm.ErrRecordNotFound):
-		return nil, coderror.New(coderror.NotFound, err)
-	default:
-		return nil, err
-	}
+	return &product, primitive.Error(err)
 }
 
 func (r *Gorm) GetBySlugAndOrganizationID(ctx context.Context, slug string, organizationID primitive.ID) (*Product, error) {
 	var product Product
 	err := r.db.WithContext(ctx).Where("slug = ? AND organization_id = ?", slug, organizationID).First(&product).Error
-	switch {
-	case err == nil:
-		return &product, nil
-	case errors.Is(err, gorm.ErrRecordNotFound):
-		return nil, coderror.New(coderror.NotFound, err)
-	default:
-		return nil, err
-	}
+	return &product, primitive.Error(err)
 }

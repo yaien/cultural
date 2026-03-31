@@ -22,6 +22,10 @@ type Integration[T any] struct {
 	Data           T `gorm:"type:jsonb;serializer:json"`
 }
 
+func (i *Integration[T]) TableName() string {
+	return "integrations"
+}
+
 type GetOptions struct {
 	OrganizationID primitive.ID
 	Name           string

@@ -23,15 +23,15 @@ templ Content(state *State) {
 			<tbody>
 				for _, role := range state.Roles {
 					<tr id={ fmt.Sprintf("%d", role.ID) }>
-						<td>{ role.UserName }</td>
-						<td>{ role.UserEmail }</td>
+						<td>{ role.User.Name }</td>
+						<td>{ role.User.Email }</td>
 						<td class="capitalize">{ role.Name }</td>
 						<td>
 							<div role="group" class="clear">
 								if role.ID != current.ID {
 									<button
 										class="danger clear"
-										hx-get={ templ.URL(fmt.Sprintf("/dashboard/roles/delete/%d?name=%s", role.ID, role.UserName)) }
+										hx-get={ fmt.Sprintf("/dashboard/roles/delete/%s", role.ID) }
 										hx-swap="beforeend"
 										hx-target=".container"
 										hx-disabled-elt="this"

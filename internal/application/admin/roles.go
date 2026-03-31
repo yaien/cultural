@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/yaien/cultural/internal/application/auth"
 	"github.com/yaien/cultural/internal/lib/primitive"
 
 	"github.com/yaien/cultural/internal/lib/coderror"
@@ -13,13 +14,11 @@ import (
 type Role struct {
 	ID             primitive.ID `gorm:"primaryKey;autoIncrement"`
 	UserID         primitive.ID `gorm:"index:idx_role_user_org,unique"`
-	UserEmail      string
-	UserName       string
-	UserAvatarUrl  string
+	User           *auth.User
 	OrganizationID primitive.ID `gorm:"index:idx_role_user_org,unique"`
 	GroupID        *primitive.ID
 	Name           string
-	Permissions    Permissions
+	Permissions    Permissions `gorm:"type:jsonb;serializer:json"`
 	CreatedAt      time.Time
 	UpdatedAt      time.Time
 	DeletedAt      *time.Time

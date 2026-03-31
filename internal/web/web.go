@@ -11,7 +11,7 @@ import (
 	"github.com/yaien/cultural/internal/web/public"
 )
 
-func Register(mono *infrastructure.Monolith, app *application.Application) error {
+func Register(mono *infrastructure.Monolith, app *application.Application) {
 
 	mdl := &middlewares.Middlewares{
 		WithConfig: middlewares.NewWithConfig(app.Label.Configs),
@@ -36,7 +36,5 @@ func Register(mono *infrastructure.Monolith, app *application.Application) error
 	}
 
 	mono.Router.Handle("/", mdl.WithConfig(mono.WebRouter))
-
-	return nil
 
 }

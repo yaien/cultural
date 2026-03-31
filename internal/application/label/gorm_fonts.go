@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/yaien/cultural/internal/lib/coderror"
+	"github.com/yaien/cultural/internal/lib/primitive"
 	"gorm.io/gorm"
 )
 
@@ -22,14 +22,7 @@ func NewGormFonts(db *gorm.DB) *GormFonts {
 func (r *GormFonts) GetByFamily(ctx context.Context, family string) (*Font, error) {
 	var font Font
 	err := r.db.WithContext(ctx).Where("family = ?", family).First(&font).Error
-	switch {
-	case err == nil:
-		return &font, nil
-	case errors.Is(err, gorm.ErrRecordNotFound):
-		return nil, coderror.New(coderror.NotFound, err)
-	default:
-		return nil, err
-	}
+	return &font, primitive.Error(err)
 }
 
 func (r *GormFonts) Find(ctx context.Context, opts *FindFontOptions) (fonts []*Font, err error) {

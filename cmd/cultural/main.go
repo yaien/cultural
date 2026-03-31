@@ -47,13 +47,11 @@ func serve() *cobra.Command {
 			app := application.New(mono)
 			web.Register(mono, app)
 
-			log.Printf("Mongodb database: %s", mono.Config.MongoDB.Database)
-			log.Printf("Mongodb uri: %s", mono.Config.MongoDB.URI)
 			log.Printf("App is running on %s", mono.Config.Server.URL)
 
 			go func() {
 
-				if err := migrations.Migrate(ctx, mono.MongoDB); err != nil {
+				if err := migrations.Migrate(ctx, mono.GormDB); err != nil {
 					slog.Error("Failed running migrations", "error", err)
 					return
 				}
@@ -111,7 +109,7 @@ func migrate() *cobra.Command {
 		Use: "migrate",
 		Run: func(cmd *cobra.Command, args []string) {
 			mono := infrastructure.NewMonolith()
-			err := migrations.Migrate(cmd.Context(), mono.MongoDB)
+			err := migrations.Migrate(cmd.Context(), mono.GormDB)
 			if err != nil {
 				log.Fatal("Failed to run migrations:", err)
 			}
@@ -128,7 +126,7 @@ func revert() *cobra.Command {
 		Args: cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			mono := infrastructure.NewMonolith()
-			err := migrations.Revert(cmd.Context(), args[0], mono.MongoDB)
+			err := migrations.Revert(cmd.Context(), args[0], mono.GormDB)
 			if err != nil {
 				log.Fatal("Failed to revert migrations:", err)
 			}

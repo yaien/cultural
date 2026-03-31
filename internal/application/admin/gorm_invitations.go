@@ -2,9 +2,7 @@ package admin
 
 import (
 	"context"
-	"errors"
 
-	"github.com/yaien/cultural/internal/lib/coderror"
 	"github.com/yaien/cultural/internal/lib/primitive"
 	"gorm.io/gorm"
 )
@@ -22,14 +20,7 @@ func NewGormInvitations(db *gorm.DB) *GormInvitations {
 func (r *GormInvitations) GetByIDAndOrganizationID(ctx context.Context, id, organizationID primitive.ID) (*Invitation, error) {
 	var invitation Invitation
 	err := r.db.WithContext(ctx).Where("id = ? AND organization_id = ?", id, organizationID).First(&invitation).Error
-	switch {
-	case err == nil:
-		return &invitation, nil
-	case errors.Is(err, gorm.ErrRecordNotFound):
-		return nil, coderror.New(coderror.NotFound, err)
-	default:
-		return nil, err
-	}
+	return &invitation, primitive.Error(err)
 }
 
 func (r *GormInvitations) Create(ctx context.Context, invitation *Invitation) error {

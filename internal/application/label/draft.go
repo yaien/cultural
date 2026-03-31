@@ -12,13 +12,14 @@ import (
 type Draft struct {
 	ID        primitive.ID `gorm:"primaryKey;autoIncrement"`
 	ConfigID  primitive.ID `gorm:"index"`
+	Config    *Config
 	CreatedAt time.Time
 	UpdatedAt time.Time
-	Layouts   map[string]*Layout
-	Fonts     map[string]*Font
-	Pages     map[string]*Page
-	Emails    map[string]*Email
-	Colors    []*Color
+	Layouts   map[string]*Layout `gorm:"type:jsonb;serializer:json"`
+	Fonts     map[string]*Font   `gorm:"type:jsonb;serializer:json"`
+	Pages     map[string]*Page   `gorm:"type:jsonb;serializer:json"`
+	Emails    map[string]*Email  `gorm:"type:jsonb;serializer:json"`
+	Colors    []*Color           `gorm:"type:jsonb;serializer:json"`
 }
 
 type DraftRepository interface {

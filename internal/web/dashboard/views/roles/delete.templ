@@ -9,7 +9,7 @@ import (
 )
 
 templ Delete(role *admin.Role) {
-	{{ fmt.Printf("Delete role: %d\n, name %s", role.ID, role.UserName) }}
+	{{ fmt.Printf("Delete role: %d\n, name %s", role.ID, role.User.Name) }}
 	@dashboard.Modal("Eliminar Rol") {
 		<form
 			hx-delete={ templ.URL(fmt.Sprintf("/dashboard/roles/%d", role.ID)) }
@@ -17,7 +17,7 @@ templ Delete(role *admin.Role) {
 			hx-swap="outerHTML swap:250ms"
 			hx-disabled-elt=".actions button"
 		>
-			<p>¿Estás seguro de que deseas eliminar a <b>{ role.UserName }</b>?</p>
+			<p>¿Estás seguro de que deseas eliminar a <b>{ role.User.Name }</b>?</p>
 			<div class="actions">
 				<button class="secondary cancel">Cancelar</button>
 				<button class="danger">Eliminar</button>

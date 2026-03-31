@@ -2,6 +2,7 @@ package worker
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"time"
 )
@@ -27,14 +28,18 @@ func NewQueue(store Store, stream Stream) *Queue {
 
 type Task struct {
 	Name string
-	Data map[string]any
+	Data any
 }
 
 func (q *Queue) Push(ctx context.Context, task Task) error {
+	data, err := json.Marshal(task.Data)
+	if err != nil {
+		return fmt.Errorf("failed to marshal task data: %w", err)
+	}
+
 	job := Job{
-		ID:        0,
 		Name:      task.Name,
-		Data:      task.Data,
+		Data:      data,
 		Status:    StatusPending,
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),

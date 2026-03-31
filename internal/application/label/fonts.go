@@ -8,16 +8,16 @@ import (
 )
 
 type Font struct {
-	ID        primitive.ID `gorm:"primaryKey;autoIncrement"`
+	ID        primitive.ID      `gorm:"primaryKey;autoIncrement"`
+	Family    string            `gorm:"index"`
+	Subsets   []string          `gorm:"type:jsonb;serializer:json"`
+	Variants  []string          `gorm:"type:jsonb;serializer:json"`
+	Files     map[string]string `gorm:"type:jsonb;serializer:json"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	Provider  string
-	Family    string `gorm:"index"`
 	Category  string
-	Subsets   []string
-	Variants  []string
 	Version   string
-	Files     map[string]string
 }
 
 type FindFontOptions struct {

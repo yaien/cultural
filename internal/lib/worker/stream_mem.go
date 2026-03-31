@@ -41,7 +41,7 @@ func (m *MemoryStream) Read(ctx context.Context) iter.Seq2[*Message, error] {
 				}
 
 				if !yield(m, nil) {
-					break
+					return
 				}
 			}
 		}

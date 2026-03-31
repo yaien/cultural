@@ -2,6 +2,8 @@ package worker
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
 )
 
 type H struct {
@@ -11,11 +13,16 @@ type H struct {
 }
 
 type Handler interface {
-	Handle(ctx context.Context, data map[string]any) error
+	Handle(ctx context.Context, data []byte) error
 }
 
-type HandlerFunc func(ctx context.Context, data map[string]any) error
+type HandlerFunc[T any] func(ctx context.Context, data *T) error
 
-func (f HandlerFunc) Handle(ctx context.Context, data map[string]any) error {
-	return f(ctx, data)
+func (f HandlerFunc[T]) Handle(ctx context.Context, data []byte) error {
+	var d T
+	if err := json.Unmarshal(data, &d); err != nil {
+		return fmt.Errorf("failed to unmarshal data: %w", err)
+	}
+
+	return f(ctx, &d)
 }

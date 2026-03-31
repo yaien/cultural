@@ -91,21 +91,22 @@ func (c *RolesController) Create(w http.ResponseWriter, r *http.Request) {
 
 func (c *RolesController) ShowDelete(w http.ResponseWriter, r *http.Request) {
 
-	p, err := primitive.ParseID(r.PathValue("id"))
+	id, err := primitive.ParseID(r.PathValue("id"))
 	if err != nil {
 		WriteJSONErr(w, coderror.Newf(coderror.DecodeFailed, "invalid role id: %w", err))
 		return
 	}
-	id := primitive.ID(p)
 
-	name := r.URL.Query().Get("name")
+	ctx := r.Context()
+	config := ctx.Value(middlewares.ConfigContextKey).(*label.Config)
 
-	role := &admin.Role{
-		ID:       id,
-		UserName: name,
+	role, err := c.roles.GetByIDAndOrganizationID(ctx, id, config.OrganizationID)
+	if err != nil {
+		WriteJSONErr(w, fmt.Errorf("failed getting role: %w", err))
+		return
 	}
 
-	_ = roles.Delete(role).Render(r.Context(), w)
+	_ = roles.Delete(role).Render(ctx, w)
 
 }
 

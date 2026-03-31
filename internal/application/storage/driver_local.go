@@ -19,20 +19,28 @@ func NewLocal(root string) *Local {
 	}
 }
 
-func (l *Local) Put(id string, size int64, data io.Reader) error {
+func (l *Local) Put(id string, size int64, data io.Reader) (err error) {
 	root, err := os.OpenRoot(l.root)
 	if err != nil {
 		return err
 	}
 
-	defer root.Close()
+	defer func() {
+		if derr := root.Close(); derr != nil && err == nil {
+			err = derr
+		}
+	}()
 
 	file, err := root.Create(id)
 	if err != nil {
 		return err
 	}
 
-	defer file.Close()
+	defer func() {
+		if derr := file.Close(); derr != nil && err == nil {
+			err = derr
+		}
+	}()
 
 	if _, err = io.CopyN(file, data, size); err != nil {
 		return fmt.Errorf("failed in copy data to file: %w", err)
@@ -46,7 +54,12 @@ func (l *Local) Remove(id string) error {
 	if err != nil {
 		return err
 	}
-	defer root.Close()
+
+	defer func() {
+		if derr := root.Close(); derr != nil && err == nil {
+			err = derr
+		}
+	}()
 
 	return root.Remove(id)
 }

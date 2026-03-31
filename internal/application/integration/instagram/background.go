@@ -14,9 +14,23 @@ import (
 
 const TaskName = "sync-instagram"
 
+type TaskData struct {
+	OrganizationID primitive.ID `json:"organization_id"`
+}
+
 func (i *Instagram) RegisterBackgroundProcess(c *cron.Cron, q *worker.Queue, w *worker.Worker) {
 
-	c.AddFunc("12 21 * * *", func() {
+	_, _ = c.AddFunc("12 21 * * *", i.cron(q))
+
+	w.Register(worker.H{
+		Name:       TaskName,
+		MaxRetries: 3,
+		Handler:    worker.HandlerFunc[TaskData](i.handle),
+	})
+}
+
+func (i *Instagram) cron(q *worker.Queue) cron.FuncJob {
+	return func() {
 		slog.Info("starting instagram sync background process")
 
 		ctx := context.Background()
@@ -35,7 +49,9 @@ func (i *Instagram) RegisterBackgroundProcess(c *cron.Cron, q *worker.Queue, w *
 
 			task := worker.Task{
 				Name: TaskName,
-				Data: map[string]any{"organization_id": integration.OrganizationID},
+				Data: TaskData{
+					OrganizationID: integration.OrganizationID,
+				},
 			}
 
 			if err := q.Push(ctx, task); err != nil {
@@ -44,71 +60,61 @@ func (i *Instagram) RegisterBackgroundProcess(c *cron.Cron, q *worker.Queue, w *
 		}
 
 		slog.Info("finished pushing instagram sync tasks to queue")
-	})
+	}
+}
 
-	w.Register(worker.H{
-		Name:       TaskName,
-		MaxRetries: 3,
-		Handler: worker.HandlerFunc(func(ctx context.Context, taskData map[string]any) error {
-			organizationID, ok := taskData["organization_id"].(primitive.ID)
-			if !ok {
-				slog.Error("failed asserting organizationId to ObjectID")
-				return nil
-			}
+func (i *Instagram) handle(ctx context.Context, data *TaskData) error {
+	integration, err := i.integrations.GetByOrganizationIDAndName(ctx, data.OrganizationID, i.Name())
+	if err != nil {
+		return fmt.Errorf("failed getting integration by organization ID and name: %w", err)
+	}
 
-			integration, err := i.integrations.GetByOrganizationIDAndName(ctx, organizationID, i.Name())
-			if err != nil {
-				return fmt.Errorf("failed getting integration by organization ID and name: %w", err)
-			}
+	config, err := i.configs.GetByOrganizationID(ctx, data.OrganizationID)
+	if err != nil {
+		return fmt.Errorf("failed getting config by organization ID: %w", err)
+	}
 
-			config, err := i.configs.GetByOrganizationID(ctx, organizationID)
-			if err != nil {
-				return fmt.Errorf("failed getting config by organization ID: %w", err)
-			}
+	auth := i.OAuthConfig(config)
 
-			auth := i.OAuthConfig(config)
+	token := &oauth2.Token{AccessToken: integration.Data.Token}
 
-			token := &oauth2.Token{AccessToken: integration.Data.Token}
+	client := NewClient(token, auth)
 
-			client := NewClient(token, auth)
+	if integration.Data.ExpireAt.Add(-48 * time.Hour).Before(time.Now()) {
+		token, err = client.RefreshLongToken(ctx)
+		if err != nil {
+			return fmt.Errorf("failed getting long token")
+		}
 
-			if integration.Data.ExpireAt.Add(-48 * time.Hour).Before(time.Now()) {
-				token, err = client.RefreshLongToken(ctx)
-				if err != nil {
-					return fmt.Errorf("failed getting long token")
-				}
+		client.SetToken(token)
+	}
 
-				client.SetToken(token)
-			}
+	user, err := client.GetUser(ctx)
+	if err != nil {
+		return fmt.Errorf("failed getting user: %w", err)
+	}
 
-			user, err := client.GetUser(ctx)
-			if err != nil {
-				return fmt.Errorf("failed getting user: %w", err)
-			}
+	posts, err := client.GetPosts(ctx)
+	if err != nil {
+		return fmt.Errorf("failed getting posts: %w", err)
+	}
 
-			posts, err := client.GetPosts(ctx)
-			if err != nil {
-				return fmt.Errorf("failed getting posts: %w", err)
-			}
+	if len(posts) > 10 {
+		posts = posts[:6]
+	}
 
-			if len(posts) > 10 {
-				posts = posts[:6]
-			}
+	instagramData := Data{
+		Connected: true,
+		User:      user,
+		Posts:     posts,
+		Token:     token.AccessToken,
+		ExpireAt:  time.Now().Add(time.Duration(token.ExpiresIn) * time.Second),
+	}
 
-			instagramData := Data{
-				Connected: true,
-				User:      user,
-				Posts:     posts,
-				Token:     token.AccessToken,
-				ExpireAt:  time.Now().Add(time.Duration(token.ExpiresIn) * time.Second),
-			}
+	if err := i.Save(ctx, config.OrganizationID, instagramData); err != nil {
+		return fmt.Errorf("failed saving data: %w", err)
+	}
 
-			if err := i.Save(ctx, config.OrganizationID, instagramData); err != nil {
-				return fmt.Errorf("failed saving data: %w", err)
-			}
+	return nil
 
-			return nil
-
-		}),
-	})
 }

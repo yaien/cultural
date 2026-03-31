@@ -22,7 +22,7 @@ type Job struct {
 	Status     Status
 	CreatedAt  time.Time
 	UpdatedAt  time.Time
-	Executions []Execution
+	Executions []Execution `gorm:"type:jsonb;serializer:json"`
 	Retries    int
 }
 
