@@ -102,14 +102,14 @@ func (c *ProductsController) Show(w http.ResponseWriter, r *http.Request) {
 
 	if r.Header.Get("HX-Target") == products.PresentationsID {
 		_ = templ.Join(
-			products.Presentations(product, presentation),
-			products.Pictures(product, presentation, products.SWAPOOB),
+			products.Presentations(&product, presentation),
+			products.Pictures(&product, presentation, products.SWAPOOB),
 		).Render(ctx, w)
 
 		return
 	}
 
-	_ = products.Show(product, presentation).Render(r.Context(), w)
+	_ = products.Show(&product, presentation).Render(r.Context(), w)
 }
 
 func (c *ProductsController) CreatePresentation(w http.ResponseWriter, r *http.Request) {

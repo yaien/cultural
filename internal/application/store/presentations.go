@@ -6,18 +6,18 @@ import (
 	"strings"
 
 	"github.com/yaien/cultural/internal/lib/primitive"
+	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 
-	"github.com/yaien/cultural/internal/application/storage"
 	"github.com/yaien/cultural/internal/lib/coderror"
 )
 
 type Presentations struct {
-	repository Repository
-	strorage   *storage.Storage
+	products gorm.Interface[Product]
 }
 
-func NewPresentations(repository Repository, storage *storage.Storage) *Presentations {
-	return &Presentations{repository: repository, strorage: storage}
+func NewPresentations(db *gorm.DB) *Presentations {
+	return &Presentations{products: gorm.G[Product](db)}
 }
 
 type CreatePresentationOptions struct {
@@ -29,7 +29,12 @@ type CreatePresentationOptions struct {
 // creates a new presentation with default values, appends it to the product's presentations, and updates the product in the repository.
 // It returns the updated product and the newly created presentation.
 func (c *Presentations) Create(ctx context.Context, req *CreatePresentationOptions) (*Product, *Presentation, error) {
-	product, err := c.repository.GetByIDAndOrganizationID(ctx, req.ProductID, req.OrganizationID)
+
+	product, err := c.products.
+		Joins(clause.JoinTarget{Association: "Presentations.Contents.File"}, nil).
+		Where("id = ? and organization_id = ?", req.ProductID, req.OrganizationID).
+		First(ctx)
+
 	if err != nil {
 		return nil, nil, fmt.Errorf("error fetching product: %w", err)
 	}
@@ -41,11 +46,11 @@ func (c *Presentations) Create(ctx context.Context, req *CreatePresentationOptio
 
 	product.Presentations = append(product.Presentations, presentation)
 
-	if err = c.repository.Update(ctx, product); err != nil {
+	if _, err = c.products.Updates(ctx, product); err != nil {
 		return nil, nil, fmt.Errorf("error updating product with new presentation: %w", err)
 	}
 
-	return product, presentation, nil
+	return &product, presentation, nil
 }
 
 type UpdatePresentationOptions struct {
@@ -71,7 +76,11 @@ func (c *Presentations) Update(ctx context.Context, req *UpdatePresentationOptio
 		return nil, nil, coderror.New("invalid_presentation_price", fmt.Errorf("presentation price cannot be less than zero"))
 	}
 
-	product, err := c.repository.GetByIDAndOrganizationID(ctx, req.ProductID, req.OrganizationID)
+	product, err := c.products.
+		Joins(clause.JoinTarget{Association: "Presentations.Contents.File"}, nil).
+		Where("id = ? and organization_id = ?", req.ProductID, req.OrganizationID).
+		First(ctx)
+
 	if err != nil {
 		return nil, nil, fmt.Errorf("error fetching product: %w", err)
 	}
@@ -91,11 +100,11 @@ func (c *Presentations) Update(ctx context.Context, req *UpdatePresentationOptio
 		return nil, nil, coderror.Newf("presentation_not_found", "presentation with id %d not found", req.PresentationID)
 	}
 
-	if err = c.repository.Update(ctx, product); err != nil {
+	if _, err = c.products.Updates(ctx, product); err != nil {
 		return nil, nil, fmt.Errorf("error updating product presentation: %w", err)
 	}
 
-	return product, updated, nil
+	return &product, updated, nil
 }
 
 type DeletePresentationOptions struct {
@@ -106,7 +115,11 @@ type DeletePresentationOptions struct {
 
 // Delete removes a presentation from a product. It retrieves the product by its ID and organization ID, finds the presentation by its ID,
 func (c *Presentations) Delete(ctx context.Context, req *DeletePresentationOptions) (*Product, error) {
-	product, err := c.repository.GetByIDAndOrganizationID(ctx, req.ProductID, req.OrganizationID)
+	product, err := c.products.
+		Joins(clause.JoinTarget{Association: "Presentations.Contents.File"}, nil).
+		Where("id = ? and organization_id = ?", req.ProductID, req.OrganizationID).
+		First(ctx)
+
 	if err != nil {
 		return nil, fmt.Errorf("error fetching product: %w", err)
 	}
@@ -124,9 +137,9 @@ func (c *Presentations) Delete(ctx context.Context, req *DeletePresentationOptio
 		return nil, coderror.Newf("presentation_not_found", "presentation with id %d not found", req.ID)
 	}
 
-	if err = c.repository.Update(ctx, product); err != nil {
+	if _, err = c.products.Updates(ctx, product); err != nil {
 		return nil, fmt.Errorf("error deleting product presentation: %w", err)
 	}
 
-	return product, nil
+	return &product, nil
 }

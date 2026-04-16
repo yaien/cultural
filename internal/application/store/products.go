@@ -6,19 +6,18 @@ import (
 	"time"
 
 	"github.com/yaien/cultural/internal/lib/primitive"
+	"gorm.io/gorm"
 
 	"github.com/gosimple/slug"
-	"github.com/yaien/cultural/internal/application/storage"
 	"github.com/yaien/cultural/internal/lib/coderror"
 )
 
 type Products struct {
-	repository Repository
-	storage    *storage.Storage
+	products gorm.Interface[Product]
 }
 
-func NewProducts(repository Repository, storage *storage.Storage) *Products {
-	return &Products{repository: repository, storage: storage}
+func NewProducts(db *gorm.DB) *Products {
+	return &Products{gorm.G[Product](db)}
 }
 
 type CreateProductOptions struct {
@@ -43,15 +42,16 @@ func (c *Products) Create(ctx context.Context, req *CreateProductOptions) (*Prod
 		return nil, coderror.New("invalid_product_name", fmt.Errorf("product name cannot be empty"))
 	}
 
-	_, err := c.repository.GetBySlugAndOrganizationID(ctx, product.Slug, product.OrganizationID)
-	switch {
-	case err == nil:
-		return nil, coderror.Newf("product_already_exists", "there is already a product with name %q", product.Name)
-	case !coderror.Is(err, coderror.NotFound):
-		return nil, fmt.Errorf("failed at products get by slug and organization id: %w", err)
+	count, err := c.products.Where("slug = ? and organization_id = ?", product.Slug, product.OrganizationID).Count(ctx, "id")
+	if err != nil {
+		return nil, primitive.Error(fmt.Errorf("failed at products get by slug and organization id: %w", err))
 	}
 
-	if err := c.repository.Create(ctx, product); err != nil {
+	if count > 0 {
+		return nil, coderror.Newf("product_already_exists", "there is already a product with name %q", product.Name)
+	}
+
+	if err := c.products.Create(ctx, product); err != nil {
 		return nil, err
 	}
 
@@ -59,11 +59,11 @@ func (c *Products) Create(ctx context.Context, req *CreateProductOptions) (*Prod
 }
 
 // GetByOrganizationID retrieves all products for a given organization ID.
-func (c *Products) GetByOrganizationID(ctx context.Context, organizationID primitive.ID) ([]*Product, error) {
-	return c.repository.GetByOrganizationID(ctx, organizationID)
+func (c *Products) GetByOrganizationID(ctx context.Context, organizationID primitive.ID) ([]Product, error) {
+	return c.products.Where("organization_id = ?", organizationID).Find(ctx)
 }
 
 // GetByIDAndOrganizationID retrieves a product by its ID and organization ID.
-func (c *Products) GetByIDAndOrganizationID(ctx context.Context, id, organizationID primitive.ID) (*Product, error) {
-	return c.repository.GetByIDAndOrganizationID(ctx, id, organizationID)
+func (c *Products) GetByIDAndOrganizationID(ctx context.Context, id, organizationID primitive.ID) (Product, error) {
+	return c.products.Where("id = ? and organization_id = ?", id, organizationID).Take(ctx)
 }

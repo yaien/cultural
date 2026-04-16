@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/yaien/cultural/internal/lib/primitive"
+	"gorm.io/gorm"
 
 	"github.com/yaien/cultural/internal/application/storage"
 	"github.com/yaien/cultural/internal/lib/coderror"
@@ -16,12 +17,12 @@ import (
 var MaxFilesPerPresentation = 5
 
 type Files struct {
-	repository Repository
+	repository gorm.Interface[Product]
 	storage    *storage.Storage
 }
 
-func NewFiles(repository Repository, storage *storage.Storage) *Files {
-	return &Files{repository: repository, storage: storage}
+func NewFiles(db *gorm.DB, storage *storage.Storage) *Files {
+	return &Files{gorm.G[Product](db), storage}
 }
 
 type UploadFileOptions struct {
@@ -35,7 +36,9 @@ type UploadFileOptions struct {
 }
 
 func (c *Files) Upload(ctx context.Context, req *UploadFileOptions) (*Product, *Presentation, error) {
-	product, err := c.repository.GetByIDAndOrganizationID(ctx, req.ProductID, req.OrganizationID)
+	product, err := c.repository.
+		Preload("Presentations.Contents.File", nil).
+		Where("id = ? AND organization_id = ?", req.ProductID, req.OrganizationID).First(ctx)
 	if err != nil {
 		return nil, nil, fmt.Errorf("error fetching product: %w", err)
 	}
@@ -74,11 +77,11 @@ func (c *Files) Upload(ctx context.Context, req *UploadFileOptions) (*Product, *
 		Order:          len(presentation.Contents),
 	})
 
-	if err = c.repository.Update(ctx, product); err != nil {
+	if _, err = c.repository.Updates(ctx, product); err != nil {
 		return nil, nil, fmt.Errorf("error updating product presentation files: %w", err)
 	}
 
-	return product, presentation, nil
+	return &product, presentation, nil
 }
 
 type ToggleFilesOptions struct {
@@ -89,7 +92,11 @@ type ToggleFilesOptions struct {
 }
 
 func (c *Files) Toggle(ctx context.Context, req *ToggleFilesOptions) (*Product, *Presentation, error) {
-	product, err := c.repository.GetByIDAndOrganizationID(ctx, req.ProductID, req.OrganizationID)
+	product, err := c.repository.
+		Preload("Presentations.Contents.File", nil).
+		Where("id = ? AND organization_id = ?", req.ProductID, req.OrganizationID).
+		First(ctx)
+
 	if err != nil {
 		return nil, nil, fmt.Errorf("error fetching product: %w", err)
 	}
@@ -122,9 +129,9 @@ func (c *Files) Toggle(ctx context.Context, req *ToggleFilesOptions) (*Product, 
 
 	product.UpdatedAt = time.Now()
 
-	if err = c.repository.Update(ctx, product); err != nil {
+	if _, err = c.repository.Updates(ctx, product); err != nil {
 		return nil, nil, fmt.Errorf("error updating product presentation files: %w", err)
 	}
 
-	return product, presentation, nil
+	return &product, presentation, nil
 }

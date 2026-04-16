@@ -30,7 +30,7 @@ func New(mono *infrastructure.Monolith) *Application {
 	var app Application
 
 	app.Storage = storage.New(mono.StorageDriver, storage.NewGorm(mono.GormDB), mono.Queue)
-	app.Store = store.New(store.NewGorm(mono.GormDB), app.Storage)
+	app.Store = store.New(mono.GormDB, app.Storage)
 	app.Auth = auth.New(auth.NewGorm(mono.GormDB))
 	app.Admin = admin.New(
 		admin.NewGormRoles(mono.GormDB),
