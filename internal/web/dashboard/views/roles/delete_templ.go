@@ -63,7 +63,7 @@ func Delete(role *admin.Role) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\" hx-target=\".modal\" hx-swap=\"outerHTML swap:250ms\" hx-disabled-elt=\".actions button\"><p>¿Estás seguro de que deseas eliminar a <b>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\" hx-target=\"dialog\" hx-swap=\"outerHTML swap:250ms\" hx-disabled-elt=\".actions button\"><p>¿Estás seguro de que deseas eliminar a <b>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

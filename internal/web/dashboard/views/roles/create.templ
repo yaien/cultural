@@ -6,7 +6,7 @@ templ Create() {
 	@dashboard.Modal("Invitar Usuario") {
 		<form
 			hx-post={ templ.URL("/dashboard/roles") }
-			hx-target=".modal"
+			hx-target="dialog"
 			hx-swap="outerHTML swap:250ms"
 			hx-disable-elt="find button"
 		>

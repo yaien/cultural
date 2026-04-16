@@ -56,7 +56,7 @@ func Create() templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\" hx-target=\".modal\" hx-swap=\"outerHTML swap:250ms\" hx-disable-elt=\"find button\"><fieldset><legend>Nombre</legend> <input name=\"name\" required></fieldset><fieldset><legend>Correo</legend> <input name=\"email\" type=\"email\" required></fieldset><div class=\"actions\"><button>Invitar</button></div></form>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\" hx-target=\"dialog\" hx-swap=\"outerHTML swap:250ms\" hx-disable-elt=\"find button\"><fieldset><legend>Nombre</legend> <input name=\"name\" required></fieldset><fieldset><legend>Correo</legend> <input name=\"email\" type=\"email\" required></fieldset><div class=\"actions\"><button>Invitar</button></div></form>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

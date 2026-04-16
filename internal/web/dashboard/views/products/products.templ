@@ -9,13 +9,13 @@ import (
 	"slices"
 )
 
-templ Page(products []*store.Product) {
+templ Page(products []store.Product) {
 	@dashboard.Page("Productos") {
 		@Content(products)
 	}
 }
 
-templ Content(products []*store.Product) {
+templ Content(products []store.Product) {
 	<div class="container" data-scope="products">
 		<div class="actions">
 			<button class="clear" hx-get="/dashboard/products/create" hx-target=".container" hx-swap="beforeend">
@@ -45,7 +45,7 @@ templ Create() {
 	@dashboard.Modal("Crear Producto") {
 		<form
 			hx-post={ templ.URL("/dashboard/products") }
-			hx-target=".modal"
+			hx-target="dialog"
 			hx-swap="outerHTML swap:250ms"
 			hx-disable-elt="find button"
 		>

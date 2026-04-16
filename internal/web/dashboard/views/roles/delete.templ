@@ -13,7 +13,7 @@ templ Delete(role *admin.Role) {
 	@dashboard.Modal("Eliminar Rol") {
 		<form
 			hx-delete={ templ.URL(fmt.Sprintf("/dashboard/roles/%d", role.ID)) }
-			hx-target=".modal"
+			hx-target="dialog"
 			hx-swap="outerHTML swap:250ms"
 			hx-disabled-elt=".actions button"
 		>
