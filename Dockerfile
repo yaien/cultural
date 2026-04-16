@@ -8,6 +8,7 @@ COPY cultural .
 RUN chmod +x ./cultural
 
 RUN mkdir -p storage
+RUN mkdir -p data
 
 ENV SERVER_ADDR=:3000
 ENV STORAGE_LOCAL_PATH=/app/storage
