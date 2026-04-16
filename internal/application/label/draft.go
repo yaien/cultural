@@ -354,6 +354,10 @@ func (c *Drafts) UpdateFont(ctx context.Context, req UpdateDraftFontOptions) err
 		return fmt.Errorf("failed to get font by family: %w", err)
 	}
 
+	if draft.Fonts == nil {
+		draft.Fonts = make(map[string]*Font)
+	}
+
 	draft.Fonts[req.Tag] = font
 	draft.UpdatedAt = time.Now()
 	if err := c.drafts.Update(ctx, draft); err != nil {

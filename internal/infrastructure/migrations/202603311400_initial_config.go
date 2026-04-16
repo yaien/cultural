@@ -38,6 +38,7 @@ func init() {
 				Colors:         label.DefaultColors,
 				Pages:          label.DefaultPages,
 				Emails:         label.DefaultEmails,
+				Layouts:        label.DefaultLayouts,
 			}
 
 			if err := db.WithContext(ctx).Create(config).Error; err != nil {

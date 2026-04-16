@@ -29,7 +29,7 @@ func newGormLogger(l *slog.Logger, level logger.LogLevel) *gormLogger {
 		logger:               l,
 		logLevel:             level,
 		slowThreshold:        200 * time.Millisecond,
-		ignoreRecordNotFound: true,
+		ignoreRecordNotFound: false,
 	}
 }
 
@@ -39,7 +39,7 @@ func (l *gormLogger) LogMode(level logger.LogLevel) logger.Interface {
 	return &clone
 }
 
-func (l *gormLogger) Info(ctx context.Context, msg string, args ...interface{}) {
+func (l *gormLogger) Info(ctx context.Context, msg string, args ...any) {
 	if l.logLevel < logger.Info {
 		return
 	}
@@ -47,7 +47,7 @@ func (l *gormLogger) Info(ctx context.Context, msg string, args ...interface{}) 
 	l.logger.InfoContext(ctx, fmt.Sprintf(msg, args...))
 }
 
-func (l *gormLogger) Warn(ctx context.Context, msg string, args ...interface{}) {
+func (l *gormLogger) Warn(ctx context.Context, msg string, args ...any) {
 	if l.logLevel < logger.Warn {
 		return
 	}
@@ -55,7 +55,7 @@ func (l *gormLogger) Warn(ctx context.Context, msg string, args ...interface{}) 
 	l.logger.WarnContext(ctx, fmt.Sprintf(msg, args...))
 }
 
-func (l *gormLogger) Error(ctx context.Context, msg string, args ...interface{}) {
+func (l *gormLogger) Error(ctx context.Context, msg string, args ...any) {
 	if l.logLevel < logger.Error {
 		return
 	}

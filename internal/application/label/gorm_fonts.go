@@ -29,7 +29,7 @@ func (r *GormFonts) Find(ctx context.Context, opts *FindFontOptions) (fonts []*F
 	query := r.db.WithContext(ctx)
 
 	if opts.Family != "" {
-		query = query.Where("family ILIKE ?", "%"+opts.Family+"%")
+		query = query.Where("family LIKE ?", "%"+opts.Family+"%")
 	}
 
 	if opts.Limit == 0 {
