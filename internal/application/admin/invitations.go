@@ -3,11 +3,13 @@ package admin
 import (
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"text/template"
 	"time"
 
 	"github.com/yaien/cultural/internal/lib/primitive"
+	"gorm.io/gorm"
 
 	"github.com/yaien/cultural/internal/application/auth"
 	"github.com/yaien/cultural/internal/application/label"
@@ -33,26 +35,20 @@ type Invitation struct {
 	UserEmail       string `gorm:"index"`
 }
 
-type InvitationRepository interface {
-	GetByIDAndOrganizationID(ctx context.Context, id, organizationID primitive.ID) (*Invitation, error)
-	Create(ctx context.Context, invitation *Invitation) error
-	Update(ctx context.Context, invitation *Invitation) error
-}
-
 type Invitations struct {
-	roles         RoleRepository
-	organizations OrganizationRepository
-	groups        GroupRepository
-	invitations   InvitationRepository
+	roles         gorm.Interface[Role]
+	organizations gorm.Interface[Organization]
+	groups        gorm.Interface[Group]
+	invitations   gorm.Interface[Invitation]
 	mail          mail.Mail
 }
 
-func NewInvitations(roles RoleRepository, organizations OrganizationRepository, groups GroupRepository, invitations InvitationRepository, mail mail.Mail) *Invitations {
+func NewInvitations(db *gorm.DB, mail mail.Mail) *Invitations {
 	return &Invitations{
-		roles:         roles,
-		organizations: organizations,
-		groups:        groups,
-		invitations:   invitations,
+		roles:         gorm.G[Role](db),
+		organizations: gorm.G[Organization](db),
+		groups:        gorm.G[Group](db),
+		invitations:   gorm.G[Invitation](db),
 		mail:          mail,
 	}
 }
@@ -78,14 +74,18 @@ type InvitationEmailData struct {
 
 func (c *Invitations) Create(ctx context.Context, req *CreateInvitationOptions) (*Invitation, error) {
 
-	organization, err := c.organizations.GetByID(ctx, req.Config.OrganizationID)
+	if req.Config == nil {
+		return nil, fmt.Errorf("config is required")
+	}
+
+	organization, err := c.organizations.Where("id = ?", req.Config.OrganizationID).First(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("organization not found: %w", err)
 	}
 
 	// validate role group if provided
 	if req.RoleGroupID != nil {
-		_, err = c.groups.GetByIDAndOrganizationID(ctx, *req.RoleGroupID, req.Config.OrganizationID)
+		_, err = c.groups.Where("id = ? AND organization_id = ?", *req.RoleGroupID, req.Config.OrganizationID).First(ctx)
 		if err != nil {
 			return nil, fmt.Errorf("group not found in organization: %w", err)
 		}
@@ -93,7 +93,7 @@ func (c *Invitations) Create(ctx context.Context, req *CreateInvitationOptions) 
 
 	// validate creator permissions if creator is provided
 	if req.CreatorID != 0 {
-		role, err := c.roles.GetByUserIDAndOrganizationID(ctx, req.CreatorID, req.Config.OrganizationID)
+		role, err := c.roles.Where("user_id = ? AND organization_id = ?", req.CreatorID, req.Config.OrganizationID).First(ctx)
 		if err != nil {
 			return nil, fmt.Errorf("creator role not found in organization: %w", err)
 		}
@@ -180,7 +180,7 @@ type AcceptInvitationOptions struct {
 }
 
 func (c *Invitations) Accept(ctx context.Context, req *AcceptInvitationOptions) error {
-	invitation, err := c.invitations.GetByIDAndOrganizationID(ctx, req.InvitationID, req.OrganizationID)
+	invitation, err := c.invitations.Where("id = ? AND organization_id = ?", req.InvitationID, req.OrganizationID).First(ctx)
 	if err != nil {
 		return fmt.Errorf("failed getting invitation: %w", err)
 	}
@@ -196,12 +196,11 @@ func (c *Invitations) Accept(ctx context.Context, req *AcceptInvitationOptions) 
 	now := time.Now()
 	invitation.AcceptedAt = &now
 
-	err = c.invitations.Update(ctx, invitation)
-	if err != nil {
+	if _, err = c.invitations.Updates(ctx, invitation); err != nil {
 		return fmt.Errorf("failed updating invitation: %w", err)
 	}
 
-	role, err := c.roles.GetByUserIDAndOrganizationID(ctx, req.UserID, req.OrganizationID)
+	role, err := c.roles.Where("user_id = ? AND organization_id = ?", req.UserID, req.OrganizationID).First(ctx)
 
 	switch {
 	case err == nil:
@@ -210,15 +209,14 @@ func (c *Invitations) Accept(ctx context.Context, req *AcceptInvitationOptions) 
 		role.GroupID = invitation.RoleGroupID
 		role.UpdatedAt = time.Now()
 
-		err = c.roles.Update(ctx, role)
-		if err != nil {
+		if _, err = c.roles.Updates(ctx, role); err != nil {
 			return fmt.Errorf("failed updating role: %w", err)
 		}
 
 		return nil
 
-	case coderror.Is(err, coderror.NotFound):
-		role = &Role{
+	case errors.Is(err, gorm.ErrRecordNotFound):
+		role = Role{
 			UserID:         req.UserID,
 			OrganizationID: req.OrganizationID,
 			Name:           invitation.RoleName,
@@ -228,7 +226,7 @@ func (c *Invitations) Accept(ctx context.Context, req *AcceptInvitationOptions) 
 			UpdatedAt:      time.Now(),
 		}
 
-		err = c.roles.Create(ctx, role)
+		err = c.roles.Create(ctx, &role)
 		if err != nil {
 			return fmt.Errorf("failed creating role: %w", err)
 		}

@@ -46,7 +46,7 @@ func (c *PagesController) Index(w http.ResponseWriter, r *http.Request) {
 
 	state := &pages.State{
 		Config:             config,
-		Draft:              draft,
+		Draft:              &draft,
 		SelectedType:       pages.SelectedType(query.Get(pages.SelectedTypeQuery)),
 		SelectedKey:        query.Get(pages.SelectedKeyQuery),
 		SelectedFileName:   query.Get(pages.FileQuery),
@@ -54,20 +54,20 @@ func (c *PagesController) Index(w http.ResponseWriter, r *http.Request) {
 		SelectedFontKey:    query.Get(pages.FontKeyQuery),
 		Section:            query.Get(pages.SectionQuery),
 		FileURL:            storage.FileURL,
-		Files: func() ([]*storage.File, error) {
+		Files: func() ([]storage.File, error) {
 			return c.storage.GetByOrganizationID(ctx, config.OrganizationID)
 		},
-		File: func(name string) (*storage.File, error) {
+		File: func(name string) (storage.File, error) {
 			return c.storage.GetByOrganizationIDAndName(ctx, config.OrganizationID, name)
 		},
-		Fonts: func(family string, limit, offset int64) ([]*label.Font, error) {
+		Fonts: func(family string, limit, offset int) ([]label.Font, error) {
 			return c.fonts.Find(ctx, &label.FindFontOptions{
 				Family: family,
 				Limit:  limit,
-				Offset: int64(offset),
+				Offset: offset,
 			})
 		},
-		Font: func(family string) (*label.Font, error) {
+		Font: func(family string) (label.Font, error) {
 			return c.fonts.GetByFamily(ctx, family)
 		},
 	}
@@ -123,7 +123,7 @@ func (c *PagesController) Preview(w http.ResponseWriter, r *http.Request) {
 		Key:    query.Get(pages.SelectedKeyQuery),
 		Type:   query.Get(pages.SelectedTypeQuery),
 		Config: config,
-		Draft:  draft,
+		Draft:  &draft,
 	})
 
 	if err != nil {
@@ -284,7 +284,7 @@ func (c *PagesController) CommitDraft(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := c.drafts.Commit(ctx, config); err != nil {
+	if err := c.drafts.Commit(ctx, *config); err != nil {
 		WriteHTMLErr(w, fmt.Errorf("failed committing draft: %w", err))
 		return
 	}

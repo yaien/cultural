@@ -5,6 +5,7 @@ import (
 
 	"github.com/yaien/cultural/internal/application/integration"
 	"github.com/yaien/cultural/internal/application/label"
+	"gorm.io/gorm"
 )
 
 var _ interface {
@@ -22,14 +23,16 @@ type Data struct {
 	ExpireAt  time.Time
 }
 
+type Integration = integration.Integration[Data]
+
 type Instagram struct {
-	integrations integration.Repository[Data]
+	integrations gorm.Interface[Integration]
 	configs      *label.Configs
 }
 
-func Mew(its integration.Repository[Data], configs *label.Configs) *Instagram {
+func New(db *gorm.DB, configs *label.Configs) *Instagram {
 	return &Instagram{
-		integrations: its,
+		integrations: gorm.G[Integration](db),
 		configs:      configs,
 	}
 }

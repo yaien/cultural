@@ -1,7 +1,6 @@
 package store
 
 import (
-	"context"
 	"time"
 
 	"github.com/yaien/cultural/internal/lib/primitive"
@@ -36,14 +35,6 @@ type Content struct {
 	FileID         primitive.ID
 	File           storage.File
 	Order          int
-}
-
-type Repository interface {
-	Create(ctx context.Context, product *Product) error
-	Update(ctx context.Context, product *Product) error
-	GetByOrganizationID(ctx context.Context, organizationID primitive.ID) ([]*Product, error)
-	GetByIDAndOrganizationID(ctx context.Context, productID, organizationID primitive.ID) (*Product, error)
-	GetBySlugAndOrganizationID(ctx context.Context, slug string, organizationID primitive.ID) (*Product, error)
 }
 
 type Store struct {

@@ -35,7 +35,7 @@ func BrowseFonts(state *State) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		limit := int64(15)
+		limit := 15
 		fonts, err := state.Fonts("", limit, 0)
 		if err != nil {
 			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"error\">Error al cargar las fuentes: ")
@@ -159,7 +159,7 @@ func BrowseFonts(state *State) templ.Component {
 	})
 }
 
-func FontList(fonts []*label.Font, family string, limit int64, offset int64) templ.Component {
+func FontList(fonts []label.Font, family string, limit int, offset int) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {

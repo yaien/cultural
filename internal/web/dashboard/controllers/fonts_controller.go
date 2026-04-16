@@ -23,13 +23,13 @@ func (c *FontsController) List(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query()
 	family := query.Get("family")
 
-	limit, err := strconv.ParseInt(query.Get("limit"), 10, 64)
+	limit, err := strconv.Atoi(query.Get("limit"))
 	if err != nil {
 		http.Error(w, "Invalid limit parameter", http.StatusBadRequest)
 		return
 	}
 
-	offset, err := strconv.ParseInt(query.Get("offset"), 10, 64)
+	offset, err := strconv.Atoi(query.Get("offset"))
 	if err != nil {
 		http.Error(w, "Invalid offset parameter", http.StatusBadRequest)
 		return

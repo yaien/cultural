@@ -1,10 +1,10 @@
 package auth
 
 import (
-	"context"
 	"time"
 
 	"github.com/yaien/cultural/internal/lib/primitive"
+	"gorm.io/gorm"
 )
 
 type Account struct {
@@ -29,21 +29,14 @@ type User struct {
 	Accounts  map[string]*Account `gorm:"type:jsonb;serializer:json"`
 }
 
-type Repository interface {
-	GetByID(ctx context.Context, id primitive.ID) (*User, error)
-	GetByEmail(ctx context.Context, email string) (*User, error)
-	Create(ctx context.Context, user *User) error
-	Update(ctx context.Context, user *User) error
-}
-
 type Auth struct {
 	Users    *Users
 	Accounts *Accounts
 }
 
-func New(repo Repository) *Auth {
+func New(db *gorm.DB) *Auth {
 	return &Auth{
-		Users:    NewUsers(repo),
-		Accounts: NewAccounts(repo),
+		Users:    NewUsers(db),
+		Accounts: NewAccounts(db),
 	}
 }

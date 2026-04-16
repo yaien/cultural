@@ -40,7 +40,7 @@ templ Files(state *State) {
 	</div>
 }
 
-templ FileGrid(files []*storage.File, url FileURLFunc) {
+templ FileGrid(files []storage.File, url FileURLFunc) {
 	for _, file := range slices.Backward(files) {
 		<div class="item" hx-vals={ fmt.Sprintf("{ %q: %q, %q: %q }", FileQuery, file.Name, SectionQuery, FileSection) }>
 			<x-hover-play>

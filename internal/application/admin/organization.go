@@ -1,7 +1,6 @@
 package admin
 
 import (
-	"context"
 	"time"
 
 	"github.com/yaien/cultural/internal/lib/primitive"
@@ -12,8 +11,4 @@ type Organization struct {
 	Name      string
 	CreatedAt time.Time
 	UpdatedAt time.Time
-}
-
-type OrganizationRepository interface {
-	GetByID(ctx context.Context, id primitive.ID) (*Organization, error)
 }

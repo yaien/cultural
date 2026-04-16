@@ -6,34 +6,34 @@ import (
 	"time"
 
 	"github.com/yaien/cultural/internal/lib/coderror"
+	"gorm.io/gorm"
 )
 
 type Accounts struct {
-	repository Repository
+	repository gorm.Interface[User]
 }
 
-func NewAccounts(repository Repository) *Accounts {
-	return &Accounts{repository: repository}
+func NewAccounts(db *gorm.DB) *Accounts {
+	return &Accounts{gorm.G[User](db)}
 }
 
-func (c *Accounts) Sync(ctx context.Context, account *Account) (*User, error) {
-	u, err := c.repository.GetByEmail(ctx, account.Email)
+func (c *Accounts) Sync(ctx context.Context, account *Account) (User, error) {
+	user, err := c.repository.Where("email = ?", account.Email).Take(ctx)
 
 	switch {
 	case err == nil:
 
-		u.Accounts[account.Provider] = account
+		user.Accounts[account.Provider] = account
 
-		err = c.repository.Update(ctx, u)
-		if err != nil {
-			return nil, fmt.Errorf("failed updating user: %w", err)
+		if _, err = c.repository.Updates(ctx, user); err != nil {
+			return user, fmt.Errorf("failed updating user: %w", err)
 		}
 
-		return u, nil
+		return user, nil
 
 	case coderror.Is(err, coderror.NotFound):
 
-		u = &User{
+		user = User{
 			Email:     account.Email,
 			Name:      account.Name,
 			AvatarUrl: account.AvatarUrl,
@@ -42,14 +42,14 @@ func (c *Accounts) Sync(ctx context.Context, account *Account) (*User, error) {
 			UpdatedAt: time.Now(),
 		}
 
-		err = c.repository.Create(ctx, u)
+		err = c.repository.Create(ctx, &user)
 		if err != nil {
-			return nil, fmt.Errorf("failed creating user: %w", err)
+			return user, fmt.Errorf("failed creating user: %w", err)
 		}
 
-		return u, nil
+		return user, nil
 
 	default:
-		return nil, fmt.Errorf("failed getting user by email: %w", err)
+		return user, fmt.Errorf("failed getting user by email: %w", err)
 	}
 }

@@ -7,6 +7,7 @@ import (
 
 	"github.com/yaien/cultural/internal/application/auth"
 	"github.com/yaien/cultural/internal/lib/primitive"
+	"gorm.io/gorm"
 
 	"github.com/yaien/cultural/internal/lib/coderror"
 )
@@ -24,34 +25,30 @@ type Role struct {
 	DeletedAt      *time.Time
 }
 
-type RoleRepository interface {
-	CountAdminsByOrganizationID(ctx context.Context, organizationID primitive.ID) (int64, error)
-	GetByIDAndOrganizationID(ctx context.Context, id, organizationID primitive.ID) (*Role, error)
-	GetByUserIDAndOrganizationID(ctx context.Context, id, organizationID primitive.ID) (*Role, error)
-	GetByOrganizationID(ctx context.Context, id primitive.ID) ([]Role, error)
-	Create(ctx context.Context, role *Role) error
-	Update(ctx context.Context, role *Role) error
-	Delete(ctx context.Context, role *Role) error
-}
-
 type Roles struct {
-	repository RoleRepository
+	repository gorm.Interface[Role]
 }
 
-func NewRoles(repository RoleRepository) *Roles {
-	return &Roles{repository: repository}
+func NewRoles(db *gorm.DB) *Roles {
+	return &Roles{gorm.G[Role](db)}
 }
 
 func (q *Roles) GetByOrganizationID(ctx context.Context, organizationID primitive.ID) ([]Role, error) {
-	return q.repository.GetByOrganizationID(ctx, organizationID)
+	return q.repository.
+		Preload("User", nil).
+		Where("organization_id = ?", organizationID).Find(ctx)
 }
 
-func (q *Roles) GetByUserIDAndOrganizationID(ctx context.Context, userID, organizationID primitive.ID) (*Role, error) {
-	return q.repository.GetByUserIDAndOrganizationID(ctx, userID, organizationID)
+func (q *Roles) GetByUserIDAndOrganizationID(ctx context.Context, userID, organizationID primitive.ID) (Role, error) {
+	return q.repository.
+		Preload("User", nil).
+		Where("user_id = ? AND organization_id = ?", userID, organizationID).First(ctx)
 }
 
-func (c *Roles) GetByIDAndOrganizationID(ctx context.Context, id, organizationID primitive.ID) (*Role, error) {
-	return c.repository.GetByIDAndOrganizationID(ctx, id, organizationID)
+func (c *Roles) GetByIDAndOrganizationID(ctx context.Context, id, organizationID primitive.ID) (Role, error) {
+	return c.repository.
+		Preload("User", nil).
+		Where("id = ? AND organization_id = ?", id, organizationID).First(ctx)
 }
 
 func (c *Roles) Create(ctx context.Context, role *Role) error {
@@ -77,7 +74,10 @@ func (c *Roles) Delete(ctx context.Context, req *DeleteRoleOptions) error {
 		return coderror.Newf("permission_denied", "no tienes permiso para eliminar roles")
 	}
 
-	count, err := c.repository.CountAdminsByOrganizationID(ctx, req.OrganizationID)
+	count, err := c.repository.
+		Where("organization_id = ? AND permissions = ?", req.OrganizationID, "*").
+		Count(ctx, "*")
+
 	if err != nil {
 		return fmt.Errorf("failed to count roles: %w", err)
 	}
@@ -86,14 +86,13 @@ func (c *Roles) Delete(ctx context.Context, req *DeleteRoleOptions) error {
 		return coderror.Newf("last_admin_deletion", "no puedes eliminar el último rol de administrador")
 	}
 
-	role, err := c.repository.GetByIDAndOrganizationID(ctx, req.TargetRoleID, req.OrganizationID)
-	if err != nil {
-		return fmt.Errorf("failed to get role: %w", err)
-	}
-
-	err = c.repository.Delete(ctx, role)
+	deleted, err := c.repository.Where("id = ? AND organization_id = ?", req.TargetRoleID, req.OrganizationID).Delete(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to delete role: %w", err)
+	}
+
+	if deleted == 0 {
+		return coderror.Newf("not_found", "no se encontró el rol a eliminar")
 	}
 
 	return nil

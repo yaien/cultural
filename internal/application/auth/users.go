@@ -4,16 +4,17 @@ import (
 	"context"
 
 	"github.com/yaien/cultural/internal/lib/primitive"
+	"gorm.io/gorm"
 )
 
 type Users struct {
-	repository Repository
+	repository gorm.Interface[User]
 }
 
-func NewUsers(repository Repository) *Users {
-	return &Users{repository: repository}
+func NewUsers(db *gorm.DB) *Users {
+	return &Users{gorm.G[User](db)}
 }
 
-func (c *Users) GetByID(ctx context.Context, id primitive.ID) (*User, error) {
-	return c.repository.GetByID(ctx, id)
+func (c *Users) GetByID(ctx context.Context, id primitive.ID) (User, error) {
+	return c.repository.Where("id = ?", id).Take(ctx)
 }

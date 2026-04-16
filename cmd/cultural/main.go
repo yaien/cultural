@@ -152,7 +152,7 @@ func invite() *cobra.Command {
 			}
 
 			opts := &admin.CreateInvitationOptions{
-				Config:          config,
+				Config:          &config,
 				UserEmail:       args[0],
 				UserDisplayName: args[1],
 				RolePermissions: []string{"*"},

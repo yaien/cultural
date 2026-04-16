@@ -7,7 +7,7 @@ import (
 )
 
 templ BrowseFonts(state *State) {
-	{{ limit := int64(15) }}
+	{{ limit := 15 }}
 	{{ fonts, err := state.Fonts("", limit, 0) }}
 	if err != nil {
 		<div class="error">Error al cargar las fuentes: { err.Error() }</div>
@@ -46,7 +46,7 @@ templ BrowseFonts(state *State) {
 	</div>
 }
 
-templ FontList(fonts []*label.Font, family string, limit int64, offset int64) {
+templ FontList(fonts []label.Font, family string, limit int, offset int) {
 	for index, font := range fonts {
 		<div
 			class="font"

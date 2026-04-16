@@ -106,7 +106,7 @@ func (c *RolesController) ShowDelete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_ = roles.Delete(role).Render(ctx, w)
+	_ = roles.Delete(&role).Render(ctx, w)
 
 }
 

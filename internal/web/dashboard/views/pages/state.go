@@ -38,10 +38,10 @@ type State struct {
 	Section            string
 }
 
-type FileFunc func(filename string) (*storage.File, error)
-type FontFunc func(fontFamily string) (*label.Font, error)
-type FontsFunc func(family string, limit, offset int64) ([]*label.Font, error)
-type FilesFunc func() ([]*storage.File, error)
+type FileFunc func(filename string) (storage.File, error)
+type FontFunc func(fontFamily string) (label.Font, error)
+type FontsFunc func(family string, limit, offset int) ([]label.Font, error)
+type FilesFunc func() ([]storage.File, error)
 type FileURLFunc storage.URLFunc
 
 func (c *State) PageIsDefault() bool {

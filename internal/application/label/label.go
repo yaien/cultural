@@ -1,6 +1,9 @@
 package label
 
-import "github.com/yaien/cultural/internal/lib/cache"
+import (
+	"github.com/yaien/cultural/internal/lib/cache"
+	"gorm.io/gorm"
+)
 
 type Cache = cache.Cache[*Config]
 
@@ -10,10 +13,10 @@ type Label struct {
 	Drafts  *Drafts
 }
 
-func New(fonts FontRepository, configs ConfigRepository, drafts DraftRepository, ch *Cache) *Label {
+func New(db *gorm.DB, ch *Cache) *Label {
 	return &Label{
-		Fonts:   NewFonts(fonts),
-		Configs: NewConfigs(configs),
-		Drafts:  NewDrafts(drafts, configs, fonts, ch),
+		Fonts:   NewFonts(db),
+		Configs: NewConfigs(db),
+		Drafts:  NewDrafts(db, ch),
 	}
 }

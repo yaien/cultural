@@ -11,7 +11,7 @@ type TaskData struct {
 	FileID primitive.ID `json:"file_id"`
 }
 
-func NewTask(file *File) worker.Task {
+func NewTask(file File) worker.Task {
 	return worker.Task{
 		Name: TaskName,
 		Data: TaskData{

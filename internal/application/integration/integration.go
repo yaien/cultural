@@ -31,13 +31,6 @@ type GetOptions struct {
 	Name           string
 }
 
-type Repository[T any] interface {
-	Create(ctx context.Context, i *Integration[T]) error
-	Update(ctx context.Context, i *Integration[T]) error
-	GetByOrganizationIDAndName(ctx context.Context, id primitive.ID, name string) (*Integration[T], error)
-	GetByName(ctx context.Context, name string) ([]*Integration[T], error)
-}
-
 type Definition interface {
 	Name() string
 	Title() string

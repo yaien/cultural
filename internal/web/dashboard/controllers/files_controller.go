@@ -34,7 +34,7 @@ func (fc *FilesController) Upload(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	config := ctx.Value(middlewares.ConfigContextKey).(*label.Config)
 
-	var files []*storage.File
+	var files []storage.File
 
 	for _, handler := range r.MultipartForm.File["files"] {
 		data, err := handler.Open()

@@ -1,15 +1,18 @@
 package admin
 
-import "github.com/yaien/cultural/internal/lib/mail"
+import (
+	"github.com/yaien/cultural/internal/lib/mail"
+	"gorm.io/gorm"
+)
 
 type Admin struct {
 	Invitations *Invitations
 	Roles       *Roles
 }
 
-func New(roles RoleRepository, organizations OrganizationRepository, invitations InvitationRepository, groups GroupRepository, m mail.Mail) *Admin {
+func New(db *gorm.DB, m mail.Mail) *Admin {
 	return &Admin{
-		Invitations: NewInvitations(roles, organizations, groups, invitations, m),
-		Roles:       NewRoles(roles),
+		Invitations: NewInvitations(db, m),
+		Roles:       NewRoles(db),
 	}
 }

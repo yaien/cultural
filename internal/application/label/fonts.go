@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/yaien/cultural/internal/lib/primitive"
+	"gorm.io/gorm"
 )
 
 type Font struct {
@@ -22,27 +23,26 @@ type Font struct {
 
 type FindFontOptions struct {
 	Family string
-	Offset int64
-	Limit  int64
-}
-
-type FontRepository interface {
-	Find(ctx context.Context, opts *FindFontOptions) ([]*Font, error)
-	GetByFamily(ctx context.Context, family string) (*Font, error)
+	Offset int
+	Limit  int
 }
 
 type Fonts struct {
-	fonts FontRepository
+	fonts gorm.Interface[Font]
 }
 
-func NewFonts(fonts FontRepository) *Fonts {
-	return &Fonts{fonts: fonts}
+func NewFonts(db *gorm.DB) *Fonts {
+	return &Fonts{gorm.G[Font](db)}
 }
 
-func (s *Fonts) GetByFamily(ctx context.Context, family string) (*Font, error) {
-	return s.fonts.GetByFamily(ctx, family)
+func (s *Fonts) GetByFamily(ctx context.Context, family string) (Font, error) {
+	return s.fonts.Where("family = ?", family).Take(ctx)
 }
 
-func (s *Fonts) Find(ctx context.Context, opts *FindFontOptions) ([]*Font, error) {
-	return s.fonts.Find(ctx, opts)
+func (s *Fonts) Find(ctx context.Context, opts *FindFontOptions) ([]Font, error) {
+	return s.fonts.
+		Where("family like ?", "%"+opts.Family+"%").
+		Limit(opts.Limit).
+		Offset(opts.Offset).
+		Find(ctx)
 }

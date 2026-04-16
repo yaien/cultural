@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/yaien/cultural/internal/lib/primitive"
+	"gorm.io/gorm"
 )
 
 type Config struct {
@@ -23,28 +24,23 @@ type Config struct {
 	Colors         []*Color           `gorm:"type:jsonb;serializer:json"`
 }
 
-type ConfigRepository interface {
-	GetByHost(ctx context.Context, host string) (*Config, error)
-	GetByOrganizationID(ctx context.Context, id primitive.ID) (*Config, error)
-	Update(ctx context.Context, config *Config) error
-}
-
 type Configs struct {
-	configs ConfigRepository
+	configs gorm.Interface[Config]
 }
 
-func NewConfigs(configs ConfigRepository) *Configs {
-	return &Configs{configs: configs}
+func NewConfigs(db *gorm.DB) *Configs {
+	return &Configs{gorm.G[Config](db)}
 }
 
-func (c *Configs) GetByHost(ctx context.Context, host string) (*Config, error) {
-	return c.configs.GetByHost(ctx, host)
+func (c *Configs) GetByHost(ctx context.Context, host string) (Config, error) {
+	return c.configs.Where("host = ?", host).Take(ctx)
 }
 
-func (c *Configs) GetByOrganizationID(ctx context.Context, organizationID primitive.ID) (*Config, error) {
-	return c.configs.GetByOrganizationID(ctx, organizationID)
+func (c *Configs) GetByOrganizationID(ctx context.Context, organizationID primitive.ID) (Config, error) {
+	return c.configs.Where("organization_id = ?", organizationID).Take(ctx)
 }
 
-func (c *Configs) Update(ctx context.Context, config *Config) error {
-	return c.configs.Update(ctx, config)
+func (c *Configs) Update(ctx context.Context, config Config) error {
+	_, err := c.configs.Updates(ctx, config)
+	return err
 }

@@ -7,6 +7,7 @@ import (
 
 	"github.com/yaien/cultural/internal/lib/cache"
 	"github.com/yaien/cultural/internal/lib/primitive"
+	"gorm.io/gorm"
 )
 
 type Draft struct {
@@ -22,28 +23,30 @@ type Draft struct {
 	Colors    []*Color           `gorm:"type:jsonb;serializer:json"`
 }
 
-type DraftRepository interface {
-	Update(ctx context.Context, draft *Draft) error
-	GetByConfigID(ctx context.Context, id primitive.ID) (*Draft, error)
-}
+
 
 type Drafts struct {
-	drafts  DraftRepository
-	configs ConfigRepository
-	fonts   FontRepository
+	drafts  gorm.Interface[Draft]
+	configs gorm.Interface[Config]
+	fonts   gorm.Interface[Font]
 	cache   *cache.Cache[*Config]
 }
 
-func NewDrafts(drafts DraftRepository, configs ConfigRepository, fonts FontRepository, ch *cache.Cache[*Config]) *Drafts {
-	return &Drafts{drafts: drafts, configs: configs, fonts: fonts, cache: ch}
+func NewDrafts(db *gorm.DB, ch *Cache) *Drafts {
+	return &Drafts{
+		drafts:  gorm.G[Draft](db),
+		configs: gorm.G[Config](db),
+		fonts:   gorm.G[Font](db),
+		cache:   ch,
+	}
 }
 
-func (c *Drafts) GetByConfigID(ctx context.Context, configID primitive.ID) (*Draft, error) {
-	return c.drafts.GetByConfigID(ctx, configID)
+func (c *Drafts) GetByConfigID(ctx context.Context, configID primitive.ID) (Draft, error) {
+	return c.drafts.Where("config_id = ?", configID).First(ctx)
 }
 
 func (c *Drafts) CreateColor(ctx context.Context, configID primitive.ID) (*Color, error) {
-	draft, err := c.drafts.GetByConfigID(ctx, configID)
+	draft, err := c.drafts.Where("config_id = ?", configID).First(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get draft: %w", err)
 	}
@@ -55,7 +58,7 @@ func (c *Drafts) CreateColor(ctx context.Context, configID primitive.ID) (*Color
 
 	draft.Colors = append(draft.Colors, color)
 	draft.UpdatedAt = time.Now()
-	if err = c.drafts.Update(ctx, draft); err != nil {
+	if _, err = c.drafts.Updates(ctx, draft); err != nil {
 		return nil, fmt.Errorf("failed updating draft: %w", err)
 	}
 
@@ -86,7 +89,7 @@ type UpdateDraftColorOptions struct {
 }
 
 func (c *Drafts) UpdateColor(ctx context.Context, req *UpdateDraftColorOptions) error {
-	draft, err := c.drafts.GetByConfigID(ctx, req.ConfigID)
+	draft, err := c.drafts.Where("config_id = ?", req.ConfigID).First(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to get draft: %w", err)
 	}
@@ -115,7 +118,7 @@ func (c *Drafts) UpdateColor(ctx context.Context, req *UpdateDraftColorOptions) 
 
 	draft.UpdatedAt = time.Now()
 
-	if err = c.drafts.Update(ctx, draft); err != nil {
+	if _, err = c.drafts.Updates(ctx, draft); err != nil {
 		return fmt.Errorf("failed updating draft: %w", err)
 	}
 
@@ -123,7 +126,7 @@ func (c *Drafts) UpdateColor(ctx context.Context, req *UpdateDraftColorOptions) 
 }
 
 func (c *Drafts) DeleteColor(ctx context.Context, configID primitive.ID, id primitive.UUID) error {
-	draft, err := c.drafts.GetByConfigID(ctx, configID)
+	draft, err := c.drafts.Where("config_id = ?", configID).First(ctx)
 	if err != nil {
 		return err
 	}
@@ -142,7 +145,11 @@ func (c *Drafts) DeleteColor(ctx context.Context, configID primitive.ID, id prim
 	}
 
 	draft.UpdatedAt = time.Now()
-	return c.drafts.Update(ctx, draft)
+
+	if _, err = c.drafts.Updates(ctx, draft); err != nil {
+		return fmt.Errorf("failed updating draft: %w", err)
+	}
+	return nil
 }
 
 type CreateDraftModelOptions struct {
@@ -158,12 +165,12 @@ type CreateDraftModelResult struct {
 }
 
 func (c *Drafts) CreateModel(ctx context.Context, req CreateDraftModelOptions) (*CreateDraftModelResult, error) {
-	draft, err := c.drafts.GetByConfigID(ctx, req.ConfigID)
+	draft, err := c.drafts.Where("config_id = ?", req.ConfigID).First(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get draft: %w", err)
 	}
 
-	res := CreateDraftModelResult{Draft: draft}
+	res := CreateDraftModelResult{Draft: &draft}
 
 	switch req.Type {
 	case DraftPageModelType:
@@ -197,7 +204,8 @@ func (c *Drafts) CreateModel(ctx context.Context, req CreateDraftModelOptions) (
 	}
 
 	draft.UpdatedAt = time.Now()
-	if err := c.drafts.Update(ctx, draft); err != nil {
+
+	if _, err := c.drafts.Updates(ctx, draft); err != nil {
 		return nil, fmt.Errorf("failed to update draft: %w", err)
 	}
 
@@ -217,12 +225,12 @@ type DeleteDraftModelResult struct {
 }
 
 func (c *Drafts) DeleteModel(ctx context.Context, req DeleteDraftModelOptions) (*DeleteDraftModelResult, error) {
-	draft, err := c.drafts.GetByConfigID(ctx, req.ConfigID)
+	draft, err := c.drafts.Where("config_id = ?", req.ConfigID).First(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get draft: %w", err)
 	}
 
-	res := DeleteDraftModelResult{Draft: draft}
+	res := DeleteDraftModelResult{Draft: &draft}
 
 	switch req.Type {
 	case DraftPageModelType:
@@ -261,7 +269,7 @@ func (c *Drafts) DeleteModel(ctx context.Context, req DeleteDraftModelOptions) (
 
 	draft.UpdatedAt = time.Now()
 
-	if err := c.drafts.Update(ctx, draft); err != nil {
+	if _, err := c.drafts.Updates(ctx, draft); err != nil {
 		return nil, fmt.Errorf("failed to update draft: %w", err)
 	}
 
@@ -282,7 +290,7 @@ type UpdateDraftBasicOptions struct {
 }
 
 func (c *Drafts) UpdateBasic(ctx context.Context, req UpdateDraftBasicOptions) error {
-	draft, err := c.drafts.GetByConfigID(ctx, req.ConfigID)
+	draft, err := c.drafts.Where("config_id = ?", req.ConfigID).First(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to get draft: %w", err)
 	}
@@ -326,7 +334,7 @@ func (c *Drafts) UpdateBasic(ctx context.Context, req UpdateDraftBasicOptions) e
 
 	draft.UpdatedAt = time.Now()
 
-	if err := c.drafts.Update(ctx, draft); err != nil {
+	if _, err := c.drafts.Updates(ctx, draft); err != nil {
 		return fmt.Errorf("failed to update draft: %w", err)
 	}
 
@@ -344,12 +352,12 @@ func (c *Drafts) UpdateFont(ctx context.Context, req UpdateDraftFontOptions) err
 		return fmt.Errorf("tag cannot be empty")
 	}
 
-	draft, err := c.drafts.GetByConfigID(ctx, req.ConfigID)
+	draft, err := c.drafts.Where("config_id = ?", req.ConfigID).First(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to get draft by config ID: %w", err)
 	}
 
-	font, err := c.fonts.GetByFamily(ctx, req.Family)
+	font, err := c.fonts.Where("family = ?", req.Family).First(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to get font by family: %w", err)
 	}
@@ -358,9 +366,10 @@ func (c *Drafts) UpdateFont(ctx context.Context, req UpdateDraftFontOptions) err
 		draft.Fonts = make(map[string]*Font)
 	}
 
-	draft.Fonts[req.Tag] = font
+	draft.Fonts[req.Tag] = &font
 	draft.UpdatedAt = time.Now()
-	if err := c.drafts.Update(ctx, draft); err != nil {
+
+	if _, err := c.drafts.Updates(ctx, draft); err != nil {
 		return fmt.Errorf("failed to update draft: %w", err)
 	}
 
@@ -376,7 +385,7 @@ type UpdateDraftSourceOptions struct {
 }
 
 func (c *Drafts) UpdateSource(ctx context.Context, req *UpdateDraftSourceOptions) error {
-	draft, err := c.drafts.GetByConfigID(ctx, req.ConfigID)
+	draft, err := c.drafts.Where("config_id = ?", req.ConfigID).First(ctx)
 	if err != nil {
 		return fmt.Errorf("draft not found: %w", err)
 	}
@@ -433,15 +442,15 @@ func (c *Drafts) UpdateSource(ctx context.Context, req *UpdateDraftSourceOptions
 		return fmt.Errorf("invalid model type: %s", req.ModelType)
 	}
 
-	if err := c.drafts.Update(ctx, draft); err != nil {
+	if _, err := c.drafts.Updates(ctx, draft); err != nil {
 		return fmt.Errorf("failed to update draft: %w", err)
 	}
 
 	return nil
 }
 
-func (c *Drafts) Commit(ctx context.Context, config *Config) error {
-	draft, err := c.drafts.GetByConfigID(ctx, config.ID)
+func (c *Drafts) Commit(ctx context.Context, config Config) error {
+	draft, err := c.drafts.Where("config_id = ?", config.ID).First(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to get draft: %w", err)
 	}
@@ -453,7 +462,7 @@ func (c *Drafts) Commit(ctx context.Context, config *Config) error {
 	config.Layouts = draft.Layouts
 	config.UpdatedAt = time.Now()
 
-	if err := c.configs.Update(ctx, config); err != nil {
+	if _, err := c.configs.Updates(ctx, config); err != nil {
 		return fmt.Errorf("failed to update config: %w", err)
 	}
 

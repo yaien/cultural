@@ -2,15 +2,15 @@ package instagram
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
 	"github.com/yaien/cultural/internal/lib/primitive"
+	"gorm.io/gorm"
 
 	"github.com/spf13/viper"
-	"github.com/yaien/cultural/internal/application/integration"
 	"github.com/yaien/cultural/internal/application/label"
-	"github.com/yaien/cultural/internal/lib/coderror"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/endpoints"
 )
@@ -77,16 +77,22 @@ func (i *Instagram) OAuthExchange(ctx context.Context, config *label.Config, cod
 }
 
 func (i *Instagram) Save(ctx context.Context, organizationID primitive.ID, data Data) error {
-	itg, err := i.integrations.GetByOrganizationIDAndName(ctx, organizationID, i.Name())
+	itg, err := i.integrations.Where("organization_id = ? and name = ?", organizationID, i.Name()).First(ctx)
 
 	switch {
 	case err == nil:
 		itg.Data = data
 		itg.UpdatedAt = time.Now()
-		return i.integrations.Update(ctx, itg)
 
-	case coderror.Is(err, coderror.NotFound):
-		itg = &integration.Integration[Data]{
+		if _, err = i.integrations.Updates(ctx, itg); err != nil {
+			return fmt.Errorf("failed updating integration: %w", err)
+		}
+
+		return nil
+
+	case errors.Is(err, gorm.ErrRecordNotFound):
+
+		itg = Integration{
 			CreatedAt:      time.Now(),
 			UpdatedAt:      time.Now(),
 			Name:           i.Name(),
@@ -94,7 +100,7 @@ func (i *Instagram) Save(ctx context.Context, organizationID primitive.ID, data 
 			Data:           data,
 		}
 
-		return i.integrations.Create(ctx, itg)
+		return i.integrations.Create(ctx, &itg)
 
 	default:
 		return fmt.Errorf("failed getting integration: %w", err)

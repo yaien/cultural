@@ -35,7 +35,7 @@ func (i *Instagram) cron(q *worker.Queue) cron.FuncJob {
 
 		ctx := context.Background()
 
-		integrations, err := i.integrations.GetByName(ctx, i.Name())
+		integrations, err := i.integrations.Where("name = ?", i.Name()).Find(ctx)
 		if err != nil {
 			slog.Error("failed getting integrations by name", "error", err)
 			return
@@ -64,7 +64,7 @@ func (i *Instagram) cron(q *worker.Queue) cron.FuncJob {
 }
 
 func (i *Instagram) handle(ctx context.Context, data *TaskData) error {
-	integration, err := i.integrations.GetByOrganizationIDAndName(ctx, data.OrganizationID, i.Name())
+	integration, err := i.integrations.Where("organization_id = ? and name = ?", data.OrganizationID, i.Name()).First(ctx)
 	if err != nil {
 		return fmt.Errorf("failed getting integration by organization ID and name: %w", err)
 	}
@@ -74,7 +74,7 @@ func (i *Instagram) handle(ctx context.Context, data *TaskData) error {
 		return fmt.Errorf("failed getting config by organization ID: %w", err)
 	}
 
-	auth := i.OAuthConfig(config)
+	auth := i.OAuthConfig(&config)
 
 	token := &oauth2.Token{AccessToken: integration.Data.Token}
 

@@ -29,25 +29,14 @@ type Application struct {
 func New(mono *infrastructure.Monolith) *Application {
 	var app Application
 
-	app.Storage = storage.New(mono.StorageDriver, storage.NewGorm(mono.GormDB), mono.Queue)
+	app.Storage = storage.New(mono.StorageDriver, mono.GormDB, mono.Queue)
 	app.Store = store.New(mono.GormDB, app.Storage)
-	app.Auth = auth.New(auth.NewGorm(mono.GormDB))
-	app.Admin = admin.New(
-		admin.NewGormRoles(mono.GormDB),
-		admin.NewGormOrganizations(mono.GormDB),
-		admin.NewGormInvitations(mono.GormDB),
-		admin.NewGormGroups(mono.GormDB),
-		mono.Mail,
-	)
-	app.Label = label.New(
-		label.NewGormFonts(mono.GormDB),
-		label.NewGormConfigs(mono.GormDB),
-		label.NewGormDrafts(mono.GormDB),
-		cache.New[*label.Config](time.Hour),
-	)
+	app.Auth = auth.New(mono.GormDB)
+	app.Admin = admin.New(mono.GormDB, mono.Mail)
+	app.Label = label.New(mono.GormDB, cache.New[*label.Config](time.Hour))
 
 	app.Registry = integration.NewRegistry(
-		instagram.Mew(integration.NewGorm[instagram.Data](mono.GormDB), app.Label.Configs),
+		instagram.New(mono.GormDB, app.Label.Configs),
 	)
 	app.Preview = preview.New(app.Registry)
 
