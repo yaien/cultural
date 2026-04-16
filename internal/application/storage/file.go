@@ -22,7 +22,7 @@ type File struct {
 }
 
 type Format struct {
-	ID          string
+	ID          primitive.UUID
 	Variant     int
 	Size        int64
 	Width       int

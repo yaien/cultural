@@ -76,10 +76,10 @@ func WriteFile(w http.ResponseWriter, r *http.Request, d *storage.Download) {
 	w.Header().Set("Content-Type", d.ContentType)
 	w.Header().Set("Content-Length", fmt.Sprint(d.Size))
 	w.Header().Set("Cache-Control", "public, max-age=0")
-	w.Header().Set("ETag", fmt.Sprintf("%d", d.ID))
+	w.Header().Set("ETag", d.ID)
 	w.Header().Set("Last-Modified", d.UpdatedAt.Format(http.TimeFormat))
 
-	if match := r.Header.Get("If-None-Match"); match != "" && match == fmt.Sprintf("%d", d.ID) {
+	if match := r.Header.Get("If-None-Match"); match != "" && match == d.ID {
 		w.WriteHeader(http.StatusNotModified)
 		return
 	}

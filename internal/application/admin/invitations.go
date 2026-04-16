@@ -59,7 +59,6 @@ func NewInvitations(roles RoleRepository, organizations OrganizationRepository, 
 
 type CreateInvitationOptions struct {
 	ExpiresAt       time.Time
-	OrganizationID  primitive.ID
 	CreatorID       primitive.ID
 	RoleGroupID     *primitive.ID
 	Config          *label.Config
@@ -79,14 +78,14 @@ type InvitationEmailData struct {
 
 func (c *Invitations) Create(ctx context.Context, req *CreateInvitationOptions) (*Invitation, error) {
 
-	organization, err := c.organizations.GetByID(ctx, req.OrganizationID)
+	organization, err := c.organizations.GetByID(ctx, req.Config.OrganizationID)
 	if err != nil {
 		return nil, fmt.Errorf("organization not found: %w", err)
 	}
 
 	// validate role group if provided
 	if req.RoleGroupID != nil {
-		_, err = c.groups.GetByIDAndOrganizationID(ctx, *req.RoleGroupID, req.OrganizationID)
+		_, err = c.groups.GetByIDAndOrganizationID(ctx, *req.RoleGroupID, req.Config.OrganizationID)
 		if err != nil {
 			return nil, fmt.Errorf("group not found in organization: %w", err)
 		}
@@ -94,7 +93,7 @@ func (c *Invitations) Create(ctx context.Context, req *CreateInvitationOptions) 
 
 	// validate creator permissions if creator is provided
 	if req.CreatorID != 0 {
-		role, err := c.roles.GetByUserIDAndOrganizationID(ctx, req.CreatorID, req.OrganizationID)
+		role, err := c.roles.GetByUserIDAndOrganizationID(ctx, req.CreatorID, req.Config.OrganizationID)
 		if err != nil {
 			return nil, fmt.Errorf("creator role not found in organization: %w", err)
 		}
@@ -104,7 +103,7 @@ func (c *Invitations) Create(ctx context.Context, req *CreateInvitationOptions) 
 	}
 
 	invitation := &Invitation{
-		OrganizationID:  req.OrganizationID,
+		OrganizationID:  req.Config.OrganizationID,
 		CreatorID:       req.CreatorID,
 		ExpiresAt:       req.ExpiresAt,
 		RoleGroupID:     req.RoleGroupID,

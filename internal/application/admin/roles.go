@@ -28,7 +28,7 @@ type RoleRepository interface {
 	CountAdminsByOrganizationID(ctx context.Context, organizationID primitive.ID) (int64, error)
 	GetByIDAndOrganizationID(ctx context.Context, id, organizationID primitive.ID) (*Role, error)
 	GetByUserIDAndOrganizationID(ctx context.Context, id, organizationID primitive.ID) (*Role, error)
-	GetByOrganizationID(ctx context.Context, id primitive.ID) ([]*Role, error)
+	GetByOrganizationID(ctx context.Context, id primitive.ID) ([]Role, error)
 	Create(ctx context.Context, role *Role) error
 	Update(ctx context.Context, role *Role) error
 	Delete(ctx context.Context, role *Role) error
@@ -42,7 +42,7 @@ func NewRoles(repository RoleRepository) *Roles {
 	return &Roles{repository: repository}
 }
 
-func (q *Roles) GetByOrganizationID(ctx context.Context, organizationID primitive.ID) ([]*Role, error) {
+func (q *Roles) GetByOrganizationID(ctx context.Context, organizationID primitive.ID) ([]Role, error) {
 	return q.repository.GetByOrganizationID(ctx, organizationID)
 }
 

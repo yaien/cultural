@@ -70,8 +70,8 @@ func (c *RolesController) Create(w http.ResponseWriter, r *http.Request) {
 	role := ctx.Value(middlewares.RoleContextKey).(*admin.Role)
 
 	request := &admin.CreateInvitationOptions{
+		Config:          config,
 		ExpiresAt:       time.Now().Add(24 * time.Hour),
-		OrganizationID:  config.OrganizationID,
 		CreatorID:       role.UserID,
 		RolePermissions: []string{"*"},
 		RoleName:        "Admin",
