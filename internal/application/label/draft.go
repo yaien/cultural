@@ -110,7 +110,7 @@ func (c *Drafts) UpdateColor(ctx context.Context, req *UpdateDraftColorOptions) 
 	}
 
 	if !found {
-		return fmt.Errorf("color with id %d not found", req.ID)
+		return fmt.Errorf("color with id %s not found", req.ID)
 	}
 
 	draft.UpdatedAt = time.Now()
@@ -138,7 +138,7 @@ func (c *Drafts) DeleteColor(ctx context.Context, configID primitive.ID, id prim
 	}
 
 	if !deleted {
-		return fmt.Errorf("no color found with id %d", id)
+		return fmt.Errorf("no color found with id %s", id)
 	}
 
 	draft.UpdatedAt = time.Now()
