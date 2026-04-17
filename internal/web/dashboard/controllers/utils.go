@@ -10,6 +10,7 @@ import (
 
 	"github.com/yaien/cultural/internal/application/storage"
 	"github.com/yaien/cultural/internal/lib/coderror"
+	"github.com/yaien/cultural/internal/lib/primitive"
 )
 
 func WriteJSON(w http.ResponseWriter, data any) {
@@ -32,7 +33,7 @@ func WriteJSONErr(w http.ResponseWriter, err error) {
 	var e *coderror.Error
 
 	switch {
-	case errors.As(err, &e):
+	case errors.As(primitive.Error(err), &e):
 		w.WriteHeader(e.HTTPStatus())
 
 		err = json.NewEncoder(w).Encode(map[string]string{"error": e.Code, "message": e.Error()})
@@ -51,7 +52,7 @@ func WriteHTMLErr(w http.ResponseWriter, err error) {
 	var e *coderror.Error
 
 	switch {
-	case errors.As(err, &e):
+	case errors.As(primitive.Error(err), &e):
 
 		w.WriteHeader(e.HTTPStatus())
 		_, err = fmt.Fprintf(w, "<h1>Error: %s - %s</h1>", e.Code, e.Error())
