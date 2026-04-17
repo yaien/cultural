@@ -1,0 +1,254 @@
+package products
+
+import (
+	"fmt"
+	"github.com/yaien/cultural/internal/application/store"
+
+	"github.com/yaien/cultural/internal/web/dashboard/views/dashboard"
+	"github.com/yaien/cultural/internal/web/dashboard/views/icons"
+	"slices"
+)
+
+templ Page(products []store.Product) {
+	@dashboard.Page("Productos") {
+		@Content(products)
+	}
+}
+
+templ Content(products []store.Product) {
+	<div class="container" data-scope="products">
+		<div class="actions">
+			<button class="clear" hx-get="/dashboard/products/create" hx-target=".container" hx-swap="beforeend">
+				@icons.Add()
+			</button>
+		</div>
+		<div class="products">
+			for _, product := range products {
+				<a role="article" href={ "/dashboard/products/" + fmt.Sprintf("%d", product.ID) } hx-boost="true" class="detail">
+					<header>
+						if len(product.Presentations) > 0 && len(product.Presentations[0].Contents) > 0 {
+							<img src={ "/dashboard/files/" + fmt.Sprintf("%d", product.Presentations[0].Contents[0].FileID) } alt=""/>
+						} else {
+							<div class="placeholder"></div>
+						}
+					</header>
+					<div>
+						<h4>{ product.Name }</h4>
+					</div>
+				</a>
+			}
+		</div>
+	</div>
+}
+
+templ Create() {
+	@dashboard.Modal("Crear Producto") {
+		<form
+			hx-post={ templ.URL("/dashboard/products") }
+			hx-target="dialog"
+			hx-swap="outerHTML swap:250ms"
+			hx-disable-elt="find button"
+		>
+			<fieldset>
+				<legend>Nombre</legend>
+				<input name="name" required/>
+			</fieldset>
+			<div class="actions text-center">
+				<button>Crear</button>
+			</div>
+		</form>
+	}
+}
+
+templ Show(product *store.Product, presentation *store.Presentation) {
+	@dashboard.Page("Productos") {
+		<div data-scope="product">
+			<div class="forms">
+				<article>
+					<h4>Producto</h4>
+					<form>
+						<fieldset>
+							<legend>Nombre</legend>
+							<input name="name" value={ product.Name } required/>
+						</fieldset>
+						<fieldset>
+							<legend>Publicado</legend>
+							<select name="published" value={ product.Name } required>
+								<option value="true" selected={ product.Published }>Sí</option>
+								<option value="false" selected={ !product.Published }>No</option>
+							</select>
+						</fieldset>
+						<div class="actions">
+							<button class="danger" type="button">
+								Eliminar
+							</button>
+							<button>Guardar</button>
+						</div>
+					</form>
+				</article>
+				@Presentations(product, presentation)
+			</div>
+			@Pictures(product, presentation)
+		</div>
+	}
+}
+
+const PresentationsID = "presentations"
+
+templ Presentations(product *store.Product, presentation *store.Presentation) {
+	<article id={ PresentationsID }>
+		<h4>Presentaciones</h4>
+		<div role="group">
+			for _, pre := range product.Presentations {
+				<button
+					if presentation != nil && pre.ID == presentation.ID {
+						class="active"
+					} else {
+						hx-get={ fmt.Sprintf("/dashboard/products/%d?presentation=%s", product.ID, pre.ID) }
+						hx-target={ "#" + PresentationsID }
+						hx-swap="outerHTML"
+						hx-push-url="true"
+					}
+				>
+					{ pre.Name }
+				</button>
+			}
+			<button
+				class="icon"
+				hx-post={ fmt.Sprintf("/dashboard/products/%d/presentations", product.ID) }
+				hx-target={ "#" + PresentationsID }
+				hx-swap="outerHTML"
+			>
+				@icons.Add()
+			</button>
+		</div>
+		if presentation != nil {
+			{{ url := fmt.Sprintf("/dashboard/products/%d/presentations/%s", product.ID, presentation.ID) }}
+			<form hx-patch={ url } hx-target={ "#" + PresentationsID } hx-swap="outerHTML">
+				<fieldset>
+					<legend>Nombre</legend>
+					<input name="name" value={ presentation.Name }/>
+				</fieldset>
+				<fieldset>
+					<legend>Inventario</legend>
+					<input name="quantity" type="number" min="0" value={ presentation.Quantity }/>
+				</fieldset>
+				<fieldset>
+					<legend>Precio</legend>
+					<input name="price" type="number" min="0" step="1000" value={ presentation.Price }/>
+				</fieldset>
+				<div class="actions">
+					<button
+						class="danger"
+						type="button"
+						hx-delete={ url }
+						hx-target={ "#" + PresentationsID }
+						hx-swap="outerHTML"
+					>
+						Eliminar
+					</button>
+					<button>Guardar</button>
+				</div>
+			</form>
+		}
+	</article>
+}
+
+type Options int
+
+const SWAPOOB = Options(1)
+
+templ Pictures(product *store.Product, presentation *store.Presentation, options ...Options) {
+	<article
+		id="pictures"
+		class="pictures"
+		if slices.Contains(options, SWAPOOB) {
+			hx-swap-oob="true"
+		}
+	>
+		if presentation == nil {
+			@PicturesPlaceholder(options...)
+		} else {
+			@PicturesDisplay(product, presentation)
+		}
+	</article>
+}
+
+templ PicturesPlaceholder(options ...Options) {
+	<div class="pictures">
+		<div class="placeholder big"></div>
+		<div class="list">
+			for range 5 {
+				<div class="placeholder small"></div>
+			}
+		</div>
+	</div>
+}
+
+templ PicturesDisplay(product *store.Product, presentation *store.Presentation) {
+	{{
+		filepath := "/dashboard/files/"
+
+		data := func() string {
+			var content *store.Content
+			if len(presentation.Contents) > 0 {
+				content = &presentation.Contents[0]
+			}
+
+			if content != nil {
+				return fmt.Sprintf("{ selected: { id: %q, preset: %q, fileurl: %q } }", content.ID, content.FilePreset, filepath+content.FileID.String())
+			}
+			return "{ selected: null }"
+		}
+
+		contentdata := func(content *store.Content) string {
+			return fmt.Sprintf("{ content: { id: %q, preset: %q, fileurl: %q } }", content.ID, content.FilePreset, filepath+content.FileID.String())
+		}
+
+		upload := func() string {
+			return fmt.Sprintf("/dashboard/products/%d/presentations/%s/files", product.ID, presentation.ID)
+		}
+
+		toggle := func() string {
+			return fmt.Sprintf("/dashboard/products/%d/presentations/%s/files/toggle", product.ID, presentation.ID)
+		}
+	}}
+	<div class="pictures" x-data={ data() }>
+		<div class="placeholder big">
+			<img x-show="selected" :src="selected.fileurl" alt=""/>
+		</div>
+		<div class="flex">
+			<form class="flex" x-data="drag" hx-patch={ toggle() } hx-trigger="end" hx-target="#pictures" hx-swap="outerHTML">
+				for _, content := range presentation.Contents {
+					<div class="placeholder small draggable" x-data={ contentdata(&content) } @click="selected = content">
+						<input type="hidden" name="ids" :value="content.id"/>
+						<img :src="content.fileurl"/>
+					</div>
+				}
+			</form>
+			for range store.MaxFilesPerPresentation - len(presentation.Contents) - 1 {
+				<div class="placeholder small"></div>
+			}
+			if len(presentation.Contents) < store.MaxFilesPerPresentation {
+				<div class="placeholder small" x-data="progress">
+					<div x-show="loading" class="progress">
+						<div x-bind="bar"></div>
+					</div>
+					<form
+						hx-post={ upload() }
+						hx-encoding="multipart/form-data"
+						hx-trigger="change changed"
+						hx-target="#pictures"
+						hx-swap="outerHTML"
+						@htmx:xhr:progress="progress($event)"
+					>
+						<input type="file" name="file" hidden="true" accept="image/*" x-ref="fileinput"/>
+					</form>
+					<button class="clear" x-show="!loading" @click="$refs.fileinput.click()">
+						@icons.Add()
+					</button>
+				</div>
+			}
+		</div>
+	</div>
+}

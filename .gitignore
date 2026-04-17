@@ -1,6 +1,6 @@
 /tmp
 /storage
-/db
+/data
 /certs
 .env
 node_modules/

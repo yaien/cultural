@@ -1,0 +1,30 @@
+package roles
+
+import (
+	"fmt"
+	"github.com/yaien/cultural/internal/application/admin"
+	"github.com/yaien/cultural/internal/lib/primitive"
+
+	"github.com/yaien/cultural/internal/web/dashboard/views/dashboard"
+)
+
+templ Delete(role *admin.Role) {
+	@dashboard.Modal("Eliminar Rol") {
+		<form
+			hx-delete={ templ.URL(fmt.Sprintf("/dashboard/roles/%d", role.ID)) }
+			hx-target="dialog"
+			hx-swap="outerHTML swap:250ms"
+			hx-disabled-elt=".actions button"
+		>
+			<p>¿Estás seguro de que deseas eliminar a <b>{ role.User.Name }</b>?</p>
+			<div class="actions">
+				<button class="secondary cancel">Cancelar</button>
+				<button class="danger">Eliminar</button>
+			</div>
+		</form>
+	}
+}
+
+templ DeleteRow(id primitive.ID) {
+	<tr hx-swap-oob="innerHTML" id={ fmt.Sprintf("%d", id) }></tr>
+}

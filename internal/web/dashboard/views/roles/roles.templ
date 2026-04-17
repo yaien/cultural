@@ -1,0 +1,9 @@
+package roles
+
+import "github.com/yaien/cultural/internal/web/dashboard/views/dashboard"
+
+templ Page(state *State) {
+	@dashboard.Page("Roles") {
+		@Content(state)
+	}
+}

@@ -1,0 +1,20 @@
+package dashboard
+
+templ Modal(title string, attrs ...templ.Attributes) {
+	<dialog
+		hx-trigger="click target:dialog, click from:.close, keyup[key == 'Escape'] from:window"
+		hx-get={ templ.URL("/dashboard/empty") }
+		hx-swap="outerHTML swap:100ms"
+		if len(attrs) > 0 {
+			{ attrs[0]... }
+		}
+	>
+		<article>
+			<header>
+				<strong class="title">{ title }</strong>
+				<button class="close"></button>
+			</header>
+			{ children... }
+		</article>
+	</dialog>
+}

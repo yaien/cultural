@@ -10,6 +10,7 @@ import (
 )
 
 type Config struct {
+	Sqlite    SqliteConfig
 	MongoDB   MongoDBConfig
 	Server    ServerConfig
 	Init      InitConfig
@@ -18,6 +19,10 @@ type Config struct {
 	Instagram InstagramConfig
 	Storage   StorageConfig
 	Mail      MailConfig
+}
+
+type SqliteConfig struct {
+	DSN string
 }
 
 type MongoDBConfig struct {
@@ -105,6 +110,9 @@ func LoadConfig() *Config {
 		MongoDB: MongoDBConfig{
 			URI:      viper.GetString("MONGODB_URI"),
 			Database: viper.GetString("MONGODB_DATABASE"),
+		},
+		Sqlite: SqliteConfig{
+			DSN: viper.GetString("SQLITE_DSN"),
 		},
 		Mail: MailConfig{
 			Provider: viper.GetString("MAIL_PROVIDER"),

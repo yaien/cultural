@@ -1,0 +1,108 @@
+package instagram
+
+import (
+	"context"
+	"errors"
+	"fmt"
+	"time"
+
+	"github.com/yaien/cultural/internal/lib/primitive"
+	"gorm.io/gorm"
+
+	"github.com/spf13/viper"
+	"github.com/yaien/cultural/internal/application/label"
+	"golang.org/x/oauth2"
+	"golang.org/x/oauth2/endpoints"
+)
+
+func (i *Instagram) OAuthConfig(config *label.Config) *oauth2.Config {
+	return &oauth2.Config{
+		ClientID:     viper.GetString("INSTAGRAM_CLIENT_ID"),
+		ClientSecret: viper.GetString("INSTAGRAM_CLIENT_SECRET"),
+		Endpoint:     endpoints.Instagram,
+		Scopes:       []string{"instagram_business_basic"},
+		RedirectURL:  fmt.Sprintf("%s/dashboard/integrations/instagram/oauth/callback", config.Url),
+	}
+}
+
+func (i *Instagram) OAuthCodeURL(ctx context.Context, config *label.Config) (string, error) {
+	return i.OAuthConfig(config).AuthCodeURL(""), nil
+}
+
+func (i *Instagram) OAuthExchange(ctx context.Context, config *label.Config, code string) error {
+	auth := i.OAuthConfig(config)
+
+	token, err := auth.Exchange(ctx, code)
+	if err != nil {
+		return fmt.Errorf("failed getting token:%w", err)
+	}
+
+	client := NewClient(token, auth)
+
+	token, err = client.GetLongToken(ctx)
+	if err != nil {
+		return fmt.Errorf("failed getting long token")
+	}
+
+	client.SetToken(token)
+
+	user, err := client.GetUser(ctx)
+	if err != nil {
+		return fmt.Errorf("failed getting user: %w", err)
+	}
+
+	posts, err := client.GetPosts(ctx)
+	if err != nil {
+		return fmt.Errorf("failed getting posts: %w", err)
+	}
+
+	if len(posts) > 10 {
+		posts = posts[:6]
+	}
+
+	data := Data{
+		Connected: true,
+		User:      user,
+		Posts:     posts,
+		Token:     token.AccessToken,
+		ExpireAt:  time.Now().Add(time.Duration(token.ExpiresIn) * time.Second),
+	}
+
+	if err := i.Save(ctx, config.OrganizationID, data); err != nil {
+		return fmt.Errorf("failed saving data: %w", err)
+	}
+
+	return nil
+
+}
+
+func (i *Instagram) Save(ctx context.Context, organizationID primitive.ID, data Data) error {
+	itg, err := i.integrations.Where("organization_id = ? and name = ?", organizationID, i.Name()).First(ctx)
+
+	switch {
+	case err == nil:
+		itg.Data = data
+		itg.UpdatedAt = time.Now()
+
+		if _, err = i.integrations.Updates(ctx, itg); err != nil {
+			return fmt.Errorf("failed updating integration: %w", err)
+		}
+
+		return nil
+
+	case errors.Is(err, gorm.ErrRecordNotFound):
+
+		itg = Integration{
+			CreatedAt:      time.Now(),
+			UpdatedAt:      time.Now(),
+			Name:           i.Name(),
+			OrganizationID: organizationID,
+			Data:           data,
+		}
+
+		return i.integrations.Create(ctx, &itg)
+
+	default:
+		return fmt.Errorf("failed getting integration: %w", err)
+	}
+}

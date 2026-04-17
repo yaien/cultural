@@ -1,0 +1,55 @@
+package pages
+
+import (
+	"encoding/json"
+	"fmt"
+	"github.com/yaien/cultural/internal/application/label"
+
+	"github.com/yaien/cultural/internal/web/dashboard/views/icons"
+)
+
+templ Colors(state *State) {
+	{{
+		var swatches []string
+		for _, color := range state.Draft.Colors {
+			swatches = append(swatches, color.Value)
+		}
+		swatchesStr, _ := json.Marshal(swatches)
+	}}
+	<div class="colors" x-data={ fmt.Sprintf("{ swatches: %s }", swatchesStr) }>
+		<div id="colors">
+			for _, color := range state.Draft.Colors {
+				@Color(color)
+			}
+		</div>
+		<div class="actions">
+			<button class="clear" hx-post="/dashboard/colors" hx-target="#colors" hx-swap="beforeend">
+				@icons.Add()
+			</button>
+		</div>
+	</div>
+}
+
+templ Color(color *label.Color) {
+	<div class="color" x-data={ fmt.Sprintf("coloris({ color: %q, tag: %q, swatches })", color.Value, color.Tag) }>
+		<form
+			hx-put={ "/dashboard/colors/" + color.ID }
+			hx-trigger="input throttle:100ms"
+			hx-swap="none"
+		>
+			<div class="field" :style="{ color: readable, background: color}">
+				<input name="tag" x-model="tag" required/>
+				<input name="value" class="coloris" x-ref="input" x-model="color" :style="{ color: readable }" required/>
+			</div>
+		</form>
+		<small class="hint">
+			<div class="css">
+				@icons.Css()
+				<pre>var(--<span x-text="tag">{ color.Tag }</span>-color)</pre>
+			</div>
+			<button class="clear danger" type="button" hx-delete={ "/dashboard/colors/" + color.ID } hx-target="closest .color" hx-swap="outerHTML">
+				@icons.Trash()
+			</button>
+		</small>
+	</div>
+}

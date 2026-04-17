@@ -1,24 +1,25 @@
 package infrastructure
 
 import (
-	"context"
 	"log"
 	"log/slog"
 	"net/http"
-	"os"
 	"time"
 
+	"github.com/glebarez/sqlite"
 	"github.com/gorilla/sessions"
 	"github.com/robfig/cron/v3"
-	"github.com/yaien/cultural/internal/library/mail"
-	"github.com/yaien/cultural/internal/library/storage"
-	"github.com/yaien/cultural/internal/library/worker"
+	"github.com/yaien/cultural/internal/application/storage"
+	"github.com/yaien/cultural/internal/lib/mail"
+	"github.com/yaien/cultural/internal/lib/worker"
 	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
+	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 type Monolith struct {
 	Config          *Config
+	GormDB          *gorm.DB
 	MongoDB         *mongo.Database
 	MongoClient     *mongo.Client
 	Router          *http.ServeMux
@@ -26,7 +27,7 @@ type Monolith struct {
 	DashboardRouter *http.ServeMux
 	SessionStore    sessions.Store
 	Mail            mail.Mail
-	Storage         storage.Storage
+	StorageDriver   storage.Driver
 	Queue           *worker.Queue
 	Worker          *worker.Worker
 	Cron            *cron.Cron
@@ -37,17 +38,17 @@ func NewMonolith() *Monolith {
 
 	var m Monolith
 	m.Config = config
-	m.MongoDB = setupMongoDB(config)
+	m.GormDB = setupGormDB(config)
 	m.SessionStore = setupSessionStore(config)
 	m.Mail = setupMail(config)
-	m.Storage = setupStorage(config)
+	m.StorageDriver = setupStorage(config)
 	m.Router = http.NewServeMux()
 	m.WebRouter = http.NewServeMux()
 	m.DashboardRouter = http.NewServeMux()
 	m.Cron = cron.New()
 
 	stream := worker.NewMemoryStream()
-	store := worker.NewMongoStore(m.MongoDB, "")
+	store := worker.NewGormStore(m.GormDB)
 
 	m.Queue = worker.NewQueue(store, stream)
 	m.Worker = worker.New(store, stream)
@@ -74,7 +75,7 @@ func setupMail(config *Config) mail.Mail {
 	}
 }
 
-func setupStorage(config *Config) storage.Storage {
+func setupStorage(config *Config) storage.Driver {
 	switch config.Storage.Provider {
 	case "local":
 		return storage.NewLocal(config.Storage.Local.Path)
@@ -93,41 +94,28 @@ func setupSessionStore(config *Config) sessions.Store {
 	return store
 }
 
-func setupMongoDB(config *Config) *mongo.Database {
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
+func setupGormDB(config *Config) *gorm.DB {
 
-	opts := options.Client().ApplyURI(config.MongoDB.URI)
-	opts.SetLoggerOptions(options.Logger().SetComponentLevel(options.LogComponentCommand, options.LogLevelDebug).SetSink(&sink{}))
-
-	client, err := mongo.Connect(ctx, opts)
-	if err != nil {
-		slog.Error("Failed to connect to mongodb:", "error", err)
-		os.Exit(1)
+	option := &gorm.Config{
+		Logger: logger.NewSlogLogger(slog.Default(), logger.Config{
+			LogLevel: logger.Silent,
+		}),
 	}
 
-	err = client.Ping(ctx, nil)
+	dialector := sqlite.Open(config.Sqlite.DSN)
+
+	db, err := gorm.Open(dialector, option)
 	if err != nil {
-		slog.Error("Failed to ping mongodb:", "error", err)
-		os.Exit(1)
+		log.Fatal("Failed to connect to sqlite database: ", err)
 	}
 
-	log.Println("Connected to mongodb successfully")
+	if err = db.Exec("PRAGMA foreign_keys = ON").Error; err != nil {
+		log.Fatal("Failed to enable foreign keys: ", err)
+	}
 
-	database := client.Database(config.MongoDB.Database)
+	if err = db.Exec("PRAGMA journal_mode = WAL").Error; err != nil {
+		log.Fatal("Failed to set journal mode: ", err)
+	}
 
-	return database
-}
-
-var _ options.LogSink = (*sink)(nil)
-
-type sink struct {
-}
-
-func (s *sink) Info(level int, msg string, args ...any) {
-	slog.With(args...).Debug("Mongodb", "level", level, "msg", msg)
-}
-
-func (s *sink) Error(err error, msg string, args ...any) {
-	slog.With(args...).Error("Mongodb", "error", err, "msg", msg)
+	return db
 }
