@@ -13,7 +13,6 @@ import (
 type Draft struct {
 	ID        primitive.ID `gorm:"primaryKey;autoIncrement"`
 	ConfigID  primitive.ID `gorm:"index"`
-	Config    *Config
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	Layouts   map[string]*Layout `gorm:"type:jsonb;serializer:json"`
@@ -22,8 +21,6 @@ type Draft struct {
 	Emails    map[string]*Email  `gorm:"type:jsonb;serializer:json"`
 	Colors    []*Color           `gorm:"type:jsonb;serializer:json"`
 }
-
-
 
 type Drafts struct {
 	drafts  gorm.Interface[Draft]
