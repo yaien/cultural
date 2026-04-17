@@ -771,7 +771,7 @@ func PicturesDisplay(product *store.Product, presentation *store.Presentation) t
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, "\" @click=\"selected = file\"><input type=\"hidden\" name=\"ids\" :value=\"content.id\"> <img :src=\"content.fileurl\"></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, "\" @click=\"selected = content\"><input type=\"hidden\" name=\"ids\" :value=\"content.id\"> <img :src=\"content.fileurl\"></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

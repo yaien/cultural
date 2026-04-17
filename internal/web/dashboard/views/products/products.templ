@@ -220,7 +220,7 @@ templ PicturesDisplay(product *store.Product, presentation *store.Presentation) 
 		<div class="flex">
 			<form class="flex" x-data="drag" hx-patch={ toggle() } hx-trigger="end" hx-target="#pictures" hx-swap="outerHTML">
 				for _, content := range presentation.Contents {
-					<div class="placeholder small draggable" x-data={ contentdata(&content) } @click="selected = file">
+					<div class="placeholder small draggable" x-data={ contentdata(&content) } @click="selected = content">
 						<input type="hidden" name="ids" :value="content.id"/>
 						<img :src="content.fileurl"/>
 					</div>
