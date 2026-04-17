@@ -16,17 +16,17 @@ import (
 
 var MaxFilesPerPresentation = 5
 
-type Files struct {
+type Contents struct {
 	repository gorm.Interface[Product]
 	storage    *storage.Storage
 }
 
-func NewFiles(db *gorm.DB, storage *storage.Storage) *Files {
-	return &Files{gorm.G[Product](db), storage}
+func NewContents(db *gorm.DB, storage *storage.Storage) *Contents {
+	return &Contents{gorm.G[Product](db), storage}
 }
 
 type UploadFileOptions struct {
-	PresentationID primitive.ID
+	PresentationID primitive.UUID
 	ProductID      primitive.ID
 	OrganizationID primitive.ID
 	Name           string
@@ -35,23 +35,22 @@ type UploadFileOptions struct {
 	Data           io.Reader
 }
 
-func (c *Files) Upload(ctx context.Context, req *UploadFileOptions) (*Product, *Presentation, error) {
+func (c *Contents) Upload(ctx context.Context, req *UploadFileOptions) (*Product, *Presentation, error) {
 	product, err := c.repository.
-		Preload("Presentations.Contents.File", nil).
 		Where("id = ? AND organization_id = ?", req.ProductID, req.OrganizationID).First(ctx)
 	if err != nil {
 		return nil, nil, fmt.Errorf("error fetching product: %w", err)
 	}
 
 	var presentation *Presentation
-	for _, p := range product.Presentations {
-		if p.ID == req.PresentationID {
-			presentation = p
+	for i := range product.Presentations {
+		if product.Presentations[i].ID == req.PresentationID {
+			presentation = &product.Presentations[i]
 		}
 	}
 
 	if presentation == nil {
-		return nil, nil, coderror.Newf("presentation_not_found", "presentation with id %d not found", req.PresentationID)
+		return nil, nil, coderror.Newf("presentation_not_found", "presentation with id %s not found", req.PresentationID)
 	}
 
 	if len(presentation.Contents) >= MaxFilesPerPresentation {
@@ -71,10 +70,10 @@ func (c *Files) Upload(ctx context.Context, req *UploadFileOptions) (*Product, *
 	}
 
 	product.UpdatedAt = time.Now()
-	presentation.Contents = append(presentation.Contents, &Content{
-		PresentationID: presentation.ID,
-		FileID:         file.ID,
-		Order:          len(presentation.Contents),
+	presentation.Contents = append(presentation.Contents, Content{
+		ID:         primitive.NewUUID(),
+		FileID:     file.ID,
+		FilePreset: file.Preset,
 	})
 
 	if _, err = c.repository.Updates(ctx, product); err != nil {
@@ -85,15 +84,14 @@ func (c *Files) Upload(ctx context.Context, req *UploadFileOptions) (*Product, *
 }
 
 type ToggleFilesOptions struct {
-	PresentationID primitive.ID
+	PresentationID primitive.UUID
 	ProductID      primitive.ID
 	OrganizationID primitive.ID
-	ContentIDS     []primitive.ID
+	ContentIDS     []primitive.UUID
 }
 
-func (c *Files) Toggle(ctx context.Context, req *ToggleFilesOptions) (*Product, *Presentation, error) {
+func (c *Contents) Toggle(ctx context.Context, req *ToggleFilesOptions) (*Product, *Presentation, error) {
 	product, err := c.repository.
-		Preload("Presentations.Contents.File", nil).
 		Where("id = ? AND organization_id = ?", req.ProductID, req.OrganizationID).
 		First(ctx)
 
@@ -102,31 +100,34 @@ func (c *Files) Toggle(ctx context.Context, req *ToggleFilesOptions) (*Product, 
 	}
 
 	var presentation *Presentation
-	for _, p := range product.Presentations {
-		if p.ID == req.PresentationID {
-			presentation = p
+	for i := range product.Presentations {
+		if product.Presentations[i].ID == req.PresentationID {
+			presentation = &product.Presentations[i]
 			break
 		}
 	}
 
 	if presentation == nil {
-		return nil, nil, coderror.Newf("presentation_not_found", "presentation with id %d not found", req.PresentationID)
+		return nil, nil, coderror.Newf("presentation_not_found", "presentation with id %s not found", req.PresentationID)
 	}
 
 	if len(presentation.Contents) != len(req.ContentIDS) {
 		return nil, nil, coderror.New("presentation_file_count_mismatch", fmt.Errorf("presentation file count mismatch"))
 	}
 
-	for i, id := range req.ContentIDS {
+	var contents []Content
 
-		index := slices.IndexFunc(presentation.Contents, func(content *Content) bool { return content.ID.Equal(id) })
+	for _, id := range req.ContentIDS {
+
+		index := slices.IndexFunc(presentation.Contents, func(content Content) bool { return content.ID == id })
 		if index == -1 {
-			return nil, nil, coderror.Newf("file_not_found", "file with id %d not found in presentation", id)
+			return nil, nil, coderror.Newf("content_not_found", "content with id %s not found in presentation", id)
 		}
 
-		presentation.Contents[index].Order = i
+		contents = append(contents, presentation.Contents[index])
 	}
 
+	presentation.Contents = contents
 	product.UpdatedAt = time.Now()
 
 	if _, err = c.repository.Updates(ctx, product); err != nil {

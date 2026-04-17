@@ -29,8 +29,6 @@ func init() {
 				&storage.File{},
 				&integration.Integration[any]{},
 				&store.Product{},
-				&store.Presentation{},
-				&store.Content{},
 				&worker.Job{},
 			)
 		},

@@ -7,7 +7,6 @@ import (
 
 	"github.com/yaien/cultural/internal/lib/primitive"
 	"gorm.io/gorm"
-	"gorm.io/gorm/clause"
 
 	"github.com/yaien/cultural/internal/lib/coderror"
 )
@@ -31,7 +30,6 @@ type CreatePresentationOptions struct {
 func (c *Presentations) Create(ctx context.Context, req *CreatePresentationOptions) (*Product, *Presentation, error) {
 
 	product, err := c.products.
-		Joins(clause.JoinTarget{Association: "Presentations.Contents.File"}, nil).
 		Where("id = ? and organization_id = ?", req.ProductID, req.OrganizationID).
 		First(ctx)
 
@@ -39,8 +37,8 @@ func (c *Presentations) Create(ctx context.Context, req *CreatePresentationOptio
 		return nil, nil, fmt.Errorf("error fetching product: %w", err)
 	}
 
-	presentation := &Presentation{
-		ID:   0,
+	presentation := Presentation{
+		ID:   primitive.NewUUID(),
 		Name: "Nueva",
 	}
 
@@ -50,11 +48,11 @@ func (c *Presentations) Create(ctx context.Context, req *CreatePresentationOptio
 		return nil, nil, fmt.Errorf("error updating product with new presentation: %w", err)
 	}
 
-	return &product, presentation, nil
+	return &product, &presentation, nil
 }
 
 type UpdatePresentationOptions struct {
-	PresentationID primitive.ID
+	PresentationID primitive.UUID
 	ProductID      primitive.ID
 	OrganizationID primitive.ID
 	Name           string
@@ -77,7 +75,6 @@ func (c *Presentations) Update(ctx context.Context, req *UpdatePresentationOptio
 	}
 
 	product, err := c.products.
-		Joins(clause.JoinTarget{Association: "Presentations.Contents.File"}, nil).
 		Where("id = ? and organization_id = ?", req.ProductID, req.OrganizationID).
 		First(ctx)
 
@@ -91,13 +88,13 @@ func (c *Presentations) Update(ctx context.Context, req *UpdatePresentationOptio
 			presentation.Name = req.Name
 			presentation.Quantity = req.Quantity
 			presentation.Price = req.Price
-			updated = presentation
+			updated = &presentation
 			break
 		}
 	}
 
 	if updated == nil {
-		return nil, nil, coderror.Newf("presentation_not_found", "presentation with id %d not found", req.PresentationID)
+		return nil, nil, coderror.Newf("presentation_not_found", "presentation with id %s not found", req.PresentationID)
 	}
 
 	if _, err = c.products.Updates(ctx, product); err != nil {
@@ -108,7 +105,7 @@ func (c *Presentations) Update(ctx context.Context, req *UpdatePresentationOptio
 }
 
 type DeletePresentationOptions struct {
-	ID             primitive.ID
+	ID             primitive.UUID
 	ProductID      primitive.ID
 	OrganizationID primitive.ID
 }
@@ -116,7 +113,6 @@ type DeletePresentationOptions struct {
 // Delete removes a presentation from a product. It retrieves the product by its ID and organization ID, finds the presentation by its ID,
 func (c *Presentations) Delete(ctx context.Context, req *DeletePresentationOptions) (*Product, error) {
 	product, err := c.products.
-		Joins(clause.JoinTarget{Association: "Presentations.Contents.File"}, nil).
 		Where("id = ? and organization_id = ?", req.ProductID, req.OrganizationID).
 		First(ctx)
 
@@ -128,13 +124,13 @@ func (c *Presentations) Delete(ctx context.Context, req *DeletePresentationOptio
 	for i, presentation := range product.Presentations {
 		if presentation.ID == req.ID {
 			product.Presentations = append(product.Presentations[:i], product.Presentations[i+1:]...)
-			deleted = presentation
+			deleted = &presentation
 			break
 		}
 	}
 
 	if deleted == nil {
-		return nil, coderror.Newf("presentation_not_found", "presentation with id %d not found", req.ID)
+		return nil, coderror.Newf("presentation_not_found", "presentation with id %s not found", req.ID)
 	}
 
 	if _, err = c.products.Updates(ctx, product); err != nil {

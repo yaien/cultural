@@ -19,10 +19,10 @@ import (
 type ProductsController struct {
 	products      *store.Products
 	presentations *store.Presentations
-	files         *store.Files
+	files         *store.Contents
 }
 
-func NewProductsController(products *store.Products, presentations *store.Presentations, files *store.Files) *ProductsController {
+func NewProductsController(products *store.Products, presentations *store.Presentations, files *store.Contents) *ProductsController {
 	return &ProductsController{products, presentations, files}
 }
 
@@ -83,21 +83,21 @@ func (c *ProductsController) Show(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var presentation *store.Presentation
-	if p, err := primitive.ParseID(r.URL.Query().Get("presentation")); err == nil {
-		pid := primitive.ID(p)
+	if pid, err := primitive.ParseUUID(r.URL.Query().Get("presentation")); err == nil {
+
 		for _, p := range product.Presentations {
 			if p.ID == pid {
-				presentation = p
+				presentation = &p
 				break
 			}
 		}
 
 		if presentation == nil {
-			WriteHTMLErr(w, coderror.Newf("presentation_not_found", "presentation with id %d not found", pid))
+			WriteHTMLErr(w, coderror.Newf("presentation_not_found", "presentation with id %s not found", pid))
 			return
 		}
 	} else if len(product.Presentations) > 0 {
-		presentation = product.Presentations[0]
+		presentation = &product.Presentations[0]
 	}
 
 	if r.Header.Get("HX-Target") == products.PresentationsID {
@@ -143,19 +143,17 @@ func (c *ProductsController) UpdatePresentation(w http.ResponseWriter, r *http.R
 	ctx := r.Context()
 	config := ctx.Value(middlewares.ConfigContextKey).(*label.Config)
 
-	p, err := primitive.ParseID(r.PathValue("id"))
+	productID, err := primitive.ParseID(r.PathValue("id"))
 	if err != nil {
 		WriteHTMLErr(w, coderror.Newf(coderror.DecodeFailed, "invalid product id: %w", err))
 		return
 	}
-	productID := primitive.ID(p)
 
-	p, err = primitive.ParseID(r.PathValue("presentationId"))
+	presentationID, err := primitive.ParseUUID(r.PathValue("presentationId"))
 	if err != nil {
 		WriteHTMLErr(w, fmt.Errorf("invalid presentation id: %w", err))
 		return
 	}
-	presentationID := primitive.ID(p)
 
 	name := r.PostFormValue("name")
 	quantity, _ := strconv.Atoi(r.PostFormValue("quantity"))
@@ -191,7 +189,7 @@ func (c *ProductsController) DeletePresentation(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	presentationID, err := primitive.ParseID(r.PathValue("presentationId"))
+	presentationID, err := primitive.ParseUUID(r.PathValue("presentationId"))
 	if err != nil {
 		WriteHTMLErr(w, coderror.Newf(coderror.DecodeFailed, "invalid presentation id: %w", err))
 		return
@@ -211,7 +209,7 @@ func (c *ProductsController) DeletePresentation(w http.ResponseWriter, r *http.R
 
 	var presentation *store.Presentation
 	if len(product.Presentations) > 0 {
-		presentation = product.Presentations[0]
+		presentation = &product.Presentations[0]
 	}
 
 	_ = templ.Join(
@@ -231,7 +229,7 @@ func (c *ProductsController) UploadPresentationFile(w http.ResponseWriter, r *ht
 		return
 	}
 
-	presentationID, err := primitive.ParseID(r.PathValue("presentationId"))
+	presentationID, err := primitive.ParseUUID(r.PathValue("presentationId"))
 	if err != nil {
 		WriteHTMLErr(w, coderror.Newf(coderror.DecodeFailed, "invalid presentation id: %w", err))
 		return
@@ -244,7 +242,7 @@ func (c *ProductsController) UploadPresentationFile(w http.ResponseWriter, r *ht
 	}
 
 	opts := &store.UploadFileOptions{
-		PresentationID: primitive.ID(presentationID),
+		PresentationID: presentationID,
 		ProductID:      primitive.ID(productID),
 		OrganizationID: config.OrganizationID,
 		Name:           fileheader.Filename,
@@ -276,7 +274,7 @@ func (c *ProductsController) TogglePresentationFiles(w http.ResponseWriter, r *h
 		return
 	}
 
-	presentationID, err := primitive.ParseID(r.PathValue("presentationId"))
+	presentationID, err := primitive.ParseUUID(r.PathValue("presentationId"))
 	if err != nil {
 		WriteHTMLErr(w, coderror.Newf(coderror.DecodeFailed, "invalid presentation id: %w", err))
 		return
@@ -287,19 +285,19 @@ func (c *ProductsController) TogglePresentationFiles(w http.ResponseWriter, r *h
 		return
 	}
 
-	var ids []primitive.ID
+	var ids []primitive.UUID
 	for _, s := range r.PostForm["ids"] {
-		p, err := primitive.ParseID(s)
+		id, err := primitive.ParseUUID(s)
 		if err != nil {
 			WriteHTMLErr(w, fmt.Errorf("error parsing file id: %w", err))
 			return
 		}
-		ids = append(ids, primitive.ID(p))
+		ids = append(ids, id)
 	}
 
 	opts := &store.ToggleFilesOptions{
-		PresentationID: primitive.ID(presentationID),
-		ProductID:      primitive.ID(productID),
+		PresentationID: presentationID,
+		ProductID:      productID,
 		OrganizationID: config.OrganizationID,
 		ContentIDS:     ids,
 	}

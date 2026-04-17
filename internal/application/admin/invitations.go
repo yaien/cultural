@@ -11,7 +11,6 @@ import (
 	"github.com/yaien/cultural/internal/lib/primitive"
 	"gorm.io/gorm"
 
-	"github.com/yaien/cultural/internal/application/auth"
 	"github.com/yaien/cultural/internal/application/label"
 	"github.com/yaien/cultural/internal/application/storage"
 	"github.com/yaien/cultural/internal/lib/coderror"
@@ -21,14 +20,11 @@ import (
 type Invitation struct {
 	ID              primitive.ID `gorm:"primaryKey;autoIncrement"`
 	OrganizationID  primitive.ID `gorm:"index"`
-	Organization    *Organization
 	CreatorID       primitive.ID
-	Creator         *auth.User
 	CreatedAt       time.Time
 	AcceptedAt      *time.Time
 	ExpiresAt       time.Time
 	RoleGroupID     *primitive.ID
-	RoleGroup       *Group
 	RolePermissions Permissions `gorm:"type:jsonb;serializer:json"`
 	RoleName        string
 	UserDisplayName string

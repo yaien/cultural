@@ -9,7 +9,6 @@ import (
 )
 
 templ Delete(role *admin.Role) {
-	{{ fmt.Printf("Delete role: %d\n, name %s", role.ID, role.User.Name) }}
 	@dashboard.Modal("Eliminar Rol") {
 		<form
 			hx-delete={ templ.URL(fmt.Sprintf("/dashboard/roles/%d", role.ID)) }

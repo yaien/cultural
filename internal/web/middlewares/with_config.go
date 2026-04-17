@@ -53,7 +53,7 @@ func NewWithConfig(configs *label.Configs) func(next http.Handler) http.HandlerF
 				return
 			}
 
-			ctx := context.WithValue(r.Context(), ConfigContextKey, config)
+			ctx := context.WithValue(r.Context(), ConfigContextKey, &config)
 			next.ServeHTTP(w, r.WithContext(ctx))
 		}
 	}

@@ -43,7 +43,7 @@ func NewWithRole(roles *admin.Roles, store sessions.Store) func(next http.Handle
 				return
 			}
 
-			nr := r.WithContext(context.WithValue(r.Context(), RoleContextKey, role))
+			nr := r.WithContext(context.WithValue(r.Context(), RoleContextKey, &role))
 			nr = nr.WithContext(context.WithValue(nr.Context(), SessionContextKey, session))
 			next.ServeHTTP(w, nr)
 		}

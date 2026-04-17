@@ -60,10 +60,14 @@ func (c *Products) Create(ctx context.Context, req *CreateProductOptions) (*Prod
 
 // GetByOrganizationID retrieves all products for a given organization ID.
 func (c *Products) GetByOrganizationID(ctx context.Context, organizationID primitive.ID) ([]Product, error) {
-	return c.products.Where("organization_id = ?", organizationID).Find(ctx)
+	return c.products.
+		Where("organization_id = ?", organizationID).
+		Find(ctx)
 }
 
 // GetByIDAndOrganizationID retrieves a product by its ID and organization ID.
 func (c *Products) GetByIDAndOrganizationID(ctx context.Context, id, organizationID primitive.ID) (Product, error) {
-	return c.products.Where("id = ? and organization_id = ?", id, organizationID).Take(ctx)
+	return c.products.
+		Where("id = ? and organization_id = ?", id, organizationID).
+		Take(ctx)
 }

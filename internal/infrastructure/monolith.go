@@ -95,11 +95,26 @@ func setupSessionStore(config *Config) sessions.Store {
 }
 
 func setupGormDB(config *Config) *gorm.DB {
-	gormLog := newGormLogger(slog.Default(), logger.Info)
 
-	db, err := gorm.Open(sqlite.Open(config.Sqlite.DSN), &gorm.Config{Logger: gormLog})
+	option := &gorm.Config{
+		Logger: logger.NewSlogLogger(slog.Default(), logger.Config{
+			LogLevel: logger.Silent,
+		}),
+	}
+
+	dialector := sqlite.Open(config.Sqlite.DSN)
+
+	db, err := gorm.Open(dialector, option)
 	if err != nil {
 		log.Fatal("Failed to connect to sqlite database: ", err)
+	}
+
+	if err = db.Exec("PRAGMA foreign_keys = ON").Error; err != nil {
+		log.Fatal("Failed to enable foreign keys: ", err)
+	}
+
+	if err = db.Exec("PRAGMA journal_mode = WAL").Error; err != nil {
+		log.Fatal("Failed to set journal mode: ", err)
 	}
 
 	return db

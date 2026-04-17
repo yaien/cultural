@@ -2,10 +2,10 @@ package auth
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
-	"github.com/yaien/cultural/internal/lib/coderror"
 	"gorm.io/gorm"
 )
 
@@ -31,7 +31,7 @@ func (c *Accounts) Sync(ctx context.Context, account *Account) (User, error) {
 
 		return user, nil
 
-	case coderror.Is(err, coderror.NotFound):
+	case errors.Is(err, gorm.ErrRecordNotFound):
 
 		user = User{
 			Email:     account.Email,

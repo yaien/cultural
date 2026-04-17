@@ -44,7 +44,7 @@ func NewWithUser(users *auth.Users, store sessions.Store) func(next http.Handler
 				return
 			}
 
-			ctx = context.WithValue(ctx, UserContextKey, user)
+			ctx = context.WithValue(ctx, UserContextKey, &user)
 			ctx = context.WithValue(ctx, SessionContextKey, s)
 
 			next.ServeHTTP(w, r.WithContext(ctx))

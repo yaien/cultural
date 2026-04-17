@@ -14,39 +14,36 @@ type Product struct {
 	OrganizationID primitive.ID `gorm:"index"`
 	Slug           string       `gorm:"index"`
 	Name           string
-	Presentations  []*Presentation
+	Presentations  []Presentation `gorm:"type:jsonb;serializer:json"`
 	Published      bool
 	CreatedAt      time.Time
 	UpdatedAt      time.Time
 }
 
 type Presentation struct {
-	ID        primitive.ID `gorm:"primaryKey;autoIncrement"`
-	ProductID primitive.ID
-	Contents  []*Content
-	Name      string
-	Quantity  int
-	Price     float64
+	ID       primitive.UUID
+	Contents []Content
+	Name     string
+	Quantity int
+	Price    float64
 }
 
 type Content struct {
-	ID             primitive.ID `gorm:"primaryKey;autoIncrement"`
-	PresentationID primitive.ID
-	FileID         primitive.ID
-	File           storage.File
-	Order          int
+	ID         primitive.UUID
+	FileID     primitive.ID
+	FilePreset string
 }
 
 type Store struct {
 	Products      *Products
 	Presentations *Presentations
-	Files         *Files
+	Contents      *Contents
 }
 
 func New(db *gorm.DB, storage *storage.Storage) *Store {
 	return &Store{
 		Products:      NewProducts(db),
 		Presentations: NewPresentations(db),
-		Files:         NewFiles(db, storage),
+		Contents:      NewContents(db, storage),
 	}
 }

@@ -396,7 +396,7 @@ func Presentations(product *store.Product, presentation *store.Presentation) tem
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var18 string
-				templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("/dashboard/products/%d?presentation=%d", product.ID, pre.ID))
+				templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("/dashboard/products/%d?presentation=%s", product.ID, pre.ID))
 				if templ_7745c5c3_Err != nil {
 					return templ.Error{Err: templ_7745c5c3_Err, FileName: `products/products.templ`, Line: 107, Col: 88}
 				}
@@ -479,7 +479,7 @@ func Presentations(product *store.Product, presentation *store.Presentation) tem
 			return templ_7745c5c3_Err
 		}
 		if presentation != nil {
-			url := fmt.Sprintf("/dashboard/products/%d/presentations/%d", product.ID, presentation.ID)
+			url := fmt.Sprintf("/dashboard/products/%d/presentations/%s", product.ID, presentation.ID)
 			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "<form hx-patch=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -705,27 +705,27 @@ func PicturesDisplay(product *store.Product, presentation *store.Presentation) t
 		filepath := "/dashboard/files/"
 
 		data := func() string {
-			var s *store.Content
+			var content *store.Content
 			if len(presentation.Contents) > 0 {
-				s = presentation.Contents[0]
+				content = &presentation.Contents[0]
 			}
 
-			if s != nil {
-				return fmt.Sprintf("{ selected: { id: %q, preset: %q }, filepath: %q }", s.File.ID, s.File.Preset, filepath)
+			if content != nil {
+				return fmt.Sprintf("{ selected: { id: %q, preset: %q, fileurl: %q } }", content.ID, content.FilePreset, filepath+content.FileID.String())
 			}
-			return fmt.Sprintf("{ selected: null, filepath: %q }", filepath)
+			return "{ selected: null }"
 		}
 
-		filedata := func(content *store.Content) string {
-			return fmt.Sprintf("{ file: { id: %q, preset: %q } }", content.File.ID, content.File.Preset)
+		contentdata := func(content *store.Content) string {
+			return fmt.Sprintf("{ content: { id: %q, preset: %q, fileurl: %q } }", content.ID, content.FilePreset, filepath+content.FileID.String())
 		}
 
 		upload := func() string {
-			return fmt.Sprintf("/dashboard/products/%d/presentations/%d/files", product.ID, presentation.ID)
+			return fmt.Sprintf("/dashboard/products/%d/presentations/%s/files", product.ID, presentation.ID)
 		}
 
 		toggle := func() string {
-			return fmt.Sprintf("/dashboard/products/%d/presentations/%d/files/toggle", product.ID, presentation.ID)
+			return fmt.Sprintf("/dashboard/products/%d/presentations/%s/files/toggle", product.ID, presentation.ID)
 		}
 		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, "<div class=\"pictures\" x-data=\"")
 		if templ_7745c5c3_Err != nil {
@@ -740,7 +740,7 @@ func PicturesDisplay(product *store.Product, presentation *store.Presentation) t
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 50, "\"><div class=\"placeholder big\"><img x-show=\"selected\" :src=\"filepath + selected.id\" alt=\"\"></div><div class=\"flex\"><form class=\"flex\" x-data=\"drag\" hx-patch=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 50, "\"><div class=\"placeholder big\"><img x-show=\"selected\" :src=\"selected.fileurl\" alt=\"\"></div><div class=\"flex\"><form class=\"flex\" x-data=\"drag\" hx-patch=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -763,15 +763,15 @@ func PicturesDisplay(product *store.Product, presentation *store.Presentation) t
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var35 string
-			templ_7745c5c3_Var35, templ_7745c5c3_Err = templ.JoinStringErrs(filedata(content))
+			templ_7745c5c3_Var35, templ_7745c5c3_Err = templ.JoinStringErrs(contentdata(&content))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `products/products.templ`, Line: 223, Col: 72}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `products/products.templ`, Line: 223, Col: 76}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var35))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, "\" @click=\"selected = file\"><input type=\"hidden\" name=\"ids\" :value=\"file.id\"> <img :src=\"filepath + file.id\"></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, "\" @click=\"selected = file\"><input type=\"hidden\" name=\"ids\" :value=\"content.id\"> <img :src=\"content.fileurl\"></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

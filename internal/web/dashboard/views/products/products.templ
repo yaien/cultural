@@ -104,7 +104,7 @@ templ Presentations(product *store.Product, presentation *store.Presentation) {
 					if presentation != nil && pre.ID == presentation.ID {
 						class="active"
 					} else {
-						hx-get={ fmt.Sprintf("/dashboard/products/%d?presentation=%d", product.ID, pre.ID) }
+						hx-get={ fmt.Sprintf("/dashboard/products/%d?presentation=%s", product.ID, pre.ID) }
 						hx-target={ "#" + PresentationsID }
 						hx-swap="outerHTML"
 						hx-push-url="true"
@@ -123,7 +123,7 @@ templ Presentations(product *store.Product, presentation *store.Presentation) {
 			</button>
 		</div>
 		if presentation != nil {
-			{{ url := fmt.Sprintf("/dashboard/products/%d/presentations/%d", product.ID, presentation.ID) }}
+			{{ url := fmt.Sprintf("/dashboard/products/%d/presentations/%s", product.ID, presentation.ID) }}
 			<form hx-patch={ url } hx-target={ "#" + PresentationsID } hx-swap="outerHTML">
 				<fieldset>
 					<legend>Nombre</legend>
@@ -190,39 +190,39 @@ templ PicturesDisplay(product *store.Product, presentation *store.Presentation) 
 		filepath := "/dashboard/files/"
 
 		data := func() string {
-			var s *store.Content
+			var content *store.Content
 			if len(presentation.Contents) > 0 {
-				s = presentation.Contents[0]
+				content = &presentation.Contents[0]
 			}
 
-			if s != nil {
-				return fmt.Sprintf("{ selected: { id: %q, preset: %q }, filepath: %q }", s.File.ID, s.File.Preset, filepath)
+			if content != nil {
+				return fmt.Sprintf("{ selected: { id: %q, preset: %q, fileurl: %q } }", content.ID, content.FilePreset, filepath+content.FileID.String())
 			}
-			return fmt.Sprintf("{ selected: null, filepath: %q }", filepath)
+			return "{ selected: null }"
 		}
 
-		filedata := func(content *store.Content) string {
-			return fmt.Sprintf("{ file: { id: %q, preset: %q } }", content.File.ID, content.File.Preset)
+		contentdata := func(content *store.Content) string {
+			return fmt.Sprintf("{ content: { id: %q, preset: %q, fileurl: %q } }", content.ID, content.FilePreset, filepath+content.FileID.String())
 		}
 
 		upload := func() string {
-			return fmt.Sprintf("/dashboard/products/%d/presentations/%d/files", product.ID, presentation.ID)
+			return fmt.Sprintf("/dashboard/products/%d/presentations/%s/files", product.ID, presentation.ID)
 		}
 
 		toggle := func() string {
-			return fmt.Sprintf("/dashboard/products/%d/presentations/%d/files/toggle", product.ID, presentation.ID)
+			return fmt.Sprintf("/dashboard/products/%d/presentations/%s/files/toggle", product.ID, presentation.ID)
 		}
 	}}
 	<div class="pictures" x-data={ data() }>
 		<div class="placeholder big">
-			<img x-show="selected" :src="filepath + selected.id" alt=""/>
+			<img x-show="selected" :src="selected.fileurl" alt=""/>
 		</div>
 		<div class="flex">
 			<form class="flex" x-data="drag" hx-patch={ toggle() } hx-trigger="end" hx-target="#pictures" hx-swap="outerHTML">
 				for _, content := range presentation.Contents {
-					<div class="placeholder small draggable" x-data={ filedata(content) } @click="selected = file">
-						<input type="hidden" name="ids" :value="file.id"/>
-						<img :src="filepath + file.id"/>
+					<div class="placeholder small draggable" x-data={ contentdata(&content) } @click="selected = file">
+						<input type="hidden" name="ids" :value="content.id"/>
+						<img :src="content.fileurl"/>
 					</div>
 				}
 			</form>
