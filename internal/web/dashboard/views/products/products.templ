@@ -218,7 +218,7 @@ templ PicturesDisplay(product *store.Product, presentation *store.Presentation, 
 				<img src={ filepath + selected.FileID.String() } alt=""/>
 				<div class="actions">
 					<button class="danger" hx-delete={ remove() } hx-target="#pictures" hx-swap="outerHTML">
-						@icons.Trash()
+						<i class="fa-regular fa-trash-can"></i>
 					</button>
 				</div>
 			}
