@@ -225,8 +225,7 @@ templ PicturesDisplay(product *store.Product, presentation *store.Presentation, 
 		</div>
 		<div class="flex">
 			<form class="flex" x-data="drag" hx-patch={ toggle() } hx-trigger="end" hx-target="#pictures" hx-swap="outerHTML" autocomplete="off">
-				for idx := range presentation.Contents {
-					{{ content := presentation.Contents[idx] }}
+				for _, content := range presentation.Contents {
 					<div class="placeholder small draggable" hx-get={ pick(&content) } hx-target="#pictures" hx-swap="outerHTML">
 						<input type="hidden" name="ids" value={ content.ID }/>
 						<img src={ filepath + content.FileID.String() }/>
