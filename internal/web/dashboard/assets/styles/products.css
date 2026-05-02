@@ -65,6 +65,14 @@
             &.big {
                 width: 450px;
                 margin-bottom: var(--space);
+                position: relative;
+
+                .actions {
+                    position: absolute;
+                    bottom: 0;
+                    right: 0;
+                    padding: var(--space);
+                }
             }
 
             &.small {

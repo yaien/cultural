@@ -115,9 +115,9 @@ func (s *Storage) Upload(ctx context.Context, req *UploadOptions) (file File, er
 }
 
 // Delete removes a file from the storage and deletes the corresponding record from the repository.
-func (s *Storage) Delete(ctx context.Context, organizationID primitive.ID, name string) error {
+func (s *Storage) Delete(ctx context.Context, organizationID primitive.ID, id primitive.ID) error {
 	file, err := s.repository.
-		Where("organization_id = ? and name = ?", organizationID, name).
+		Where("organization_id = ? and id = ?", organizationID, id).
 		First(ctx)
 
 	if err != nil {

@@ -19,7 +19,7 @@ import (
 type ProductsController struct {
 	products      *store.Products
 	presentations *store.Presentations
-	files         *store.Contents
+	contents      *store.Contents
 }
 
 func NewProductsController(products *store.Products, presentations *store.Presentations, files *store.Contents) *ProductsController {
@@ -103,7 +103,7 @@ func (c *ProductsController) Show(w http.ResponseWriter, r *http.Request) {
 	if r.Header.Get("HX-Target") == products.PresentationsID {
 		_ = templ.Join(
 			products.Presentations(&product, presentation),
-			products.Pictures(&product, presentation, products.SWAPOOB),
+			products.Pictures(&product, presentation, nil, products.SWAPOOB),
 		).Render(ctx, w)
 
 		return
@@ -135,7 +135,7 @@ func (c *ProductsController) CreatePresentation(w http.ResponseWriter, r *http.R
 
 	_ = templ.Join(
 		products.Presentations(product, presentation),
-		products.Pictures(product, presentation, products.SWAPOOB),
+		products.Pictures(product, presentation, nil, products.SWAPOOB),
 	).Render(ctx, w)
 }
 
@@ -214,7 +214,7 @@ func (c *ProductsController) DeletePresentation(w http.ResponseWriter, r *http.R
 
 	_ = templ.Join(
 		products.Presentations(product, presentation),
-		products.Pictures(product, presentation, products.SWAPOOB),
+		products.Pictures(product, presentation, nil, products.SWAPOOB),
 	).Render(ctx, w)
 
 }
@@ -251,15 +251,94 @@ func (c *ProductsController) UploadPresentationFile(w http.ResponseWriter, r *ht
 		Data:           file,
 	}
 
-	product, presentation, err := c.files.Upload(ctx, opts)
+	product, presentation, err := c.contents.Upload(ctx, opts)
 	if err != nil {
 		WriteHTMLErr(w, fmt.Errorf("error adding presentation picture: %w", err))
 		return
 	}
 
 	_ = templ.Join(
-		products.Pictures(product, presentation),
+		products.Pictures(product, presentation, nil),
 		dashboard.Toast("Archivo subido", dashboard.Primary),
+	).Render(ctx, w)
+
+}
+
+func (c *ProductsController) PickPresentationFile(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	config := ctx.Value(middlewares.ConfigContextKey).(*label.Config)
+
+	productID, err := primitive.ParseID(r.PathValue("id"))
+	if err != nil {
+		WriteHTMLErr(w, coderror.Newf(coderror.DecodeFailed, "invalid product id: %w", err))
+		return
+	}
+
+	presentationID, err := primitive.ParseUUID(r.PathValue("presentationId"))
+	if err != nil {
+		WriteHTMLErr(w, coderror.Newf(coderror.DecodeFailed, "invalid presentation id: %w", err))
+		return
+	}
+
+	contentID, err := primitive.ParseUUID(r.PathValue("contentId"))
+	if err != nil {
+		WriteHTMLErr(w, coderror.Newf(coderror.DecodeFailed, "invalid content id: %w", err))
+		return
+	}
+
+	product, presentation, content, err := c.contents.Get(ctx, &store.GetFileOptions{
+		OrganizationID: config.OrganizationID,
+		ProductID:      productID,
+		ContentID:      contentID,
+		PresentationID: presentationID,
+	})
+	if err != nil {
+		WriteHTMLErr(w, fmt.Errorf("error getting presentation file: %w", err))
+		return
+	}
+
+	_ = templ.Join(
+		products.Pictures(product, presentation, content),
+	).Render(ctx, w)
+}
+
+func (c *ProductsController) DeletePresentationFile(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	config := ctx.Value(middlewares.ConfigContextKey).(*label.Config)
+
+	productID, err := primitive.ParseID(r.PathValue("id"))
+	if err != nil {
+		WriteHTMLErr(w, coderror.Newf(coderror.DecodeFailed, "invalid product id: %w", err))
+		return
+	}
+
+	presentationID, err := primitive.ParseUUID(r.PathValue("presentationId"))
+	if err != nil {
+		WriteHTMLErr(w, coderror.Newf(coderror.DecodeFailed, "invalid presentation id: %w", err))
+		return
+	}
+
+	contentID, err := primitive.ParseUUID(r.PathValue("contentId"))
+	if err != nil {
+		WriteHTMLErr(w, coderror.Newf(coderror.DecodeFailed, "invalid content id: %w", err))
+		return
+	}
+
+	opts := &store.DeleteFileOptions{
+		PresentationID: presentationID,
+		ProductID:      productID,
+		OrganizationID: config.OrganizationID,
+		ContentID:      contentID,
+	}
+
+	product, presentation, err := c.contents.Delete(ctx, opts)
+	if err != nil {
+		WriteHTMLErr(w, fmt.Errorf("error deleting presentation picture: %w", err))
+		return
+	}
+
+	_ = templ.Join(
+		products.Pictures(product, presentation, nil),
 	).Render(ctx, w)
 
 }
@@ -302,14 +381,14 @@ func (c *ProductsController) TogglePresentationFiles(w http.ResponseWriter, r *h
 		ContentIDS:     ids,
 	}
 
-	product, presentation, err := c.files.Toggle(ctx, opts)
+	product, presentation, err := c.contents.Toggle(ctx, opts)
 	if err != nil {
 		WriteHTMLErr(w, fmt.Errorf("error adding presentation picture: %w", err))
 		return
 	}
 
 	_ = templ.Join(
-		products.Pictures(product, presentation),
+		products.Pictures(product, presentation, nil),
 	).Render(ctx, w)
 
 }

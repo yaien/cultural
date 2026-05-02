@@ -460,7 +460,7 @@ button,
         background: var(--danger-color-light);
         color: var(--danger-color);
 
-        :hover {
+        &:hover {
             background-color: var(--danger-color-hover);
         }
 
