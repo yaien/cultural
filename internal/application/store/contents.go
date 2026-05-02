@@ -139,14 +139,9 @@ func (c *Contents) Toggle(ctx context.Context, req *ToggleFilesOptions) (*Produc
 	}
 
 	var presentation *Presentation
-	for i := range product.Presentations {
-		if product.Presentations[i].ID == req.PresentationID {
-			presentation = &product.Presentations[i]
-			break
-		}
-	}
-
-	if presentation == nil {
+	if index := slices.IndexFunc(product.Presentations, func(p Presentation) bool { return p.ID == req.PresentationID }); index != -1 {
+		presentation = &product.Presentations[index]
+	} else {
 		return nil, nil, coderror.Newf("presentation_not_found", "presentation with id %s not found", req.PresentationID)
 	}
 
@@ -158,12 +153,13 @@ func (c *Contents) Toggle(ctx context.Context, req *ToggleFilesOptions) (*Produc
 
 	for _, id := range req.ContentIDS {
 
-		index := slices.IndexFunc(presentation.Contents, func(content Content) bool { return content.ID == id })
-		if index == -1 {
-			return nil, nil, coderror.Newf("content_not_found", "content with id %s not found in presentation", id)
+		if index := slices.IndexFunc(presentation.Contents, func(content Content) bool { return content.ID == id }); index != -1 {
+			contents = append(contents, presentation.Contents[index])
+			continue
 		}
 
-		contents = append(contents, presentation.Contents[index])
+		return nil, nil, coderror.Newf("content_not_found", "content with id %s not found in presentation", id)
+
 	}
 
 	presentation.Contents = contents
