@@ -185,10 +185,10 @@ templ PicturesPlaceholder(options ...Options) {
 	</div>
 }
 
-templ PicturesDisplay(product *store.Product, presentation *store.Presentation, content *store.Content) {
+templ PicturesDisplay(product *store.Product, presentation *store.Presentation, selected *store.Content) {
 	{{
-		if content == nil && len(presentation.Contents) > 0 {
-			content = &presentation.Contents[0]
+		if selected == nil && len(presentation.Contents) > 0 {
+			selected = &presentation.Contents[0]
 		}
 
 		filepath := "/dashboard/files/"
@@ -202,8 +202,8 @@ templ PicturesDisplay(product *store.Product, presentation *store.Presentation, 
 		}
 
 		remove := func() string {
-			if content != nil {
-				return fmt.Sprintf("/dashboard/products/%d/presentations/%s/files/%s", product.ID, presentation.ID, content.ID)
+			if selected != nil {
+				return fmt.Sprintf("/dashboard/products/%d/presentations/%s/files/%s", product.ID, presentation.ID, selected.ID)
 			}
 			return ""
 		}
@@ -214,8 +214,8 @@ templ PicturesDisplay(product *store.Product, presentation *store.Presentation, 
 	}}
 	<div class="pictures">
 		<div class="placeholder big">
-			if content != nil {
-				<img src={ filepath + content.FileID.String() } alt=""/>
+			if selected != nil {
+				<img src={ filepath + selected.FileID.String() } alt=""/>
 				<div class="actions">
 					<button class="danger" hx-delete={ remove() } hx-target="#pictures" hx-swap="outerHTML">
 						@icons.Trash()
@@ -224,8 +224,9 @@ templ PicturesDisplay(product *store.Product, presentation *store.Presentation, 
 			}
 		</div>
 		<div class="flex">
-			<form class="flex" x-data="drag" hx-patch={ toggle() } hx-trigger="end" hx-target="#pictures" hx-swap="outerHTML">
-				for _, content := range presentation.Contents {
+			<form class="flex" x-data="drag" hx-patch={ toggle() } hx-trigger="end" hx-target="#pictures" hx-swap="outerHTML" autocomplete="off">
+				for idx := range presentation.Contents {
+					{{ content := presentation.Contents[idx] }}
 					<div class="placeholder small draggable" hx-get={ pick(&content) } hx-target="#pictures" hx-swap="outerHTML">
 						<input type="hidden" name="ids" value={ content.ID }/>
 						<img src={ filepath + content.FileID.String() }/>
