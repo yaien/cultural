@@ -3,7 +3,6 @@ package pages
 import (
 	"fmt"
 	"github.com/yaien/cultural/internal/application/storage"
-	"github.com/yaien/cultural/internal/web/dashboard/views/icons"
 	"slices"
 )
 
@@ -25,7 +24,7 @@ templ Files(state *State) {
 			>
 				<input type="file" x-ref="input" hidden name="files" accept="image/*,video/*" multiple/>
 				<button type="button" @click="$refs.input.click()" class="clear">
-					@icons.Add()
+					<i class="fa-solid fa-plus"></i>
 				</button>
 				<template x-if="loading">
 					<div class="progress">

@@ -2,7 +2,6 @@ package dashboard
 
 import (
 	"github.com/yaien/cultural/internal/application/admin"
-	"github.com/yaien/cultural/internal/web/dashboard/views/icons"
 	"github.com/yaien/cultural/internal/web/middlewares"
 )
 
@@ -19,10 +18,10 @@ templ Page(title string) {
 				<div class="start">
 					<button class="toggle" @click="open = !open">
 						<template x-if="!open">
-							@icons.Menu()
+							<i class="fa-solid fa-bars"></i>
 						</template>
 						<template x-if="open">
-							@icons.Close()
+							<i class="fa-solid fa-xmark"></i>
 						</template>
 					</button>
 					<div class="title">
@@ -38,12 +37,12 @@ templ Page(title string) {
 			<aside>
 				<nav>
 					<ul>
-						@Link(path, "/dashboard", "Dashboard", icons.Home())
-						@Link(path, "/dashboard/pages", "Sitios", icons.Website())
-						@Link(path, "/dashboard/events", "Eventos", icons.Calendar())
-						@Link(path, "/dashboard/products", "Productos", icons.Box())
-						@Link(path, "/dashboard/roles", "Roles", icons.UserList())
-						@Link(path, "/dashboard/integrations", "Integraciones", icons.Apps())
+						@Link(path, "/dashboard", "Dashboard", "fa-house")
+						@Link(path, "/dashboard/pages", "Sitios", "fa-sitemap")
+						@Link(path, "/dashboard/events", "Eventos", "fa-calendar")
+						@Link(path, "/dashboard/products", "Productos", "fa-box")
+						@Link(path, "/dashboard/roles", "Roles", "fa-users")
+						@Link(path, "/dashboard/integrations", "Integraciones", "fa-plug")
 					</ul>
 				</nav>
 				<div class="footer">
@@ -52,7 +51,7 @@ templ Page(title string) {
 							<li>
 								<form action="/auth/logout" method="POST" x-ref="logout">
 									<a href="" @click.prevent="$refs.logout.submit()">
-										@icons.Logout()
+										<i class="fa-solid fa-arrow-right-from-bracket"></i>
 										<span>Cerrar Sesión </span>
 									</a>
 								</form>

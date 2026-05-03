@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/yaien/cultural/internal/application/admin"
 
-	"github.com/yaien/cultural/internal/web/dashboard/views/icons"
 	"github.com/yaien/cultural/internal/web/middlewares"
 )
 
@@ -36,7 +35,7 @@ templ Content(state *State) {
 										hx-target=".container"
 										hx-disabled-elt="this"
 									>
-										@icons.Trash()
+										<i class="fa-solid fa-trash-can"></i>
 									</button>
 								}
 							</div>
@@ -53,7 +52,7 @@ templ Content(state *State) {
 				hx-target=".container"
 				hx-disabled-elt="this"
 			>
-				@icons.Add()
+				<i class="fa-solid fa-plus"></i>
 			</button>
 		</div>
 	</div>

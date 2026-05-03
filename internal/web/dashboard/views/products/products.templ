@@ -5,7 +5,6 @@ import (
 	"github.com/yaien/cultural/internal/application/store"
 
 	"github.com/yaien/cultural/internal/web/dashboard/views/dashboard"
-	"github.com/yaien/cultural/internal/web/dashboard/views/icons"
 	"slices"
 )
 
@@ -19,7 +18,7 @@ templ Content(products []store.Product) {
 	<div class="container" data-scope="products">
 		<div class="actions">
 			<button class="clear" hx-get="/dashboard/products/create" hx-target=".container" hx-swap="beforeend">
-				@icons.Add()
+				<i class="fa-solid fa-plus"></i>
 			</button>
 		</div>
 		<div class="products">
@@ -119,7 +118,7 @@ templ Presentations(product *store.Product, presentation *store.Presentation) {
 				hx-target={ "#" + PresentationsID }
 				hx-swap="outerHTML"
 			>
-				@icons.Add()
+				<i class="fa-solid fa-plus"></i>
 			</button>
 		</div>
 		if presentation != nil {
@@ -251,7 +250,7 @@ templ PicturesDisplay(product *store.Product, presentation *store.Presentation, 
 						<input type="file" name="file" hidden="true" accept="image/*" x-ref="fileinput"/>
 					</form>
 					<button class="clear" x-show="!loading" @click="$refs.fileinput.click()">
-						@icons.Add()
+						<i class="fa-solid fa-plus"></i>
 					</button>
 				</div>
 			}
