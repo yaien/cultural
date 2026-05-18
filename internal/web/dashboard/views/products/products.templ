@@ -95,32 +95,37 @@ templ Show(product *store.Product, presentation *store.Presentation) {
 const PresentationsID = "presentations"
 
 templ Presentations(product *store.Product, presentation *store.Presentation) {
+	{{ toggle := fmt.Sprintf("/dashboard/products/%d/presentations/toggle", product.ID) }}
 	<article id={ PresentationsID }>
 		<h4>Presentaciones</h4>
-		<div role="group">
-			for _, pre := range product.Presentations {
+		<form hx-patch={ toggle } hx-trigger="end" hx-swap="none" autocomplete="off">
+			<div role="group" x-data="drag">
+				for _, pre := range product.Presentations {
+					<button
+						if presentation != nil && pre.ID == presentation.ID {
+							class="active draggable"
+						} else {
+							class="draggable"
+							hx-get={ fmt.Sprintf("/dashboard/products/%d?presentation=%s", product.ID, pre.ID) }
+							hx-target={ "#" + PresentationsID }
+							hx-swap="outerHTML"
+							hx-push-url="true"
+						}
+					>
+						<input type="hidden" name="ids" value={ pre.ID }/>
+						{ pre.Name }
+					</button>
+				}
 				<button
-					if presentation != nil && pre.ID == presentation.ID {
-						class="active"
-					} else {
-						hx-get={ fmt.Sprintf("/dashboard/products/%d?presentation=%s", product.ID, pre.ID) }
-						hx-target={ "#" + PresentationsID }
-						hx-swap="outerHTML"
-						hx-push-url="true"
-					}
+					class="icon"
+					hx-post={ fmt.Sprintf("/dashboard/products/%d/presentations", product.ID) }
+					hx-target={ "#" + PresentationsID }
+					hx-swap="outerHTML"
 				>
-					{ pre.Name }
+					<i class="fa-solid fa-plus"></i>
 				</button>
-			}
-			<button
-				class="icon"
-				hx-post={ fmt.Sprintf("/dashboard/products/%d/presentations", product.ID) }
-				hx-target={ "#" + PresentationsID }
-				hx-swap="outerHTML"
-			>
-				<i class="fa-solid fa-plus"></i>
-			</button>
-		</div>
+			</div>
+		</form>
 		if presentation != nil {
 			{{ url := fmt.Sprintf("/dashboard/products/%d/presentations/%s", product.ID, presentation.ID) }}
 			<form hx-patch={ url } hx-target={ "#" + PresentationsID } hx-swap="outerHTML">

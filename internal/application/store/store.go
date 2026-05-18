@@ -43,7 +43,7 @@ type Store struct {
 func New(db *gorm.DB, storage *storage.Storage) *Store {
 	return &Store{
 		Products:      NewProducts(db),
-		Presentations: NewPresentations(db),
+		Presentations: NewPresentations(db, storage),
 		Contents:      NewContents(db, storage),
 	}
 }

@@ -212,11 +212,52 @@ func (c *ProductsController) DeletePresentation(w http.ResponseWriter, r *http.R
 		presentation = &product.Presentations[0]
 	}
 
+	w.Header().Set("HX-Replace-Url", fmt.Sprintf("/dashboard/products/%s", productID.String()))
+
 	_ = templ.Join(
 		products.Presentations(product, presentation),
 		products.Pictures(product, presentation, nil, products.SWAPOOB),
 	).Render(ctx, w)
 
+}
+
+func (c *ProductsController) TogglePresentations(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	config := ctx.Value(middlewares.ConfigContextKey).(*label.Config)
+
+	productID, err := primitive.ParseID(r.PathValue("id"))
+	if err != nil {
+		WriteHTMLErr(w, coderror.Newf(coderror.DecodeFailed, "invalid product id: %w", err))
+		return
+	}
+
+	if err := r.ParseForm(); err != nil {
+		WriteHTMLErr(w, fmt.Errorf("error parsing form: %w", err))
+		return
+	}
+
+	var ids []primitive.UUID
+	for _, s := range r.PostForm["ids"] {
+		id, err := primitive.ParseUUID(s)
+		if err != nil {
+			WriteHTMLErr(w, fmt.Errorf("error parsing file id: %w", err))
+			return
+		}
+		ids = append(ids, id)
+	}
+
+	req := store.TogglePresentationsRequest{
+		ProductID:       productID,
+		OrganizationID:  config.OrganizationID,
+		PresentationIDS: ids,
+	}
+
+	if err = c.presentations.Toggle(ctx, req); err != nil {
+		WriteHTMLErr(w, err)
+		return
+	}
+
+	w.WriteHeader(200)
 }
 
 func (c *ProductsController) UploadPresentationFile(w http.ResponseWriter, r *http.Request) {
