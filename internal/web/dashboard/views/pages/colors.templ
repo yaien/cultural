@@ -4,8 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/yaien/cultural/internal/application/label"
-
-	"github.com/yaien/cultural/internal/web/dashboard/views/icons"
 )
 
 templ Colors(state *State) {
@@ -24,7 +22,7 @@ templ Colors(state *State) {
 		</div>
 		<div class="actions">
 			<button class="clear" hx-post="/dashboard/colors" hx-target="#colors" hx-swap="beforeend">
-				@icons.Add()
+				<i class="fa-solid fa-plus"></i>
 			</button>
 		</div>
 	</div>
@@ -44,11 +42,11 @@ templ Color(color *label.Color) {
 		</form>
 		<small class="hint">
 			<div class="css">
-				@icons.Css()
+				<i class="fa-brands fa-css"></i>
 				<pre>var(--<span x-text="tag">{ color.Tag }</span>-color)</pre>
 			</div>
 			<button class="clear danger" type="button" hx-delete={ "/dashboard/colors/" + color.ID } hx-target="closest .color" hx-swap="outerHTML">
-				@icons.Trash()
+				<i class="fa-solid fa-trash"></i>
 			</button>
 		</small>
 	</div>

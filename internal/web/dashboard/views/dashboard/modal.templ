@@ -12,7 +12,9 @@ templ Modal(title string, attrs ...templ.Attributes) {
 		<article>
 			<header>
 				<strong class="title">{ title }</strong>
-				<button class="close"></button>
+				<button class="close">
+					<i class="fa-solid fa-xmark"></i>
+				</button>
 			</header>
 			{ children... }
 		</article>

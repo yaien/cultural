@@ -5,7 +5,6 @@ import (
 	"github.com/yaien/cultural/internal/application/store"
 
 	"github.com/yaien/cultural/internal/web/dashboard/views/dashboard"
-	"github.com/yaien/cultural/internal/web/dashboard/views/icons"
 	"slices"
 )
 
@@ -19,7 +18,7 @@ templ Content(products []store.Product) {
 	<div class="container" data-scope="products">
 		<div class="actions">
 			<button class="clear" hx-get="/dashboard/products/create" hx-target=".container" hx-swap="beforeend">
-				@icons.Add()
+				<i class="fa-solid fa-plus"></i>
 			</button>
 		</div>
 		<div class="products">
@@ -88,7 +87,7 @@ templ Show(product *store.Product, presentation *store.Presentation) {
 				</article>
 				@Presentations(product, presentation)
 			</div>
-			@Pictures(product, presentation)
+			@Pictures(product, presentation, nil)
 		</div>
 	}
 }
@@ -96,32 +95,37 @@ templ Show(product *store.Product, presentation *store.Presentation) {
 const PresentationsID = "presentations"
 
 templ Presentations(product *store.Product, presentation *store.Presentation) {
+	{{ toggle := fmt.Sprintf("/dashboard/products/%d/presentations/toggle", product.ID) }}
 	<article id={ PresentationsID }>
 		<h4>Presentaciones</h4>
-		<div role="group">
-			for _, pre := range product.Presentations {
+		<form hx-patch={ toggle } hx-trigger="end" hx-swap="none" autocomplete="off">
+			<div role="group" x-data="drag">
+				for _, pre := range product.Presentations {
+					<button
+						if presentation != nil && pre.ID == presentation.ID {
+							class="active draggable"
+						} else {
+							class="draggable"
+							hx-get={ fmt.Sprintf("/dashboard/products/%d?presentation=%s", product.ID, pre.ID) }
+							hx-target={ "#" + PresentationsID }
+							hx-swap="outerHTML"
+							hx-push-url="true"
+						}
+					>
+						<input type="hidden" name="ids" value={ pre.ID }/>
+						{ pre.Name }
+					</button>
+				}
 				<button
-					if presentation != nil && pre.ID == presentation.ID {
-						class="active"
-					} else {
-						hx-get={ fmt.Sprintf("/dashboard/products/%d?presentation=%s", product.ID, pre.ID) }
-						hx-target={ "#" + PresentationsID }
-						hx-swap="outerHTML"
-						hx-push-url="true"
-					}
+					class="icon"
+					hx-post={ fmt.Sprintf("/dashboard/products/%d/presentations", product.ID) }
+					hx-target={ "#" + PresentationsID }
+					hx-swap="outerHTML"
 				>
-					{ pre.Name }
+					<i class="fa-solid fa-plus"></i>
 				</button>
-			}
-			<button
-				class="icon"
-				hx-post={ fmt.Sprintf("/dashboard/products/%d/presentations", product.ID) }
-				hx-target={ "#" + PresentationsID }
-				hx-swap="outerHTML"
-			>
-				@icons.Add()
-			</button>
-		</div>
+			</div>
+		</form>
 		if presentation != nil {
 			{{ url := fmt.Sprintf("/dashboard/products/%d/presentations/%s", product.ID, presentation.ID) }}
 			<form hx-patch={ url } hx-target={ "#" + PresentationsID } hx-swap="outerHTML">
@@ -158,7 +162,7 @@ type Options int
 
 const SWAPOOB = Options(1)
 
-templ Pictures(product *store.Product, presentation *store.Presentation, options ...Options) {
+templ Pictures(product *store.Product, presentation *store.Presentation, content *store.Content, options ...Options) {
 	<article
 		id="pictures"
 		class="pictures"
@@ -169,7 +173,7 @@ templ Pictures(product *store.Product, presentation *store.Presentation, options
 		if presentation == nil {
 			@PicturesPlaceholder(options...)
 		} else {
-			@PicturesDisplay(product, presentation)
+			@PicturesDisplay(product, presentation, content)
 		}
 	</article>
 }
@@ -185,25 +189,13 @@ templ PicturesPlaceholder(options ...Options) {
 	</div>
 }
 
-templ PicturesDisplay(product *store.Product, presentation *store.Presentation) {
+templ PicturesDisplay(product *store.Product, presentation *store.Presentation, selected *store.Content) {
 	{{
+		if selected == nil && len(presentation.Contents) > 0 {
+			selected = &presentation.Contents[0]
+		}
+
 		filepath := "/dashboard/files/"
-
-		data := func() string {
-			var content *store.Content
-			if len(presentation.Contents) > 0 {
-				content = &presentation.Contents[0]
-			}
-
-			if content != nil {
-				return fmt.Sprintf("{ selected: { id: %q, preset: %q, fileurl: %q } }", content.ID, content.FilePreset, filepath+content.FileID.String())
-			}
-			return "{ selected: null }"
-		}
-
-		contentdata := func(content *store.Content) string {
-			return fmt.Sprintf("{ content: { id: %q, preset: %q, fileurl: %q } }", content.ID, content.FilePreset, filepath+content.FileID.String())
-		}
 
 		upload := func() string {
 			return fmt.Sprintf("/dashboard/products/%d/presentations/%s/files", product.ID, presentation.ID)
@@ -212,17 +204,35 @@ templ PicturesDisplay(product *store.Product, presentation *store.Presentation) 
 		toggle := func() string {
 			return fmt.Sprintf("/dashboard/products/%d/presentations/%s/files/toggle", product.ID, presentation.ID)
 		}
+
+		remove := func() string {
+			if selected != nil {
+				return fmt.Sprintf("/dashboard/products/%d/presentations/%s/files/%s", product.ID, presentation.ID, selected.ID)
+			}
+			return ""
+		}
+
+		pick := func(content *store.Content) string {
+			return fmt.Sprintf("/dashboard/products/%d/presentations/%s/files/%s", product.ID, presentation.ID, content.ID)
+		}
 	}}
-	<div class="pictures" x-data={ data() }>
+	<div class="pictures">
 		<div class="placeholder big">
-			<img x-show="selected" :src="selected.fileurl" alt=""/>
+			if selected != nil {
+				<img src={ filepath + selected.FileID.String() } alt=""/>
+				<div class="actions">
+					<button class="danger" hx-delete={ remove() } hx-target="#pictures" hx-swap="outerHTML">
+						<i class="fa-regular fa-trash-can"></i>
+					</button>
+				</div>
+			}
 		</div>
 		<div class="flex">
-			<form class="flex" x-data="drag" hx-patch={ toggle() } hx-trigger="end" hx-target="#pictures" hx-swap="outerHTML">
+			<form class="flex" x-data="drag" hx-patch={ toggle() } hx-trigger="end" hx-target="#pictures" hx-swap="outerHTML" autocomplete="off">
 				for _, content := range presentation.Contents {
-					<div class="placeholder small draggable" x-data={ contentdata(&content) } @click="selected = content">
-						<input type="hidden" name="ids" :value="content.id"/>
-						<img :src="content.fileurl"/>
+					<div class="placeholder small draggable" hx-get={ pick(&content) } hx-target="#pictures" hx-swap="outerHTML">
+						<input type="hidden" name="ids" value={ content.ID }/>
+						<img src={ filepath + content.FileID.String() }/>
 					</div>
 				}
 			</form>
@@ -245,7 +255,7 @@ templ PicturesDisplay(product *store.Product, presentation *store.Presentation) 
 						<input type="file" name="file" hidden="true" accept="image/*" x-ref="fileinput"/>
 					</form>
 					<button class="clear" x-show="!loading" @click="$refs.fileinput.click()">
-						@icons.Add()
+						<i class="fa-solid fa-plus"></i>
 					</button>
 				</div>
 			}

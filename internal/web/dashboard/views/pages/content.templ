@@ -48,8 +48,8 @@ templ Editor(state *State) {
 					}
 					class={ templ.KV("active", active) }
 				>
-					if section.Icon != nil {
-						@section.Icon
+					if section.Icon != "" {
+						<i class={ section.Icon }></i>
 					} else {
 						{ section.Name }
 					}

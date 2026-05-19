@@ -2,10 +2,10 @@ package dashboard
 
 import "strings"
 
-templ Link(path, href, text string, icon templ.Component) {
+templ Link(path, href, text, icon string) {
 	<li class={ templ.KV("active", strings.HasSuffix(path, href)) } title={ text }>
 		<a href={ href } hx-boost="true">
-			@icon
+			<i class={ "fa-solid", icon }></i>
 			<span>{ text }</span>
 		</a>
 	</li>

@@ -73,7 +73,13 @@ func (fc *FilesController) Delete(w http.ResponseWriter, r *http.Request) {
 	config := ctx.Value(middlewares.ConfigContextKey).(*label.Config)
 	filename := r.PathValue("filename")
 
-	if err := fc.storage.Delete(ctx, config.OrganizationID, filename); err != nil {
+	file, err := fc.storage.GetByOrganizationIDAndName(ctx, config.OrganizationID, filename)
+	if err != nil {
+		WriteHTMLErr(w, err)
+		return
+	}
+
+	if err := fc.storage.Delete(ctx, config.OrganizationID, file.ID); err != nil {
 		WriteHTMLErr(w, err)
 		return
 	}

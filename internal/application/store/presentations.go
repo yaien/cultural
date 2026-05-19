@@ -3,8 +3,11 @@ package store
 import (
 	"context"
 	"fmt"
+	"slices"
 	"strings"
+	"time"
 
+	"github.com/yaien/cultural/internal/application/storage"
 	"github.com/yaien/cultural/internal/lib/primitive"
 	"gorm.io/gorm"
 
@@ -13,10 +16,11 @@ import (
 
 type Presentations struct {
 	products gorm.Interface[Product]
+	storage  *storage.Storage
 }
 
-func NewPresentations(db *gorm.DB) *Presentations {
-	return &Presentations{products: gorm.G[Product](db)}
+func NewPresentations(db *gorm.DB, st *storage.Storage) *Presentations {
+	return &Presentations{products: gorm.G[Product](db), storage: st}
 }
 
 type CreatePresentationOptions struct {
@@ -83,12 +87,13 @@ func (c *Presentations) Update(ctx context.Context, req *UpdatePresentationOptio
 	}
 
 	var updated *Presentation
-	for _, presentation := range product.Presentations {
+	for index := range len(product.Presentations) {
+		presentation := &product.Presentations[index]
 		if presentation.ID == req.PresentationID {
 			presentation.Name = req.Name
 			presentation.Quantity = req.Quantity
 			presentation.Price = req.Price
-			updated = &presentation
+			updated = presentation
 			break
 		}
 	}
@@ -133,9 +138,52 @@ func (c *Presentations) Delete(ctx context.Context, req *DeletePresentationOptio
 		return nil, coderror.Newf("presentation_not_found", "presentation with id %s not found", req.ID)
 	}
 
+	for _, content := range deleted.Contents {
+		if err = c.storage.Delete(ctx, req.OrganizationID, content.FileID); err != nil {
+			return nil, fmt.Errorf("error deleting content: %w", err)
+		}
+	}
+
 	if _, err = c.products.Updates(ctx, product); err != nil {
 		return nil, fmt.Errorf("error deleting product presentation: %w", err)
 	}
 
 	return &product, nil
+}
+
+type TogglePresentationsRequest struct {
+	ProductID       primitive.ID
+	PresentationIDS []primitive.UUID
+	OrganizationID  primitive.ID
+}
+
+func (c *Presentations) Toggle(ctx context.Context, req TogglePresentationsRequest) error {
+	product, err := c.products.Where("id = ? and organization_id = ?", req.ProductID, req.OrganizationID).Take(ctx)
+	if err != nil {
+		return fmt.Errorf("failed getting the product: %w", err)
+	}
+
+	if len(product.Presentations) != len(req.PresentationIDS) {
+		return coderror.Newf("invalid_presentation_ids", "len of presentation ids is different to the current presentations")
+	}
+
+	var presentations []Presentation
+	for _, id := range req.PresentationIDS {
+		if index := slices.IndexFunc(product.Presentations, func(p Presentation) bool { return p.ID == id }); index != -1 {
+			presentations = append(presentations, product.Presentations[index])
+			continue
+		}
+
+		return coderror.Newf("presentation_id_not_found", "presentation with id %q was not found", id)
+	}
+
+	product.Presentations = presentations
+	product.UpdatedAt = time.Now()
+
+	if _, err = c.products.Updates(ctx, product); err != nil {
+		return fmt.Errorf("failed updating product: %w", err)
+	}
+
+	return nil
+
 }

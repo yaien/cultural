@@ -3,7 +3,6 @@ package pages
 import (
 	"fmt"
 	"github.com/yaien/cultural/internal/application/label"
-	"github.com/yaien/cultural/internal/web/dashboard/views/icons"
 )
 
 templ EditStyles(state *State) {
@@ -25,7 +24,7 @@ templ EditStyles(state *State) {
 		hx-swap="none"
 	>
 		<div class="spinner" x-show="loading">
-			@icons.Spinner()
+			<i class="fa-solid fa-spinner"></i>
 		</div>
 	</div>
 }
