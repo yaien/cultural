@@ -98,7 +98,8 @@ func setupGormDB(config *Config) *gorm.DB {
 
 	option := &gorm.Config{
 		Logger: logger.NewSlogLogger(slog.Default(), logger.Config{
-			LogLevel: logger.Silent,
+			LogLevel:      logger.Warn,
+			SlowThreshold: 5 * time.Millisecond,
 		}),
 	}
 
