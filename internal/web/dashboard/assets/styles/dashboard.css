@@ -1,86 +1,77 @@
 :root {
     --primary-font-family: "Inter", sans-serif;
+    --text-color: var(--dark-color);
+    --text-muted: var(--dark-color-light);
+    --background-color: var(--light-color-light);
+    --hover-color: var(--light-color-dark);
+    --transition-duration: 100ms;
+    --space: 0.5rem;
     --aside-width-open: 180px;
     --aside-width-closed: 35px;
     --aside-width: var(--aside-width-closed);
     --aside-padding: 10px;
     --aside-space: 20px;
     --aside-border-color: transparent;
+    --aside-background-color: var(--light-color-light);
     --header-height: 60px;
     --header-border-color: var(--border-color);
+    --header-background-color: var(--light-color-light);
     --shadow-color: rgba(0, 0, 0, 0.1);
     --box-shadow: 0 2px 4px var(--shadow-color);
     --border-color: #e5e7eb;
     --border-radius: 0.5rem;
     --border: 1px solid var(--border-color);
     --primary-color: #3b82f6;
-    --primary-color-hover: oklch(
-        from var(--primary-color) calc(l + 0.25) calc(c - 0.12) h
-    );
-    --primary-color-light: oklch(
-        from var(--primary-color) calc(l + 0.3) calc(c - 0.15) h
-    );
-    --primary-color-dark: oklch(
-        from var(--primary-color) calc(l - 0.15) calc(c + 0.06) h
-    );
+    --primary-color-hover: oklch(from var(--primary-color) calc(l + 0.25) calc(c - 0.12) h);
+    --primary-color-light: oklch(from var(--primary-color) calc(l + 0.3) calc(c - 0.15) h);
+    --primary-color-dark: oklch(from var(--primary-color) calc(l - 0.15) calc(c + 0.06) h);
     --secondary-color: #a1a1aa;
-    --secondary-color-hover: oklch(
-        from var(--secondary-color) calc(l + 0.25) calc(c - 0.12) h
-    );
-    --secondary-color-light: oklch(
-        from var(--secondary-color) calc(l + 0.25) c h
-    );
-    --secondary-color-dark: oklch(
-        from var(--secondary-color) calc(l - 0.15) calc(c + 0.06) h
-    );
+    --secondary-color-hover: oklch(from var(--secondary-color) calc(l + 0.25) calc(c - 0.12) h);
+    --secondary-color-light: oklch(from var(--secondary-color) calc(l + 0.25) c h);
+    --secondary-color-dark: oklch(from var(--secondary-color) calc(l - 0.15) calc(c + 0.06) h);
     --danger-color: #ef4444;
-    --danger-color-hover: oklch(
-        from var(--danger-color) calc(l + 0.25) calc(c - 0.12) h
-    );
-    --danger-color-light: oklch(
-        from var(--danger-color) calc(l + 0.3) calc(c - 0.15) h
-    );
-    --danger-color-dark: oklch(
-        from var(--danger-color) calc(l - 0.15) calc(c + 0.06) h
-    );
+    --danger-color-hover: oklch(from var(--danger-color) calc(l + 0.25) calc(c - 0.12) h);
+    --danger-color-light: oklch(from var(--danger-color) calc(l + 0.3) calc(c - 0.15) h);
+    --danger-color-dark: oklch(from var(--danger-color) calc(l - 0.15) calc(c + 0.06) h);
     --warning-color: #f59e0b;
     --warning-color-hover: oklch(from var(--warning-color) calc(l + 0.15) c h);
     --warning-color-light: oklch(from var(--warning-color) calc(l + 0.2) c h);
-    --warning-color-dark: oklch(
-        from var(--warning-color) calc(l - 0.15) calc(c + 0.06) h
-    );
+    --warning-color-dark: oklch(from var(--warning-color) calc(l - 0.15) calc(c + 0.06) h);
     --success-color: #2dd55b;
-    --success-color-hover: oklch(
-        from var(--success-color) calc(l + 0.1) calc(c - 0.04) h
-    );
-    --success-color-light: oklch(
-        from var(--success-color) calc(l + 0.1) calc(c - 0.08) h
-    );
-    --success-color-dark: oklch(
-        from var(--success-color) calc(l - 0.2) calc(c + 0.06) h
-    );
+    --success-color-hover: oklch(from var(--success-color) calc(l + 0.1) calc(c - 0.04) h);
+    --success-color-light: oklch(from var(--success-color) calc(l + 0.1) calc(c - 0.08) h);
+    --success-color-dark: oklch(from var(--success-color) calc(l - 0.2) calc(c + 0.06) h);
     --light-color: #fafffb;
-    --light-color-hover: oklch(
-        from var(--light-color) calc(l + 0.25) calc(c - 0.12) h
-    );
-    --light-color-light: oklch(
-        from var(--light-color) calc(l + 0.3) calc(c - 0.15) h
-    );
+    --light-color-hover: oklch(from var(--light-color) calc(l + 0.25) calc(c - 0.12) h);
+    --light-color-light: oklch(from var(--light-color) calc(l + 0.3) calc(c - 0.15) h);
     --light-color-dark: oklch(from var(--light-color) calc(l - 0.01) c h);
     --dark-color: #111827;
-    --dark-color-hover: oklch(
-        from var(--dark-color) calc(l + 0.25) calc(c - 0.12) h
-    );
-    --dark-color-light: oklch(
-        from var(--dark-color) calc(l + 0.3) calc(c - 0.15) h
-    );
-    --dark-color-dark: oklch(
-        from var(--dark-color) calc(l - 0.15) calc(c + 0.06) h
-    );
-    --text-color: var(--dark-color);
-    --text-muted: var(--dark-color-light);
-    --transition-duration: 100ms;
-    --space: 0.5rem;
+    --dark-color-hover: oklch(from var(--dark-color) calc(l + 0.25) calc(c - 0.12) h);
+    --dark-color-light: oklch(from var(--dark-color) calc(l + 0.3) calc(c - 0.15) h);
+    --dark-color-dark: oklch(from var(--dark-color) calc(l - 0.15) calc(c + 0.06) h);
+}
+
+/* Dark Theme (prefer scheme dark)*/
+@media (prefers-color-scheme: dark) {
+    :root {
+        --background-color: #0f0f0f;
+        --header-background-color: #0f0f0f;
+        --aside-background-color: #0f0f0f;
+        --border-color: #1f1f1f;
+        --hover-color: #1a1a1a;
+        --text-color: #f1f1f1;
+        --text-muted: #ccc;
+        --primary-color: #fefeff;
+        --primary-color-light: #094fc2;
+        --primary-color-hover: #0b5ee7;
+        --danger-color: #fff;
+        --danger-color-light: #a50e0e;
+        --danger-color-hover: #e01313;
+        --warning-color: #fde7c3;
+        --warning-color-hover: #f7b13c;
+        --warning-color-light: #f59e0b;
+        --warning-color-dark: #fff;
+    }
 }
 
 /* Body Styles */
@@ -105,7 +96,7 @@ body {
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    background-color: var(--light-color-dark);
+    background-color: var(--aside-background-color);
     border-right: 1px solid var(--border-color);
 
     body.open & {
@@ -189,7 +180,7 @@ body {
 @scope (body > main) {
     padding-left: calc(var(--aside-width-closed) + var(--aside-space));
     padding-top: var(--header-height);
-    background-color: var(--light-color-light);
+    background-color: var(--background-color);
     color: var(--main-text-color);
     transition: all var(--transition-duration) ease;
     margin: 0;
@@ -210,7 +201,7 @@ body {
     padding-left: calc(var(--aside-width-closed) + var(--aside-space));
     color: var(--primary-color);
     height: var(--header-height);
-    background-color: var(--light-color-dark);
+    background-color: var(--header-background-color);
     border-bottom: 1px solid var(--border-color);
     display: flex;
     align-items: center;
@@ -388,6 +379,7 @@ textarea {
     font-size: medium;
     background: none;
     appearance: none;
+    color: var(--text-color);
 }
 
 select:focus,
@@ -582,11 +574,11 @@ table {
     td {
         padding: 1rem 0.5rem;
         text-align: center;
-        color: var(--dark-color);
+        color: var(--text-color);
     }
 
     th {
-        color: var(--dark-color-light);
+        color: var(--text-muted);
     }
 
     &.compact {
@@ -607,7 +599,7 @@ table {
     }
 
     tbody tr:hover {
-        background-color: var(--light-color-dark);
+        background-color: var(--hover-color);
     }
 
     tbody tr.htmx-swapping {
@@ -633,12 +625,11 @@ dialog {
 
     &.htmx-added,
     &.htmx-swapping {
-        transform: scale(0.95);
         opacity: 0;
     }
 
     article {
-        background-color: var(--light-color-light);
+        background-color: var(--background-color);
         border-radius: var(--border-radius);
         box-shadow: var(--box-shadow);
         width: 90%;
@@ -792,7 +783,7 @@ article,
     & > header {
         margin: -1rem -1rem 1rem -1rem;
         border-bottom: var(--border);
-        background-color: var(--light-color-dark);
+        background-color: var(--background-color);
         border-top-left-radius: var(--border-radius);
         border-top-right-radius: var(--border-radius);
 
