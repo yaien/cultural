@@ -18,6 +18,7 @@ type Product struct {
 	Published      bool
 	CreatedAt      time.Time
 	UpdatedAt      time.Time
+	DeletedAt      gorm.DeletedAt `gorm:"index"`
 }
 
 type Presentation struct {

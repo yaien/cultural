@@ -59,13 +59,31 @@ templ Create() {
 	}
 }
 
+templ DeleteModal(product *store.Product) {
+	@dashboard.Modal("Eliminar Producto") {
+		<form
+			hx-delete={ fmt.Sprintf("/dashboard/products/%d", product.ID) }
+			hx-target="dialog"
+			hx-swap="outerHTML swap:250ms"
+			hx-disable-elt="find button"
+		>
+			<p>
+				<center>Estas seguro de eliminar este producto <strong>{ product.Name }</strong>?</center>
+			</p>
+			<div class="actions text-center">
+				<button class="danger" type="submit">Eliminar</button>
+			</div>
+		</form>
+	}
+}
+
 templ Show(product *store.Product, presentation *store.Presentation) {
 	@dashboard.Page("Productos") {
-		<div data-scope="product">
+		<div data-scope="product" id="product">
 			<div class="forms">
 				<article>
 					<h4>Producto</h4>
-					<form>
+					<form hx-put={ fmt.Sprintf("/dashboard/products/%d", product.ID) } hx-swap="none">
 						<fieldset>
 							<legend>Nombre</legend>
 							<input name="name" value={ product.Name } required/>
@@ -78,10 +96,10 @@ templ Show(product *store.Product, presentation *store.Presentation) {
 							</select>
 						</fieldset>
 						<div class="actions">
-							<button class="danger" type="button">
+							<button class="danger" type="button" hx-get={ fmt.Sprintf("/dashboard/products/%d/delete", product.ID) } hx-target="#product" hx-swap="beforeend">
 								Eliminar
 							</button>
-							<button>Guardar</button>
+							<button type="submit">Guardar</button>
 						</div>
 					</form>
 				</article>

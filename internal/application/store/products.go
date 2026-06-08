@@ -58,6 +58,49 @@ func (c *Products) Create(ctx context.Context, req *CreateProductOptions) (*Prod
 	return product, nil
 }
 
+// Delete deletes a product by its ID and organization ID.
+func (c *Products) Delete(ctx context.Context, id, organizationID primitive.ID) error {
+	rows, err := c.products.
+		Where("id = ? and organization_id = ?", id, organizationID).
+		Delete(ctx)
+
+	if err != nil {
+		return err
+	}
+
+	if rows == 0 {
+		return fmt.Errorf("product not found")
+	}
+
+	return nil
+}
+
+type UpdateProductOptions struct {
+	ID             primitive.ID
+	OrganizationID primitive.ID
+	Name           string
+	Published      bool
+}
+
+// Update updates a product by its ID and organization ID.
+func (c *Products) Update(ctx context.Context, req *UpdateProductOptions) (product Product, err error) {
+	product, err = c.products.Where("id = ? and organization_id = ?", req.ID, req.OrganizationID).Take(ctx)
+	if err != nil {
+		return product, fmt.Errorf("product not found: %w", err)
+	}
+
+	product.Name = req.Name
+	product.Slug = slug.Make(req.Name)
+	product.Published = req.Published
+	product.UpdatedAt = time.Now()
+
+	if _, err := c.products.Updates(ctx, product); err != nil {
+		return product, fmt.Errorf("failed to save product: %w", err)
+	}
+
+	return product, nil
+}
+
 // GetByOrganizationID retrieves all products for a given organization ID.
 func (c *Products) GetByOrganizationID(ctx context.Context, organizationID primitive.ID) ([]Product, error) {
 	return c.products.
