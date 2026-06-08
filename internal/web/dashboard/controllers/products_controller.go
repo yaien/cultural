@@ -112,6 +112,69 @@ func (c *ProductsController) Show(w http.ResponseWriter, r *http.Request) {
 	_ = products.Show(&product, presentation).Render(r.Context(), w)
 }
 
+func (c *ProductsController) Update(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	config := ctx.Value(middlewares.ConfigContextKey).(*label.Config)
+
+	productID, err := primitive.ParseID(r.PathValue("id"))
+	if err != nil {
+		WriteHTMLErr(w, coderror.Newf(coderror.DecodeFailed, "invalid product id: %w", err))
+		return
+	}
+
+	req := &store.UpdateProductOptions{
+		ID:             productID,
+		OrganizationID: config.OrganizationID,
+		Name:           r.FormValue("name"),
+		Published:      r.FormValue("published") == "true",
+	}
+
+	if _, err = c.products.Update(ctx, req); err != nil {
+		WriteHTMLErr(w, err)
+		return
+	}
+
+	dashboard.Toast("Producto guardado correctamente", dashboard.Primary).Render(ctx, w)
+}
+
+func (c *ProductsController) DeleteModal(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	config := ctx.Value(middlewares.ConfigContextKey).(*label.Config)
+
+	productID, err := primitive.ParseID(r.PathValue("id"))
+	if err != nil {
+		WriteHTMLErr(w, coderror.Newf(coderror.DecodeFailed, "invalid product id: %w", err))
+		return
+	}
+
+	product, err := c.products.GetByIDAndOrganizationID(ctx, productID, config.OrganizationID)
+	if err != nil {
+		WriteHTMLErr(w, err)
+		return
+	}
+
+	_ = products.DeleteModal(&product).Render(ctx, w)
+}
+
+func (c *ProductsController) Delete(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	config := ctx.Value(middlewares.ConfigContextKey).(*label.Config)
+
+	productID, err := primitive.ParseID(r.PathValue("id"))
+	if err != nil {
+		WriteHTMLErr(w, coderror.Newf(coderror.DecodeFailed, "invalid product id: %w", err))
+		return
+	}
+
+	if err = c.products.Delete(ctx, productID, config.OrganizationID); err != nil {
+		WriteHTMLErr(w, err)
+		return
+	}
+
+	w.Header().Set("HX-Location", `{ "path": "/dashboard/products", "push": "false" }`)
+	dashboard.Toast("Producto eliminado correctamente", dashboard.Primary).Render(ctx, w)
+}
+
 func (c *ProductsController) CreatePresentation(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	config := ctx.Value(middlewares.ConfigContextKey).(*label.Config)

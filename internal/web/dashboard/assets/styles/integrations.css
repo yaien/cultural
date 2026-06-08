@@ -17,11 +17,11 @@
         border: 1px solid var(--border-color);
         border-radius: var(--border-radius);
         cursor: pointer;
-        background: var(--light-color);
+        background: var(--background-color);
     }
 
     .list-item:hover {
-        background: var(--light-color-hover);
+        background: var(--hover-color);
     }
 
     .list-content {
