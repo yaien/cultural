@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"github.com/yaien/cultural/internal/application/label"
-	"github.com/yaien/cultural/internal/application/storage"
 	"github.com/yaien/cultural/internal/lib/cache"
 	"github.com/yaien/cultural/internal/web/middlewares"
 	"github.com/yaien/cultural/internal/web/public/assets"
@@ -48,13 +47,11 @@ func (q *PageController) GetPageHTML(config *label.Config, pagename string) (htm
 	}
 
 	html, err = label.RenderPage(&label.PageData{
-		Page:                page,
-		Layout:              layout,
-		AppTitle:            config.Title,
-		Fonts:               config.Fonts,
-		Colors:              config.Colors,
-		ExternalFileURLFunc: storage.NewExternalURLFunc(config.Url, config.OrganizationID),
-		FileURLFunc:         storage.FileURL,
+		Page:     page,
+		Layout:   layout,
+		AppTitle: config.Title,
+		Fonts:    config.Fonts,
+		Colors:   config.Colors,
 	})
 
 	if err != nil {

@@ -30,22 +30,28 @@ func (c *IntegrationController) Integration(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
+	itg, ok := def.(integration.Page)
+	if !ok {
+		WriteHTMLErr(w, coderror.Newf(coderror.NotFound, "integration page not found"))
+		return
+	}
+
 	ctx := r.Context()
 	config := ctx.Value(middlewares.ConfigContextKey).(*label.Config)
 
-	page, err := def.Page(ctx, config)
+	page, err := itg.PageComponent(ctx, config)
 	if err != nil {
 		WriteHTMLErr(w, fmt.Errorf("failed getting integration page: %w", err))
 		return
 	}
 
 	if r.Header.Get("HX-Request") == "true" {
-		_ = integrations.Modal(def, page).Render(ctx, w)
+		_ = integrations.Modal(itg, page).Render(ctx, w)
 		return
 	}
 
 	definitions := c.registry.All()
-	_ = integrations.Detail(definitions, def, page).Render(ctx, w)
+	_ = integrations.Detail(definitions, itg, page).Render(ctx, w)
 }
 
 func (c *IntegrationController) OAuthLogin(w http.ResponseWriter, r *http.Request) {

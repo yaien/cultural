@@ -36,6 +36,8 @@ func New(mono *infrastructure.Monolith) *Application {
 	app.Label = label.New(mono.GormDB, cache.New[*label.Config](time.Hour))
 
 	app.Registry = integration.NewRegistry(
+		storage.NewIntegration(),
+		store.NewIntegration(app.Store),
 		instagram.New(mono.GormDB, app.Label.Configs),
 	)
 	app.Preview = preview.New(app.Registry)

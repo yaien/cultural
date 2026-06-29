@@ -37,6 +37,11 @@
         border-radius: 0.5rem;
     }
 
+    .initial {
+        height: 100%;
+        overflow: auto;
+    }
+
     .delete p {
         text-align: center;
     }

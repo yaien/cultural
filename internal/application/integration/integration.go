@@ -7,8 +7,8 @@ import (
 
 	"github.com/a-h/templ"
 	"github.com/robfig/cron/v3"
-	"github.com/yaien/cultural/internal/application/label"
 
+	"github.com/yaien/cultural/internal/application/label"
 	"github.com/yaien/cultural/internal/lib/primitive"
 	"github.com/yaien/cultural/internal/lib/worker"
 )
@@ -33,10 +33,13 @@ type GetOptions struct {
 
 type Definition interface {
 	Name() string
-	Title() string
-	Description() string
-	Image() string
-	Page(ctx context.Context, config *label.Config) (templ.Component, error)
+}
+
+type Page interface {
+	PageTitle() string
+	PageDescription() string
+	PageImage() string
+	PageComponent(ctx context.Context, config *label.Config) (templ.Component, error)
 }
 
 type OAuth interface {
@@ -44,8 +47,12 @@ type OAuth interface {
 	OAuthExchange(ctx context.Context, config *label.Config, code string) error
 }
 
-type TemplateFuncMap interface {
-	TemplateFuncMap(ctx context.Context, config *label.Config) template.FuncMap
+type FuncMap = template.FuncMap
+type PresetMap = map[string]label.Preset
+
+type Template interface {
+	TemplateFuncMap(ctx context.Context, config *label.Config) FuncMap
+	TemplatePresetMap(ctx context.Context, config *label.Config) PresetMap
 }
 
 type Background interface {

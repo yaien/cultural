@@ -284,6 +284,8 @@ type UpdateDraftBasicOptions struct {
 	OGImage     string
 	OGType      string
 	Subject     string
+	Preset      string
+	PresetParam string
 }
 
 func (c *Drafts) UpdateBasic(ctx context.Context, req UpdateDraftBasicOptions) error {
@@ -324,6 +326,8 @@ func (c *Drafts) UpdateBasic(ctx context.Context, req UpdateDraftBasicOptions) e
 		page.Layout = req.Layout
 		page.OGImage = req.OGImage
 		page.OGType = req.OGType
+		page.Preset = req.Preset
+		page.PresetParam = req.PresetParam
 
 	default:
 		return fmt.Errorf("invalid type")

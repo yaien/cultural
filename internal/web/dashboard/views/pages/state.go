@@ -3,6 +3,7 @@ package pages
 import (
 	"fmt"
 
+	"github.com/yaien/cultural/internal/application/integration"
 	"github.com/yaien/cultural/internal/application/label"
 	"github.com/yaien/cultural/internal/application/storage"
 )
@@ -30,6 +31,7 @@ type State struct {
 	SelectedFileName   string
 	SelectedFontFamily string
 	SelectedFontKey    string
+	Presets            PresetsFunc
 	FileURL            FileURLFunc
 	File               FileFunc
 	Files              FilesFunc
@@ -43,6 +45,7 @@ type FontFunc func(fontFamily string) (label.Font, error)
 type FontsFunc func(family string, limit, offset int) ([]label.Font, error)
 type FilesFunc func() ([]storage.File, error)
 type FileURLFunc storage.URLFunc
+type PresetsFunc func() integration.PresetMap
 
 func (c *State) PageIsDefault() bool {
 	page, ok := c.Selected.(*label.Page)

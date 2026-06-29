@@ -8,19 +8,21 @@ templ Page(definitions []integration.Definition) {
 		<div class="container single" data-scope="integrations" id="container">
 			<div class="list">
 				for _, def := range definitions {
-					<div
-						class="list-item"
-						hx-get={ "/dashboard/integrations/" + def.Name() }
-						hx-target="#container"
-						hx-swap="beforeend"
-						hx-push-url="true"
-					>
-						<img class="list-image" src={ "/assets/static/dashboard/images/" + def.Image() } alt={ def.Name() }/>
-						<div class="list-content">
-							<h3 class="list-title">{ def.Title() }</h3>
-							<p class="list-text">{ def.Description() }</p>
+					if itg, ok := def.(integration.Page); ok {
+						<div
+							class="list-item"
+							hx-get={ "/dashboard/integrations/" + def.Name() }
+							hx-target="#container"
+							hx-swap="beforeend"
+							hx-push-url="true"
+						>
+							<img class="list-image" src={ "/assets/static/dashboard/images/" + itg.PageImage() } alt={ itg.PageTitle() }/>
+							<div class="list-content">
+								<h3 class="list-title">{ itg.PageTitle() }</h3>
+								<p class="list-text">{ itg.PageDescription() }</p>
+							</div>
 						</div>
-					</div>
+					}
 				}
 			</div>
 			{ children... }
@@ -28,14 +30,14 @@ templ Page(definitions []integration.Definition) {
 	}
 }
 
-templ Detail(definitions []integration.Definition, def integration.Definition, page templ.Component) {
+templ Detail(definitions []integration.Definition, def integration.Page, page templ.Component) {
 	@Page(definitions) {
 		@Modal(def, page)
 	}
 }
 
-templ Modal(def integration.Definition, page templ.Component) {
-	@dashboard.Modal(def.Title(), templ.Attributes{"hx-push-url": "/dashboard/integrations"}) {
+templ Modal(def integration.Page, page templ.Component) {
+	@dashboard.Modal(def.PageTitle(), templ.Attributes{"hx-push-url": "/dashboard/integrations"}) {
 		@page
 	}
 }

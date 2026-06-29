@@ -20,7 +20,7 @@ func dashboard(mono *infrastructure.Monolith, app *application.Application, md *
 	}
 
 	{
-		ctrl := controllers.NewPagesController(app.Label.Drafts, app.Label.Fonts, app.Preview, app.Storage)
+		ctrl := controllers.NewPagesController(app.Label.Drafts, app.Label.Fonts, app.Preview, app.Storage, app.Registry)
 		mono.DashboardRouter.HandleFunc("GET /dashboard/pages", ctrl.Index)
 		mono.DashboardRouter.HandleFunc("GET /dashboard/pages/preview", ctrl.Preview)
 		mono.DashboardRouter.HandleFunc("PATCH /dashboard/pages/basic", ctrl.UpdateBasic)

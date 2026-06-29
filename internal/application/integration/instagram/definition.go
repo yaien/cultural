@@ -10,9 +10,10 @@ import (
 
 var _ interface {
 	integration.Definition
-	integration.TemplateFuncMap
+	integration.Template
 	integration.OAuth
 	integration.Background
+	integration.Page
 } = (*Instagram)(nil)
 
 type Data struct {
@@ -37,18 +38,6 @@ func New(db *gorm.DB, configs *label.Configs) *Instagram {
 	}
 }
 
-func (i *Instagram) Title() string {
-	return "Instagram"
-}
-
 func (i *Instagram) Name() string {
 	return "instagram"
-}
-
-func (i *Instagram) Description() string {
-	return "Trae tus posts de instagram a tu web"
-}
-
-func (i *Instagram) Image() string {
-	return "instagram.png"
 }

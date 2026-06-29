@@ -114,3 +114,10 @@ func (c *Products) GetByIDAndOrganizationID(ctx context.Context, id, organizatio
 		Where("id = ? and organization_id = ?", id, organizationID).
 		Take(ctx)
 }
+
+// GetBySlugAndOrganizationID retrieves a product by its slug and organization ID.
+func (c *Products) GetBySlugAndOrganizationID(ctx context.Context, slug string, organizationID primitive.ID) (Product, error) {
+	return c.products.
+		Where("slug = ? and organization_id = ?", slug, organizationID).
+		Take(ctx)
+}

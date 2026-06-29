@@ -6,8 +6,6 @@ import (
 	"io"
 	"strings"
 	"text/template"
-
-	"github.com/yaien/cultural/internal/application/storage"
 )
 
 type Layout struct {
@@ -29,31 +27,24 @@ type Page struct {
 	Body        string
 	OGImage     string
 	OGType      string
+	Preset      string
+	PresetParam string
 }
 
 var EmptyPage = &Page{}
 
 type PageData struct {
-	InlineStyles        bool
-	InlineScript        bool
-	FileURLFunc         storage.URLFunc
-	ExternalFileURLFunc storage.URLFunc
-	AppTitle            string
-	Page                *Page
-	Layout              *Layout
-	Fonts               map[string]*Font
-	Colors              []*Color
-	Funcs               template.FuncMap
-	Version             int64
-}
+	InlineStyles bool
+	InlineScript bool
 
-func (c *PageData) FileURL(name string, variant ...int) string {
-
-	return c.FileURLFunc(name, variant...)
-}
-
-func (c *PageData) ExternalFileURL(name string, variant ...int) string {
-	return c.ExternalFileURLFunc(name, variant...)
+	AppTitle string
+	Page     *Page
+	Layout   *Layout
+	Fonts    map[string]*Font
+	Colors   []*Color
+	Funcs    template.FuncMap
+	Version  int64
+	Preset   any
 }
 
 // Title returns the full title of the page, combining the page title and app title.
@@ -215,16 +206,9 @@ func googleFontURL(font *Font) string {
 	return url
 }
 
-var pageTemplate = template.Must(template.New("page").Parse(read("templates/page.html")))
-
 // This file contains the logic for rendering a page using the page and layout templates.
 func RenderPage(data *PageData) (string, error) {
 	var buffer bytes.Buffer
-
-	base, err := pageTemplate.Clone()
-	if err != nil {
-		return "", fmt.Errorf("failed decoding template: %w", err)
-	}
 
 	if data.Page == nil {
 		return "", fmt.Errorf("page data is nil")
@@ -234,7 +218,12 @@ func RenderPage(data *PageData) (string, error) {
 		return "", fmt.Errorf("layout data is nil")
 	}
 
-	parsed, err := base.Funcs(data.Funcs).Parse(fmt.Sprintf(`{{define "layout_body"}}%s{{end}}{{define "page_body"}}%s{{end}}`, data.Layout.Body, data.Page.Body))
+	base, err := template.New("page").Funcs(data.Funcs).Parse(read("templates/page.html"))
+	if err != nil {
+		return "", fmt.Errorf("failed parsing template: %w", err)
+	}
+
+	parsed, err := base.Parse(fmt.Sprintf(`{{define "layout_body"}}%s{{end}}{{define "page_body"}}%s{{end}}`, data.Layout.Body, data.Page.Body))
 	if err != nil {
 		return "", fmt.Errorf("failed parsing template: %w", err)
 	}

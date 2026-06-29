@@ -12,7 +12,19 @@ import (
 
 //go:generate go tool templ generate
 
-func (i *Instagram) Page(ctx context.Context, config *label.Config) (templ.Component, error) {
+func (i *Instagram) PageTitle() string {
+	return "Instagram"
+}
+
+func (i *Instagram) PageDescription() string {
+	return "Trae tus posts de instagram a tu web"
+}
+
+func (i *Instagram) PageImage() string {
+	return "instagram.png"
+}
+
+func (i *Instagram) PageComponent(ctx context.Context, config *label.Config) (templ.Component, error) {
 	integration, err := i.integrations.Where("organization_id = ? AND name = ?", config.OrganizationID, i.Name()).First(ctx)
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, fmt.Errorf("failed at get integration: %w", err)

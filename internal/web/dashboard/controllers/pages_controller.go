@@ -2,9 +2,11 @@ package controllers
 
 import (
 	"fmt"
+	"maps"
 	"net/http"
 
 	"github.com/a-h/templ"
+	"github.com/yaien/cultural/internal/application/integration"
 	"github.com/yaien/cultural/internal/application/label"
 	"github.com/yaien/cultural/internal/application/preview"
 	"github.com/yaien/cultural/internal/application/storage"
@@ -14,18 +16,20 @@ import (
 )
 
 type PagesController struct {
-	drafts  *label.Drafts
-	fonts   *label.Fonts
-	preview *preview.Preview
-	storage *storage.Storage
+	drafts   *label.Drafts
+	fonts    *label.Fonts
+	preview  *preview.Preview
+	storage  *storage.Storage
+	registry *integration.Registry
 }
 
-func NewPagesController(drafts *label.Drafts, fonts *label.Fonts, preview *preview.Preview, storage *storage.Storage) *PagesController {
+func NewPagesController(drafts *label.Drafts, fonts *label.Fonts, preview *preview.Preview, storage *storage.Storage, registry *integration.Registry) *PagesController {
 	return &PagesController{
-		drafts:  drafts,
-		fonts:   fonts,
-		preview: preview,
-		storage: storage,
+		drafts:   drafts,
+		fonts:    fonts,
+		preview:  preview,
+		storage:  storage,
+		registry: registry,
 	}
 }
 
@@ -53,7 +57,16 @@ func (c *PagesController) Index(w http.ResponseWriter, r *http.Request) {
 		SelectedFontFamily: query.Get(pages.FontQuery),
 		SelectedFontKey:    query.Get(pages.FontKeyQuery),
 		Section:            query.Get(pages.SectionQuery),
-		FileURL:            storage.FileURL,
+		Presets: func() (presets integration.PresetMap) {
+			presets = make(integration.PresetMap)
+			for _, definition := range c.registry.All() {
+				if itg, ok := definition.(integration.Template); ok {
+					maps.Copy(presets, itg.TemplatePresetMap(ctx, config))
+				}
+			}
+			return
+		},
+		FileURL: storage.FileURL,
 		Files: func() ([]storage.File, error) {
 			return c.storage.GetByOrganizationID(ctx, config.OrganizationID)
 		},
@@ -157,6 +170,8 @@ func (c *PagesController) UpdateBasic(w http.ResponseWriter, r *http.Request) {
 		Subject:     r.PostForm.Get("subject"),
 		OGImage:     r.PostForm.Get("og_image"),
 		OGType:      r.PostForm.Get("og_type"),
+		Preset:      r.PostForm.Get("preset"),
+		PresetParam: r.PostForm.Get("preset_param"),
 	}
 
 	if err := c.drafts.UpdateBasic(ctx, req); err != nil {

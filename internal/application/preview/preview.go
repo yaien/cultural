@@ -2,12 +2,12 @@ package preview
 
 import (
 	"context"
+	"fmt"
 	"html/template"
 	"maps"
 
 	"github.com/yaien/cultural/internal/application/integration"
 	"github.com/yaien/cultural/internal/application/label"
-	"github.com/yaien/cultural/internal/application/storage"
 	"github.com/yaien/cultural/internal/lib/coderror"
 )
 
@@ -83,27 +83,35 @@ type renderPageOptions struct {
 	fonts  map[string]*label.Font
 	colors []*label.Color
 	config *label.Config
+	params []string
 }
 
 func (q *Preview) renderPage(ctx context.Context, opts *renderPageOptions) (html string, err error) {
 	funcs := template.FuncMap{}
+	var preset any = struct{}{}
 	for _, itg := range q.registry.All() {
-		if m, ok := itg.(integration.TemplateFuncMap); ok {
+		if m, ok := itg.(integration.Template); ok {
 			fm := m.TemplateFuncMap(ctx, opts.config)
 			maps.Copy(funcs, fm)
+
+			if p, ok := m.TemplatePresetMap(ctx, opts.config)[opts.page.Preset]; ok {
+				preset, err = p.Load(opts.page.PresetParam)
+				if err != nil {
+					return "", fmt.Errorf("failed loading preset: %w", err)
+				}
+			}
 		}
 	}
 
 	data := &label.PageData{
-		Page:                opts.page,
-		Layout:              opts.layout,
-		Fonts:               opts.fonts,
-		Colors:              opts.colors,
-		FileURLFunc:         storage.FileURL,
-		ExternalFileURLFunc: storage.NewExternalURLFunc(opts.config.Url, opts.config.OrganizationID),
-		InlineStyles:        true,
-		InlineScript:        true,
-		Funcs:               funcs,
+		Page:         opts.page,
+		Layout:       opts.layout,
+		Fonts:        opts.fonts,
+		Colors:       opts.colors,
+		InlineStyles: true,
+		InlineScript: true,
+		Funcs:        funcs,
+		Preset:       preset,
 	}
 
 	return label.RenderPage(data)
