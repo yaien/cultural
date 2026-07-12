@@ -31,7 +31,7 @@ templ Initial(state *State) {
 				}
 			</select>
 		</fieldset>
-		<form hx-patch="/dashboard/pages/basic" hx-swap="none" hx-vals={ state.HxSelectedVals() }>
+		<form hx-patch="/dashboard/pages/basic" hx-swap="none" hx-vals={ state.HxSelectedVals() } autocomplete="off">
 			switch selected := state.Selected.(type) {
 				case *label.Page:
 					<fieldset>
@@ -42,23 +42,25 @@ templ Initial(state *State) {
 					<fieldset>
 						<legend>Preset</legend>
 						<select name="preset" autocomplete="off">
-							<option value="" selected={ selected.Preset == "" }>Ninguna</option>
+							<option value="" selected?={ selected.Preset == "" }>Ninguna</option>
 							for key, preset := range presets {
-								<option value={ key } selected={ selected.Preset == key }>{ preset.Name }</option>
+								<option value={ key } selected?={ selected.Preset == key }>{ preset.Name }</option>
 							}
 						</select>
 					</fieldset>
 					{{ preset, ok := presets[selected.Preset] }}
 					if ok {
-						<fieldset>
-							<legend>{ preset.Name } </legend>
-							<select name="preset_param" required>
-								{{ options, _ := preset.Options() }}
-								for _, option := range options {
-									<option value={ option.Value } selected={ selected.PresetParam == option.Value }>{ option.Label }</option>
-								}
-							</select>
-						</fieldset>
+						if preset.Options != nil {
+							<fieldset>
+								<legend>{ preset.Name } </legend>
+								<select name="preset_param" required>
+									{{ options, _ := preset.Options() }}
+									for _, option := range options {
+										<option value={ option.Value } selected?={ selected.PresetParam == option.Value }>{ option.Label }</option>
+									}
+								</select>
+							</fieldset>
+						}
 					}
 					<fieldset role="group">
 						<legend>Url</legend>
@@ -75,11 +77,11 @@ templ Initial(state *State) {
 					<fieldset>
 						<legend>Tipo</legend>
 						<select name="og_type">
-							<option value="" selected={ selected.OGType == "" }>Ninguno</option>
-							<option value="website" selected={ selected.OGType == "website" }>Sitio Web</option>
-							<option value="article" selected={ selected.OGType == "article" }>Artículo</option>
-							<option value="profile" selected={ selected.OGType == "profile" }>Perfil</option>
-							<option value="product" selected={ selected.OGType == "product" }>Producto</option>
+							<option value="" selected?={ selected.OGType == "" }>Ninguno</option>
+							<option value="website" selected?={ selected.OGType == "website" }>Sitio Web</option>
+							<option value="article" selected?={ selected.OGType == "article" }>Artículo</option>
+							<option value="profile" selected?={ selected.OGType == "profile" }>Perfil</option>
+							<option value="product" selected?={ selected.OGType == "product" }>Producto</option>
 						</select>
 					</fieldset>
 					<fieldset>

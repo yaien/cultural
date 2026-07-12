@@ -29,7 +29,7 @@ func NewWithConfig(configs *label.Configs) func(next http.Handler) http.HandlerF
 				}
 			}
 
-			slog.Debug(
+			slog.Info(
 				"Request",
 				"host", host,
 				"scheme", scheme,

@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"maps"
+	"slices"
 	"strings"
 	"text/template"
 )
@@ -233,4 +235,33 @@ func RenderPage(data *PageData) (string, error) {
 	}
 
 	return buffer.String(), nil
+}
+
+// GetPageInMap returns the page and params from the map for the given path.
+func GetPageInMap(pages map[string]*Page, path string) (page *Page, params []string, found bool) {
+
+	keys := slices.SortedFunc(maps.Keys(pages), func(a, b string) int {
+		return len(b) - len(a)
+	})
+
+	path = strings.Trim(path, "/")
+
+	if path == "" {
+		path = "index"
+	}
+
+	for _, key := range keys {
+		p := pages[key]
+
+		if after, ok := strings.CutPrefix(path, p.Name); ok {
+			page = p
+			found = true
+			if paramstr := strings.Trim(after, "/"); paramstr != "" {
+				params = strings.Split(paramstr, "/")
+			}
+			return
+		}
+	}
+
+	return
 }

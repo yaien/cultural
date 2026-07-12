@@ -87,3 +87,78 @@ func TestPageBaseStyles(t *testing.T) {
 	}
 
 }
+
+func TestGetPageInMap(t *testing.T) {
+	tests := []struct {
+		name   string
+		pages  []string
+		params []string
+		path   string
+		found  bool
+		page   string
+	}{
+		{
+			name:   "index",
+			pages:  []string{"index", "products", "product"},
+			path:   "/",
+			found:  true,
+			page:   "index",
+			params: []string{},
+		},
+		{
+			name:   "product",
+			pages:  []string{"index", "products", "product"},
+			path:   "/product/wallpapers",
+			found:  true,
+			page:   "product",
+			params: []string{"wallpapers"},
+		},
+		{
+			name:   "products",
+			pages:  []string{"index", "products", "product"},
+			path:   "/products",
+			found:  true,
+			page:   "products",
+			params: []string{},
+		},
+		{
+			name:  "cars",
+			pages: []string{"index", "products", "product"},
+			path:  "/cars",
+			found: false,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+
+			pages := make(map[string]*label.Page)
+			for _, page := range test.pages {
+				pages[page] = &label.Page{Name: page}
+			}
+
+			page, params, found := label.GetPageInMap(pages, test.path)
+
+			if found != test.found {
+				t.Fatalf("Expected found to be %v, got %v", test.found, found)
+			}
+
+			if !test.found {
+				return
+			}
+
+			if page == nil {
+				t.Fatalf("Expected page to be found, got nil")
+			}
+
+			if page.Name != test.page {
+				t.Fatalf("Expected page name to be %s, got %s", test.page, page.Name)
+			}
+
+			if !slices.Equal(params, test.params) {
+				t.Errorf("Expected params to be %v, got %v", test.params, params)
+			}
+		})
+	}
+
+}

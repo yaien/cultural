@@ -1,43 +1,34 @@
 package controllers
 
 import (
+	"context"
 	"fmt"
 	"io"
+	"log/slog"
+	"maps"
 	"net/http"
 	"strconv"
 	"strings"
+	"text/template"
 
+	"github.com/yaien/cultural/internal/application/integration"
 	"github.com/yaien/cultural/internal/application/label"
-	"github.com/yaien/cultural/internal/lib/cache"
 	"github.com/yaien/cultural/internal/web/middlewares"
 	"github.com/yaien/cultural/internal/web/public/assets"
 )
 
 type PageController struct {
-	cache *cache.Cache[string]
+	registry *integration.Registry
 }
 
-func NewPageController(ch *cache.Cache[string]) *PageController {
-	return &PageController{ch}
+func NewPageController(rg *integration.Registry) *PageController {
+	return &PageController{rg}
 }
 
-func (q *PageController) GetPageHTML(config *label.Config, pagename string) (html string, found bool, err error) {
-	if pagename == "index" {
-		return "", false, nil
-	}
+func (q *PageController) GetPageHTML(ctx context.Context, config *label.Config, path string) (html string, found bool, err error) {
 
-	if pagename == "" {
-		pagename = "index"
-	}
-
-	key := fmt.Sprintf("%s/%d/%s", config.ID, config.UpdatedAt.Unix(), pagename)
-	html, ok := q.cache.Get(key)
-	if ok {
-		return html, true, nil
-	}
-
-	page, ok := config.Pages[pagename]
-	if !ok {
+	page, params, found := label.GetPageInMap(config.Pages, path)
+	if !found {
 		return "", false, nil
 	}
 
@@ -46,30 +37,47 @@ func (q *PageController) GetPageHTML(config *label.Config, pagename string) (htm
 		layout = label.DefaultLayout
 	}
 
+	funcs := make(template.FuncMap)
+	var preset any
+
+	for _, itg := range q.registry.All() {
+		if itg, ok := itg.(integration.Template); ok {
+			maps.Copy(funcs, itg.TemplateFuncMap(ctx, config))
+			presets := itg.TemplatePresetMap(ctx, config)
+			if p, ok := presets[page.Preset]; ok {
+				preset, err = p.Load(params...)
+				if err != nil {
+					return "", false, fmt.Errorf("failed at loading preset: %w", err)
+				}
+			}
+		}
+	}
+
 	html, err = label.RenderPage(&label.PageData{
 		Page:     page,
 		Layout:   layout,
 		AppTitle: config.Title,
 		Fonts:    config.Fonts,
 		Colors:   config.Colors,
+		Funcs:    funcs,
+		Preset:   preset,
 	})
 
 	if err != nil {
 		return "", false, fmt.Errorf("failed at rendering page: %w", err)
 	}
 
-	q.cache.Set(key, html)
-
 	return html, true, nil
 }
 
 func (c *PageController) Page(w http.ResponseWriter, r *http.Request) {
 
-	config := r.Context().Value(middlewares.ConfigContextKey).(*label.Config)
+	ctx := r.Context()
+	config := ctx.Value(middlewares.ConfigContextKey).(*label.Config)
 
 	path := r.PathValue("page")
 
-	html, found, err := c.GetPageHTML(config, path)
+	html, found, err := c.GetPageHTML(ctx, config, path)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -151,8 +159,11 @@ func (c *PageController) PageScripts(w http.ResponseWriter, r *http.Request) {
 
 	path = strings.TrimSuffix(path, ".js")
 
+	slog.Debug("page script", "path", path)
+
 	page, ok := config.Pages[path]
 	if !ok {
+		slog.Error("page not found", "path", path)
 		http.NotFound(w, r)
 		return
 	}

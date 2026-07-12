@@ -121,3 +121,17 @@ func (c *Products) GetBySlugAndOrganizationID(ctx context.Context, slug string, 
 		Where("slug = ? and organization_id = ?", slug, organizationID).
 		Take(ctx)
 }
+
+// GetPublishedBySlugAndOrganizationID retrieves a published product by its slug and organization ID.
+func (c *Products) GetPublishedBySlugAndOrganizationID(ctx context.Context, slug string, organizationID primitive.ID) (Product, error) {
+	return c.products.
+		Where("slug = ? and organization_id = ? and published = ?", slug, organizationID, true).
+		Take(ctx)
+}
+
+// GetPublishedByOrganizationID retrieves all published products for a given organization ID.
+func (c *Products) GetPublishedByOrganizationID(ctx context.Context, organizationID primitive.ID) ([]Product, error) {
+	return c.products.
+		Where("organization_id = ? and published = ?", organizationID, true).
+		Find(ctx)
+}

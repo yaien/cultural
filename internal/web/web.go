@@ -22,7 +22,7 @@ func Register(mono *infrastructure.Monolith, app *application.Application) {
 	}
 
 	dashboard.Register(mono, app, mdl)
-	public.Register(mono)
+	public.Register(mono, app)
 
 	mono.Worker.Register(worker.H{
 		Name:    storage.TaskName,

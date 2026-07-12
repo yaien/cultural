@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/yaien/cultural/internal/lib/cache"
+	"github.com/yaien/cultural/internal/lib/coderror"
 	"github.com/yaien/cultural/internal/lib/primitive"
 	"gorm.io/gorm"
 )
@@ -317,8 +318,18 @@ func (c *Drafts) UpdateBasic(ctx context.Context, req UpdateDraftBasicOptions) e
 			return fmt.Errorf("page not found")
 		}
 
-		if req.Key != DefaultPageName {
+		if req.Key == DefaultPageName && req.Name != DefaultPageName {
+			return coderror.Newf("invalid_page_name", "el nombre de la pagina inicial no puede cambiarse")
+		}
+
+		if req.Key != req.Name {
+			if _, exists := draft.Pages[req.Name]; exists {
+				return coderror.Newf("page_already_exist", "ya existe otra pagina con este nombre")
+			}
+
 			page.Name = req.Name
+			delete(draft.Pages, req.Key)
+			draft.Pages[req.Name] = page
 		}
 
 		page.Title = req.Title
