@@ -31,6 +31,7 @@ type State struct {
 	SelectedFileName   string
 	SelectedFontFamily string
 	SelectedFontKey    string
+	SelectedAction     string
 	Presets            PresetsFunc
 	FileURL            FileURLFunc
 	File               FileFunc

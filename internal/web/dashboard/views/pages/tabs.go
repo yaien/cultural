@@ -29,6 +29,10 @@ const (
 	EditStylesSection    = "edit-stytles"
 	EditScriptSection    = "edit-scripts"
 	EditHTMLSection      = "edit-html"
+	ActionSection        = "actions"
+	CreateActionSection  = "create-action"
+	DeleteActionSection  = "delete-action"
+	EditActionSection    = "edit-action"
 	PublishSection       = "publish"
 )
 
@@ -42,6 +46,10 @@ var Sections = []SectionDefinition{
 	{Name: BrowseFontsSection, Component: BrowseFonts},
 	{Name: ConfigureFontSection, Component: ConfigureFont},
 	{Name: ColorsSection, Component: Colors, Tab: true, Web: true, Icon: "fa-solid fa-palette"},
+	{Name: ActionSection, Component: Actions, Tab: true, Web: true, Icon: "fa-solid fa-terminal"},
+	{Name: CreateActionSection, Component: CreateAction},
+	{Name: EditActionSection, Component: EditAction},
+	{Name: DeleteActionSection, Component: DeleteAction},
 	{Name: EditHTMLSection, Component: EditHTML, Tab: true, Icon: "fa-solid fa-code"},
 	{Name: EditStylesSection, Component: EditStyles, Tab: true, Web: true, Icon: "fa-brands fa-css"},
 	{Name: EditScriptSection, Component: EditScript, Tab: true, Web: true, Icon: "fa-brands fa-js"},

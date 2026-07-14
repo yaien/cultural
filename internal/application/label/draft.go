@@ -461,6 +461,122 @@ func (c *Drafts) UpdateSource(ctx context.Context, req *UpdateDraftSourceOptions
 	return nil
 }
 
+type CreateActionRequest struct {
+	ConfigID primitive.ID
+	PageName string
+	Function string
+}
+
+func (c *Drafts) CreateAction(ctx context.Context, req *CreateActionRequest) error {
+	draft, err := c.drafts.Where("config_id = ?", req.ConfigID).First(ctx)
+	if err != nil {
+		return fmt.Errorf("failed to get draft: %w", err)
+	}
+
+	page, ok := draft.Pages[req.PageName]
+	if !ok {
+		return fmt.Errorf("page with name '%s' not found", req.PageName)
+	}
+
+	var exists bool
+	for _, action := range page.Actions {
+		if action.Function == req.Function {
+			exists = true
+			break
+		}
+	}
+
+	if exists {
+		return fmt.Errorf("action with function '%s' already exists", req.Function)
+	}
+
+	page.Actions = append(page.Actions, &Action{
+		Function: req.Function,
+	})
+
+	if _, err := c.drafts.Updates(ctx, draft); err != nil {
+		return fmt.Errorf("failed to save draft: %w", err)
+	}
+
+	return nil
+}
+
+type UpdateActionRequest struct {
+	ConfigID primitive.ID
+	PageName string
+	Function string
+	Headers  map[string]string
+	Body     string
+}
+
+func (c *Drafts) UpdateAction(ctx context.Context, req *UpdateActionRequest) error {
+	draft, err := c.drafts.Where("config_id = ?", req.ConfigID).First(ctx)
+	if err != nil {
+		return fmt.Errorf("failed to get draft: %w", err)
+	}
+
+	page, ok := draft.Pages[req.PageName]
+	if !ok {
+		return fmt.Errorf("page with name '%s' not found", req.PageName)
+	}
+
+	var updated bool
+	for _, action := range page.Actions {
+		if action.Function == req.Function {
+			action.Body = req.Body
+			action.Headers = req.Headers
+			updated = true
+		}
+	}
+
+	if !updated {
+		return coderror.Newf("function_not_found", "action with function %q not found", req.Function)
+	}
+
+	if _, err := c.drafts.Updates(ctx, draft); err != nil {
+		return fmt.Errorf("failed to update draft: %w", err)
+	}
+
+	return nil
+}
+
+type DeleteActionRequest struct {
+	ConfigID primitive.ID
+	PageName string
+	Function string
+}
+
+func (c *Drafts) DeleteAction(ctx context.Context, req *DeleteActionRequest) error {
+	draft, err := c.drafts.Where("config_id = ?", req.ConfigID).First(ctx)
+	if err != nil {
+		return fmt.Errorf("failed to get draft: %w", err)
+	}
+
+	page, ok := draft.Pages[req.PageName]
+	if !ok {
+		return fmt.Errorf("page with name '%s' not found", req.PageName)
+	}
+
+	var deleted bool
+	for i, action := range page.Actions {
+		if action.Function == req.Function {
+			page.Actions = append(page.Actions[:i], page.Actions[i+1:]...)
+			deleted = true
+			break
+		}
+	}
+
+	if !deleted {
+		return coderror.Newf("action_not_found", "action with function '%s' not found", req.Function)
+	}
+
+	if _, err := c.drafts.Updates(ctx, draft); err != nil {
+		return fmt.Errorf("failed to update draft: %w", err)
+	}
+
+	return nil
+}
+
 func (c *Drafts) Commit(ctx context.Context, config Config) error {
 	draft, err := c.drafts.Where("config_id = ?", config.ID).First(ctx)
 	if err != nil {

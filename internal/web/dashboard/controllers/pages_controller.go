@@ -56,6 +56,7 @@ func (c *PagesController) Index(w http.ResponseWriter, r *http.Request) {
 		SelectedFileName:   query.Get(pages.FileQuery),
 		SelectedFontFamily: query.Get(pages.FontQuery),
 		SelectedFontKey:    query.Get(pages.FontKeyQuery),
+		SelectedAction:     query.Get(pages.ActionQuery),
 		Section:            query.Get(pages.SectionQuery),
 		Presets: func() (presets integration.PresetMap) {
 			presets = make(integration.PresetMap)

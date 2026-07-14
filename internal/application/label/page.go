@@ -10,6 +10,12 @@ import (
 	"text/template"
 )
 
+type Action struct {
+	Function string
+	Headers  map[string]string
+	Body     string
+}
+
 type Layout struct {
 	Title  string
 	Name   string
@@ -31,6 +37,7 @@ type Page struct {
 	OGType      string
 	Preset      string
 	PresetParam string
+	Actions     []*Action
 }
 
 var EmptyPage = &Page{}

@@ -281,4 +281,16 @@
     .color .hint .css pre {
         margin: 0;
     }
+
+    /* Actions */
+    .functions {
+        .function {
+            padding: 0.5rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+        }
+    }
 }

@@ -1,0 +1,141 @@
+package pages
+
+import (
+	"fmt"
+	"github.com/yaien/cultural/internal/application/label"
+)
+
+templ Actions(state *State) {
+	<div class="functions" hx-vals={ state.HxSelectedVals() }>
+		<div class="actions">
+			<button
+				class="clear"
+				hx-get={ Path }
+				hx-vals={ fmt.Sprintf("{ %q: %q }", SectionQuery, CreateActionSection) }
+				hx-target={ "#" + EditorID }
+				hx-swap="outerHTML"
+				hx-push-url="true"
+			>
+				<i class="fa-solid fa-plus"></i>
+			</button>
+		</div>
+		<div class="list">
+			{{
+				actions := []*label.Action{}
+				switch selected := state.Selected.(type) {
+				case *label.Page:
+					actions = selected.Actions
+				}
+			}}
+			for _, action := range actions {
+				<div
+					class="function"
+					hx-get={ Path }
+					hx-vals={ fmt.Sprintf("{ %q: %q, %q: %q}", SectionQuery, EditActionSection, ActionQuery, action.Function) }
+					hx-target={ "#" + EditorID }
+					hx-swap="outerHTML"
+					hx-push-url="true"
+				>
+					{ action.Function }
+				</div>
+			}
+		</div>
+	</div>
+}
+
+templ CreateAction(state *State) {
+	<div class="functions" hx-vals={ state.HxSelectedVals() }>
+		<div class="actions">
+			<button
+				hx-get={ Path }
+				hx-target={ "#" + EditorID }
+				hx-swap="outerHTML"
+				hx-vals={ fmt.Sprintf("{ %q: %q}", SectionQuery, ActionSection) }
+				hx-push-url="true"
+			>
+				Volver
+			</button>
+		</div>
+		<form hx-post="/dashboard/actions" hx-vals={ state.HxSelectedVals() } hx-swap="none">
+			<fieldset>
+				<legend>Función</legend>
+				<select name="function" required>
+					<option value="add_product_to_cart">Agregar producto al carrito</option>
+				</select>
+			</fieldset>
+			<div class="actions">
+				<button type="submit">Crear</button>
+			</div>
+		</form>
+	</div>
+}
+
+templ EditAction(state *State) {
+	{{
+		var actions []*label.Action
+		var action *label.Action
+		switch selected := state.Selected.(type) {
+		case *label.Page:
+			actions = selected.Actions
+		}
+
+		for _, a := range actions {
+			if a.Function == state.SelectedAction {
+				action = a
+			}
+		}
+
+		if action == nil {
+			return
+		}
+	}}
+	<div class="functions" hx-vals={ state.HxSelectedVals() }>
+		<div class="actions">
+			<button
+				hx-get={ Path }
+				hx-target={ "#" + EditorID }
+				hx-swap="outerHTML"
+				hx-vals={ fmt.Sprintf("{ %q: %q}", SectionQuery, ActionSection) }
+				hx-push-url="true"
+			>
+				Volver
+			</button>
+		</div>
+		<form hx-post="/dashboard/actions" hx-vals={ state.HxSelectedVals() } hx-swap="none">
+			<fieldset>
+				<legend>Función</legend>
+				<select name="function" required>
+					<option value="add_product_to_cart" selected?={ action.Function == "add_product_to_cart" }>
+						Agregar producto al carrito
+					</option>
+				</select>
+			</fieldset>
+			<fieldset class="body">
+				<legend>Body</legend>
+				<div style="height: 300px; margin-bottom: var(--space); ">
+					<div
+						class="monaco"
+						x-data={ fmt.Sprintf("monaco({ language: %q, source: %q })", "html", action.Body) }
+					>
+						<div class="spinner" x-show="loading">
+							<i class="fa-solid fa-spinner"></i>
+						</div>
+					</div>
+				</div>
+			</fieldset>
+			<fieldset class="headers">
+				<legend>Headers</legend>
+				<fieldset class="header">
+					<input name="header.name" required/>
+					<input name="header.value" required/>
+				</fieldset>
+			</fieldset>
+			<div class="actions">
+				<button type="submit">Crear</button>
+			</div>
+		</form>
+	</div>
+}
+
+templ DeleteAction(state *State) {
+}
