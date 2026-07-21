@@ -19,7 +19,7 @@ templ EditScript(state *State) {
 		class="monaco"
 		x-data={ fmt.Sprintf("monaco({ language: %q, source: %q })", "javascript", source) }
 		hx-patch="/dashboard/pages/source"
-		hx-trigger="input throttle:100ms"
+		hx-trigger="editorinput throttle:100ms"
 		hx-vals={ fmt.Sprintf("js:{ modelType: %q, key: %q, sourceType: %q, source: event.detail.value }", state.SelectedType, state.SelectedKey, label.DraftScriptType) }
 		hx-swap="none"
 	>

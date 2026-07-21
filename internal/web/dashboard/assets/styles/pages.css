@@ -220,8 +220,6 @@
     /* Monaco Editor */
     .monaco {
         height: 100%;
-        border-radius: var(--border-radius);
-        border: 1px solid var(--border-color);
         overflow: hidden;
     }
 
@@ -291,6 +289,21 @@
             align-items: center;
             justify-content: space-between;
             cursor: pointer;
+        }
+
+        .headers {
+            margin-bottom: calc(var(--space) * 2);
+        }
+
+        .header {
+            display: flex;
+            padding: 0;
+            margin-bottom: var(--space);
+
+            input {
+                border-right: 1px solid var(--border-color);
+                padding: 0 var(--space);
+            }
         }
     }
 }

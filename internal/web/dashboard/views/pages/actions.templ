@@ -101,7 +101,7 @@ templ EditAction(state *State) {
 				Volver
 			</button>
 		</div>
-		<form hx-post="/dashboard/actions" hx-vals={ state.HxSelectedVals() } hx-swap="none">
+		<form hx-put={ "/dashboard/actions/" + action.Function } hx-swap="none">
 			<fieldset>
 				<legend>Función</legend>
 				<select name="function" required>
@@ -112,10 +112,12 @@ templ EditAction(state *State) {
 			</fieldset>
 			<fieldset class="body">
 				<legend>Body</legend>
+				<input type="hidden" name="body" value={ action.Body } x-ref="body"/>
 				<div style="height: 300px; margin-bottom: var(--space); ">
 					<div
 						class="monaco"
 						x-data={ fmt.Sprintf("monaco({ language: %q, source: %q })", "html", action.Body) }
+						@editorinput="$refs.body.value = $event.detail.value"
 					>
 						<div class="spinner" x-show="loading">
 							<i class="fa-solid fa-spinner"></i>
@@ -123,18 +125,31 @@ templ EditAction(state *State) {
 					</div>
 				</div>
 			</fieldset>
-			<fieldset class="headers">
-				<legend>Headers</legend>
-				<fieldset class="header">
-					<input name="header.name" required/>
-					<input name="header.value" required/>
-				</fieldset>
-			</fieldset>
 			<div class="actions">
-				<button type="submit">Crear</button>
+				<button type="button" class="add small" hx-get="/dashboard/action-header" hx-target="#headers" hx-swap="afterbegin">
+					<i class="fa-solid fa-plus"></i> Header
+				</button>
+			</div>
+			<div id="headers" class="headers">
+				for name, value := range action.Headers {
+					@ActionHeader(name, value)
+				}
+			</div>
+			<div class="actions">
+				<button type="submit">Guardar</button>
 			</div>
 		</form>
 	</div>
+}
+
+templ ActionHeader(name, value string) {
+	<fieldset class="header">
+		<input name="headers_names" placeholder="Nombre" required value={ name }/>
+		<input name="headers_values" placeholder="Valor" required value={ value }/>
+		<button type="button" class="danger clear small" hx-get="/dashboard/empty" hx-target="closest .header" hx-swap="outerHTML">
+			<i class="fa-solid fa-trash"></i>
+		</button>
+	</fieldset>
 }
 
 templ DeleteAction(state *State) {

@@ -58,6 +58,7 @@ func dashboard(mono *infrastructure.Monolith, app *application.Application, md *
 		mono.DashboardRouter.HandleFunc("POST /dashboard/actions", ctrl.Create)
 		mono.DashboardRouter.HandleFunc("PUT /dashboard/actions/{function}", ctrl.Update)
 		mono.DashboardRouter.HandleFunc("DELETE /dashboard/actions/{function}", ctrl.Delete)
+		mono.DashboardRouter.HandleFunc("GET /dashboard/action-header", ctrl.Header)
 	}
 
 	{

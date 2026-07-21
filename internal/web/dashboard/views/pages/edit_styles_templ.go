@@ -54,7 +54,7 @@ func EditStyles(state *State) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\" hx-patch=\"/dashboard/pages/source\" hx-trigger=\"input throttle:100ms\" hx-vals=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\" hx-patch=\"/dashboard/pages/source\" hx-trigger=\"editorinput throttle:100ms\" hx-vals=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

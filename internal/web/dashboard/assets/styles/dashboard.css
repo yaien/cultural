@@ -2,7 +2,7 @@
     --primary-font-family: "Inter", sans-serif;
     --text-color: var(--dark-color);
     --text-muted: var(--dark-color-light);
-    --background-color: var(--light-color-light);
+    --background-color: #ffffff;
     --hover-color: var(--light-color-dark);
     --transition-duration: 100ms;
     --space: 0.5rem;
@@ -409,6 +409,11 @@ button,
 
     * {
         pointer-events: none;
+    }
+
+    &.small {
+        padding: .5rem;
+        font-size: .8rem;
     }
 
     &:hover {

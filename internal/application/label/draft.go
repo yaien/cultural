@@ -502,11 +502,13 @@ func (c *Drafts) CreateAction(ctx context.Context, req *CreateActionRequest) err
 }
 
 type UpdateActionRequest struct {
-	ConfigID primitive.ID
-	PageName string
-	Function string
-	Headers  map[string]string
-	Body     string
+	ConfigID       primitive.ID
+	ModelType      DraftModelType
+	ModelKey       string
+	Function       string
+	TargetFunction string
+	Headers        map[string]string
+	Body           string
 }
 
 func (c *Drafts) UpdateAction(ctx context.Context, req *UpdateActionRequest) error {
@@ -515,16 +517,17 @@ func (c *Drafts) UpdateAction(ctx context.Context, req *UpdateActionRequest) err
 		return fmt.Errorf("failed to get draft: %w", err)
 	}
 
-	page, ok := draft.Pages[req.PageName]
+	page, ok := draft.Pages[req.ModelKey]
 	if !ok {
-		return fmt.Errorf("page with name '%s' not found", req.PageName)
+		return fmt.Errorf("page with name '%s' not found", req.ModelKey)
 	}
 
 	var updated bool
 	for _, action := range page.Actions {
-		if action.Function == req.Function {
+		if action.Function == req.TargetFunction {
 			action.Body = req.Body
 			action.Headers = req.Headers
+			action.Function = req.Function
 			updated = true
 		}
 	}
