@@ -9,7 +9,7 @@ import (
 
 var _ interface {
 	integration.Definition
-	integration.Template
+	integration.TemplateFuncMapper
 } = (*Integration)(nil)
 
 type Integration struct {
@@ -23,13 +23,9 @@ func (i *Integration) Name() string {
 	return "storage"
 }
 
-func (i *Integration) TemplateFuncMap(ctx context.Context, config *label.Config) integration.FuncMap {
-	return integration.FuncMap{
+func (i *Integration) TemplateFuncMap(ctx context.Context, config *label.Config) integration.TemplateFuncMap {
+	return integration.TemplateFuncMap{
 		"file_url":          FileURL,
 		"external_file_url": NewExternalURLFunc(config.Url, config.OrganizationID),
 	}
-}
-
-func (i *Integration) TemplatePresetMap(ctx context.Context, config *label.Config) integration.PresetMap {
-	return integration.PresetMap{}
 }

@@ -3,8 +3,6 @@ package preview
 import (
 	"context"
 	"fmt"
-	"html/template"
-	"maps"
 
 	"github.com/yaien/cultural/internal/application/integration"
 	"github.com/yaien/cultural/internal/application/label"
@@ -87,19 +85,15 @@ type renderPageOptions struct {
 }
 
 func (q *Preview) renderPage(ctx context.Context, opts *renderPageOptions) (html string, err error) {
-	funcs := template.FuncMap{}
-	var preset any = struct{}{}
-	for _, itg := range q.registry.All() {
-		if m, ok := itg.(integration.Template); ok {
-			fm := m.TemplateFuncMap(ctx, opts.config)
-			maps.Copy(funcs, fm)
 
-			if p, ok := m.TemplatePresetMap(ctx, opts.config)[opts.page.Preset]; ok {
-				preset, err = p.Load(opts.page.PresetParam)
-				if err != nil {
-					return "", fmt.Errorf("failed loading preset: %w", err)
-				}
-			}
+	funcs := q.registry.TemplateFuncMap(ctx, opts.config)
+	presets := q.registry.TemplatePresetMap(ctx, opts.config)
+
+	var preset any = struct{}{}
+	if p, ok := presets[opts.page.Preset]; ok {
+		preset, err = p.Load(opts.page.PresetParam)
+		if err != nil {
+			return "", fmt.Errorf("failed loading preset %q: %w", opts.page.Preset, err)
 		}
 	}
 

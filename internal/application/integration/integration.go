@@ -2,6 +2,8 @@ package integration
 
 import (
 	"context"
+	"maps"
+	"net/http"
 	"text/template"
 	"time"
 
@@ -47,12 +49,43 @@ type OAuth interface {
 	OAuthExchange(ctx context.Context, config *label.Config, code string) error
 }
 
-type FuncMap = template.FuncMap
-type PresetMap = map[string]label.Preset
+type TemplatePreset struct {
+	Title   string
+	Options func() ([]TemplateOption, error)
+	Load    func(params ...string) (any, error)
+}
 
-type Template interface {
-	TemplateFuncMap(ctx context.Context, config *label.Config) FuncMap
-	TemplatePresetMap(ctx context.Context, config *label.Config) PresetMap
+type TemplateOption struct {
+	Value string
+	Label string
+}
+
+type TemplateActionCall struct {
+	Headers         map[string]string
+	Body            string
+	ResponseWritter http.ResponseWriter
+	Request         *http.Request
+}
+
+type TemplateAction struct {
+	Title  string
+	Handle func(r *http.Request) (any, error)
+}
+
+type TemplateFuncMap = template.FuncMap
+type TemplatePresetMap = map[string]TemplatePreset
+type TemplateActionMap = map[string]TemplateAction
+
+type TemplateFuncMapper interface {
+	TemplateFuncMap(ctx context.Context, config *label.Config) TemplateFuncMap
+}
+
+type TemplatePresetMapper interface {
+	TemplatePresetMap(ctx context.Context, config *label.Config) TemplatePresetMap
+}
+
+type TemplateActionMapper interface {
+	TemplateActionMap(ctx context.Context, config *label.Config) TemplateActionMap
 }
 
 type Background interface {
@@ -90,4 +123,34 @@ func (r *Registry) All() []Definition {
 		definitions = append(definitions, d)
 	}
 	return definitions
+}
+
+func (r *Registry) TemplateFuncMap(ctx context.Context, config *label.Config) map[string]any {
+	funcs := make(TemplateFuncMap)
+	for _, d := range r.definitions {
+		if m, ok := d.(TemplateFuncMapper); ok {
+			maps.Copy(funcs, m.TemplateFuncMap(ctx, config))
+		}
+	}
+	return funcs
+}
+
+func (r *Registry) TemplatePresetMap(ctx context.Context, config *label.Config) TemplatePresetMap {
+	presets := make(TemplatePresetMap)
+	for _, d := range r.definitions {
+		if m, ok := d.(TemplatePresetMapper); ok {
+			maps.Copy(presets, m.TemplatePresetMap(ctx, config))
+		}
+	}
+	return presets
+}
+
+func (r *Registry) TemplateActionMap(ctx context.Context, config *label.Config) TemplateActionMap {
+	actions := make(TemplateActionMap)
+	for _, d := range r.definitions {
+		if m, ok := d.(TemplateActionMapper); ok {
+			maps.Copy(actions, m.TemplateActionMap(ctx, config))
+		}
+	}
+	return actions
 }

@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	"log/slog"
-	"maps"
 	"net/http"
 	"strconv"
 	"strings"
@@ -37,19 +36,14 @@ func (q *PageController) GetPageHTML(ctx context.Context, config *label.Config, 
 		layout = label.DefaultLayout
 	}
 
-	funcs := make(template.FuncMap)
-	var preset any
+	funcs := q.registry.TemplateFuncMap(ctx, config)
+	presets := q.registry.TemplatePresetMap(ctx, config)
 
-	for _, itg := range q.registry.All() {
-		if itg, ok := itg.(integration.Template); ok {
-			maps.Copy(funcs, itg.TemplateFuncMap(ctx, config))
-			presets := itg.TemplatePresetMap(ctx, config)
-			if p, ok := presets[page.Preset]; ok {
-				preset, err = p.Load(params...)
-				if err != nil {
-					return "", false, fmt.Errorf("failed at loading preset: %w", err)
-				}
-			}
+	var preset any
+	if p, ok := presets[page.Preset]; ok {
+		preset, err = p.Load(params...)
+		if err != nil {
+			return "", false, fmt.Errorf("failed at loading preset: %w", err)
 		}
 	}
 
@@ -198,6 +192,112 @@ func (c *PageController) LayoutScripts(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/javascript")
 
 	_, _ = w.Write([]byte(script))
+}
+
+func (c *PageController) PageActions(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	config := ctx.Value(middlewares.ConfigContextKey).(*label.Config)
+
+	page, ok := config.Pages[r.PathValue("page")]
+	if !ok {
+		http.NotFound(w, r)
+		return
+	}
+
+	var setup *label.Action
+	for _, action := range page.Actions {
+		if action.Function == r.PathValue("function") {
+			setup = action
+			break
+		}
+	}
+
+	if setup == nil {
+		http.NotFound(w, r)
+		return
+	}
+
+	tmpl, err := template.New("body").Parse(setup.Body)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	action, ok := c.registry.TemplateActionMap(ctx, config)[setup.Function]
+	if !ok {
+		http.NotFound(w, r)
+		return
+	}
+
+	result, err := action.Handle(r)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	for key, value := range setup.Headers {
+		w.Header().Set(key, value)
+	}
+
+	err = tmpl.Execute(w, result)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+}
+
+func (c *PageController) LayoutActions(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	config := ctx.Value(middlewares.ConfigContextKey).(*label.Config)
+
+	layouts, ok := config.Layouts[r.PathValue("page")]
+	if !ok {
+		http.NotFound(w, r)
+		return
+	}
+
+	var setup *label.Action
+	for _, action := range layouts.Actions {
+		if action.Function == r.PathValue("function") {
+			setup = action
+			break
+		}
+	}
+
+	if setup == nil {
+		http.NotFound(w, r)
+		return
+	}
+
+	tmpl, err := template.New("body").Parse(setup.Body)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	action, ok := c.registry.TemplateActionMap(ctx, config)[setup.Function]
+	if !ok {
+		http.NotFound(w, r)
+		return
+	}
+
+	result, err := action.Handle(r)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	for key, value := range setup.Headers {
+		w.Header().Set(key, value)
+	}
+
+	err = tmpl.Execute(w, result)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
 }
 
 func (c *PageController) Favicon(w http.ResponseWriter, r *http.Request) {

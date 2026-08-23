@@ -462,9 +462,10 @@ func (c *Drafts) UpdateSource(ctx context.Context, req *UpdateDraftSourceOptions
 }
 
 type CreateActionRequest struct {
-	ConfigID primitive.ID
-	PageName string
-	Function string
+	ConfigID  primitive.ID
+	ModelKey  string
+	ModelType DraftModelType
+	Function  string
 }
 
 func (c *Drafts) CreateAction(ctx context.Context, req *CreateActionRequest) error {
@@ -472,30 +473,60 @@ func (c *Drafts) CreateAction(ctx context.Context, req *CreateActionRequest) err
 	if err != nil {
 		return fmt.Errorf("failed to get draft: %w", err)
 	}
+	switch req.ModelType {
+	case DraftPageModelType:
 
-	page, ok := draft.Pages[req.PageName]
-	if !ok {
-		return fmt.Errorf("page with name '%s' not found", req.PageName)
-	}
-
-	var exists bool
-	for _, action := range page.Actions {
-		if action.Function == req.Function {
-			exists = true
-			break
+		model, ok := draft.Pages[req.ModelKey]
+		if !ok {
+			return fmt.Errorf("page with name '%s' not found", req.ModelKey)
 		}
-	}
 
-	if exists {
-		return fmt.Errorf("action with function '%s' already exists", req.Function)
-	}
+		var exists bool
+		for _, action := range model.Actions {
+			if action.Function == req.Function {
+				exists = true
+				break
+			}
+		}
 
-	page.Actions = append(page.Actions, &Action{
-		Function: req.Function,
-	})
+		if exists {
+			return fmt.Errorf("action with function '%s' already exists", req.Function)
+		}
 
-	if _, err := c.drafts.Updates(ctx, draft); err != nil {
-		return fmt.Errorf("failed to save draft: %w", err)
+		model.Actions = append(model.Actions, &Action{
+			Function: req.Function,
+		})
+
+		if _, err := c.drafts.Updates(ctx, draft); err != nil {
+			return fmt.Errorf("failed to save draft: %w", err)
+		}
+
+	case DraftLayoutModelType:
+
+		model, ok := draft.Layouts[req.ModelKey]
+		if !ok {
+			return fmt.Errorf("page with name '%s' not found", req.ModelKey)
+		}
+
+		var exists bool
+		for _, action := range model.Actions {
+			if action.Function == req.Function {
+				exists = true
+				break
+			}
+		}
+
+		if exists {
+			return fmt.Errorf("action with function '%s' already exists", req.Function)
+		}
+
+		model.Actions = append(model.Actions, &Action{
+			Function: req.Function,
+		})
+
+		if _, err := c.drafts.Updates(ctx, draft); err != nil {
+			return fmt.Errorf("failed to save draft: %w", err)
+		}
 	}
 
 	return nil
@@ -517,36 +548,64 @@ func (c *Drafts) UpdateAction(ctx context.Context, req *UpdateActionRequest) err
 		return fmt.Errorf("failed to get draft: %w", err)
 	}
 
-	page, ok := draft.Pages[req.ModelKey]
-	if !ok {
-		return fmt.Errorf("page with name '%s' not found", req.ModelKey)
-	}
+	switch req.ModelType {
+	case DraftPageModelType:
 
-	var updated bool
-	for _, action := range page.Actions {
-		if action.Function == req.TargetFunction {
-			action.Body = req.Body
-			action.Headers = req.Headers
-			action.Function = req.Function
-			updated = true
+		page, ok := draft.Pages[req.ModelKey]
+		if !ok {
+			return fmt.Errorf("page with name '%s' not found", req.ModelKey)
 		}
-	}
 
-	if !updated {
-		return coderror.Newf("function_not_found", "action with function %q not found", req.Function)
-	}
+		var updated bool
+		for _, action := range page.Actions {
+			if action.Function == req.TargetFunction {
+				action.Body = req.Body
+				action.Headers = req.Headers
+				action.Function = req.Function
+				updated = true
+			}
+		}
 
-	if _, err := c.drafts.Updates(ctx, draft); err != nil {
-		return fmt.Errorf("failed to update draft: %w", err)
+		if !updated {
+			return coderror.Newf("function_not_found", "action with function %q not found", req.Function)
+		}
+
+		if _, err := c.drafts.Updates(ctx, draft); err != nil {
+			return fmt.Errorf("failed to update draft: %w", err)
+		}
+	case DraftLayoutModelType:
+		layout, ok := draft.Layouts[req.ModelKey]
+		if !ok {
+			return fmt.Errorf("page with name '%s' not found", req.ModelKey)
+		}
+
+		var updated bool
+		for _, action := range layout.Actions {
+			if action.Function == req.TargetFunction {
+				action.Body = req.Body
+				action.Headers = req.Headers
+				action.Function = req.Function
+				updated = true
+			}
+		}
+
+		if !updated {
+			return coderror.Newf("function_not_found", "action with function %q not found", req.Function)
+		}
+
+		if _, err := c.drafts.Updates(ctx, draft); err != nil {
+			return fmt.Errorf("failed to update draft: %w", err)
+		}
 	}
 
 	return nil
 }
 
 type DeleteActionRequest struct {
-	ConfigID primitive.ID
-	PageName string
-	Function string
+	ConfigID  primitive.ID
+	ModelKey  string
+	ModelType DraftModelType
+	Function  string
 }
 
 func (c *Drafts) DeleteAction(ctx context.Context, req *DeleteActionRequest) error {
@@ -555,26 +614,52 @@ func (c *Drafts) DeleteAction(ctx context.Context, req *DeleteActionRequest) err
 		return fmt.Errorf("failed to get draft: %w", err)
 	}
 
-	page, ok := draft.Pages[req.PageName]
-	if !ok {
-		return fmt.Errorf("page with name '%s' not found", req.PageName)
-	}
-
-	var deleted bool
-	for i, action := range page.Actions {
-		if action.Function == req.Function {
-			page.Actions = append(page.Actions[:i], page.Actions[i+1:]...)
-			deleted = true
-			break
+	switch req.ModelType {
+	case DraftPageModelType:
+		page, ok := draft.Pages[req.ModelKey]
+		if !ok {
+			return fmt.Errorf("page with name '%s' not found", req.ModelKey)
 		}
-	}
 
-	if !deleted {
-		return coderror.Newf("action_not_found", "action with function '%s' not found", req.Function)
-	}
+		var deleted bool
+		for i, action := range page.Actions {
+			if action.Function == req.Function {
+				page.Actions = append(page.Actions[:i], page.Actions[i+1:]...)
+				deleted = true
+				break
+			}
+		}
 
-	if _, err := c.drafts.Updates(ctx, draft); err != nil {
-		return fmt.Errorf("failed to update draft: %w", err)
+		if !deleted {
+			return coderror.Newf("action_not_found", "action with function '%s' not found", req.Function)
+		}
+
+		if _, err := c.drafts.Updates(ctx, draft); err != nil {
+			return fmt.Errorf("failed to update draft: %w", err)
+		}
+	case DraftLayoutModelType:
+		layout, ok := draft.Layouts[req.ModelKey]
+		if !ok {
+			return fmt.Errorf("layout with key '%s' not found", req.ModelKey)
+		}
+
+		var deleted bool
+		for i, action := range layout.Actions {
+			if action.Function == req.Function {
+				layout.Actions = append(layout.Actions[:i], layout.Actions[i+1:]...)
+				deleted = true
+				break
+			}
+		}
+
+		if !deleted {
+			return coderror.Newf("action_not_found", "action with function '%s' not found", req.Function)
+		}
+
+		if _, err := c.drafts.Updates(ctx, draft); err != nil {
+			return fmt.Errorf("failed to update draft: %w", err)
+		}
+
 	}
 
 	return nil

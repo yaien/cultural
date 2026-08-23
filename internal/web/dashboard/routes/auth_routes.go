@@ -20,7 +20,7 @@ func auth(mono *infrastructure.Monolith, app *application.Application) {
 		Endpoint:     endpoints.Google,
 	}
 
-	ctrl := controllers.NewAuthController(app.Auth.Accounts, mono.SessionStore, config)
+	ctrl := controllers.NewAuthController(app.Auth.Accounts, app.Label.Configs, mono.SessionStore, config)
 	mono.WebRouter.HandleFunc("GET /auth/google/login", ctrl.Login)
 	mono.WebRouter.HandleFunc("GET /auth/google/callback", ctrl.Callback)
 	mono.WebRouter.HandleFunc("POST /auth/logout", ctrl.Logout)

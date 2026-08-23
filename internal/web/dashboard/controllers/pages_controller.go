@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"fmt"
-	"maps"
 	"net/http"
 
 	"github.com/a-h/templ"
@@ -58,14 +57,11 @@ func (c *PagesController) Index(w http.ResponseWriter, r *http.Request) {
 		SelectedFontKey:    query.Get(pages.FontKeyQuery),
 		SelectedAction:     query.Get(pages.ActionQuery),
 		Section:            query.Get(pages.SectionQuery),
-		Presets: func() (presets integration.PresetMap) {
-			presets = make(integration.PresetMap)
-			for _, definition := range c.registry.All() {
-				if itg, ok := definition.(integration.Template); ok {
-					maps.Copy(presets, itg.TemplatePresetMap(ctx, config))
-				}
-			}
-			return
+		Presets: func() integration.TemplatePresetMap {
+			return c.registry.TemplatePresetMap(ctx, config)
+		},
+		Actions: func() integration.TemplateActionMap {
+			return c.registry.TemplateActionMap(ctx, config)
 		},
 		FileURL: storage.FileURL,
 		Files: func() ([]storage.File, error) {

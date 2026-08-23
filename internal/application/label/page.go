@@ -17,12 +17,13 @@ type Action struct {
 }
 
 type Layout struct {
-	Title  string
-	Name   string
-	Layout string
-	Styles string
-	Script string
-	Body   string
+	Title   string
+	Name    string
+	Layout  string
+	Styles  string
+	Script  string
+	Body    string
+	Actions []*Action
 }
 
 type Page struct {

@@ -31,9 +31,10 @@ func (c *ActionsController) Create(w http.ResponseWriter, r *http.Request) {
 	config := ctx.Value(middlewares.ConfigContextKey).(*label.Config)
 
 	req := &label.CreateActionRequest{
-		ConfigID: config.ID,
-		PageName: r.PostForm.Get(pages.SelectedKeyQuery),
-		Function: r.PostForm.Get("function"),
+		ConfigID:  config.ID,
+		ModelKey:  r.PostForm.Get(pages.SelectedKeyQuery),
+		ModelType: label.DraftModelType(r.PostForm.Get(pages.SelectedTypeQuery)),
+		Function:  r.PostForm.Get("function"),
 	}
 
 	if err := c.drafts.CreateAction(ctx, req); err != nil {
@@ -42,7 +43,8 @@ func (c *ActionsController) Create(w http.ResponseWriter, r *http.Request) {
 	}
 
 	query := url.Values{}
-	query.Set(pages.SelectedKeyQuery, req.PageName)
+	query.Set(pages.SelectedKeyQuery, req.ModelKey)
+	query.Set(pages.SelectedTypeQuery, string(req.ModelType))
 	query.Set(pages.SectionQuery, pages.EditActionSection)
 	query.Set("function", req.Function)
 

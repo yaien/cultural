@@ -2,6 +2,7 @@ package store
 
 import (
 	"context"
+	"net/http"
 
 	"github.com/yaien/cultural/internal/application/integration"
 	"github.com/yaien/cultural/internal/application/label"
@@ -10,7 +11,9 @@ import (
 
 var _ interface {
 	integration.Definition
-	integration.Template
+	integration.TemplateFuncMapper
+	integration.TemplatePresetMapper
+	integration.TemplateActionMapper
 } = (*Integration)(nil)
 
 type Integration struct {
@@ -23,8 +26,8 @@ func NewIntegration(s *Store) *Integration {
 
 func (s *Integration) Name() string { return "store" }
 
-func (s *Integration) TemplateFuncMap(ctx context.Context, config *label.Config) integration.FuncMap {
-	return integration.FuncMap{
+func (s *Integration) TemplateFuncMap(ctx context.Context, config *label.Config) integration.TemplateFuncMap {
+	return integration.TemplateFuncMap{
 		"get_products": func() ([]Product, error) {
 			return s.store.Products.GetPublishedByOrganizationID(ctx, config.OrganizationID)
 		},
@@ -34,18 +37,17 @@ func (s *Integration) TemplateFuncMap(ctx context.Context, config *label.Config)
 	}
 }
 
-func (s *Integration) TemplatePresetMap(ctx context.Context, config *label.Config) integration.PresetMap {
-	return integration.PresetMap{
+func (s *Integration) TemplatePresetMap(ctx context.Context, config *label.Config) integration.TemplatePresetMap {
+	return integration.TemplatePresetMap{
 		"product": {
-			Key:  "product",
-			Name: "Producto",
-			Options: func() (options []label.Option, err error) {
+			Title: "Producto",
+			Options: func() (options []integration.TemplateOption, err error) {
 				products, err := s.store.Products.GetByOrganizationID(ctx, config.OrganizationID)
 				if err != nil {
 					return nil, err
 				}
 				for _, product := range products {
-					options = append(options, label.Option{
+					options = append(options, integration.TemplateOption{
 						Value: product.Slug,
 						Label: product.Name,
 					})
@@ -70,8 +72,7 @@ func (s *Integration) TemplatePresetMap(ctx context.Context, config *label.Confi
 			},
 		},
 		"products": {
-			Key:  "products",
-			Name: "Productos",
+			Title: "Productos",
 			Load: func(params ...string) (any, error) {
 				products, err := s.store.Products.GetPublishedByOrganizationID(ctx, config.OrganizationID)
 				if err != nil {
@@ -83,6 +84,18 @@ func (s *Integration) TemplatePresetMap(ctx context.Context, config *label.Confi
 				}{products}
 
 				return preset, nil
+			},
+		},
+	}
+}
+
+func (s *Integration) TemplateActionMap(ctx context.Context, config *label.Config) integration.TemplateActionMap {
+	return integration.TemplateActionMap{
+		"add_product_to_cart": {
+			Title: "Añadir producto al carrito",
+			Handle: func(r *http.Request) (any, error) {
+				return nil, nil
+
 			},
 		},
 	}

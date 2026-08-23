@@ -44,7 +44,7 @@ templ Initial(state *State) {
 						<select name="preset" autocomplete="off">
 							<option value="" selected?={ selected.Preset == "" }>Ninguna</option>
 							for key, preset := range presets {
-								<option value={ key } selected?={ selected.Preset == key }>{ preset.Name }</option>
+								<option value={ key } selected?={ selected.Preset == key }>{ preset.Title }</option>
 							}
 						</select>
 					</fieldset>
@@ -52,7 +52,7 @@ templ Initial(state *State) {
 					if ok {
 						if preset.Options != nil {
 							<fieldset>
-								<legend>{ preset.Name } </legend>
+								<legend>{ preset.Title } </legend>
 								<select name="preset_param" required>
 									{{ options, _ := preset.Options() }}
 									for _, option := range options {

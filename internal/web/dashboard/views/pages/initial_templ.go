@@ -403,9 +403,9 @@ func Initial(state *State) templ.Component {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var20 string
-				templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(preset.Name)
+				templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(preset.Title)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/initial.templ`, Line: 47, Col: 80}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/initial.templ`, Line: 47, Col: 81}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 				if templ_7745c5c3_Err != nil {
@@ -428,9 +428,9 @@ func Initial(state *State) templ.Component {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var21 string
-					templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(preset.Name)
+					templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(preset.Title)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/initial.templ`, Line: 55, Col: 29}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/initial.templ`, Line: 55, Col: 30}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
 					if templ_7745c5c3_Err != nil {

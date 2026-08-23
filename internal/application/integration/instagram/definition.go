@@ -10,7 +10,7 @@ import (
 
 var _ interface {
 	integration.Definition
-	integration.Template
+	integration.TemplateFuncMapper
 	integration.OAuth
 	integration.Background
 	integration.Page

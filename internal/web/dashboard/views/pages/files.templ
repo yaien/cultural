@@ -41,16 +41,23 @@ templ Files(state *State) {
 
 templ FileGrid(files []storage.File, url FileURLFunc) {
 	for _, file := range slices.Backward(files) {
-		<div class="item" hx-vals={ fmt.Sprintf("{ %q: %q, %q: %q }", FileQuery, file.Name, SectionQuery, FileSection) }>
-			<x-hover-play>
-				<div class="hover" title={ file.Name } hx-get={ Path } hx-target={ "#" + EditorID } hx-swap="outerHTML" hx-push-url="true"></div>
-				switch file.Preset {
-					case "image":
-						<img src={ url(file.Name) } title={ file.Name } alt={ file.Name }/>
-					case "video":
-						<video src={ url(file.Name) } title={ file.Name } alt={ file.Name } muted></video>
-				}
-			</x-hover-play>
+		<div class="item" x-data hx-vals={ fmt.Sprintf("{ %q: %q, %q: %q }", FileQuery, file.Name, SectionQuery, FileSection) }>
+			<div
+				class="hover"
+				title={ file.Name }
+				hx-get={ Path }
+				hx-target={ "#" + EditorID }
+				hx-swap="outerHTML"
+				hx-push-url="true"
+				@mouseenter="$refs.video?.play()"
+				@mouseleave="$refs.video?.pause()"
+			></div>
+			switch file.Preset {
+				case "image":
+					<img src={ url(file.Name) } title={ file.Name } alt={ file.Name }/>
+				case "video":
+					<video x-ref="video" src={ url(file.Name) } title={ file.Name } alt={ file.Name } muted></video>
+			}
 		</div>
 	}
 }

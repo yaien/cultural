@@ -22,8 +22,12 @@ templ Actions(state *State) {
 		<div class="list">
 			{{
 				actions := []*label.Action{}
+				setups := state.Actions()
+
 				switch selected := state.Selected.(type) {
 				case *label.Page:
+					actions = selected.Actions
+				case *label.Layout:
 					actions = selected.Actions
 				}
 			}}
@@ -36,7 +40,9 @@ templ Actions(state *State) {
 					hx-swap="outerHTML"
 					hx-push-url="true"
 				>
-					{ action.Function }
+					if setup, ok := setups[action.Function]; ok {
+						{ setup.Title }
+					}
 				</div>
 			}
 		</div>
@@ -44,6 +50,7 @@ templ Actions(state *State) {
 }
 
 templ CreateAction(state *State) {
+	{{ actions := state.Actions() }}
 	<div class="functions" hx-vals={ state.HxSelectedVals() }>
 		<div class="actions">
 			<button
@@ -60,7 +67,9 @@ templ CreateAction(state *State) {
 			<fieldset>
 				<legend>Función</legend>
 				<select name="function" required>
-					<option value="add_product_to_cart">Agregar producto al carrito</option>
+					for value, action := range actions {
+						<option value={ value }>{ action.Title }</option>
+					}
 				</select>
 			</fieldset>
 			<div class="actions">
@@ -113,7 +122,7 @@ templ EditAction(state *State) {
 			<fieldset class="body">
 				<legend>Body</legend>
 				<input type="hidden" name="body" value={ action.Body } x-ref="body"/>
-				<div style="height: 300px; margin-bottom: var(--space); ">
+				<div style="height: 200px; margin-bottom: var(--space); ">
 					<div
 						class="monaco"
 						x-data={ fmt.Sprintf("monaco({ language: %q, source: %q })", "html", action.Body) }

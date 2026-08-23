@@ -33,6 +33,7 @@ type State struct {
 	SelectedFontKey    string
 	SelectedAction     string
 	Presets            PresetsFunc
+	Actions            ActionsFunc
 	FileURL            FileURLFunc
 	File               FileFunc
 	Files              FilesFunc
@@ -46,7 +47,8 @@ type FontFunc func(fontFamily string) (label.Font, error)
 type FontsFunc func(family string, limit, offset int) ([]label.Font, error)
 type FilesFunc func() ([]storage.File, error)
 type FileURLFunc storage.URLFunc
-type PresetsFunc func() integration.PresetMap
+type PresetsFunc func() integration.TemplatePresetMap
+type ActionsFunc func() integration.TemplateActionMap
 
 func (c *State) PageIsDefault() bool {
 	page, ok := c.Selected.(*label.Page)
