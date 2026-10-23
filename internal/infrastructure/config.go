@@ -11,7 +11,6 @@ import (
 
 type Config struct {
 	Sqlite    SqliteConfig
-	MongoDB   MongoDBConfig
 	Server    ServerConfig
 	Init      InitConfig
 	Session   SessionConfig
@@ -106,10 +105,6 @@ func LoadConfig() *Config {
 		Session: SessionConfig{
 			Secret: viper.GetString("SESSION_SECRET"),
 			Secure: viper.GetBool("SESSION_SECURE"),
-		},
-		MongoDB: MongoDBConfig{
-			URI:      viper.GetString("MONGODB_URI"),
-			Database: viper.GetString("MONGODB_DATABASE"),
 		},
 		Sqlite: SqliteConfig{
 			DSN: viper.GetString("SQLITE_DSN"),
